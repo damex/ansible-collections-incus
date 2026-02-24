@@ -1,0 +1,3 @@
+---
+incus_projects: [] # noqa: var-naming[no-role-prefix]
+incus_projects_state: present

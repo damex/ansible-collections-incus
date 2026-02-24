@@ -1,0 +1,8 @@
+---
+- name: Ensure incus projects
+  tags:
+    - incus
+    - incus_projects
+  block:
+    - name: Ensure incus projects
+      ansible.builtin.import_tasks: projects.yml
