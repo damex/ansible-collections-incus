@@ -1,0 +1,28 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_package_name:
+        type: str
+      incus_package_version:
+        type: str
+      incus_package_state:
+        type: str
+        choices:
+          - present
+          - absent
+      incus_service_name:
+        type: str
+      incus_apt_key_id:
+        type: str
+      incus_apt_key_url:
+        type: str
+      incus_apt_repository_name:
+        type: str
+      incus_apt_repository_url:
+        type: str
+      incus_apt_repository_distribution:
+        type: str
+      incus_apt_repository_components:
+        type: list
+        elements: str

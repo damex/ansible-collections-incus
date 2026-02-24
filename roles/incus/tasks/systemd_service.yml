@@ -1,0 +1,6 @@
+---
+- name: Ensure incus systemd service
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: "{{ incus_service_name }}"

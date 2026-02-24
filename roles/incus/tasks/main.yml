@@ -1,0 +1,15 @@
+---
+- name: Ensure incus
+  tags:
+    - incus
+  block:
+    - name: Ensure incus facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus apt key
+      ansible.builtin.import_tasks: apt_key.yml
+    - name: Ensure incus apt repository
+      ansible.builtin.import_tasks: apt_repository.yml
+    - name: Ensure incus package
+      ansible.builtin.import_tasks: package.yml
+    - name: Ensure incus systemd service
+      ansible.builtin.import_tasks: systemd_service.yml
