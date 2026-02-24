@@ -1,0 +1,4 @@
+---
+incus_profiles: [] # noqa: var-naming[no-role-prefix]
+incus_profiles_project: default
+incus_profiles_state: present
