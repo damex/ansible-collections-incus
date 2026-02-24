@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+ansible-core = "==2.20.2"
+ansible-lint = "==26.1.1"
+yamllint = "==1.38.0"
+j2lint = "==1.2.0"
+
+[scripts]
+lint = "ansible-lint"
+lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
+build-for-galaxy = "ansible-galaxy collection build"
+publish-to-galaxy = "ansible-galaxy collection publish"
+
+[requires]
+python_version = "3.14"
