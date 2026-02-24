@@ -1,0 +1,15 @@
+---
+namespace: damex
+name: incus
+version: 1.0.0
+readme: README.md
+authors:
+  - Roman Kuzmitskii <ansible@damex.org>
+description: incus collection
+license_file: LICENSE
+tags:
+  - incus
+  - linux
+  - system
+repository: https://github.com/damex/ansible-collections-incus
+issues: https://github.com/damex/ansible-collections-incus/issues
