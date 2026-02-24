@@ -1,0 +1,8 @@
+---
+- name: Ensure incus profiles
+  tags:
+    - incus
+    - incus_profiles
+  block:
+    - name: Ensure incus profiles
+      ansible.builtin.import_tasks: profiles.yml

@@ -1,0 +1,54 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_profiles:
+        type: list
+        elements: dict
+        options:
+          name:
+            required: true
+            type: str
+          description:
+            type: str
+          config:
+            type: dict
+            options:
+              limits.cpu:
+                type: str
+              limits.memory:
+                type: str
+              limits.processes:
+                type: int
+              limits.cpu.priority:
+                type: int
+              limits.cpu.allowance:
+                type: str
+              limits.disk.priority:
+                type: int
+              limits.network.priority:
+                type: int
+              boot.autostart:
+                type: bool
+              boot.autostart.delay:
+                type: int
+              boot.autostart.priority:
+                type: int
+              security.privileged:
+                type: bool
+              security.nesting:
+                type: bool
+          project:
+            type: str
+          state:
+            type: str
+            choices:
+              - present
+              - absent
+      incus_profiles_project:
+        type: str
+      incus_profiles_state:
+        type: str
+        choices:
+          - present
+          - absent
