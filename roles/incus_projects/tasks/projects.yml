@@ -1,0 +1,10 @@
+---
+- name: Ensure incus projects
+  ansible.builtin.include_tasks: project.yml
+  vars:
+    incus_projects_project_name: "{{ incus_projects_project.name }}"
+    incus_projects_project_state: "{{ incus_projects_project.state | default(incus_projects_state) }}"
+  loop: "{{ incus_projects }}"
+  loop_control:
+    label: "{{ incus_projects_project_name }}"
+    loop_var: incus_projects_project
