@@ -1,0 +1,22 @@
+---
+name: ansible-galaxy
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - galaxy.yml
+    branches:
+      - production
+
+jobs:
+  ansible-galaxy:
+    name: ansible-galaxy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install --user pipenv
+      - run: pipenv install --deploy
+      - run: pipenv run build-for-galaxy
+      - run: pipenv run publish-to-galaxy --api-key ${{ secrets.GALAXY_API_KEY }} damex-incus-*.tar.gz

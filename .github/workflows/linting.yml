@@ -1,0 +1,25 @@
+---
+name: linting
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - production
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install --user pipenv
+      - run: pipenv install --deploy
+      - run: pipenv run lint
+      - run: pipenv run lint-templates
