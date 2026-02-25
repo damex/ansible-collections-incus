@@ -19,10 +19,26 @@
 - name: Ensure incus profile configuration {{ incus_profiles_profile_name }}
   ansible.builtin.command:
     cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
-    stdin: "{{ incus_profiles_profile | to_yaml }}"
+    stdin: "config: {{ incus_profiles_profile_config | to_yaml }}"
   become: true
   changed_when: true
-  when: incus_profiles_profile_state != "absent"
+  when:
+    # workaround for omit
+    - incus_profiles_profile_config is iterable
+    - incus_profiles_profile_state != "absent"
+
+- name: Ensure incus profile devices configuration {{ incus_profiles_profile_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/devices_configuration.j2') }}"
+  vars:
+    incus_template_devices: "{{ incus_profiles_profile_devices }}"
+  become: true
+  changed_when: true
+  when:
+    # workaround for omit
+    - incus_profiles_profile_devices is iterable
+    - incus_profiles_profile_state != "absent"
 
 - name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
   ansible.builtin.command:
