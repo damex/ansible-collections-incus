@@ -46,6 +46,7 @@ argument_specs:
                 required: true
                 type: str
               type:
+                required: true
                 type: str
                 choices:
                   - disk
