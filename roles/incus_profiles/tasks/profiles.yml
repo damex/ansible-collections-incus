@@ -3,6 +3,8 @@
   ansible.builtin.include_tasks: profile.yml
   vars:
     incus_profiles_profile_name: "{{ incus_profiles_profile.name }}"
+    incus_profiles_profile_config: "{{ incus_profiles_profile.config | default(omit) }}"
+    incus_profiles_profile_devices: "{{ incus_profiles_profile.devices | default(omit) }}"
     incus_profiles_profile_project: "{{ incus_profiles_profile.project | default(incus_profiles_project) }}"
     incus_profiles_profile_state: "{{ incus_profiles_profile.state | default(incus_profiles_state) }}"
   loop: "{{ incus_profiles }}"
