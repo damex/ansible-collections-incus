@@ -36,8 +36,6 @@
   become: true
   changed_when: true
   when:
-    # workaround for omit
-    - incus_profiles_profile_devices is iterable
     - incus_profiles_profile_state != "absent"
 
 - name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
