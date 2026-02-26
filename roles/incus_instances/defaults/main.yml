@@ -1,0 +1,7 @@
+---
+incus_instances: [] # noqa: var-naming[no-role-prefix]
+incus_instances_type: container
+incus_instances_project: default
+incus_instances_profiles:
+  - default
+incus_instances_state: started

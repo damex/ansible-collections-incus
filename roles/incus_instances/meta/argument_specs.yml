@@ -1,0 +1,75 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_instances:
+        type: list
+        elements: dict
+        options:
+          name:
+            required: true
+            type: str
+          type:
+            type: str
+            choices:
+              - container
+              - virtual-machine
+          source:
+            required: true
+            type: str
+          config:
+            type: dict
+            options:
+              limits.cpu:
+                type: str
+              limits.memory:
+                type: str
+              limits.processes:
+                type: int
+              limits.cpu.priority:
+                type: int
+              limits.cpu.allowance:
+                type: str
+              limits.disk.priority:
+                type: int
+              limits.network.priority:
+                type: int
+              raw.qemu:
+                type: str
+              boot.autostart:
+                type: bool
+              boot.autostart.delay:
+                type: int
+              boot.autostart.priority:
+                type: int
+              security.privileged:
+                type: bool
+              security.nesting:
+                type: bool
+          project:
+            type: str
+          profiles:
+            type: list
+            elements: str
+          state:
+            type: str
+            choices:
+              - started
+              - stopped
+              - absent
+      incus_instances_type:
+        type: str
+        choices:
+          - container
+          - virtual-machine
+      incus_instances_project:
+        type: str
+      incus_instances_profiles:
+        type: list
+        elements: str
+      incus_instances_state:
+        type: str
+        choices:
+          - started
+          - stopped
+          - absent
