@@ -15,8 +15,10 @@
       config: {{ incus_instances_instance_config | to_yaml }}
       {% endif %}
       {% if incus_instances_instance_devices is iterable %}
-      devices: {{ incus_instances_instance_devices | to_yaml }}
+      {{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/devices_configuration.j2') }}
       {% endif %}
+  vars:
+    incus_template_devices: "{{ incus_instances_instance_devices }}"
   become: true
   changed_when: true
   when:

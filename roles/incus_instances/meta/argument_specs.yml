@@ -46,6 +46,39 @@ argument_specs:
                 type: bool
               security.nesting:
                 type: bool
+          devices:
+            type: list
+            elements: dict
+            options:
+              name:
+                required: true
+                type: str
+              type:
+                required: true
+                type: str
+                choices:
+                  - disk
+                  - nic
+              # disk
+              path:
+                type: str
+              pool:
+                type: str
+              source:
+                type: str
+              size:
+                type: str
+              readonly:
+                type: bool
+              # nic
+              network:
+                type: str
+              nictype:
+                type: str
+              parent:
+                type: str
+              hwaddr:
+                type: str
           project:
             type: str
           profiles:
