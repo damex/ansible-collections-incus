@@ -1,0 +1,16 @@
+---
+- name: Ensure incus instances
+  ansible.builtin.include_tasks: instance.yml
+  vars:
+    incus_instances_instance_name: "{{ incus_instances_instance.name }}"
+    incus_instances_instance_type: "{{ incus_instances_instance.type | default(incus_instances_type) }}"
+    incus_instances_instance_source: "{{ incus_instances_instance.source }}"
+    incus_instances_instance_config: "{{ incus_instances_instance.config | default(omit) }}"
+    incus_instances_instance_devices: "{{ incus_instances_instance.devices | default(omit) }}"
+    incus_instances_instance_project: "{{ incus_instances_instance.project | default(incus_instances_project) }}"
+    incus_instances_instance_profiles: "{{ incus_instances_instance.profiles | default(incus_instances_profiles) }}"
+    incus_instances_instance_state: "{{ incus_instances_instance.state | default(incus_instances_state) }}"
+  loop: "{{ incus_instances }}"
+  loop_control:
+    label: "{{ incus_instances_instance_name }}"
+    loop_var: incus_instances_instance

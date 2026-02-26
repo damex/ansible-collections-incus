@@ -1,0 +1,51 @@
+---
+- name: Ensure incus instance info {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} info {{ incus_instances_instance_name }}
+  register: incus_instances_instance_info_state
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Ensure incus instance is initialized {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %} --profile {{ incus_instances_instance_profiles | join('--profile') }}
+    stdin: |
+      {% if incus_instances_instance_config is iterable %}
+      config: {{ incus_instances_instance_config | to_yaml }}
+      {% endif %}
+      {% if incus_instances_instance_devices is iterable %}
+      devices: {{ incus_instances_instance_devices | to_yaml }}
+      {% endif %}
+  become: true
+  changed_when: true
+  when:
+    - incus_instances_instance_info_state.rc != 0
+    - incus_instances_instance_state != "absent"
+
+- name: Ensure incus instance is started {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} start {{ incus_instances_instance_name }}
+  become: true
+  register: incus_instances_instance_start_state
+  failed_when: incus_instances_instance_start_state.rc != 0 and "already running" not in incus_instances_instance_start_state.stderr
+  changed_when: incus_instances_instance_start_state.rc == 0
+  when: incus_instances_instance_state == "started"
+
+- name: Ensure incus instance is stopped {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} stop {{ incus_instances_instance_name }}
+  become: true
+  register: incus_instances_instance_stop_state
+  failed_when: incus_instances_instance_stop_state.rc != 0 and "already stopped" not in incus_instances_instance_stop_state.stderr
+  changed_when: incus_instances_instance_stop_state.rc == 0
+  when: incus_instances_instance_state == "stopped"
+
+- name: Ensure incus instance is absent {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} delete {{ incus_instances_instance_name }} --force
+  become: true
+  changed_when: true
+  when:
+    - incus_instances_instance_state == "absent"
+    - incus_instances_instance_info_state.rc == 0

@@ -1,0 +1,8 @@
+---
+- name: Ensure incus instances
+  tags:
+    - incus
+    - incus_instances
+  block:
+    - name: Ensure incus instances
+      ansible.builtin.import_tasks: instances.yml
