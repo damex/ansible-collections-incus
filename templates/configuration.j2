@@ -1,0 +1,19 @@
+{% if incus_template_config is defined and incus_template_config is iterable %}
+config:
+{%     for incus_template_config_key, incus_template_config_value in incus_template_config.items() %}
+{%         if incus_template_config_key == 'cloud-init.network-config' %}
+{%             from 'cloud-init.j2' import incus_cloud_init_network_config with context %}
+{{ incus_cloud_init_network_config(incus_template_config_value) }}
+{%         elif incus_template_config_key == 'cloud-init.user-data' %}
+{%             from 'cloud-init.j2' import incus_cloud_init_user_data with context %}
+{{ incus_cloud_init_user_data(incus_template_config_value) }}
+{%         elif incus_template_config_key == 'cloud-init.vendor-data' %}
+{%             from 'cloud-init.j2' import incus_cloud_init_vendor_data with context %}
+{{ incus_cloud_init_vendor_data(incus_template_config_value) }}
+{%         else %}
+  {{ incus_template_config_key }}: {{ incus_template_config_value }}
+{%         endif %}
+{%     endfor %}
+{% endif %}
+{% from 'devices.j2' import incus_devices with context %}
+{{ incus_devices(incus_template_devices) }}
