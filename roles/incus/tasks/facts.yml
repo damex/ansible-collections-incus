@@ -3,3 +3,4 @@
   ansible.builtin.setup:
     gather_subset:
       - pkg_mgr
+      - distribution
