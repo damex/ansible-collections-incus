@@ -19,7 +19,7 @@
 - name: Ensure incus profile configuration {{ incus_profiles_profile_name }}
   ansible.builtin.command:
     cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
-    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/configuration.j2') }}"
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
   vars:
     incus_template_config: "{{ incus_profiles_profile_config }}"
     incus_template_devices: "{{ incus_profiles_profile_devices }}"

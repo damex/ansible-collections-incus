@@ -1,0 +1,10 @@
+{% from 'config.j2' import incus_config_merge with context %}
+{% from 'devices.j2' import incus_devices with context %}
+{{ incus_config_merge(incus_template_config, incus_template_current_config) }}
+{{ incus_devices(incus_template_devices) }}
+{% if incus_template_profiles is defined %}
+profiles:
+{%     for incus_template_profile in incus_template_profiles %}
+  - {{ incus_template_profile }}
+{%     endfor %}
+{% endif %}

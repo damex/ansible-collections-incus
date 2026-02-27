@@ -10,16 +10,40 @@
 - name: Ensure incus instance is initialized {{ incus_instances_instance_name }}
   ansible.builtin.command:
     cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %} {% if incus_instances_instance_ephemeral %}--ephemeral{% endif %}
-    stdin: |
-      {{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/configuration.j2') }}
-      profiles: {{ incus_instances_instance_profiles }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
   vars:
     incus_template_config: "{{ incus_instances_instance_config }}"
     incus_template_devices: "{{ incus_instances_instance_devices }}"
+    incus_template_profiles: "{{ incus_instances_instance_profiles }}"
   become: true
   changed_when: true
   when:
     - incus_instances_instance_info_state.rc != 0
+    - incus_instances_instance_state != "absent"
+
+- name: Ensure incus instance current config {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} config show {{ incus_instances_instance_name }}
+  register: incus_instances_instance_current_config
+  changed_when: false
+  become: true
+  when:
+    - incus_instances_instance_info_state.rc == 0
+    - incus_instances_instance_state != "absent"
+
+- name: Ensure incus instance configuration {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} config edit {{ incus_instances_instance_name }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
+  vars:
+    incus_template_current_config: "{{ incus_instances_instance_current_config.stdout | from_yaml }}"
+    incus_template_config: "{{ incus_instances_instance_config | default(omit) }}"
+    incus_template_devices: "{{ incus_instances_instance_devices | default(omit) }}"
+    incus_template_profiles: "{{ incus_instances_instance_profiles }}"
+  become: true
+  changed_when: true
+  when:
+    - incus_instances_instance_info_state.rc == 0
     - incus_instances_instance_state != "absent"
 
 - name: Ensure incus instance is started {{ incus_instances_instance_name }}
