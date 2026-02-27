@@ -1,0 +1,26 @@
+---
+- name: Ensure incus image info {{ incus_images_image_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_images_image_project }} image info {{ incus_images_image_name }}
+  register: incus_images_image_info_state
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Ensure incus image is present {{ incus_images_image_name }}
+  ansible.builtin.command:
+    cmd: "incus image copy {{ incus_images_image_source }} local: --target-project {{ incus_images_image_project }} {% if incus_images_image_type == 'virtual-machine' %}--vm{% endif %} --alias {{ incus_images_image_alias }} {% if incus_images_image_copy_aliases %}--copy-aliases{% endif %}"
+  become: true
+  changed_when: true
+  when:
+    - incus_images_image_state == "present"
+    - incus_images_image_info_state.rc != 0
+
+- name: Ensure incus image is absent {{ incus_images_image_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_images_image_project }} image delete {{ incus_images_image_name }}
+  become: true
+  changed_when: true
+  when:
+    - incus_images_image_state == "absent"
+    - incus_images_image_info_state.rc == 0

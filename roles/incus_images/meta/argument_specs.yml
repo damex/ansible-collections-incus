@@ -1,0 +1,42 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_images:
+        type: list
+        elements: dict
+        options:
+          source:
+            required: true
+            type: str
+          type:
+            type: str
+            choices:
+              - container
+              - virtual-machine
+          alias:
+            required: true
+            type: str
+          copy_aliases:
+            type: bool
+          project:
+            type: str
+          state:
+            type: str
+            choices:
+              - present
+              - absent
+      incus_images_type:
+        type: str
+        choices:
+          - container
+          - virtual-machine
+      incus_images_copy_aliases:
+        type: bool
+      incus_images_project:
+        type: str
+      incus_images_state:
+        type: str
+        choices:
+          - present
+          - absent
