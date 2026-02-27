@@ -11,12 +11,10 @@
   ansible.builtin.command:
     cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %}
     stdin: |
-      {% if incus_instances_instance_config is iterable %}
-      config: {{ incus_instances_instance_config | to_yaml }}
-      {% endif %}
-      {{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/devices_configuration.j2') }}
+      {{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/configuration.j2') }}
       profiles: {{ incus_instances_instance_profiles }}
   vars:
+    incus_template_config: "{{ incus_instances_instance_config }}"
     incus_template_devices: "{{ incus_instances_instance_devices }}"
   become: true
   changed_when: true

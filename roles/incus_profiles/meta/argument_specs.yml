@@ -38,6 +38,140 @@ argument_specs:
                 type: bool
               security.nesting:
                 type: bool
+              cloud-init.network-config:
+                type: dict
+                options:
+                  version:
+                    type: int
+                  renderer:
+                    type: str
+                  ethernets:
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        required: true
+                        type: str
+                      dhcp4:
+                        type: bool
+                      addresses:
+                        type: list
+                        elements: str
+                      routes:
+                        type: list
+                        elements: dict
+                        options:
+                          to:
+                            type: str
+                          via:
+                            type: str
+                      match:
+                        type: dict
+                        options:
+                          driver:
+                            type: str
+                      nameservers:
+                        type: dict
+                        options:
+                          addresses:
+                            type: list
+                            elements: str
+              cloud-init.user-data:
+                type: dict
+                options:
+                  bootcmd:
+                    type: list
+                    elements: raw
+                  user:
+                    type: str
+                  password:
+                    type: str
+                    no_log: true
+                  ssh_pwauth:
+                    type: bool
+                  chpasswd:
+                    type: dict
+                    options:
+                      expire:
+                        type: bool
+                  package_upgrade:
+                    type: bool
+                  packages:
+                    type: list
+                    elements: str
+                  power_state:
+                    type: dict
+                    options:
+                      mode:
+                        type: str
+                        choices:
+                          - reboot
+                          - poweroff
+                          - halt
+                  write_files:
+                    type: list
+                    elements: dict
+                    options:
+                      path:
+                        required: true
+                        type: str
+                      content:
+                        type: str
+                      owner:
+                        type: str
+                      permissions:
+                        type: str
+                  runcmd:
+                    type: list
+                    elements: raw
+              cloud-init.vendor-data:
+                type: dict
+                options:
+                  bootcmd:
+                    type: list
+                    elements: raw
+                  user:
+                    type: str
+                  password:
+                    type: str
+                    no_log: true
+                  ssh_pwauth:
+                    type: bool
+                  chpasswd:
+                    type: dict
+                    options:
+                      expire:
+                        type: bool
+                  package_upgrade:
+                    type: bool
+                  packages:
+                    type: list
+                    elements: str
+                  power_state:
+                    type: dict
+                    options:
+                      mode:
+                        type: str
+                        choices:
+                          - reboot
+                          - poweroff
+                          - halt
+                  write_files:
+                    type: list
+                    elements: dict
+                    options:
+                      path:
+                        required: true
+                        type: str
+                      content:
+                        type: str
+                      owner:
+                        type: str
+                      permissions:
+                        type: str
+                  runcmd:
+                    type: list
+                    elements: raw
           devices:
             type: list
             elements: dict

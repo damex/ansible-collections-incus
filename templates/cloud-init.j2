@@ -1,0 +1,41 @@
+{# cloud-init.network-config macro #}
+{% macro incus_cloud_init_network_config(incus_cloud_init_network_config) %}
+{%     if incus_cloud_init_network_config is defined and incus_cloud_init_network_config %}
+  cloud-init.network-config: |
+    version: {{ incus_cloud_init_network_config.version or 2 }}
+{%         if incus_cloud_init_network_config.ethernets is defined and incus_cloud_init_network_config.ethernets is iterable %}
+    ethernets:
+{%             for incus_cloud_init_network_config_ethernet in incus_cloud_init_network_config.ethernets %}
+      {{ incus_cloud_init_network_config_ethernet.name }}:
+{%                 for incus_cloud_init_network_config_ethernet_key, incus_cloud_init_network_config_ethernet_value in incus_cloud_init_network_config_ethernet.items() %}
+{%                     if incus_cloud_init_network_config_ethernet_key != 'name' %}
+{%                         if incus_cloud_init_network_config_ethernet_value is mapping or (incus_cloud_init_network_config_ethernet_value is iterable and incus_cloud_init_network_config_ethernet_value is not string) %}
+        {{ incus_cloud_init_network_config_ethernet_key }}:
+          {{ incus_cloud_init_network_config_ethernet_value | to_nice_yaml | indent(10) }}
+{%                         else %}
+        {{ incus_cloud_init_network_config_ethernet_key }}: {{ incus_cloud_init_network_config_ethernet_value }}
+{%                         endif %}
+{%                     endif %}
+{%                 endfor %}
+{%             endfor %}
+{%         endif %}
+{%     endif %}
+{% endmacro %}
+
+{# cloud-init.user-data macro #}
+{% macro incus_cloud_init_user_data(incus_cloud_init_user_data) %}
+{%     if incus_cloud_init_user_data is defined and incus_cloud_init_user_data %}
+  cloud-init.user-data: |
+    #cloud-config
+    {{ incus_cloud_init_user_data | to_nice_yaml | indent(4) }}
+{%     endif %}
+{% endmacro %}
+
+{# cloud-init.vendor-data macro #}
+{% macro incus_cloud_init_vendor_data(incus_cloud_init_vendor_data) %}
+{%     if incus_cloud_init_vendor_data is defined and incus_cloud_init_vendor_data %}
+  cloud-init.vendor-data: |
+    #cloud-config
+    {{ incus_cloud_init_vendor_data | to_nice_yaml | indent(4) }}
+{%     endif %}
+{% endmacro %}

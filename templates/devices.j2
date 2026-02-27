@@ -1,0 +1,14 @@
+{# devices macro #}
+{% macro incus_devices(incus_devices) %}
+{%     if incus_devices is defined and incus_devices is iterable %}
+devices:
+{%         for incus_devices_device in incus_devices %}
+  {{ incus_devices_device.name }}:
+{%             for incus_devices_device_key, incus_devices_device_value in incus_devices_device.items() %}
+{%                 if incus_devices_device_key != 'name' %}
+    {{ incus_devices_device_key }}: {{ incus_devices_device_value }}
+{%                 endif %}
+{%             endfor %}
+{%         endfor %}
+{%     endif %}
+{% endmacro %}
