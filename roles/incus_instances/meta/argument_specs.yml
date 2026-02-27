@@ -213,6 +213,8 @@ argument_specs:
                 type: str
               hwaddr:
                 type: str
+          ephemeral:
+            type: bool
           project:
             type: str
           profiles:
@@ -234,6 +236,8 @@ argument_specs:
       incus_instances_profiles:
         type: list
         elements: str
+      incus_instances_ephemeral:
+        type: bool
       incus_instances_state:
         type: str
         choices:

@@ -9,7 +9,7 @@
 
 - name: Ensure incus instance is initialized {{ incus_instances_instance_name }}
   ansible.builtin.command:
-    cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %}
+    cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %} {% if incus_instances_instance_ephemeral %}--ephemeral{% endif %}
     stdin: |
       {{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/configuration.j2') }}
       profiles: {{ incus_instances_instance_profiles }}

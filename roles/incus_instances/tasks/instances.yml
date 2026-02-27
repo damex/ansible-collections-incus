@@ -9,6 +9,7 @@
     incus_instances_instance_devices: "{{ incus_instances_instance.devices | default(omit) }}"
     incus_instances_instance_project: "{{ incus_instances_instance.project | default(incus_instances_project) }}"
     incus_instances_instance_profiles: "{{ incus_instances_instance.profiles | default(incus_instances_profiles) }}"
+    incus_instances_instance_ephemeral: "{{ incus_instances_instance.ephemeral | default(incus_instances_ephemeral) }}"
     incus_instances_instance_state: "{{ incus_instances_instance.state | default(incus_instances_state) }}"
   loop: "{{ incus_instances }}"
   loop_control:
