@@ -76,6 +76,74 @@ argument_specs:
                           addresses:
                             type: list
                             elements: str
+                  bridges:
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        required: true
+                        type: str
+                      dhcp4:
+                        type: bool
+                      addresses:
+                        type: list
+                        elements: str
+                      interfaces:
+                        type: list
+                        elements: str
+                      parameters:
+                        type: dict
+                        options:
+                          stp:
+                            type: bool
+                          forward-delay:
+                            type: int
+                      routes:
+                        type: list
+                        elements: dict
+                        options:
+                          to:
+                            type: str
+                          via:
+                            type: str
+                      nameservers:
+                        type: dict
+                        options:
+                          addresses:
+                            type: list
+                            elements: str
+                  vlans:
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        required: true
+                        type: str
+                      id:
+                        required: true
+                        type: int
+                      link:
+                        required: true
+                        type: str
+                      dhcp4:
+                        type: bool
+                      addresses:
+                        type: list
+                        elements: str
+                      routes:
+                        type: list
+                        elements: dict
+                        options:
+                          to:
+                            type: str
+                          via:
+                            type: str
+                      nameservers:
+                        type: dict
+                        options:
+                          addresses:
+                            type: list
+                            elements: str
               cloud-init.user-data:
                 type: dict
                 options:
