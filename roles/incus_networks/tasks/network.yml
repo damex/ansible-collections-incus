@@ -1,0 +1,41 @@
+---
+- name: Ensure incus network info {{ incus_networks_network_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_networks_network_project }} network show {{ incus_networks_network_name }}
+  register: incus_networks_network_info_state
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Ensure incus network is created {{ incus_networks_network_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_networks_network_project }} network create {{ incus_networks_network_name }} --type {{ incus_networks_network_type }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/network.j2') }}"
+  vars:
+    incus_template_config: "{{ incus_networks_network_config }}"
+  become: true
+  changed_when: true
+  when:
+    - incus_networks_network_info_state.rc != 0
+    - incus_networks_network_state != "absent"
+
+- name: Ensure incus network configuration {{ incus_networks_network_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_networks_network_project }} network edit {{ incus_networks_network_name }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/network.j2') }}"
+  vars:
+    incus_template_config: "{{ incus_networks_network_config }}"
+  become: true
+  changed_when: true
+  when:
+    - incus_networks_network_info_state.rc == 0
+    - incus_networks_network_state != "absent"
+
+- name: Ensure incus network is absent {{ incus_networks_network_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_networks_network_project }} network delete {{ incus_networks_network_name }}
+  become: true
+  changed_when: true
+  when:
+    - incus_networks_network_state == "absent"
+    - incus_networks_network_info_state.rc == 0
