@@ -1,0 +1,13 @@
+---
+- name: Ensure incus storages
+  ansible.builtin.include_tasks: storage.yml
+  vars:
+    incus_storages_storage_name: "{{ incus_storages_storage.name }}"
+    incus_storages_storage_driver: "{{ incus_storages_storage.driver }}"
+    incus_storages_storage_project: "{{ incus_storages_storage.project | default(incus_storages_project) }}"
+    incus_storages_storage_config: "{{ incus_storages_storage.config | default(omit) }}"
+    incus_storages_storage_state: "{{ incus_storages_storage.state | default(incus_storages_state) }}"
+  loop: "{{ incus_storages }}"
+  loop_control:
+    label: "{{ incus_storages_storage_name }}"
+    loop_var: incus_storages_storage
