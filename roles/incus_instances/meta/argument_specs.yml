@@ -84,6 +84,42 @@ argument_specs:
                           addresses:
                             type: list
                             elements: str
+                  bonds:
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        required: true
+                        type: str
+                      dhcp4:
+                        type: bool
+                      addresses:
+                        type: list
+                        elements: str
+                      interfaces:
+                        type: list
+                        elements: str
+                      parameters:
+                        type: dict
+                        options:
+                          mode:
+                            type: str
+                          mii-monitor-interval:
+                            type: int
+                      routes:
+                        type: list
+                        elements: dict
+                        options:
+                          to:
+                            type: str
+                          via:
+                            type: str
+                      nameservers:
+                        type: dict
+                        options:
+                          addresses:
+                            type: list
+                            elements: str
                   bridges:
                     type: list
                     elements: dict
