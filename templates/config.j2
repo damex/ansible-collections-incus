@@ -10,7 +10,7 @@
 {%             elif incus_config_key == 'cloud-init.vendor-data' %}
 {{ incus_cloud_init_vendor_data(incus_config_value) }}
 {%             else %}
-  {{ incus_config_key }}: {{ incus_config_value }}
+  {{ incus_config_key }}: {{ incus_config_value | lower if incus_config_value | type_debug == 'bool' else incus_config_value }}
 {%             endif %}
 {%         endfor %}
 {%     endif %}
@@ -22,7 +22,7 @@ config:
 {%         if incus_current_config is defined and incus_current_config.config is defined %}
 {%             for incus_config_current_key, incus_config_current_value in incus_current_config.config.items() %}
 {%                 if incus_config_current_key is match('^(volatile|image)[.]') %}
-  {{ incus_config_current_key }}: {{ incus_config_current_value }}
+  {{ incus_config_current_key }}: {{ incus_config_current_value | lower if incus_config_current_value | type_debug == 'bool' else incus_config_current_value }}
 {%                 endif %}
 {%             endfor %}
 {%         endif %}
