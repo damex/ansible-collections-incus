@@ -64,6 +64,15 @@
   changed_when: incus_instances_instance_stop_state.rc == 0
   when: incus_instances_instance_state == "stopped"
 
+- name: Ensure incus instance is restarted {{ incus_instances_instance_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_instances_instance_project }} restart {{ incus_instances_instance_name }} --force
+  become: true
+  changed_when: true
+  when:
+    - incus_instances_instance_state == "restarted"
+    - incus_instances_instance_info_state.rc == 0
+
 - name: Ensure incus instance is absent {{ incus_instances_instance_name }}
   ansible.builtin.command:
     cmd: incus --project {{ incus_instances_instance_project }} delete {{ incus_instances_instance_name }} --force

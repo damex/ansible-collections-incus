@@ -329,6 +329,7 @@ argument_specs:
             choices:
               - started
               - stopped
+              - restarted
               - absent
       incus_instances_type:
         type: str
@@ -347,4 +348,5 @@ argument_specs:
         choices:
           - started
           - stopped
+          - restarted
           - absent
