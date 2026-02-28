@@ -21,7 +21,7 @@
     cmd: incus project edit {{ incus_projects_project_name }}
     stdin: "{{ incus_projects_project | to_yaml }}"
   become: true
-  changed_when: false
+  changed_when: true
   when: incus_projects_project_state != "absent"
 
 - name: Ensure incus project is absent {{ incus_projects_project_name }}
