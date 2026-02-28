@@ -1,0 +1,13 @@
+---
+- name: Ensure incus networks
+  ansible.builtin.include_tasks: network.yml
+  vars:
+    incus_networks_network_name: "{{ incus_networks_network.name }}"
+    incus_networks_network_type: "{{ incus_networks_network.type }}"
+    incus_networks_network_project: "{{ incus_networks_network.project | default(incus_networks_project) }}"
+    incus_networks_network_config: "{{ incus_networks_network.config | default(omit) }}"
+    incus_networks_network_state: "{{ incus_networks_network.state | default(incus_networks_state) }}"
+  loop: "{{ incus_networks }}"
+  loop_control:
+    label: "{{ incus_networks_network_name }}"
+    loop_var: incus_networks_network
