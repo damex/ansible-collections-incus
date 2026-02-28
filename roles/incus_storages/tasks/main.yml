@@ -1,0 +1,8 @@
+---
+- name: Ensure incus storages
+  tags:
+    - incus
+    - incus_storages
+  block:
+    - name: Ensure incus storages
+      ansible.builtin.import_tasks: storages.yml

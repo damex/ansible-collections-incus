@@ -1,0 +1,41 @@
+---
+- name: Ensure incus storage info {{ incus_storages_storage_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_storages_storage_project }} storage show {{ incus_storages_storage_name }}
+  register: incus_storages_storage_info_state
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Ensure incus storage is created {{ incus_storages_storage_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_storages_storage_project }} storage create {{ incus_storages_storage_name }} {{ incus_storages_storage_driver }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/storage.j2') }}"
+  vars:
+    incus_template_config: "{{ incus_storages_storage_config }}"
+  become: true
+  changed_when: true
+  when:
+    - incus_storages_storage_info_state.rc != 0
+    - incus_storages_storage_state != "absent"
+
+- name: Ensure incus storage configuration {{ incus_storages_storage_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_storages_storage_project }} storage edit {{ incus_storages_storage_name }}
+    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/storage.j2') }}"
+  vars:
+    incus_template_config: "{{ incus_storages_storage_config }}"
+  become: true
+  changed_when: true
+  when:
+    - incus_storages_storage_info_state.rc == 0
+    - incus_storages_storage_state != "absent"
+
+- name: Ensure incus storage is absent {{ incus_storages_storage_name }}
+  ansible.builtin.command:
+    cmd: incus --project {{ incus_storages_storage_project }} storage delete {{ incus_storages_storage_name }}
+  become: true
+  changed_when: true
+  when:
+    - incus_storages_storage_state == "absent"
+    - incus_storages_storage_info_state.rc == 0
