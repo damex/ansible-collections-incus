@@ -19,6 +19,38 @@
 {%                 endfor %}
 {%             endfor %}
 {%         endif %}
+{%         if incus_cloud_init_network_config.bridges is defined and incus_cloud_init_network_config.bridges is iterable %}
+    bridges:
+{%             for incus_cloud_init_network_config_bridge in incus_cloud_init_network_config.bridges %}
+      {{ incus_cloud_init_network_config_bridge.name }}:
+{%                 for incus_cloud_init_network_config_bridge_key, incus_cloud_init_network_config_bridge_value in incus_cloud_init_network_config_bridge.items() %}
+{%                     if incus_cloud_init_network_config_bridge_key != 'name' %}
+{%                         if incus_cloud_init_network_config_bridge_value is mapping or (incus_cloud_init_network_config_bridge_value is iterable and incus_cloud_init_network_config_bridge_value is not string) %}
+        {{ incus_cloud_init_network_config_bridge_key }}:
+          {{ incus_cloud_init_network_config_bridge_value | to_nice_yaml | indent(10) }}
+{%                         else %}
+        {{ incus_cloud_init_network_config_bridge_key }}: {{ incus_cloud_init_network_config_bridge_value | lower if incus_cloud_init_network_config_bridge_value | type_debug == 'bool' else incus_cloud_init_network_config_bridge_value }}
+{%                         endif %}
+{%                     endif %}
+{%                 endfor %}
+{%             endfor %}
+{%         endif %}
+{%         if incus_cloud_init_network_config.vlans is defined and incus_cloud_init_network_config.vlans is iterable %}
+    vlans:
+{%             for incus_cloud_init_network_config_vlan in incus_cloud_init_network_config.vlans %}
+      {{ incus_cloud_init_network_config_vlan.name }}:
+{%                 for incus_cloud_init_network_config_vlan_key, incus_cloud_init_network_config_vlan_value in incus_cloud_init_network_config_vlan.items() %}
+{%                     if incus_cloud_init_network_config_vlan_key != 'name' %}
+{%                         if incus_cloud_init_network_config_vlan_value is mapping or (incus_cloud_init_network_config_vlan_value is iterable and incus_cloud_init_network_config_vlan_value is not string) %}
+        {{ incus_cloud_init_network_config_vlan_key }}:
+          {{ incus_cloud_init_network_config_vlan_value | to_nice_yaml | indent(10) }}
+{%                         else %}
+        {{ incus_cloud_init_network_config_vlan_key }}: {{ incus_cloud_init_network_config_vlan_value | lower if incus_cloud_init_network_config_vlan_value | type_debug == 'bool' else incus_cloud_init_network_config_vlan_value }}
+{%                         endif %}
+{%                     endif %}
+{%                 endfor %}
+{%             endfor %}
+{%         endif %}
 {%     endif %}
 {% endmacro %}
 
