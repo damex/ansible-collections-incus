@@ -1,0 +1,6 @@
+---
+incus_images: [] # noqa: var-naming[no-role-prefix]
+incus_images_type: container
+incus_images_copy_aliases: false
+incus_images_project: default
+incus_images_state: present
