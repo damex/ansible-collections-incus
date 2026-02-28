@@ -317,6 +317,16 @@ argument_specs:
                 type: str
               hwaddr:
                 type: str
+              mtu:
+                type: str
+              ipv4.address:
+                type: str
+              ipv4.routes:
+                type: str
+              ipv6.address:
+                type: str
+              ipv6.routes:
+                type: str
           ephemeral:
             type: bool
           project:
