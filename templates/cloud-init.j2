@@ -13,7 +13,7 @@
         {{ incus_cloud_init_network_config_ethernet_key }}:
           {{ incus_cloud_init_network_config_ethernet_value | to_nice_yaml | indent(10) }}
 {%                         else %}
-        {{ incus_cloud_init_network_config_ethernet_key }}: {{ incus_cloud_init_network_config_ethernet_value }}
+        {{ incus_cloud_init_network_config_ethernet_key }}: {{ incus_cloud_init_network_config_ethernet_value | lower if incus_cloud_init_network_config_ethernet_value | type_debug == 'bool' else incus_cloud_init_network_config_ethernet_value }}
 {%                         endif %}
 {%                     endif %}
 {%                 endfor %}

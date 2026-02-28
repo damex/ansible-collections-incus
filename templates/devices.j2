@@ -6,7 +6,7 @@ devices:
   {{ incus_devices_device.name }}:
 {%             for incus_devices_device_key, incus_devices_device_value in incus_devices_device.items() %}
 {%                 if incus_devices_device_key != 'name' %}
-    {{ incus_devices_device_key }}: {{ incus_devices_device_value }}
+    {{ incus_devices_device_key }}: {{ incus_devices_device_value | lower if incus_devices_device_value | type_debug == 'bool' else incus_devices_device_value }}
 {%                 endif %}
 {%             endfor %}
 {%         endfor %}
