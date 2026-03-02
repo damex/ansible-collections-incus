@@ -4,9 +4,16 @@ argument_specs:
     options:
       incus_package_name:
         type: str
+      incus_client_package_name:
+        type: str
       incus_package_version:
         type: str
       incus_package_state:
+        type: str
+        choices:
+          - present
+          - absent
+      incus_client_package_state:
         type: str
         choices:
           - present
@@ -26,3 +33,9 @@ argument_specs:
       incus_apt_repository_components:
         type: list
         elements: str
+      incus_apt_preference_name:
+        type: str
+      incus_apt_preference_pin:
+        type: str
+      incus_apt_preference_pin_priority:
+        type: int
