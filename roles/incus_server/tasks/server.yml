@@ -1,0 +1,8 @@
+---
+- name: Ensure incus server is initialized
+  ansible.builtin.command:
+    cmd: incus admin init --preseed
+    stdin: "{{ incus_server_preseed | to_nice_yaml }}"
+  become: true
+  changed_when: true
+  when: incus_server_info_state.rc != 0 or incus_server_force
