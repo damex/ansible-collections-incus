@@ -9,7 +9,7 @@
 - name: Ensure incus server config
   ansible.builtin.command:
     cmd: incus config edit
-    stdin: "{{ incus_server_config_info_state.stdout | from_yaml | combine({'config': incus_server_preseed.config}, recursive=true) | to_nice_yaml }}"
+    stdin: "{{ {'config': (incus_server_config_info_state.stdout | from_yaml)['config'] | combine(incus_server_preseed.config)} | to_nice_yaml }}"
   become: true
   changed_when: true
-  when: "incus_server_config_info_state.stdout | from_yaml | combine({'config': incus_server_preseed.config}, recursive=true) != incus_server_config_info_state.stdout | from_yaml"
+  when: (incus_server_config_info_state.stdout | from_yaml)['config'] | combine(incus_server_preseed.config) != (incus_server_config_info_state.stdout | from_yaml)['config']
