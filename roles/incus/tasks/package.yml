@@ -7,6 +7,9 @@
       - name: "{{ incus_package_name }}"
         version: "{{ incus_package_version | default(omit) }}"
         state: "{{ incus_package_state }}"
+      - name: "{{ incus_client_package_name }}"
+        version: "{{ incus_package_version | default(omit) }}"
+        state: "{{ incus_client_package_state }}"
   when: ansible_facts['pkg_mgr'] == "apt"
 
 - name: Ensure incus yum package
@@ -17,4 +20,7 @@
       - name: "{{ incus_package_name }}"
         version: "{{ incus_package_version | default(omit) }}"
         state: "{{ incus_package_state }}"
+      - name: "{{ incus_client_package_name }}"
+        version: "{{ incus_package_version | default(omit) }}"
+        state: "{{ incus_client_package_state }}"
   when: ansible_facts['pkg_mgr'] == "yum" or ansible_facts['pkg_mgr'] == "dnf"

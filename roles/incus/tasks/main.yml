@@ -9,6 +9,8 @@
       ansible.builtin.import_tasks: apt_key.yml
     - name: Ensure incus apt repository
       ansible.builtin.import_tasks: apt_repository.yml
+    - name: Ensure incus apt preference
+      ansible.builtin.import_tasks: apt_preference.yml
     - name: Ensure incus package
       ansible.builtin.import_tasks: package.yml
     - name: Ensure incus systemd service
