@@ -1,0 +1,12 @@
+---
+- name: Ensure incus cluster facts
+  ansible.builtin.command:
+    cmd: incus config get cluster.enabled
+  register: incus_cluster_info_state
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Ensure incus cluster primary fact
+  ansible.builtin.set_fact:
+    incus_cluster_primary: "{{ groups[incus_cluster_group] | first }}"

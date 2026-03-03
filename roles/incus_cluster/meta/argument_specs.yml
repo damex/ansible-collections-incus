@@ -1,0 +1,193 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_cluster_group:
+        required: true
+        type: str
+      incus_cluster_preseed:
+        required: true
+        type: dict
+        options:
+          config:
+            required: true
+            type: dict
+            options:
+              core.bgp_address:
+                type: str
+              core.bgp_asn:
+                type: str
+              core.bgp_routerid:
+                type: str
+              core.debug_address:
+                type: str
+              core.dns_address:
+                type: str
+              core.https_address:
+                required: true
+                type: str
+              core.https_allowed_credentials:
+                type: bool
+              core.https_allowed_headers:
+                type: str
+              core.https_allowed_methods:
+                type: str
+              core.https_allowed_origin:
+                type: str
+              core.https_trusted_proxy:
+                type: str
+              core.metrics_address:
+                type: str
+              core.metrics_authentication:
+                type: bool
+              core.proxy_http:
+                type: str
+              core.proxy_https:
+                type: str
+              core.proxy_ignore_hosts:
+                type: str
+              core.remote_token_expiry:
+                type: str
+              core.shutdown_timeout:
+                type: int
+              core.storage_buckets_address:
+                type: str
+              core.syslog_socket:
+                type: bool
+              core.trust_ca_certificates:
+                type: bool
+              acme.agree_tos:
+                type: bool
+              acme.ca_url:
+                type: str
+              acme.challenge:
+                type: str
+                choices:
+                  - HTTP-01
+                  - DNS-01
+              acme.domain:
+                type: str
+              acme.email:
+                type: str
+              acme.http.port:
+                type: str
+              acme.provider:
+                type: str
+              acme.provider.environment:
+                type: str
+              acme.provider.resolvers:
+                type: str
+              cluster.healing_threshold:
+                type: int
+              cluster.https_address:
+                type: str
+              cluster.images_minimal_replica:
+                type: int
+              cluster.join_token_expiry:
+                type: str
+              cluster.max_standby:
+                type: int
+              cluster.max_voters:
+                type: int
+              cluster.offline_threshold:
+                type: int
+              cluster.rebalance.batch:
+                type: int
+              cluster.rebalance.cooldown:
+                type: str
+              cluster.rebalance.interval:
+                type: int
+              cluster.rebalance.threshold:
+                type: int
+              images.auto_update_cached:
+                type: bool
+              images.auto_update_interval:
+                type: int
+              images.compression_algorithm:
+                type: str
+              images.default_architecture:
+                type: str
+              images.remote_cache_expiry:
+                type: int
+              oidc.audience:
+                type: str
+              oidc.claim:
+                type: str
+              oidc.client.id:
+                type: str
+              oidc.issuer:
+                type: str
+              oidc.scopes:
+                type: str
+              openfga.api.token:
+                type: str
+                no_log: true
+              openfga.api.url:
+                type: str
+              openfga.store.id:
+                type: str
+              authorization.scriptlet:
+                type: str
+              backups.compression_algorithm:
+                type: str
+              instances.lxcfs.per_instance:
+                type: bool
+              instances.nic.host_name:
+                type: str
+              instances.placement.scriptlet:
+                type: str
+              network.ovn.ca_cert:
+                type: str
+              network.ovn.client_cert:
+                type: str
+              network.ovn.client_key:
+                type: str
+              network.ovn.integration_bridge:
+                type: str
+              network.ovn.northbound_connection:
+                type: str
+              network.ovs.connection:
+                type: str
+              storage.backups_volume:
+                type: str
+              storage.images_volume:
+                type: str
+              storage.linstor.ca_cert:
+                type: str
+              storage.linstor.client_cert:
+                type: str
+              storage.linstor.client_key:
+                type: str
+              storage.linstor.controller_connection:
+                type: str
+              storage.linstor.satellite.name:
+                type: str
+              storage.logs_volume:
+                type: str
+          cluster:
+            required: true
+            type: dict
+            options:
+              enabled:
+                type: bool
+              server_name:
+                required: true
+                type: str
+              server_address:
+                required: true
+                type: str
+              member_config:
+                type: list
+                elements: dict
+                options:
+                  entity:
+                    required: true
+                    type: str
+                  name:
+                    required: true
+                    type: str
+                  key:
+                    required: true
+                    type: str
+                  value:
+                    type: str

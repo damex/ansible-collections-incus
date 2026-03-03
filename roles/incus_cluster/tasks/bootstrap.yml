@@ -1,0 +1,9 @@
+---
+- name: Ensure incus cluster is bootstrapped
+  ansible.builtin.include_role:
+    name: damex.incus.incus_server
+  vars:
+    incus_server_preseed: "{{ incus_cluster_preseed }}"
+  when:
+    - inventory_hostname == incus_cluster_primary
+    - incus_cluster_info_state.stdout != 'true'
