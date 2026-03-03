@@ -2,5 +2,6 @@
 - name: Ensure incus profiles cluster facts
   damex.incus.incus_cluster_info:
     name: "{{ inventory_hostname }}"
+    socket_path: "{{ incus_profiles_socket_path }}"
   register: incus_profiles_cluster_info_state
   become: true
