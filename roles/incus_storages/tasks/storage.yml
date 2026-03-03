@@ -6,6 +6,7 @@
     - name: Ensure incus storage info {{ incus_storages_storage_name }}
       damex.incus.incus_storage_info:
         name: "{{ incus_storages_storage_name }}"
+        socket_path: "{{ incus_storages_socket_path }}"
       register: incus_storages_storage_info_state
     - name: Ensure incus storage is created {{ incus_storages_storage_name }}
       ansible.builtin.command:
