@@ -1,4 +1,5 @@
 ---
 incus_networks: [] # noqa: var-naming[no-role-prefix]
+incus_networks_socket_path: /var/lib/incus/unix.socket
 incus_networks_project: default
 incus_networks_state: present
