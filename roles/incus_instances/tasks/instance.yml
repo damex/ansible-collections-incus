@@ -7,6 +7,7 @@
       damex.incus.incus_instance_info:
         name: "{{ incus_instances_instance_name }}"
         project: "{{ incus_instances_instance_project }}"
+        socket_path: "{{ incus_instances_socket_path }}"
       register: incus_instances_instance_info_state
     - name: Ensure incus instance is initialized {{ incus_instances_instance_name }}
       ansible.builtin.command:
