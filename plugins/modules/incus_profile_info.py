@@ -1,0 +1,85 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright: Roman Kuzmitskii <ansible@damex.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""Gather Incus profile info."""
+
+from __future__ import annotations
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGS,
+    run_info_module,
+)
+
+DOCUMENTATION = r"""
+---
+module: incus_profile_info
+short_description: Gather information about Incus profiles
+description:
+  - Gather information about Incus profiles via the Incus REST API.
+  - Returns information about all profiles or a specific profile.
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.project]
+options:
+  name:
+    description:
+      - Name of the profile to query.
+      - If not specified, all profiles in the project are returned.
+    type: str
+"""
+
+EXAMPLES = r"""
+- name: Get all profiles
+  damex.incus.incus_profile_info:
+    project: default
+  register: result
+
+- name: Get specific profile
+  damex.incus.incus_profile_info:
+    name: default
+    project: default
+  register: result
+
+- name: Get profiles from remote server
+  damex.incus.incus_profile_info:
+    url: https://incus.example.com:8443
+    client_cert: /etc/incus/client.crt
+    client_key: /etc/incus/client.key
+  register: result
+"""
+
+RETURN = r"""
+profiles:
+  description: List of profile information.
+  type: list
+  elements: dict
+  contains:
+    name:
+      description: Name of the profile.
+      type: str
+    description:
+      description: Profile description.
+      type: str
+    config:
+      description: Profile configuration.
+      type: dict
+    devices:
+      description: Profile devices.
+      type: dict
+  returned: always
+"""
+
+__all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
+
+
+def main():
+    """Run module."""
+    argument_spec = {'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}}
+    argument_spec.update(INCUS_COMMON_ARGS)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    run_info_module(module, 'profiles', 'profiles')
+
+
+if __name__ == '__main__':
+    main()
