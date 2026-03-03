@@ -1,0 +1,8 @@
+---
+- name: Ensure incus instances cluster facts
+  ansible.builtin.command:
+    cmd: incus cluster show {{ inventory_hostname }}
+  register: incus_instances_cluster_info_state
+  failed_when: false
+  changed_when: false
+  become: true
