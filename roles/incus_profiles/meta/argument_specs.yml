@@ -491,6 +491,8 @@ argument_specs:
             choices:
               - present
               - absent
+      incus_profiles_socket_path:
+        type: path
       incus_profiles_project:
         type: str
       incus_profiles_state:

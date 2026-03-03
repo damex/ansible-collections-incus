@@ -154,6 +154,8 @@ argument_specs:
             choices:
               - present
               - absent
+      incus_networks_socket_path:
+        type: path
       incus_networks_project:
         type: str
       incus_networks_state:
