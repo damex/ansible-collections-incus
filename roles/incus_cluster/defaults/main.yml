@@ -1,0 +1,2 @@
+---
+incus_cluster_socket_path: /var/lib/incus/unix.socket

@@ -6,4 +6,4 @@
     incus_server_preseed: "{{ incus_cluster_preseed }}"
   when:
     - inventory_hostname == incus_cluster_primary
-    - incus_cluster_info_state.stdout != 'true'
+    - not (incus_cluster_info_state.server.config.get('cluster.enabled') | bool)

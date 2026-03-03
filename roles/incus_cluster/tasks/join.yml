@@ -4,14 +4,12 @@
   become: true
   block:
     - name: Ensure incus cluster member info
-      ansible.builtin.command:
-        cmd: incus cluster show {{ incus_cluster_preseed.cluster.server_name }}
+      damex.incus.incus_cluster_info:
+        name: "{{ incus_cluster_preseed.cluster.server_name }}"
       delegate_to: "{{ incus_cluster_primary }}"
       register: incus_cluster_member_info_state
-      failed_when: false
-      changed_when: false
     - name: Ensure incus cluster member is joined {{ incus_cluster_preseed.cluster.server_name }}
-      when: incus_cluster_member_info_state.rc != 0
+      when: incus_cluster_member_info_state.cluster_members | length == 0
       block:
         - name: Ensure incus cluster member token {{ incus_cluster_preseed.cluster.server_name }}
           ansible.builtin.command:

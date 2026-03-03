@@ -2,6 +2,8 @@
 argument_specs:
   main:
     options:
+      incus_cluster_socket_path:
+        type: path
       incus_cluster_group:
         required: true
         type: str

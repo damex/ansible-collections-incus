@@ -1,10 +1,8 @@
 ---
 - name: Ensure incus cluster facts
-  ansible.builtin.command:
-    cmd: incus config get cluster.enabled
+  damex.incus.incus_server_info:
+    socket_path: "{{ incus_cluster_socket_path }}"
   register: incus_cluster_info_state
-  failed_when: false
-  changed_when: false
   become: true
 
 - name: Ensure incus cluster primary fact
