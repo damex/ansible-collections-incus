@@ -4,5 +4,7 @@
     - incus
     - incus_storages
   block:
+    - name: Ensure incus storages facts
+      ansible.builtin.import_tasks: facts.yml
     - name: Ensure incus storages
       ansible.builtin.import_tasks: storages.yml
