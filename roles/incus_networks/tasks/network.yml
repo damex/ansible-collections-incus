@@ -25,7 +25,7 @@
         stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/network.j2') }}"
       vars:
         incus_template_config: "{{ incus_networks_network_config }}"
-      changed_when: true
+      changed_when: false
       when:
         - incus_networks_network_info_state.rc == 0
         - incus_networks_network_state != "absent"

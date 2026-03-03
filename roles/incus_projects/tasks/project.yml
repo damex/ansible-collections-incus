@@ -20,7 +20,7 @@
       ansible.builtin.command:
         cmd: incus project edit {{ incus_projects_project_name }}
         stdin: "{{ incus_projects_project | to_yaml }}"
-      changed_when: true
+      changed_when: false
       when: incus_projects_project_state != "absent"
     - name: Ensure incus project is absent {{ incus_projects_project_name }}
       ansible.builtin.command:

@@ -23,7 +23,7 @@
       vars:
         incus_template_config: "{{ incus_profiles_profile_config }}"
         incus_template_devices: "{{ incus_profiles_profile_devices }}"
-      changed_when: true
+      changed_when: false
       when: incus_profiles_profile_state != "absent"
     - name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
       ansible.builtin.command:

@@ -40,7 +40,7 @@
             incus_template_config: "{{ incus_instances_instance_config | default(omit) }}"
             incus_template_devices: "{{ incus_instances_instance_devices | default(omit) }}"
             incus_template_profiles: "{{ incus_instances_instance_profiles }}"
-          changed_when: true
+          changed_when: false
     - name: Ensure incus instance is started {{ incus_instances_instance_name }}
       ansible.builtin.command:
         cmd: incus --project {{ incus_instances_instance_project }} start {{ incus_instances_instance_name }}
