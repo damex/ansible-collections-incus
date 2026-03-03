@@ -14,7 +14,11 @@ from urllib.parse import urlparse
 
 __all__ = [
     'INCUS_COMMON_ARGS',
-    'IncusClientException', 'IncusClient', 'incus_client_from_module', 'run_info_module',
+    'IncusClientException',
+    'IncusNotFoundException',
+    'IncusClient',
+    'incus_client_from_module',
+    'run_info_module',
 ]
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
@@ -32,6 +36,10 @@ INCUS_COMMON_ARGS = {
 
 class IncusClientException(Exception):
     """API error."""
+
+
+class IncusNotFoundException(IncusClientException):
+    """Resource not found (404)."""
 
 
 class _UnixSocketHTTPConnection(http.client.HTTPConnection):
@@ -104,6 +112,8 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             conn.close()
 
         if content.get('type') == 'error':
+            if content.get('error_code') == 404:
+                raise IncusNotFoundException(content.get('error', 'not found'))
             raise IncusClientException(content.get('error', 'unknown error'))
 
         return content
@@ -152,9 +162,12 @@ def run_info_module(module, resource, return_key):
 
         if name:
             path = f'/1.0/{resource}/{name}' + (f'?project={project}' if project else '')
-            response = client.get(path)
-            metadata = response.get('metadata')
-            result = [metadata] if metadata else []
+            try:
+                response = client.get(path)
+                metadata = response.get('metadata')
+                result = [metadata] if metadata else []
+            except IncusNotFoundException:
+                result = []
         else:
             query = f'?project={project}&recursion=1' if project else '?recursion=1'
             response = client.get(f'/1.0/{resource}{query}')
