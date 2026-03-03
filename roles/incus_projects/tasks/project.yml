@@ -4,28 +4,28 @@
   become: true
   block:
     - name: Ensure incus project info {{ incus_projects_project_name }}
-      ansible.builtin.command:
-        cmd: incus project show {{ incus_projects_project_name }}
+      damex.incus.incus_project_info:
+        name: "{{ incus_projects_project_name }}"
       register: incus_projects_project_info_state
-      failed_when: false
-      changed_when: false
     - name: Ensure incus project is created {{ incus_projects_project_name }}
       ansible.builtin.command:
         cmd: incus project create {{ incus_projects_project_name }}
       changed_when: true
       when:
-        - incus_projects_project_info_state.rc != 0
+        - incus_projects_project_info_state.projects | length == 0
         - incus_projects_project_state != "absent"
     - name: Ensure incus project configuration {{ incus_projects_project_name }}
       ansible.builtin.command:
         cmd: incus project edit {{ incus_projects_project_name }}
         stdin: "{{ incus_projects_project | to_yaml }}"
       changed_when: false
-      when: incus_projects_project_state != "absent"
+      when:
+        - incus_projects_project_state != "absent"
+        - incus_projects_project_info_state.projects | length > 0
     - name: Ensure incus project is absent {{ incus_projects_project_name }}
       ansible.builtin.command:
         cmd: incus project delete {{ incus_projects_project_name }}
       changed_when: true
       when:
         - incus_projects_project_state == "absent"
-        - incus_projects_project_info_state.rc == 0
+        - incus_projects_project_info_state.projects | length > 0
