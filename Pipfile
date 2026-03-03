@@ -14,6 +14,7 @@ pylint = {extras = ["spelling"], version = "==4.0.5"}
 
 [scripts]
 lint = "ansible-lint"
+lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins'"
 lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
 build-for-galaxy = "ansible-galaxy collection build"
 publish-to-galaxy = "ansible-galaxy collection publish"
