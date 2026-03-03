@@ -1,6 +1,6 @@
 ---
 - name: Ensure incus instance {{ incus_instances_instance_name }}
-  when: incus_instances_cluster_info_state.rc != 0 or 'database' in (incus_instances_cluster_info_state.stdout | from_yaml).roles
+  when: incus_instances_cluster_info_state.cluster_members | length == 0 or 'database' in incus_instances_cluster_info_state.cluster_members[0].roles
   become: true
   block:
     - name: Ensure incus instance info {{ incus_instances_instance_name }}

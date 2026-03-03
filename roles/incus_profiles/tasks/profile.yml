@@ -1,6 +1,6 @@
 ---
 - name: Ensure incus profile {{ incus_profiles_profile_name }}
-  when: incus_profiles_cluster_info_state.rc != 0 or 'database' in (incus_profiles_cluster_info_state.stdout | from_yaml).roles
+  when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database' in incus_profiles_cluster_info_state.cluster_members[0].roles
   become: true
   block:
     - name: Ensure incus profile info {{ incus_profiles_profile_name }}
