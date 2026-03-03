@@ -6,6 +6,7 @@
     - name: Ensure incus project info {{ incus_projects_project_name }}
       damex.incus.incus_project_info:
         name: "{{ incus_projects_project_name }}"
+        socket_path: "{{ incus_projects_socket_path }}"
       register: incus_projects_project_info_state
     - name: Ensure incus project is created {{ incus_projects_project_name }}
       ansible.builtin.command:
