@@ -1,32 +1,10 @@
 ---
 - name: Ensure incus project {{ incus_projects_project_name }}
-  when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database' in incus_projects_cluster_info_state.cluster_members[0].roles
+  damex.incus.incus_project:
+    name: "{{ incus_projects_project_name }}"
+    state: "{{ incus_projects_project_state }}"
+    description: "{{ incus_projects_project.description | default(omit) }}"
+    config: "{{ incus_projects_project.config | default(omit) }}"
+    socket_path: "{{ incus_projects_socket_path }}"
   become: true
-  block:
-    - name: Ensure incus project info {{ incus_projects_project_name }}
-      damex.incus.incus_project_info:
-        name: "{{ incus_projects_project_name }}"
-        socket_path: "{{ incus_projects_socket_path }}"
-      register: incus_projects_project_info_state
-    - name: Ensure incus project is created {{ incus_projects_project_name }}
-      ansible.builtin.command:
-        cmd: incus project create {{ incus_projects_project_name }}
-      changed_when: true
-      when:
-        - incus_projects_project_info_state.projects | length == 0
-        - incus_projects_project_state != "absent"
-    - name: Ensure incus project configuration {{ incus_projects_project_name }}
-      ansible.builtin.command:
-        cmd: incus project edit {{ incus_projects_project_name }}
-        stdin: "{{ incus_projects_project | to_yaml }}"
-      changed_when: false
-      when:
-        - incus_projects_project_state != "absent"
-        - incus_projects_project_info_state.projects | length > 0
-    - name: Ensure incus project is absent {{ incus_projects_project_name }}
-      ansible.builtin.command:
-        cmd: incus project delete {{ incus_projects_project_name }}
-      changed_when: true
-      when:
-        - incus_projects_project_state == "absent"
-        - incus_projects_project_info_state.projects | length > 0
+  when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database' in incus_projects_cluster_info_state.cluster_members[0].roles
