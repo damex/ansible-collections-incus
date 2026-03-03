@@ -1,38 +1,34 @@
 ---
-- name: Ensure incus profile info {{ incus_profiles_profile_name }}
-  ansible.builtin.command:
-    cmd: incus --project {{ incus_profiles_profile_project }} profile show {{ incus_profiles_profile_name }}
-  register: incus_profiles_profile_info_state
-  failed_when: false
-  changed_when: false
+- name: Ensure incus profile {{ incus_profiles_profile_name }}
+  when: incus_profiles_cluster_info_state.rc != 0 or 'database' in (incus_profiles_cluster_info_state.stdout | from_yaml).roles
   become: true
-
-- name: Ensure incus profile is created {{ incus_profiles_profile_name }}
-  ansible.builtin.command:
-    cmd: incus --project {{ incus_profiles_profile_project }} profile create {{ incus_profiles_profile_name }}
-  become: true
-  changed_when: true
-  when:
-    - incus_profiles_profile_info_state.rc != 0
-    - incus_profiles_profile_state != "absent"
-
-- name: Ensure incus profile configuration {{ incus_profiles_profile_name }}
-  ansible.builtin.command:
-    cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
-    stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
-  vars:
-    incus_template_config: "{{ incus_profiles_profile_config }}"
-    incus_template_devices: "{{ incus_profiles_profile_devices }}"
-  become: true
-  changed_when: true
-  when:
-    - incus_profiles_profile_state != "absent"
-
-- name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
-  ansible.builtin.command:
-    cmd: incus --project {{ incus_profiles_profile_project }} profile delete {{ incus_profiles_profile_name }}
-  become: true
-  changed_when: true
-  when:
-    - incus_profiles_profile_state == "absent"
-    - incus_profiles_profile_info_state.rc == 0
+  block:
+    - name: Ensure incus profile info {{ incus_profiles_profile_name }}
+      ansible.builtin.command:
+        cmd: incus --project {{ incus_profiles_profile_project }} profile show {{ incus_profiles_profile_name }}
+      register: incus_profiles_profile_info_state
+      failed_when: false
+      changed_when: false
+    - name: Ensure incus profile is created {{ incus_profiles_profile_name }}
+      ansible.builtin.command:
+        cmd: incus --project {{ incus_profiles_profile_project }} profile create {{ incus_profiles_profile_name }}
+      changed_when: true
+      when:
+        - incus_profiles_profile_info_state.rc != 0
+        - incus_profiles_profile_state != "absent"
+    - name: Ensure incus profile configuration {{ incus_profiles_profile_name }}
+      ansible.builtin.command:
+        cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
+        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
+      vars:
+        incus_template_config: "{{ incus_profiles_profile_config }}"
+        incus_template_devices: "{{ incus_profiles_profile_devices }}"
+      changed_when: true
+      when: incus_profiles_profile_state != "absent"
+    - name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
+      ansible.builtin.command:
+        cmd: incus --project {{ incus_profiles_profile_project }} profile delete {{ incus_profiles_profile_name }}
+      changed_when: true
+      when:
+        - incus_profiles_profile_state == "absent"
+        - incus_profiles_profile_info_state.rc == 0
