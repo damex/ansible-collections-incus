@@ -1,15 +1,7 @@
 ---
-- name: Ensure incus server config info
-  ansible.builtin.command:
-    cmd: incus config show
-  register: incus_server_config_info_state
-  changed_when: false
-  become: true
-
 - name: Ensure incus server config
   ansible.builtin.command:
     cmd: incus config edit
-    stdin: "{{ {'config': (incus_server_config_info_state.stdout | from_yaml)['config'] | combine(incus_server_preseed.config)} | to_nice_yaml }}"
+    stdin: "{{ {'config': incus_server_preseed.config} | to_nice_yaml }}"
   become: true
-  changed_when: true
-  when: (incus_server_config_info_state.stdout | from_yaml)['config'] | combine(incus_server_preseed.config) != (incus_server_config_info_state.stdout | from_yaml)['config']
+  changed_when: false
