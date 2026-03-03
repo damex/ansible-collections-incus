@@ -10,6 +10,7 @@ ansible-core = "==2.20.2"
 ansible-lint = "==26.1.1"
 yamllint = "==1.38.0"
 j2lint = "==1.2.0"
+pylint = {extras = ["spelling"], version = "==4.0.5"}
 
 [scripts]
 lint = "ansible-lint"
