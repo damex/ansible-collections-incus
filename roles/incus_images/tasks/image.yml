@@ -9,7 +9,7 @@
 
 - name: Ensure incus image is present {{ incus_images_image_name }}
   ansible.builtin.command:
-    cmd: "incus image copy {{ incus_images_image_source }} local: --target-project {{ incus_images_image_project }} {% if incus_images_image_type == 'virtual-machine' %}--vm{% endif %} --alias {{ incus_images_image_alias }} {% if incus_images_image_copy_aliases %}--copy-aliases{% endif %}"
+    cmd: "incus image copy {{ incus_images_image_source }} {{ incus_images_image_target }}: --target-project {{ incus_images_image_project }} {% if incus_images_image_type == 'virtual-machine' %}--vm{% endif %} --alias {{ incus_images_image_alias }} {% if incus_images_image_copy_aliases %}--copy-aliases{% endif %}"
   become: true
   changed_when: true
   when:
