@@ -52,9 +52,9 @@ EXAMPLES = r"""
 RETURN = r"""
 projects:
   description: List of project information.
+  elements: dict
   returned: always
   type: list
-  elements: dict
   contains:
     name:
       description: Name of the project.
