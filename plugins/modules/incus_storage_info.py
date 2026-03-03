@@ -1,0 +1,88 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright: Roman Kuzmitskii <ansible@damex.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""Gather Incus storage pool info."""
+
+from __future__ import annotations
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGS,
+    run_info_module,
+)
+
+DOCUMENTATION = r"""
+---
+module: incus_storage_info
+short_description: Gather information about Incus storage pools
+description:
+  - Gather information about Incus storage pools via the Incus REST API.
+  - Returns information about all storage pools or a specific pool.
+  - Storage pools are global resources, not project-scoped.
+extends_documentation_fragment: [damex.incus.common]
+options:
+  name:
+    description:
+      - Name of the storage pool to query.
+      - If not specified, all storage pools are returned.
+    type: str
+"""
+
+EXAMPLES = r"""
+- name: Get all storage pools
+  damex.incus.incus_storage_info:
+    socket_path: /var/lib/incus/unix.socket
+  register: result
+
+- name: Get specific storage pool
+  damex.incus.incus_storage_info:
+    name: default
+  register: result
+
+- name: Get storage pools from remote server
+  damex.incus.incus_storage_info:
+    url: https://incus.example.com:8443
+    client_cert: /etc/incus/client.crt
+    client_key: /etc/incus/client.key
+  register: result
+"""
+
+RETURN = r"""
+storage_pools:
+  description: List of storage pool information.
+  type: list
+  returned: always
+  elements: dict
+  contains:
+    name:
+      description: Name of the storage pool.
+      type: str
+    description:
+      description: Storage pool description.
+      type: str
+    driver:
+      description: Storage driver (dir, zfs, btrfs, etc.).
+      type: str
+    status:
+      description: Status of the storage pool.
+      type: str
+    config:
+      description: Storage pool configuration.
+      type: dict
+"""
+
+__all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
+
+
+def main():
+    """Run module."""
+    argument_spec = {'name': {'type': 'str'}}
+    argument_spec.update(INCUS_COMMON_ARGS)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    run_info_module(module, 'storage-pools', 'storage_pools')
+
+
+if __name__ == '__main__':
+    main()
