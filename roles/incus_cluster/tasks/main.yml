@@ -1,0 +1,12 @@
+---
+- name: Ensure incus cluster
+  tags:
+    - incus
+    - incus_cluster
+  block:
+    - name: Ensure incus cluster facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus cluster bootstrap
+      ansible.builtin.import_tasks: bootstrap.yml
+    - name: Ensure incus cluster join
+      ansible.builtin.import_tasks: join.yml

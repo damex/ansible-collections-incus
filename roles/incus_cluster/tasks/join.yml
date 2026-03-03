@@ -1,0 +1,31 @@
+---
+- name: Ensure incus cluster join
+  when: inventory_hostname != incus_cluster_primary
+  become: true
+  block:
+    - name: Ensure incus cluster member info
+      ansible.builtin.command:
+        cmd: incus cluster show {{ incus_cluster_preseed.cluster.server_name }}
+      delegate_to: "{{ incus_cluster_primary }}"
+      register: incus_cluster_member_info_state
+      failed_when: false
+      changed_when: false
+    - name: Ensure incus cluster member is joined {{ incus_cluster_preseed.cluster.server_name }}
+      when: incus_cluster_member_info_state.rc != 0
+      block:
+        - name: Ensure incus cluster member token {{ incus_cluster_preseed.cluster.server_name }}
+          ansible.builtin.command:
+            cmd: incus cluster add {{ incus_cluster_preseed.cluster.server_name }}
+          delegate_to: "{{ incus_cluster_primary }}"
+          register: incus_cluster_member_token_state
+          changed_when: true
+        - name: Ensure incus cluster is joined {{ incus_cluster_preseed.cluster.server_name }}
+          ansible.builtin.command:
+            cmd: incus admin init --preseed
+            stdin: "{{ incus_cluster_preseed | combine({'cluster': incus_cluster_preseed.cluster | combine({'cluster_address': hostvars[incus_cluster_primary].incus_cluster_preseed.cluster.server_address, 'cluster_token': incus_cluster_member_token_state.stdout_lines | last})}) | to_nice_yaml }}"
+          changed_when: true
+    - name: Ensure incus cluster config
+      ansible.builtin.command:
+        cmd: incus config edit
+        stdin: "{{ {'config': incus_cluster_preseed.config} | to_nice_yaml }}"
+      changed_when: false
