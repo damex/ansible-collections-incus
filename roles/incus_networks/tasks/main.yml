@@ -4,5 +4,7 @@
     - incus
     - incus_networks
   block:
+    - name: Ensure incus networks facts
+      ansible.builtin.import_tasks: facts.yml
     - name: Ensure incus networks
       ansible.builtin.import_tasks: networks.yml
