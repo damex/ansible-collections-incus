@@ -12,6 +12,7 @@ import yaml
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
+    INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     incus_client_from_module,
     run_write_module,
@@ -228,9 +229,7 @@ def _delete_profile(module, client, project, name):
 def main():
     """Run module."""
     argument_spec = {
-        'project': {'type': 'str', 'default': 'default'},
-        'name': {'type': 'str', 'required': True},
-        'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+        **INCUS_COMMON_ARGUMENT_SPEC,
         'description': {'type': 'str', 'default': ''},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': _DEVICE_OPTIONS},
         'config': {'type': 'dict', 'default': {}},

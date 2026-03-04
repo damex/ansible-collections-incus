@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 __all__ = [
     'INCUS_COMMON_ARGS',
+    'INCUS_COMMON_ARGUMENT_SPEC',
     'IncusClientException',
     'IncusNotFoundException',
     'IncusClient',
@@ -25,6 +26,12 @@ __all__ = [
 ]
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
+
+INCUS_COMMON_ARGUMENT_SPEC = {
+    'project': {'type': 'str', 'default': 'default'},
+    'name': {'type': 'str', 'required': True},
+    'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+}
 
 INCUS_COMMON_ARGS = {
     'socket_path': {'type': 'str', 'default': INCUS_SOCKET_PATH},
