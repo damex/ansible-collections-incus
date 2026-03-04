@@ -22,6 +22,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_project
 short_description: Manage Incus projects
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, configure, and delete Incus projects via the Incus REST API.
   - Global resource — not scoped to a project.

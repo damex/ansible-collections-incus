@@ -19,6 +19,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_server_info
 short_description: Gather information about the Incus server
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about the Incus server via the Incus REST API.
   - Returns server configuration, environment, and API details.

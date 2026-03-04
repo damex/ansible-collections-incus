@@ -23,6 +23,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_profile
 short_description: Manage Incus profiles
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus profiles via the Incus REST API.
   - Profiles are project-scoped resources.

@@ -18,6 +18,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_network_info
 short_description: Gather information about Incus networks
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus networks via the Incus REST API.
   - Returns information about all networks or a specific network.

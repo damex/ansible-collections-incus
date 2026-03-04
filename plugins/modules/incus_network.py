@@ -22,6 +22,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_network
 short_description: Manage Incus networks
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus networks via the Incus REST API.
   - Networks are project-scoped resources.

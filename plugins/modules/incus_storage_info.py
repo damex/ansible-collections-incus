@@ -18,6 +18,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_storage_info
 short_description: Gather information about Incus storage pools
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus storage pools via the Incus REST API.
   - Returns information about all storage pools or a specific pool.

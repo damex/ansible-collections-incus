@@ -22,6 +22,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_storage
 short_description: Manage Incus storage pools
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus storage pools via the Incus REST API.
   - Storage pools are global resources, not project-scoped.

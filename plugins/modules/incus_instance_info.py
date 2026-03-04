@@ -18,6 +18,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_instance_info
 short_description: Gather information about Incus instances
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus instances via the Incus REST API.
   - Returns information about all instances or a specific instance.

@@ -18,6 +18,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_cluster_info
 short_description: Gather information about Incus cluster members
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus cluster members via the Incus REST API.
   - Returns information about all cluster members or a specific member.

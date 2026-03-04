@@ -18,6 +18,7 @@ DOCUMENTATION = r"""
 ---
 module: incus_profile_info
 short_description: Gather information about Incus profiles
+author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus profiles via the Incus REST API.
   - Returns information about all profiles or a specific profile.
