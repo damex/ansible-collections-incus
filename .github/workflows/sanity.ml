@@ -1,0 +1,29 @@
+---
+name: linting
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - production
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  sanity:
+    name: sanity
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/damex/incus
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ansible_collections/damex/incus
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install --user pipenv
+      - run: pipenv install --deploy
+      - run: pipenv run sanity
