@@ -8,7 +8,11 @@
 
 from __future__ import annotations
 
-import yaml
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
@@ -239,6 +243,8 @@ def main():
     }
     argument_spec.update(INCUS_COMMON_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    if not HAS_YAML:
+        module.fail_json(msg='PyYAML is required for this module')
     project = module.params['project']
     name = module.params['name']
     desired = {
