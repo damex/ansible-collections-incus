@@ -19,6 +19,7 @@ __all__ = [
     'IncusClient',
     'incus_client_from_module',
     'run_info_module',
+    'stringify_config',
 ]
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
@@ -150,6 +151,17 @@ def incus_client_from_module(module):
         token=module.params.get('token'),
         validate_certs=module.params.get('validate_certs'),
     )
+
+
+def stringify_config(config):
+    """Convert config dict values to strings as Incus stores them."""
+    result = {}
+    for k, v in (config or {}).items():
+        if isinstance(v, bool):
+            result[k] = str(v).lower()
+        else:
+            result[k] = str(v)
+    return result
 
 
 def run_info_module(module, resource, return_key):

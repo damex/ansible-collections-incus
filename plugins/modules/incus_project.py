@@ -13,6 +13,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
     IncusNotFoundException,
     incus_client_from_module,
+    stringify_config,
 )
 
 DOCUMENTATION = r"""
@@ -69,17 +70,6 @@ RETURN = r"""
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _stringify_config(config):
-    """Convert config values to strings as Incus stores them."""
-    result = {}
-    for k, v in (config or {}).items():
-        if isinstance(v, bool):
-            result[k] = str(v).lower()
-        else:
-            result[k] = str(v)
-    return result
-
-
 def _get_project(client, name):
     """Return (metadata dict, exists bool) for the project."""
     try:
@@ -122,7 +112,7 @@ def main():
     name = module.params['name']
     desired = {
         'description': module.params['description'],
-        'config': _stringify_config(module.params['config']),
+        'config': stringify_config(module.params['config']),
     }
     try:
         client = incus_client_from_module(module)
