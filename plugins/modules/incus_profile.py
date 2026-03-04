@@ -245,6 +245,7 @@ def main():
         'config': _stringify_config(module.params['config']),
         'devices': _devices_to_api(module.params['devices']),
     }
+
     def _ensure_profile():
         client = incus_client_from_module(module)
         current, exists = _get_profile(client, project, name)
