@@ -84,21 +84,21 @@ def _get_project(client, name):
 def _create_project(module, client, name, desired):
     """Create project."""
     if not module.check_mode:
-        client.post('/1.0/projects', {'name': name, **desired})
+        client.wait(client.post('/1.0/projects', {'name': name, **desired}))
     return True
 
 
 def _update_project(module, client, name, desired):
     """Update project configuration."""
     if not module.check_mode:
-        client.put(f'/1.0/projects/{name}', desired)
+        client.wait(client.put(f'/1.0/projects/{name}', desired))
     return True
 
 
 def _delete_project(module, client, name):
     """Delete project."""
     if not module.check_mode:
-        client.delete(f'/1.0/projects/{name}')
+        client.wait(client.delete(f'/1.0/projects/{name}'))
     return True
 
 

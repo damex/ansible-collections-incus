@@ -105,21 +105,21 @@ def _get_storage(client, name):
 def _create_storage(module, client, name, driver, desired):
     """Create storage pool."""
     if not module.check_mode:
-        client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired})
+        client.wait(client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
     return True
 
 
 def _update_storage(module, client, name, desired):
     """Update storage pool configuration."""
     if not module.check_mode:
-        client.put(f'/1.0/storage-pools/{name}', desired)
+        client.wait(client.put(f'/1.0/storage-pools/{name}', desired))
     return True
 
 
 def _delete_storage(module, client, name):
     """Delete storage pool."""
     if not module.check_mode:
-        client.delete(f'/1.0/storage-pools/{name}')
+        client.wait(client.delete(f'/1.0/storage-pools/{name}'))
     return True
 
 

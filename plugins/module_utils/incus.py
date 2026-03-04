@@ -12,7 +12,14 @@ import socket
 import ssl
 from urllib.parse import urlparse
 
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+
 __all__ = [
+    'HAS_YAML',
     'INCUS_COMMON_ARGS',
     'INCUS_COMMON_ARGUMENT_SPEC',
     'IncusClientException',
@@ -22,8 +29,11 @@ __all__ = [
     'run_info_module',
     'run_write_module',
     'stringify_config',
+    'stringify_instance_config',
     'build_desired',
 ]
+
+_CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
 
@@ -147,6 +157,12 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         """DELETE request."""
         return self._request('DELETE', path)
 
+    def wait(self, response):
+        """Wait for an async operation to complete."""
+        if response.get('type') == 'async':
+            op_id = response['metadata']['id']
+            self._request('GET', f'/1.0/operations/{op_id}/wait')
+
 
 def incus_client_from_module(module):
     """Build client from module params."""
@@ -166,6 +182,20 @@ def stringify_config(config):
     result = {}
     for k, v in (config or {}).items():
         if isinstance(v, bool):
+            result[k] = str(v).lower()
+        else:
+            result[k] = str(v)
+    return result
+
+
+def stringify_instance_config(config):
+    """Convert config dict values to strings, serializing cloud-init dict values to YAML."""
+    result = {}
+    for k, v in (config or {}).items():
+        if isinstance(v, (dict, list)):
+            prefix = '#cloud-config\n' if k in _CLOUD_INIT_USER_KEYS else ''
+            result[k] = prefix + yaml.dump(v, default_flow_style=False)
+        elif isinstance(v, bool):
             result[k] = str(v).lower()
         else:
             result[k] = str(v)

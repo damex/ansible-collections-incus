@@ -1,1 +1,2 @@
+plugins/modules/incus_instance.py validate-modules:parameter-invalid
 plugins/modules/incus_profile.py validate-modules:parameter-invalid

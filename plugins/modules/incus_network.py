@@ -96,21 +96,21 @@ def _get_network(client, project, name):
 def _create_network(module, client, project, name, desired):
     """Create network."""
     if not module.check_mode:
-        client.post(f'/1.0/networks?project={project}', {'name': name, **desired})
+        client.wait(client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_network(module, client, project, name, desired):
     """Update network configuration."""
     if not module.check_mode:
-        client.put(f'/1.0/networks/{name}?project={project}', desired)
+        client.wait(client.put(f'/1.0/networks/{name}?project={project}', desired))
     return True
 
 
 def _delete_network(module, client, project, name):
     """Delete network."""
     if not module.check_mode:
-        client.delete(f'/1.0/networks/{name}?project={project}')
+        client.wait(client.delete(f'/1.0/networks/{name}?project={project}'))
     return True
 
 

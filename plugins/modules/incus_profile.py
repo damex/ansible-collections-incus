@@ -131,76 +131,22 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-try:
-    import yaml
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
-
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.device import (
+    INCUS_DEVICE_OPTIONS,
+    devices_to_api,
+)
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    HAS_YAML,
     INCUS_COMMON_ARGS,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     incus_client_from_module,
     run_write_module,
+    stringify_instance_config,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
-
-_CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
-
-_DEVICE_OPTIONS = {
-    'name': {'type': 'str', 'required': True},
-    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic']},
-    # disk
-    'path': {'type': 'str'},
-    'pool': {'type': 'str'},
-    'source': {'type': 'str'},
-    'size': {'type': 'str'},
-    'readonly': {'type': 'bool'},
-    # nic
-    'network': {'type': 'str'},
-    'nictype': {'type': 'str'},
-    'parent': {'type': 'str'},
-    'hwaddr': {'type': 'str'},
-    'mtu': {'type': 'str'},
-    'ipv4.address': {'type': 'str'},
-    'ipv4.routes': {'type': 'str'},
-    'ipv6.address': {'type': 'str'},
-    'ipv6.routes': {'type': 'str'},
-}
-
-
-def _stringify_config(config):
-    """Convert config values to strings as Incus stores them."""
-    result = {}
-    for k, v in (config or {}).items():
-        if isinstance(v, (dict, list)):
-            prefix = '#cloud-config\n' if k in _CLOUD_INIT_USER_KEYS else ''
-            result[k] = prefix + yaml.dump(v, default_flow_style=False)
-        elif isinstance(v, bool):
-            result[k] = str(v).lower()
-        else:
-            result[k] = str(v)
-    return result
-
-
-def _devices_to_api(devices):
-    """Convert list of devices to Incus API dict format."""
-    api_devices = {}
-    for device in (devices or []):
-        device_name = device['name']
-        device_config = {}
-        for k, v in device.items():
-            if k == 'name' or v is None:
-                continue
-            if isinstance(v, bool):
-                device_config[k] = str(v).lower()
-            else:
-                device_config[k] = str(v)
-        api_devices[device_name] = device_config
-    return api_devices
 
 
 def _get_profile(client, project, name):
@@ -214,21 +160,21 @@ def _get_profile(client, project, name):
 def _create_profile(module, client, project, name, desired):
     """Create profile."""
     if not module.check_mode:
-        client.post(f'/1.0/profiles?project={project}', {'name': name, **desired})
+        client.wait(client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_profile(module, client, project, name, desired):
     """Update profile configuration and devices."""
     if not module.check_mode:
-        client.put(f'/1.0/profiles/{name}?project={project}', desired)
+        client.wait(client.put(f'/1.0/profiles/{name}?project={project}', desired))
     return True
 
 
 def _delete_profile(module, client, project, name):
     """Delete profile."""
     if not module.check_mode:
-        client.delete(f'/1.0/profiles/{name}?project={project}')
+        client.wait(client.delete(f'/1.0/profiles/{name}?project={project}'))
     return True
 
 
@@ -238,7 +184,7 @@ def main():
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
-        'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': _DEVICE_OPTIONS},
+        'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
         'config': {'type': 'dict', 'default': {}},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
@@ -249,8 +195,8 @@ def main():
     name = module.params['name']
     desired = {
         'description': module.params['description'],
-        'config': _stringify_config(module.params['config']),
-        'devices': _devices_to_api(module.params['devices']),
+        'config': stringify_instance_config(module.params['config']),
+        'devices': devices_to_api(module.params['devices']),
     }
 
     def _ensure_profile():
