@@ -1,66 +1,15 @@
 ---
 - name: Ensure incus instance {{ incus_instances_instance_name }}
-  when: incus_instances_cluster_info_state.cluster_members | length == 0 or 'database' in incus_instances_cluster_info_state.cluster_members[0].roles
+  damex.incus.incus_instance:
+    name: "{{ incus_instances_instance_name }}"
+    state: "{{ incus_instances_instance_state }}"
+    source: "{{ incus_instances_instance_source | default(omit) }}"
+    type: "{{ incus_instances_instance_type }}"
+    project: "{{ incus_instances_instance_project }}"
+    profiles: "{{ incus_instances_instance_profiles }}"
+    ephemeral: "{{ incus_instances_instance_ephemeral }}"
+    config: "{{ incus_instances_instance_config | default(omit) }}"
+    devices: "{{ incus_instances_instance_devices | default(omit) }}"
+    socket_path: "{{ incus_instances_socket_path }}"
   become: true
-  block:
-    - name: Ensure incus instance info {{ incus_instances_instance_name }}
-      damex.incus.incus_instance_info:
-        name: "{{ incus_instances_instance_name }}"
-        project: "{{ incus_instances_instance_project }}"
-        socket_path: "{{ incus_instances_socket_path }}"
-      register: incus_instances_instance_info_state
-    - name: Ensure incus instance is initialized {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} init {{ incus_instances_instance_source }} {{ incus_instances_instance_name }} {% if incus_instances_instance_type == 'virtual-machine' %}--vm{% endif %} {% if incus_instances_instance_ephemeral %}--ephemeral{% endif %}
-        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
-      vars:
-        incus_template_config: "{{ incus_instances_instance_config }}"
-        incus_template_devices: "{{ incus_instances_instance_devices }}"
-        incus_template_profiles: "{{ incus_instances_instance_profiles }}"
-      changed_when: true
-      when:
-        - incus_instances_instance_info_state.instances | length == 0
-        - incus_instances_instance_state != "absent"
-    - name: Ensure incus instance configuration {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} config edit {{ incus_instances_instance_name }}
-        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
-      vars:
-        incus_template_current_config: "{{ incus_instances_instance_info_state.instances[0] }}"
-        incus_template_config: "{{ incus_instances_instance_config | default(omit) }}"
-        incus_template_devices: "{{ incus_instances_instance_devices | default(omit) }}"
-        incus_template_profiles: "{{ incus_instances_instance_profiles }}"
-      changed_when: false
-      when:
-        - incus_instances_instance_info_state.instances | length > 0
-        - incus_instances_instance_state != "absent"
-    - name: Ensure incus instance is started {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} start {{ incus_instances_instance_name }}
-      changed_when: true
-      when:
-        - incus_instances_instance_state == "started"
-        - incus_instances_instance_info_state.instances | length == 0 or incus_instances_instance_info_state.instances[0].status != "Running"
-    - name: Ensure incus instance is stopped {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} stop {{ incus_instances_instance_name }}
-      changed_when: true
-      when:
-        - incus_instances_instance_state == "stopped"
-        - incus_instances_instance_info_state.instances | length > 0
-        - incus_instances_instance_info_state.instances[0].status != "Stopped"
-    - name: Ensure incus instance is restarted {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} restart {{ incus_instances_instance_name }} --force
-      changed_when: true
-      when:
-        - incus_instances_instance_state == "restarted"
-        - incus_instances_instance_info_state.instances | length > 0
-        - incus_instances_instance_info_state.instances[0].status == "Running"
-    - name: Ensure incus instance is absent {{ incus_instances_instance_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_instances_instance_project }} delete {{ incus_instances_instance_name }} --force
-      changed_when: true
-      when:
-        - incus_instances_instance_state == "absent"
-        - incus_instances_instance_info_state.instances | length > 0
+  when: incus_instances_cluster_info_state.cluster_members | length == 0 or 'database' in incus_instances_cluster_info_state.cluster_members[0].roles
