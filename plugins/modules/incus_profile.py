@@ -8,21 +8,6 @@
 
 from __future__ import annotations
 
-try:
-    import yaml
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
-
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
-    INCUS_COMMON_ARGUMENT_SPEC,
-    IncusNotFoundException,
-    incus_client_from_module,
-    run_write_module,
-)
-
 DOCUMENTATION = r"""
 ---
 module: incus_profile
@@ -145,6 +130,21 @@ EXAMPLES = r"""
 
 RETURN = r"""
 """
+
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGS,
+    INCUS_COMMON_ARGUMENT_SPEC,
+    IncusNotFoundException,
+    incus_client_from_module,
+    run_write_module,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 

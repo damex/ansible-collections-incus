@@ -8,12 +8,6 @@
 
 from __future__ import annotations
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
-    run_info_module,
-)
-
 DOCUMENTATION = r"""
 ---
 module: incus_instance_info
@@ -81,6 +75,12 @@ instances:
       type: list
       elements: str
 """
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGS,
+    run_info_module,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
