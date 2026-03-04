@@ -28,7 +28,6 @@ __all__ = [
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
 
 INCUS_COMMON_ARGUMENT_SPEC = {
-    'project': {'type': 'str', 'default': 'default'},
     'name': {'type': 'str', 'required': True},
     'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
 }

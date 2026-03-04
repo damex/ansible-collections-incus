@@ -116,6 +116,7 @@ def main():
     """Run module."""
     argument_spec = {
         **INCUS_COMMON_ARGUMENT_SPEC,
+        'project': {'type': 'str', 'default': 'default'},
         'type': {'type': 'str', 'choices': ['bridge', 'macvlan', 'sriov', 'physical']},
         'config': {'type': 'dict', 'default': {}},
         'description': {'type': 'str', 'default': ''},

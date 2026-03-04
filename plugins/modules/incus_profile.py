@@ -230,6 +230,7 @@ def main():
     """Run module."""
     argument_spec = {
         **INCUS_COMMON_ARGUMENT_SPEC,
+        'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': _DEVICE_OPTIONS},
         'config': {'type': 'dict', 'default': {}},

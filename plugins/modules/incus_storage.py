@@ -10,6 +10,7 @@ from __future__ import annotations
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
+    INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     build_desired,
     incus_client_from_module,
@@ -123,8 +124,7 @@ def _delete_storage(module, client, name):
 def main():
     """Run module."""
     argument_spec = {
-        'name': {'type': 'str', 'required': True},
-        'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+        **INCUS_COMMON_ARGUMENT_SPEC,
         'driver': {
             'type': 'str',
             'choices': [
