@@ -1,36 +1,12 @@
 ---
 - name: Ensure incus profile {{ incus_profiles_profile_name }}
-  when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database' in incus_profiles_cluster_info_state.cluster_members[0].roles
+  damex.incus.incus_profile:
+    name: "{{ incus_profiles_profile_name }}"
+    state: "{{ incus_profiles_profile_state }}"
+    description: "{{ incus_profiles_profile.description | default(omit) }}"
+    config: "{{ incus_profiles_profile.config | default(omit) }}"
+    devices: "{{ incus_profiles_profile.devices | default(omit) }}"
+    project: "{{ incus_profiles_profile_project }}"
+    socket_path: "{{ incus_profiles_socket_path }}"
   become: true
-  block:
-    - name: Ensure incus profile info {{ incus_profiles_profile_name }}
-      damex.incus.incus_profile_info:
-        name: "{{ incus_profiles_profile_name }}"
-        project: "{{ incus_profiles_profile_project }}"
-        socket_path: "{{ incus_profiles_socket_path }}"
-      register: incus_profiles_profile_info_state
-    - name: Ensure incus profile is created {{ incus_profiles_profile_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_profiles_profile_project }} profile create {{ incus_profiles_profile_name }}
-      changed_when: true
-      when:
-        - incus_profiles_profile_info_state.profiles | length == 0
-        - incus_profiles_profile_state != "absent"
-    - name: Ensure incus profile configuration {{ incus_profiles_profile_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_profiles_profile_project }} profile edit {{ incus_profiles_profile_name }}
-        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/profile.j2') }}"
-      vars:
-        incus_template_config: "{{ incus_profiles_profile_config }}"
-        incus_template_devices: "{{ incus_profiles_profile_devices }}"
-      changed_when: false
-      when:
-        - incus_profiles_profile_info_state.profiles | length > 0
-        - incus_profiles_profile_state != "absent"
-    - name: Ensure incus profile is absent {{ incus_profiles_profile_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_profiles_profile_project }} profile delete {{ incus_profiles_profile_name }}
-      changed_when: true
-      when:
-        - incus_profiles_profile_state == "absent"
-        - incus_profiles_profile_info_state.profiles | length > 0
+  when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database' in incus_profiles_cluster_info_state.cluster_members[0].roles
