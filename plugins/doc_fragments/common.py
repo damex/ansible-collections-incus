@@ -40,7 +40,6 @@ options:
     description:
       - Token for remote authentication.
     type: str
-    no_log: true
   validate_certs:
     description:
       - Whether to validate the server TLS certificate.
