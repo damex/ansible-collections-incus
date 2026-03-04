@@ -1,38 +1,11 @@
 ---
 - name: Ensure incus network {{ incus_networks_network_name }}
-  when: incus_networks_cluster_info_state.cluster_members | length == 0 or 'database' in incus_networks_cluster_info_state.cluster_members[0].roles
+  damex.incus.incus_network:
+    name: "{{ incus_networks_network_name }}"
+    state: "{{ incus_networks_network_state }}"
+    type: "{{ incus_networks_network.type }}"
+    project: "{{ incus_networks_network_project }}"
+    config: "{{ incus_networks_network.config | default(omit) }}"
+    socket_path: "{{ incus_networks_socket_path }}"
   become: true
-  block:
-    - name: Ensure incus network info {{ incus_networks_network_name }}
-      damex.incus.incus_network_info:
-        name: "{{ incus_networks_network_name }}"
-        project: "{{ incus_networks_network_project }}"
-        socket_path: "{{ incus_networks_socket_path }}"
-      register: incus_networks_network_info_state
-    - name: Ensure incus network is created {{ incus_networks_network_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_networks_network_project }} network create {{ incus_networks_network_name }} --type {{ incus_networks_network_type }}
-        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/network.j2') }}"
-      vars:
-        incus_template_config: "{{ incus_networks_network_config }}"
-      changed_when: true
-      when:
-        - incus_networks_network_info_state.networks | length == 0
-        - incus_networks_network_state != "absent"
-    - name: Ensure incus network configuration {{ incus_networks_network_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_networks_network_project }} network edit {{ incus_networks_network_name }}
-        stdin: "{{ lookup('ansible.builtin.template', role_path | dirname | dirname + '/templates/network.j2') }}"
-      vars:
-        incus_template_config: "{{ incus_networks_network_config }}"
-      changed_when: false
-      when:
-        - incus_networks_network_info_state.networks | length > 0
-        - incus_networks_network_state != "absent"
-    - name: Ensure incus network is absent {{ incus_networks_network_name }}
-      ansible.builtin.command:
-        cmd: incus --project {{ incus_networks_network_project }} network delete {{ incus_networks_network_name }}
-      changed_when: true
-      when:
-        - incus_networks_network_state == "absent"
-        - incus_networks_network_info_state.networks | length > 0
+  when: incus_networks_cluster_info_state.cluster_members | length == 0 or 'database' in incus_networks_cluster_info_state.cluster_members[0].roles
