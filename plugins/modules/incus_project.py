@@ -10,10 +10,10 @@ from __future__ import annotations
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
-    IncusClientException,
     IncusNotFoundException,
+    build_desired,
     incus_client_from_module,
-    stringify_config,
+    run_write_module,
 )
 
 DOCUMENTATION = r"""
@@ -110,26 +110,21 @@ def main():
     argument_spec.update(INCUS_COMMON_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     name = module.params['name']
-    desired = {
-        'description': module.params['description'],
-        'config': stringify_config(module.params['config']),
-    }
-    try:
+    desired = build_desired(module)
+
+    def _impl():
         client = incus_client_from_module(module)
         current, exists = _get_project(client, name)
         if module.params['state'] == 'present':
             if not exists:
-                changed = _create_project(module, client, name, desired)
-            elif (current.get('description', '') == desired['description']
+                return _create_project(module, client, name, desired)
+            if (current.get('description', '') == desired['description']
                     and current.get('config', {}) == desired['config']):
-                changed = False
-            else:
-                changed = _update_project(module, client, name, desired)
-        else:
-            changed = _delete_project(module, client, name) if exists else False
-        module.exit_json(changed=changed)
-    except IncusClientException as e:
-        module.fail_json(msg=str(e))
+                return False
+            return _update_project(module, client, name, desired)
+        return _delete_project(module, client, name) if exists else False
+
+    run_write_module(module, _impl)
 
 
 if __name__ == '__main__':

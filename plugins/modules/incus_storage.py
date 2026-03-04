@@ -10,10 +10,10 @@ from __future__ import annotations
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
-    IncusClientException,
     IncusNotFoundException,
+    build_desired,
     incus_client_from_module,
-    stringify_config,
+    run_write_module,
 )
 
 DOCUMENTATION = r"""
@@ -138,28 +138,23 @@ def main():
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     driver = module.params['driver']
     name = module.params['name']
-    desired = {
-        'config': stringify_config(module.params['config']),
-        'description': module.params['description'],
-    }
-    try:
+    desired = build_desired(module)
+
+    def _impl():
         client = incus_client_from_module(module)
         current, exists = _get_storage(client, name)
         if module.params['state'] == 'present':
             if not exists:
                 if not driver:
                     module.fail_json(msg="'driver' is required when creating a storage pool")
-                changed = _create_storage(module, client, name, driver, desired)
-            elif (current.get('description', '') == desired['description']
+                return _create_storage(module, client, name, driver, desired)
+            if (current.get('description', '') == desired['description']
                     and current.get('config', {}) == desired['config']):
-                changed = False
-            else:
-                changed = _update_storage(module, client, name, desired)
-        else:
-            changed = _delete_storage(module, client, name) if exists else False
-        module.exit_json(changed=changed)
-    except IncusClientException as client_error:
-        module.fail_json(msg=str(client_error))
+                return False
+            return _update_storage(module, client, name, desired)
+        return _delete_storage(module, client, name) if exists else False
+
+    run_write_module(module, _impl)
 
 
 if __name__ == '__main__':

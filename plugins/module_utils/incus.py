@@ -19,7 +19,9 @@ __all__ = [
     'IncusClient',
     'incus_client_from_module',
     'run_info_module',
+    'run_write_module',
     'stringify_config',
+    'build_desired',
 ]
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
@@ -162,6 +164,22 @@ def stringify_config(config):
         else:
             result[k] = str(v)
     return result
+
+
+def build_desired(module):
+    """Build standard desired-state dict from description and config params."""
+    return {
+        'description': module.params['description'],
+        'config': stringify_config(module.params['config']),
+    }
+
+
+def run_write_module(module, impl):
+    """Run write module logic with standard error handling and exit."""
+    try:
+        module.exit_json(changed=impl())
+    except IncusClientException as exc:
+        module.fail_json(msg=str(exc))
 
 
 def run_info_module(module, resource, return_key):

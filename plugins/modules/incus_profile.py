@@ -12,9 +12,9 @@ import yaml
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
-    IncusClientException,
     IncusNotFoundException,
     incus_client_from_module,
+    run_write_module,
 )
 
 DOCUMENTATION = r"""
@@ -244,23 +244,20 @@ def main():
         'config': _stringify_config(module.params['config']),
         'devices': _devices_to_api(module.params['devices']),
     }
-    try:
+    def _impl():
         client = incus_client_from_module(module)
         current, exists = _get_profile(client, project, name)
         if module.params['state'] == 'present':
             if not exists:
-                changed = _create_profile(module, client, project, name, desired)
-            elif (current.get('description', '') == desired['description']
+                return _create_profile(module, client, project, name, desired)
+            if (current.get('description', '') == desired['description']
                     and current.get('config', {}) == desired['config']
                     and current.get('devices', {}) == desired['devices']):
-                changed = False
-            else:
-                changed = _update_profile(module, client, project, name, desired)
-        else:
-            changed = _delete_profile(module, client, project, name) if exists else False
-        module.exit_json(changed=changed)
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+                return False
+            return _update_profile(module, client, project, name, desired)
+        return _delete_profile(module, client, project, name) if exists else False
+
+    run_write_module(module, _impl)
 
 
 if __name__ == '__main__':
