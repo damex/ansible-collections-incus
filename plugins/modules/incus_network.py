@@ -17,7 +17,7 @@ description:
   - Create, update, and delete Incus networks via the Incus REST API.
   - Networks are project-scoped resources.
   - The network type is set on creation and cannot be changed afterwards.
-extends_documentation_fragment: [damex.incus.common, damex.incus.common.project]
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.project, damex.incus.common.write]
 options:
   name:
     description:
@@ -75,6 +75,8 @@ RETURN = r"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
+    INCUS_WRITE_ARGS,
+    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     build_desired,
@@ -96,21 +98,21 @@ def _get_network(client, project, name):
 def _create_network(module, client, project, name, desired):
     """Create network."""
     if not module.check_mode:
-        client.wait(client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
+        maybe_wait(module, client, client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_network(module, client, project, name, desired):
     """Update network configuration."""
     if not module.check_mode:
-        client.wait(client.put(f'/1.0/networks/{name}?project={project}', desired))
+        maybe_wait(module, client, client.put(f'/1.0/networks/{name}?project={project}', desired))
     return True
 
 
 def _delete_network(module, client, project, name):
     """Delete network."""
     if not module.check_mode:
-        client.wait(client.delete(f'/1.0/networks/{name}?project={project}'))
+        maybe_wait(module, client, client.delete(f'/1.0/networks/{name}?project={project}'))
     return True
 
 
@@ -124,6 +126,7 @@ def main():
         'description': {'type': 'str', 'default': ''},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     network_type = module.params['type']
     project = module.params['project']

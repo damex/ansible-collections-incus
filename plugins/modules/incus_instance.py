@@ -17,7 +17,7 @@ description:
   - Create, configure, and manage the lifecycle of Incus instances via the Incus REST API.
   - Instances are project-scoped resources.
   - The instance type and source are set on creation and cannot be changed afterwards.
-extends_documentation_fragment: [damex.incus.common, damex.incus.common.project]
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.project, damex.incus.common.write]
 options:
   name:
     description:
@@ -178,6 +178,8 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     HAS_YAML,
     INCUS_COMMON_ARGS,
+    INCUS_WRITE_ARGS,
+    maybe_wait,
     IncusNotFoundException,
     incus_client_from_module,
     run_write_module,
@@ -226,21 +228,21 @@ def _create_instance(module, client, project, name, desired):
     """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
     if not module.check_mode:
         response = client.post(f'/1.0/instances?project={project}', {'name': name, **desired})
-        client.wait(response)
+        maybe_wait(module, client, response)
     return True
 
 
 def _update_instance(module, client, project, name, desired):
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
-        client.wait(client.put(f'/1.0/instances/{name}?project={project}', desired))
+        maybe_wait(module, client, client.put(f'/1.0/instances/{name}?project={project}', desired))
     return True
 
 
 def _delete_instance(module, client, project, name):
     """Delete instance."""
     if not module.check_mode:
-        client.wait(client.delete(f'/1.0/instances/{name}?project={project}'))
+        maybe_wait(module, client, client.delete(f'/1.0/instances/{name}?project={project}'))
     return True
 
 
@@ -248,15 +250,15 @@ def _manage_state(module, client, state_path, state, status):
     """Start, stop, or restart the instance based on desired state."""
     if state == 'started' and status != 'Running':
         if not module.check_mode:
-            client.wait(client.put(state_path, {'action': 'start'}))
+            maybe_wait(module, client, client.put(state_path, {'action': 'start'}))
         return True
     if state == 'stopped' and status != 'Stopped':
         if not module.check_mode:
-            client.wait(client.put(state_path, {'action': 'stop', 'force': True}))
+            maybe_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
         return True
     if state == 'restarted' and status == 'Running':
         if not module.check_mode:
-            client.wait(client.put(state_path, {'action': 'restart', 'force': True}))
+            maybe_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
         return True
     return False
 
@@ -279,6 +281,7 @@ def main():
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     if not HAS_YAML:
         module.fail_json(msg='PyYAML is required for this module')

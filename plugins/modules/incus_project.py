@@ -16,7 +16,7 @@ author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, configure, and delete Incus projects via the Incus REST API.
   - Global resource — not scoped to a project.
-extends_documentation_fragment: [damex.incus.common]
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.write]
 options:
   name:
     description:
@@ -63,6 +63,8 @@ RETURN = r"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
+    INCUS_WRITE_ARGS,
+    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     build_desired,
@@ -84,21 +86,21 @@ def _get_project(client, name):
 def _create_project(module, client, name, desired):
     """Create project."""
     if not module.check_mode:
-        client.wait(client.post('/1.0/projects', {'name': name, **desired}))
+        maybe_wait(module, client, client.post('/1.0/projects', {'name': name, **desired}))
     return True
 
 
 def _update_project(module, client, name, desired):
     """Update project configuration."""
     if not module.check_mode:
-        client.wait(client.put(f'/1.0/projects/{name}', desired))
+        maybe_wait(module, client, client.put(f'/1.0/projects/{name}', desired))
     return True
 
 
 def _delete_project(module, client, name):
     """Delete project."""
     if not module.check_mode:
-        client.wait(client.delete(f'/1.0/projects/{name}'))
+        maybe_wait(module, client, client.delete(f'/1.0/projects/{name}'))
     return True
 
 
@@ -110,6 +112,7 @@ def main():
         'config': {'type': 'dict', 'default': {}},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     name = module.params['name']
     desired = build_desired(module)

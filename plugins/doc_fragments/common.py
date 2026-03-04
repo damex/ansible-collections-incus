@@ -55,3 +55,13 @@ options:
     type: str
     default: default
 """
+
+    WRITE = r"""
+options:
+  wait:
+    description:
+      - Whether to wait for async operations to complete before returning.
+      - Set to C(false) for fire-and-forget behaviour.
+    type: bool
+    default: true
+"""

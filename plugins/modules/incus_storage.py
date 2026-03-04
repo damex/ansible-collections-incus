@@ -17,7 +17,7 @@ description:
   - Create, update, and delete Incus storage pools via the Incus REST API.
   - Storage pools are global resources, not project-scoped.
   - The storage driver is set on creation and cannot be changed afterwards.
-extends_documentation_fragment: [damex.incus.common]
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.write]
 options:
   name:
     description:
@@ -84,6 +84,8 @@ RETURN = r"""
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
+    INCUS_WRITE_ARGS,
+    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     build_desired,
@@ -105,21 +107,21 @@ def _get_storage(client, name):
 def _create_storage(module, client, name, driver, desired):
     """Create storage pool."""
     if not module.check_mode:
-        client.wait(client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
+        maybe_wait(module, client, client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
     return True
 
 
 def _update_storage(module, client, name, desired):
     """Update storage pool configuration."""
     if not module.check_mode:
-        client.wait(client.put(f'/1.0/storage-pools/{name}', desired))
+        maybe_wait(module, client, client.put(f'/1.0/storage-pools/{name}', desired))
     return True
 
 
 def _delete_storage(module, client, name):
     """Delete storage pool."""
     if not module.check_mode:
-        client.wait(client.delete(f'/1.0/storage-pools/{name}'))
+        maybe_wait(module, client, client.delete(f'/1.0/storage-pools/{name}'))
     return True
 
 
@@ -137,6 +139,7 @@ def main():
         'description': {'type': 'str', 'default': ''},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     driver = module.params['driver']
     name = module.params['name']

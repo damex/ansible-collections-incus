@@ -22,10 +22,12 @@ __all__ = [
     'HAS_YAML',
     'INCUS_COMMON_ARGS',
     'INCUS_COMMON_ARGUMENT_SPEC',
+    'INCUS_WRITE_ARGS',
     'IncusClientException',
     'IncusNotFoundException',
     'IncusClient',
     'incus_client_from_module',
+    'maybe_wait',
     'run_info_module',
     'run_write_module',
     'stringify_config',
@@ -36,6 +38,10 @@ __all__ = [
 _CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
+
+INCUS_WRITE_ARGS = {
+    'wait': {'type': 'bool', 'default': True},
+}
 
 INCUS_COMMON_ARGUMENT_SPEC = {
     'name': {'type': 'str', 'required': True},
@@ -243,3 +249,9 @@ def run_info_module(module, resource, return_key):
         module.fail_json(msg=str(e))
 
     module.exit_json(**{return_key: result})
+
+
+def maybe_wait(module, client, response):
+    """Wait for an async operation only if the wait param is true."""
+    if module.params.get('wait', True):
+        client.wait(response)

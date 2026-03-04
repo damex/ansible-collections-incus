@@ -16,7 +16,7 @@ author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus profiles via the Incus REST API.
   - Profiles are project-scoped resources.
-extends_documentation_fragment: [damex.incus.common, damex.incus.common.project]
+extends_documentation_fragment: [damex.incus.common, damex.incus.common.project, damex.incus.common.write]
 options:
   name:
     description:
@@ -139,6 +139,8 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     HAS_YAML,
     INCUS_COMMON_ARGS,
+    INCUS_WRITE_ARGS,
+    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     incus_client_from_module,
@@ -160,21 +162,21 @@ def _get_profile(client, project, name):
 def _create_profile(module, client, project, name, desired):
     """Create profile."""
     if not module.check_mode:
-        client.wait(client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
+        maybe_wait(module, client, client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_profile(module, client, project, name, desired):
     """Update profile configuration and devices."""
     if not module.check_mode:
-        client.wait(client.put(f'/1.0/profiles/{name}?project={project}', desired))
+        maybe_wait(module, client, client.put(f'/1.0/profiles/{name}?project={project}', desired))
     return True
 
 
 def _delete_profile(module, client, project, name):
     """Delete profile."""
     if not module.check_mode:
-        client.wait(client.delete(f'/1.0/profiles/{name}?project={project}'))
+        maybe_wait(module, client, client.delete(f'/1.0/profiles/{name}?project={project}'))
     return True
 
 
@@ -188,6 +190,7 @@ def main():
         'config': {'type': 'dict', 'default': {}},
     }
     argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     if not HAS_YAML:
         module.fail_json(msg='PyYAML is required for this module')
