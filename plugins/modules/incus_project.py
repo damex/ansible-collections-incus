@@ -80,6 +80,35 @@ def _stringify_config(config):
     return result
 
 
+def _get_project(client, name):
+    """Return (metadata dict, exists bool) for the project."""
+    try:
+        return client.get(f'/1.0/projects/{name}').get('metadata') or {}, True
+    except IncusNotFoundException:
+        return {}, False
+
+
+def _create_project(module, client, name, desired):
+    """Create project."""
+    if not module.check_mode:
+        client.post('/1.0/projects', {'name': name, **desired})
+    return True
+
+
+def _update_project(module, client, name, desired):
+    """Update project configuration."""
+    if not module.check_mode:
+        client.put(f'/1.0/projects/{name}', desired)
+    return True
+
+
+def _delete_project(module, client, name):
+    """Delete project."""
+    if not module.check_mode:
+        client.delete(f'/1.0/projects/{name}')
+    return True
+
+
 def main():
     """Run module."""
     argument_spec = {
@@ -90,53 +119,25 @@ def main():
     }
     argument_spec.update(INCUS_COMMON_ARGS)
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
-
     name = module.params['name']
-    state = module.params['state']
-    description = module.params['description']
-    config = _stringify_config(module.params['config'])
-
+    desired = {
+        'description': module.params['description'],
+        'config': _stringify_config(module.params['config']),
+    }
     try:
         client = incus_client_from_module(module)
-
-        try:
-            response = client.get(f'/1.0/projects/{name}')
-            current = response.get('metadata') or {}
-            exists = True
-        except IncusNotFoundException:
-            current = {}
-            exists = False
-
-        if state == 'present':
+        current, exists = _get_project(client, name)
+        if module.params['state'] == 'present':
             if not exists:
-                if not module.check_mode:
-                    client.post('/1.0/projects', {
-                        'name': name,
-                        'description': description,
-                        'config': config,
-                    })
-                module.exit_json(changed=True)
-
-            current_description = current.get('description', '')
-            current_config = current.get('config', {})
-
-            if current_description == description and current_config == config:
-                module.exit_json(changed=False)
-
-            if not module.check_mode:
-                client.put(f'/1.0/projects/{name}', {
-                    'description': description,
-                    'config': config,
-                })
-            module.exit_json(changed=True)
-
-        if not exists:
-            module.exit_json(changed=False)
-
-        if not module.check_mode:
-            client.delete(f'/1.0/projects/{name}')
-        module.exit_json(changed=True)
-
+                changed = _create_project(module, client, name, desired)
+            elif (current.get('description', '') == desired['description']
+                    and current.get('config', {}) == desired['config']):
+                changed = False
+            else:
+                changed = _update_project(module, client, name, desired)
+        else:
+            changed = _delete_project(module, client, name) if exists else False
+        module.exit_json(changed=changed)
     except IncusClientException as e:
         module.fail_json(msg=str(e))
 
