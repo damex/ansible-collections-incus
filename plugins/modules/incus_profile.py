@@ -243,7 +243,7 @@ def main():
         'config': _stringify_config(module.params['config']),
         'devices': _devices_to_api(module.params['devices']),
     }
-    def _impl():
+    def _ensure_profile():
         client = incus_client_from_module(module)
         current, exists = _get_profile(client, project, name)
         if module.params['state'] == 'present':
@@ -256,7 +256,7 @@ def main():
             return _update_profile(module, client, project, name, desired)
         return _delete_profile(module, client, project, name) if exists else False
 
-    run_write_module(module, _impl)
+    run_write_module(module, _ensure_profile)
 
 
 if __name__ == '__main__':

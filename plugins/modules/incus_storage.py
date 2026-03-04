@@ -140,7 +140,7 @@ def main():
     name = module.params['name']
     desired = build_desired(module)
 
-    def _impl():
+    def _ensure_storage():
         client = incus_client_from_module(module)
         current, exists = _get_storage(client, name)
         if module.params['state'] == 'present':
@@ -154,7 +154,7 @@ def main():
             return _update_storage(module, client, name, desired)
         return _delete_storage(module, client, name) if exists else False
 
-    run_write_module(module, _impl)
+    run_write_module(module, _ensure_storage)
 
 
 if __name__ == '__main__':

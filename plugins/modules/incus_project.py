@@ -112,7 +112,7 @@ def main():
     name = module.params['name']
     desired = build_desired(module)
 
-    def _impl():
+    def _ensure_project():
         client = incus_client_from_module(module)
         current, exists = _get_project(client, name)
         if module.params['state'] == 'present':
@@ -124,7 +124,7 @@ def main():
             return _update_project(module, client, name, desired)
         return _delete_project(module, client, name) if exists else False
 
-    run_write_module(module, _impl)
+    run_write_module(module, _ensure_project)
 
 
 if __name__ == '__main__':
