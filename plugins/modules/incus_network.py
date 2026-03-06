@@ -72,49 +72,15 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from typing import Any
-
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
-    IncusClient,
-    IncusNotFoundException,
     incus_build_desired,
-    incus_client_from_module,
     incus_create_write_module,
-    incus_maybe_wait,
+    incus_ensure_resource,
     incus_run_write_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
-
-
-def _get_network(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
-    """Return (metadata dict, exists bool) for the network."""
-    try:
-        return client.get(f'/1.0/networks/{name}?project={project}').get('metadata') or {}, True
-    except IncusNotFoundException:
-        return {}, False
-
-
-def _create_network(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
-    """Create network."""
-    if not module.check_mode:
-        incus_maybe_wait(module, client, client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
-    return True
-
-
-def _update_network(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
-    """Update network configuration."""
-    if not module.check_mode:
-        incus_maybe_wait(module, client, client.put(f'/1.0/networks/{name}?project={project}', desired))
-    return True
-
-
-def _delete_network(module: Any, client: IncusClient, project: str, name: str) -> bool:
-    """Delete network."""
-    if not module.check_mode:
-        incus_maybe_wait(module, client, client.delete(f'/1.0/networks/{name}?project={project}'))
-    return True
 
 
 def main() -> None:
@@ -126,27 +92,8 @@ def main() -> None:
         'config': {'type': 'dict', 'default': {}},
         'description': {'type': 'str', 'default': ''},
     })
-    network_type = module.params['type']
-    project = module.params['project']
-    name = module.params['name']
     desired = incus_build_desired(module)
-
-    def _ensure_network() -> bool:
-        client = incus_client_from_module(module)
-        current, exists = _get_network(client, project, name)
-        if module.params['state'] == 'present':
-            if not exists:
-                if not network_type:
-                    module.fail_json(msg="'type' is required when creating a network")
-                create_desired = {**desired, 'type': network_type}
-                return _create_network(module, client, project, name, create_desired)
-            if (current.get('description', '') == desired['description']
-                    and current.get('config', {}) == desired['config']):
-                return False
-            return _update_network(module, client, project, name, desired)
-        return _delete_network(module, client, project, name) if exists else False
-
-    incus_run_write_module(module, _ensure_network)
+    incus_run_write_module(module, lambda: incus_ensure_resource(module, 'networks', desired, ['type']))
 
 
 if __name__ == '__main__':

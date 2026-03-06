@@ -31,6 +31,7 @@ __all__ = [
     'IncusNotFoundException',
     'incus_build_desired',
     'incus_client_from_module',
+    'incus_ensure_resource',
     'incus_create_info_module',
     'incus_create_write_module',
     'incus_maybe_wait',
@@ -245,6 +246,48 @@ def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
     if has_devices:
         desired['devices'] = devices_to_api(module.params['devices'])
     return desired
+
+
+def incus_ensure_resource(
+    module: AnsibleModule, resource: str, desired: dict[str, Any],
+    create_only_params: list[str] | None = None,
+) -> bool:
+    """Ensure Incus resource."""
+    client = incus_client_from_module(module)
+    name = module.params['name']
+    project = module.params.get('project')
+    query = f'?project={project}' if project else ''
+
+    try:
+        current = client.get(f'/1.0/{resource}/{name}{query}').get('metadata') or {}
+        exists = True
+    except IncusNotFoundException:
+        current = {}
+        exists = False
+
+    if module.params['state'] == 'present':
+        if not exists:
+            create_data: dict[str, Any] = {'name': name, **desired}
+            for param in (create_only_params or []):
+                value = module.params.get(param)
+                if not value:
+                    module.fail_json(msg=f"'{param}' is required when creating")
+                create_data[param] = value
+            if not module.check_mode:
+                incus_maybe_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
+            return True
+        if (current.get('description', '') == desired['description']
+                and current.get('config', {}) == desired['config']):
+            return False
+        if not module.check_mode:
+            incus_maybe_wait(module, client, client.put(f'/1.0/{resource}/{name}{query}', desired))
+        return True
+
+    if exists:
+        if not module.check_mode:
+            incus_maybe_wait(module, client, client.delete(f'/1.0/{resource}/{name}{query}'))
+        return True
+    return False
 
 
 def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
