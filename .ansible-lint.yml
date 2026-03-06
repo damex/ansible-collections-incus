@@ -1,0 +1,5 @@
+---
+skip_list:
+  # for validate-modules:parameter-invalid to be ignored
+  # needed because of Incus API dot notation
+  - sanity[cannot-ignore]
