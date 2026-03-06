@@ -39,7 +39,6 @@ __all__ = [
     'incus_stringify_config',
     'incus_stringify_instance_config',
     'incus_build_desired',
-    'incus_build_desired_with_devices',
     'incus_create_info_module',
     'incus_create_write_module',
 ]
@@ -239,11 +238,16 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
 
 
 def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
-    """Build standard desired-state dict from description and config params."""
-    return {
+    """Build desired-state dict from module params. Includes devices and cloud-init YAML when applicable."""
+    has_devices = 'devices' in module.params and module.params['devices'] is not None
+    desired: dict[str, Any] = {
         'description': module.params['description'],
-        'config': incus_stringify_config(module.params['config']),
+        'config': incus_stringify_instance_config(module.params['config']) if has_devices
+        else incus_stringify_config(module.params['config']),
     }
+    if has_devices:
+        desired['devices'] = devices_to_api(module.params['devices'])
+    return desired
 
 
 def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
@@ -281,14 +285,6 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
 
     module.exit_json(**{return_key: result})
 
-
-def incus_build_desired_with_devices(module: AnsibleModule) -> dict[str, Any]:
-    """Build desired-state dict with description, config, and devices."""
-    return {
-        'description': module.params['description'],
-        'config': incus_stringify_instance_config(module.params['config']),
-        'devices': devices_to_api(module.params['devices']),
-    }
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:

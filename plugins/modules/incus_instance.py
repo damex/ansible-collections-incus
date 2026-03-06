@@ -123,7 +123,7 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusNotFoundException,
-    incus_build_desired_with_devices,
+    incus_build_desired,
     incus_client_from_module,
     incus_create_write_module,
     incus_maybe_wait,
@@ -227,7 +227,7 @@ def main() -> None:
     state = module.params['state']
     project = module.params['project']
     name = module.params['name']
-    desired = {**incus_build_desired_with_devices(module), 'profiles': module.params['profiles']}
+    desired = {**incus_build_desired(module), 'profiles': module.params['profiles']}
 
     def _ensure_instance() -> bool:
         client = incus_client_from_module(module)

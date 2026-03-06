@@ -85,7 +85,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusClient,
     IncusNotFoundException,
-    incus_build_desired_with_devices,
+    incus_build_desired,
     incus_client_from_module,
     incus_create_write_module,
     incus_maybe_wait,
@@ -135,7 +135,7 @@ def main() -> None:
     }, require_yaml=True)
     project = module.params['project']
     name = module.params['name']
-    desired = incus_build_desired_with_devices(module)
+    desired = incus_build_desired(module)
 
     def _ensure_profile() -> bool:
         client = incus_client_from_module(module)
