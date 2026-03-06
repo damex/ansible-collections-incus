@@ -16,7 +16,11 @@ author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus profiles via the Incus REST API.
   - Profiles are project-scoped resources.
-extends_documentation_fragment: [damex.incus.common, damex.incus.common.project, damex.incus.common.write]
+extends_documentation_fragment:
+  - damex.incus.common
+  - damex.incus.common.write
+  - damex.incus.common.project
+  - damex.incus.common.devices
 options:
   name:
     description:
@@ -43,66 +47,6 @@ options:
       - Dict values for C(cloud-init.*) keys are serialized to YAML.
     type: dict
     default: {}
-  devices:
-    description:
-      - Profile devices as a list.
-      - Each item must include a C(name) field used as the device key in the API.
-      - Boolean values are converted to lowercase strings.
-    type: list
-    elements: dict
-    default: []
-    suboptions:
-      name:
-        description: Device name used as the key in the Incus API.
-        type: str
-        required: true
-      type:
-        description: Device type.
-        type: str
-        choices: [disk, nic]
-        required: true
-      path:
-        description: Mount path (disk).
-        type: str
-      pool:
-        description: Storage pool name (disk).
-        type: str
-      source:
-        description: Source path or device (disk).
-        type: str
-      size:
-        description: Disk size limit (disk).
-        type: str
-      readonly:
-        description: Whether the disk is read-only (disk).
-        type: bool
-      network:
-        description: Managed network to attach to (nic).
-        type: str
-      nictype:
-        description: NIC type (nic).
-        type: str
-      parent:
-        description: Parent host interface (nic).
-        type: str
-      hwaddr:
-        description: MAC address (nic).
-        type: str
-      mtu:
-        description: MTU override (nic).
-        type: str
-      ipv4.address:
-        description: Static IPv4 address (nic).
-        type: str
-      ipv4.routes:
-        description: IPv4 routes to add on host (nic).
-        type: str
-      ipv6.address:
-        description: Static IPv6 address (nic).
-        type: str
-      ipv6.routes:
-        description: IPv6 routes to add on host (nic).
-        type: str
 """
 
 EXAMPLES = r"""
@@ -131,21 +75,17 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
-    devices_to_api,
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    HAS_YAML,
-    INCUS_COMMON_ARGS,
-    INCUS_WRITE_ARGS,
-    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
+    incus_build_desired_with_devices,
     incus_client_from_module,
+    incus_create_write_module,
+    maybe_wait,
     run_write_module,
-    stringify_instance_config,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -182,25 +122,16 @@ def _delete_profile(module, client, project, name):
 
 def main():
     """Run module."""
-    argument_spec = {
+    module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
         'config': {'type': 'dict', 'default': {}},
-    }
-    argument_spec.update(INCUS_COMMON_ARGS)
-    argument_spec.update(INCUS_WRITE_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
-    if not HAS_YAML:
-        module.fail_json(msg='PyYAML is required for this module')
+    }, require_yaml=True)
     project = module.params['project']
     name = module.params['name']
-    desired = {
-        'description': module.params['description'],
-        'config': stringify_instance_config(module.params['config']),
-        'devices': devices_to_api(module.params['devices']),
-    }
+    desired = incus_build_desired_with_devices(module)
 
     def _ensure_profile():
         client = incus_client_from_module(module)

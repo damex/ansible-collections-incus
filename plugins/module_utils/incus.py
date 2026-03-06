@@ -19,11 +19,10 @@ except ImportError:
     HAS_YAML = False
 
 import collections.abc
+from typing import Any
 
-from typing import Any, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
 
 __all__ = [
     'HAS_YAML',
@@ -40,6 +39,8 @@ __all__ = [
     'stringify_config',
     'stringify_instance_config',
     'build_desired',
+    'incus_build_desired_with_devices',
+    'incus_create_write_module',
 ]
 
 _CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
@@ -183,7 +184,7 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             self._request('GET', f'/1.0/operations/{op_id}/wait')
 
 
-def incus_client_from_module(module: 'AnsibleModule') -> IncusClient:
+def incus_client_from_module(module: AnsibleModule) -> IncusClient:
     """Build client from module params."""
     return IncusClient(
         socket_path=module.params.get('socket_path'),
@@ -221,7 +222,7 @@ def stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     return result
 
 
-def build_desired(module: 'AnsibleModule') -> dict[str, Any]:
+def build_desired(module: AnsibleModule) -> dict[str, Any]:
     """Build standard desired-state dict from description and config params."""
     return {
         'description': module.params['description'],
@@ -229,7 +230,7 @@ def build_desired(module: 'AnsibleModule') -> dict[str, Any]:
     }
 
 
-def run_write_module(module: 'AnsibleModule', impl: collections.abc.Callable[[], bool]) -> None:
+def run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
     """Run write module logic with standard error handling and exit."""
     try:
         module.exit_json(changed=impl())
@@ -237,7 +238,7 @@ def run_write_module(module: 'AnsibleModule', impl: collections.abc.Callable[[],
         module.fail_json(msg=str(exc))
 
 
-def run_info_module(module: 'AnsibleModule', resource: str, return_key: str) -> None:
+def run_info_module(module: AnsibleModule, resource: str, return_key: str) -> None:
     """Run common info module logic. project param optional."""
     name = module.params.get('name')
     project = module.params.get('project')
@@ -265,7 +266,28 @@ def run_info_module(module: 'AnsibleModule', resource: str, return_key: str) -> 
     module.exit_json(**{return_key: result})
 
 
-def maybe_wait(module: 'AnsibleModule', client: IncusClient, response: dict[str, Any]) -> None:
+def incus_build_desired_with_devices(module: AnsibleModule) -> dict[str, Any]:
+    """Build desired-state dict with description, config, and devices."""
+    return {
+        'description': module.params['description'],
+        'config': stringify_instance_config(module.params['config']),
+        'devices': devices_to_api(module.params['devices']),
+    }
+
+
+def incus_create_write_module(
+    argument_spec: dict[str, Any], *, require_yaml: bool = False,
+) -> AnsibleModule:
+    """Create AnsibleModule with common and write args merged in."""
+    argument_spec.update(INCUS_COMMON_ARGS)
+    argument_spec.update(INCUS_WRITE_ARGS)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    if require_yaml and not HAS_YAML:
+        module.fail_json(msg='PyYAML is required for this module')
+    return module
+
+
+def maybe_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
     """Wait for an async operation only if the wait param is true."""
     if module.params.get('wait', True):
         client.wait(response)

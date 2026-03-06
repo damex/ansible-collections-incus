@@ -17,7 +17,11 @@ description:
   - Create, configure, and manage the lifecycle of Incus instances via the Incus REST API.
   - Instances are project-scoped resources.
   - The instance type and source are set on creation and cannot be changed afterwards.
-extends_documentation_fragment: [damex.incus.common, damex.incus.common.project, damex.incus.common.write]
+extends_documentation_fragment:
+  - damex.incus.common
+  - damex.incus.common.project
+  - damex.incus.common.write
+  - damex.incus.common.devices
 options:
   name:
     description:
@@ -83,66 +87,6 @@ options:
       - Booleans are converted to lowercase strings; cloud-init dict values are serialized to YAML.
     type: dict
     default: {}
-  devices:
-    description:
-      - Instance devices as a list.
-      - Each item must include a C(name) field used as the device key in the Incus API.
-      - Boolean values are converted to lowercase strings.
-    type: list
-    elements: dict
-    default: []
-    suboptions:
-      name:
-        description: Key used for this device in the Incus API payload.
-        type: str
-        required: true
-      type:
-        description: Device type.
-        type: str
-        choices: [disk, nic]
-        required: true
-      path:
-        description: Filesystem mount path inside the instance (disk only).
-        type: str
-      pool:
-        description: Incus storage pool backing the disk device (disk only).
-        type: str
-      source:
-        description: Host path or device to pass through (disk only).
-        type: str
-      size:
-        description: Maximum size of the disk device, e.g. C(20GiB) (disk only).
-        type: str
-      readonly:
-        description: Expose the disk as read-only inside the instance (disk only).
-        type: bool
-      network:
-        description: Managed Incus network to attach the NIC to (nic only).
-        type: str
-      nictype:
-        description: NIC device sub-type, e.g. C(bridged) (nic only).
-        type: str
-      parent:
-        description: Host bridge or interface to attach the NIC to (nic only).
-        type: str
-      hwaddr:
-        description: Override the NIC MAC address (nic only).
-        type: str
-      mtu:
-        description: Override the NIC MTU (nic only).
-        type: str
-      ipv4.address:
-        description: Static IPv4 address to assign to the NIC (nic only).
-        type: str
-      ipv4.routes:
-        description: Comma-separated IPv4 routes to add on the host for this NIC (nic only).
-        type: str
-      ipv6.address:
-        description: Static IPv6 address to assign to the NIC (nic only).
-        type: str
-      ipv6.routes:
-        description: Comma-separated IPv6 routes to add on the host for this NIC (nic only).
-        type: str
 """
 
 EXAMPLES = r"""
@@ -170,20 +114,16 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
-    devices_to_api,
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    HAS_YAML,
-    INCUS_COMMON_ARGS,
-    INCUS_WRITE_ARGS,
-    maybe_wait,
     IncusNotFoundException,
+    incus_build_desired_with_devices,
     incus_client_from_module,
+    incus_create_write_module,
+    maybe_wait,
     run_write_module,
-    stringify_instance_config,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -265,7 +205,7 @@ def _manage_state(module, client, state_path, state, status):
 
 def main():
     """Run module."""
-    argument_spec = {
+    module = incus_create_write_module({
         'name': {'type': 'str', 'required': True},
         'state': {'type': 'str', 'default': 'started',
                   'choices': ['started', 'stopped', 'restarted', 'absent']},
@@ -279,21 +219,11 @@ def main():
         'description': {'type': 'str', 'default': ''},
         'config': {'type': 'dict', 'default': {}},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
-    }
-    argument_spec.update(INCUS_COMMON_ARGS)
-    argument_spec.update(INCUS_WRITE_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
-    if not HAS_YAML:
-        module.fail_json(msg='PyYAML is required for this module')
+    }, require_yaml=True)
     state = module.params['state']
     project = module.params['project']
     name = module.params['name']
-    desired = {
-        'description': module.params['description'],
-        'config': stringify_instance_config(module.params['config']),
-        'devices': devices_to_api(module.params['devices']),
-        'profiles': module.params['profiles'],
-    }
+    desired = {**incus_build_desired_with_devices(module), 'profiles': module.params['profiles']}
 
     def _ensure_instance():
         client = incus_client_from_module(module)

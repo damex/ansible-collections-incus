@@ -60,15 +60,13 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
-    INCUS_WRITE_ARGS,
-    maybe_wait,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusNotFoundException,
     build_desired,
     incus_client_from_module,
+    incus_create_write_module,
+    maybe_wait,
     run_write_module,
 )
 
@@ -106,14 +104,11 @@ def _delete_project(module, client, name):
 
 def main():
     """Run module."""
-    argument_spec = {
+    module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'description': {'type': 'str', 'default': ''},
         'config': {'type': 'dict', 'default': {}},
-    }
-    argument_spec.update(INCUS_COMMON_ARGS)
-    argument_spec.update(INCUS_WRITE_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    })
     name = module.params['name']
     desired = build_desired(module)
 
