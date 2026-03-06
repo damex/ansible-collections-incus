@@ -78,11 +78,11 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusClient,
     IncusNotFoundException,
-    build_desired,
+    incus_build_desired,
     incus_client_from_module,
     incus_create_write_module,
-    maybe_wait,
-    run_write_module,
+    incus_maybe_wait,
+    incus_run_write_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -99,21 +99,21 @@ def _get_network(client: IncusClient, project: str, name: str) -> tuple[dict[str
 def _create_network(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Create network."""
     if not module.check_mode:
-        maybe_wait(module, client, client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
+        incus_maybe_wait(module, client, client.post(f'/1.0/networks?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_network(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Update network configuration."""
     if not module.check_mode:
-        maybe_wait(module, client, client.put(f'/1.0/networks/{name}?project={project}', desired))
+        incus_maybe_wait(module, client, client.put(f'/1.0/networks/{name}?project={project}', desired))
     return True
 
 
 def _delete_network(module: Any, client: IncusClient, project: str, name: str) -> bool:
     """Delete network."""
     if not module.check_mode:
-        maybe_wait(module, client, client.delete(f'/1.0/networks/{name}?project={project}'))
+        incus_maybe_wait(module, client, client.delete(f'/1.0/networks/{name}?project={project}'))
     return True
 
 
@@ -129,7 +129,7 @@ def main() -> None:
     network_type = module.params['type']
     project = module.params['project']
     name = module.params['name']
-    desired = build_desired(module)
+    desired = incus_build_desired(module)
 
     def _ensure_network() -> bool:
         client = incus_client_from_module(module)
@@ -146,7 +146,7 @@ def main() -> None:
             return _update_network(module, client, project, name, desired)
         return _delete_network(module, client, project, name) if exists else False
 
-    run_write_module(module, _ensure_network)
+    incus_run_write_module(module, _ensure_network)
 
 
 if __name__ == '__main__':

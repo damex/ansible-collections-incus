@@ -87,11 +87,11 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusClient,
     IncusNotFoundException,
-    build_desired,
+    incus_build_desired,
     incus_client_from_module,
     incus_create_write_module,
-    maybe_wait,
-    run_write_module,
+    incus_maybe_wait,
+    incus_run_write_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -108,21 +108,21 @@ def _get_storage(client: IncusClient, name: str) -> tuple[dict[str, Any], bool]:
 def _create_storage(module: Any, client: IncusClient, name: str, driver: str, desired: dict[str, Any]) -> bool:
     """Create storage pool."""
     if not module.check_mode:
-        maybe_wait(module, client, client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
+        incus_maybe_wait(module, client, client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
     return True
 
 
 def _update_storage(module: Any, client: IncusClient, name: str, desired: dict[str, Any]) -> bool:
     """Update storage pool configuration."""
     if not module.check_mode:
-        maybe_wait(module, client, client.put(f'/1.0/storage-pools/{name}', desired))
+        incus_maybe_wait(module, client, client.put(f'/1.0/storage-pools/{name}', desired))
     return True
 
 
 def _delete_storage(module: Any, client: IncusClient, name: str) -> bool:
     """Delete storage pool."""
     if not module.check_mode:
-        maybe_wait(module, client, client.delete(f'/1.0/storage-pools/{name}'))
+        incus_maybe_wait(module, client, client.delete(f'/1.0/storage-pools/{name}'))
     return True
 
 
@@ -141,7 +141,7 @@ def main() -> None:
     })
     driver = module.params['driver']
     name = module.params['name']
-    desired = build_desired(module)
+    desired = incus_build_desired(module)
 
     def _ensure_storage() -> bool:
         client = incus_client_from_module(module)
@@ -157,7 +157,7 @@ def main() -> None:
             return _update_storage(module, client, name, desired)
         return _delete_storage(module, client, name) if exists else False
 
-    run_write_module(module, _ensure_storage)
+    incus_run_write_module(module, _ensure_storage)
 
 
 if __name__ == '__main__':

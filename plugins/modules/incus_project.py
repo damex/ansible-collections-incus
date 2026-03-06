@@ -66,11 +66,11 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusClient,
     IncusNotFoundException,
-    build_desired,
+    incus_build_desired,
     incus_client_from_module,
     incus_create_write_module,
-    maybe_wait,
-    run_write_module,
+    incus_maybe_wait,
+    incus_run_write_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -87,21 +87,21 @@ def _get_project(client: IncusClient, name: str) -> tuple[dict[str, Any], bool]:
 def _create_project(module: Any, client: IncusClient, name: str, desired: dict[str, Any]) -> bool:
     """Create project."""
     if not module.check_mode:
-        maybe_wait(module, client, client.post('/1.0/projects', {'name': name, **desired}))
+        incus_maybe_wait(module, client, client.post('/1.0/projects', {'name': name, **desired}))
     return True
 
 
 def _update_project(module: Any, client: IncusClient, name: str, desired: dict[str, Any]) -> bool:
     """Update project configuration."""
     if not module.check_mode:
-        maybe_wait(module, client, client.put(f'/1.0/projects/{name}', desired))
+        incus_maybe_wait(module, client, client.put(f'/1.0/projects/{name}', desired))
     return True
 
 
 def _delete_project(module: Any, client: IncusClient, name: str) -> bool:
     """Delete project."""
     if not module.check_mode:
-        maybe_wait(module, client, client.delete(f'/1.0/projects/{name}'))
+        incus_maybe_wait(module, client, client.delete(f'/1.0/projects/{name}'))
     return True
 
 
@@ -113,7 +113,7 @@ def main() -> None:
         'config': {'type': 'dict', 'default': {}},
     })
     name = module.params['name']
-    desired = build_desired(module)
+    desired = incus_build_desired(module)
 
     def _ensure_project() -> bool:
         client = incus_client_from_module(module)
@@ -127,7 +127,7 @@ def main() -> None:
             return _update_project(module, client, name, desired)
         return _delete_project(module, client, name) if exists else False
 
-    run_write_module(module, _ensure_project)
+    incus_run_write_module(module, _ensure_project)
 
 
 if __name__ == '__main__':

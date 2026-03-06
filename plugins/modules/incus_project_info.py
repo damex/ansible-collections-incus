@@ -65,7 +65,7 @@ projects:
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_info_module,
-    run_info_module,
+    incus_run_info_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -74,7 +74,7 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 def main() -> None:
     """Run module."""
     module = incus_create_info_module({'name': {'type': 'str'}})
-    run_info_module(module, 'projects', 'projects')
+    incus_run_info_module(module, 'projects', 'projects')
 
 
 if __name__ == '__main__':

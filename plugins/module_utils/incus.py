@@ -33,12 +33,12 @@ __all__ = [
     'IncusNotFoundException',
     'IncusClient',
     'incus_client_from_module',
-    'maybe_wait',
-    'run_info_module',
-    'run_write_module',
-    'stringify_config',
-    'stringify_instance_config',
-    'build_desired',
+    'incus_maybe_wait',
+    'incus_run_info_module',
+    'incus_run_write_module',
+    'incus_stringify_config',
+    'incus_stringify_instance_config',
+    'incus_build_desired',
     'incus_build_desired_with_devices',
     'incus_create_info_module',
     'incus_create_write_module',
@@ -198,7 +198,7 @@ def incus_client_from_module(module: AnsibleModule) -> IncusClient:
     )
 
 
-def stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
+def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Convert config dict values to strings as Incus stores them."""
     result = {}
     for k, v in (config or {}).items():
@@ -209,7 +209,7 @@ def stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     return result
 
 
-def stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
+def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Convert config dict values to strings, serializing cloud-init dict values to YAML."""
     result = {}
     for k, v in (config or {}).items():
@@ -223,15 +223,15 @@ def stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     return result
 
 
-def build_desired(module: AnsibleModule) -> dict[str, Any]:
+def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
     """Build standard desired-state dict from description and config params."""
     return {
         'description': module.params['description'],
-        'config': stringify_config(module.params['config']),
+        'config': incus_stringify_config(module.params['config']),
     }
 
 
-def run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
+def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
     """Run write module logic with standard error handling and exit."""
     try:
         module.exit_json(changed=impl())
@@ -239,7 +239,7 @@ def run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], b
         module.fail_json(msg=str(exc))
 
 
-def run_info_module(module: AnsibleModule, resource: str, return_key: str) -> None:
+def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str) -> None:
     """Run common info module logic. project param optional."""
     name = module.params.get('name')
     project = module.params.get('project')
@@ -271,7 +271,7 @@ def incus_build_desired_with_devices(module: AnsibleModule) -> dict[str, Any]:
     """Build desired-state dict with description, config, and devices."""
     return {
         'description': module.params['description'],
-        'config': stringify_instance_config(module.params['config']),
+        'config': incus_stringify_instance_config(module.params['config']),
         'devices': devices_to_api(module.params['devices']),
     }
 
@@ -294,7 +294,7 @@ def incus_create_write_module(
     return module
 
 
-def maybe_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
+def incus_maybe_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
     """Wait for an async operation only if the wait param is true."""
     if module.params.get('wait', True):
         client.wait(response)
