@@ -21,6 +21,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_stringify_instance_config,
     incus_wait,
 )
+from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS
 
 __all__ = [
     'test_stringify_config_empty',
@@ -384,16 +385,9 @@ def _ensure_module(
     """Build mock module."""
     module = MagicMock()
     module.params = {
+        **CONNECTION_PARAMS,
         'name': name,
         'state': state,
-        'socket_path': '/var/lib/incus/unix.socket',
-        'url': None,
-        'client_cert': None,
-        'client_key': None,
-        'server_cert': None,
-        'token': None,
-        'validate_certs': True,
-        'wait': True,
     }
     if project:
         module.params['project'] = project
