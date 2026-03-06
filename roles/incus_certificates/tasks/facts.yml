@@ -1,0 +1,13 @@
+---
+- name: Ensure incus certificates cluster facts
+  damex.incus.incus_cluster_info:
+    name: "{{ inventory_hostname }}"
+    socket_path: "{{ incus_certificates_socket_path }}"
+    url: "{{ incus_certificates_url | default(omit) }}"
+    client_cert: "{{ incus_certificates_client_cert | default(omit) }}"
+    client_key: "{{ incus_certificates_client_key | default(omit) }}"
+    server_cert: "{{ incus_certificates_server_cert | default(omit) }}"
+    token: "{{ incus_certificates_token | default(omit) }}"
+    validate_certs: "{{ incus_certificates_validate_certs }}"
+  register: incus_certificates_cluster_info_state
+  become: true

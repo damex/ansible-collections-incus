@@ -1,0 +1,49 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_certificates:
+        type: list
+        elements: dict
+        options:
+          name:
+            required: true
+            type: str
+          certificate:
+            type: str
+          type:
+            type: str
+            choices:
+              - client
+              - metrics
+          restricted:
+            type: bool
+          projects:
+            type: list
+            elements: str
+          state:
+            type: str
+            choices:
+              - present
+              - absent
+      incus_certificates_socket_path:
+        type: path
+      incus_certificates_url:
+        type: str
+      incus_certificates_client_cert:
+        type: path
+      incus_certificates_client_key:
+        type: path
+        no_log: true
+      incus_certificates_server_cert:
+        type: path
+      incus_certificates_token:
+        type: str
+        no_log: true
+      incus_certificates_validate_certs:
+        type: bool
+      incus_certificates_state:
+        type: str
+        choices:
+          - present
+          - absent

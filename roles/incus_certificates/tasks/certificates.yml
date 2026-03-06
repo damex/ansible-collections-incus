@@ -1,0 +1,21 @@
+---
+- name: Ensure incus certificates
+  ansible.builtin.include_tasks: certificate.yml
+  vars:
+    incus_certificates_certificate_name: "{{ incus_certificates_certificate.name }}"
+    incus_certificates_certificate_state: "{{ incus_certificates_certificate.state | default(incus_certificates_state) }}"
+    incus_certificates_certificate_pem: "{{ incus_certificates_certificate.certificate | default(omit) }}"
+    incus_certificates_certificate_type: "{{ incus_certificates_certificate.type | default(omit) }}"
+    incus_certificates_certificate_restricted: "{{ incus_certificates_certificate.restricted | default(omit) }}"
+    incus_certificates_certificate_projects: "{{ incus_certificates_certificate.projects | default(omit) }}"
+    incus_certificates_certificate_socket_path: "{{ incus_certificates_socket_path }}"
+    incus_certificates_certificate_url: "{{ incus_certificates_url | default(omit) }}"
+    incus_certificates_certificate_client_cert: "{{ incus_certificates_client_cert | default(omit) }}"
+    incus_certificates_certificate_client_key: "{{ incus_certificates_client_key | default(omit) }}"
+    incus_certificates_certificate_server_cert: "{{ incus_certificates_server_cert | default(omit) }}"
+    incus_certificates_certificate_token: "{{ incus_certificates_token | default(omit) }}"
+    incus_certificates_certificate_validate_certs: "{{ incus_certificates_validate_certs }}"
+  loop: "{{ incus_certificates }}"
+  loop_control:
+    label: "{{ incus_certificates_certificate_name }}"
+    loop_var: incus_certificates_certificate

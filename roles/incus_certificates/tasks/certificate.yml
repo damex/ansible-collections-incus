@@ -1,0 +1,18 @@
+---
+- name: Ensure incus certificate {{ incus_certificates_certificate_name }}
+  damex.incus.incus_certificate:
+    name: "{{ incus_certificates_certificate_name }}"
+    state: "{{ incus_certificates_certificate_state }}"
+    certificate: "{{ incus_certificates_certificate_pem }}"
+    type: "{{ incus_certificates_certificate_type }}"
+    restricted: "{{ incus_certificates_certificate_restricted }}"
+    projects: "{{ incus_certificates_certificate_projects }}"
+    socket_path: "{{ incus_certificates_certificate_socket_path }}"
+    url: "{{ incus_certificates_certificate_url }}"
+    client_cert: "{{ incus_certificates_certificate_client_cert }}"
+    client_key: "{{ incus_certificates_certificate_client_key }}"
+    server_cert: "{{ incus_certificates_certificate_server_cert }}"
+    token: "{{ incus_certificates_certificate_token }}"
+    validate_certs: "{{ incus_certificates_certificate_validate_certs }}"
+  become: true
+  when: incus_certificates_cluster_info_state.cluster_members | length == 0 or 'database' in incus_certificates_cluster_info_state.cluster_members[0].roles

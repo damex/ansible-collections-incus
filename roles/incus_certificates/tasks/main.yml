@@ -1,0 +1,10 @@
+---
+- name: Ensure incus certificates
+  tags:
+    - incus
+    - incus_certificates
+  block:
+    - name: Ensure incus certificates facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus certificates
+      ansible.builtin.import_tasks: certificates.yml
