@@ -506,6 +506,20 @@ argument_specs:
               - absent
       incus_instances_socket_path:
         type: path
+      incus_instances_url:
+        type: str
+      incus_instances_client_cert:
+        type: path
+      incus_instances_client_key:
+        type: path
+        no_log: true
+      incus_instances_server_cert:
+        type: path
+      incus_instances_token:
+        type: str
+        no_log: true
+      incus_instances_validate_certs:
+        type: bool
       incus_instances_type:
         type: str
         choices:

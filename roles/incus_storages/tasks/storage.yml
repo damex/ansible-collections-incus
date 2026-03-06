@@ -5,6 +5,12 @@
     state: "{{ incus_storages_storage_state }}"
     driver: "{{ incus_storages_storage.driver }}"
     config: "{{ incus_storages_storage.config | default(omit) }}"
-    socket_path: "{{ incus_storages_socket_path }}"
+    socket_path: "{{ incus_storages_storage_socket_path }}"
+    url: "{{ incus_storages_storage_url }}"
+    client_cert: "{{ incus_storages_storage_client_cert }}"
+    client_key: "{{ incus_storages_storage_client_key }}"
+    server_cert: "{{ incus_storages_storage_server_cert }}"
+    token: "{{ incus_storages_storage_token }}"
+    validate_certs: "{{ incus_storages_storage_validate_certs }}"
   become: true
   when: incus_storages_cluster_info_state.cluster_members | length == 0 or 'database' in incus_storages_cluster_info_state.cluster_members[0].roles

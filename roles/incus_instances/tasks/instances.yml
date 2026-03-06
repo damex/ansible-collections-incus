@@ -11,6 +11,13 @@
     incus_instances_instance_profiles: "{{ incus_instances_instance.profiles | default(incus_instances_profiles) }}"
     incus_instances_instance_ephemeral: "{{ incus_instances_instance.ephemeral | default(incus_instances_ephemeral) }}"
     incus_instances_instance_state: "{{ incus_instances_instance.state | default(incus_instances_state) }}"
+    incus_instances_instance_socket_path: "{{ incus_instances_socket_path }}"
+    incus_instances_instance_url: "{{ incus_instances_url | default(omit) }}"
+    incus_instances_instance_client_cert: "{{ incus_instances_client_cert | default(omit) }}"
+    incus_instances_instance_client_key: "{{ incus_instances_client_key | default(omit) }}"
+    incus_instances_instance_server_cert: "{{ incus_instances_server_cert | default(omit) }}"
+    incus_instances_instance_token: "{{ incus_instances_token | default(omit) }}"
+    incus_instances_instance_validate_certs: "{{ incus_instances_validate_certs }}"
   loop: "{{ incus_instances }}"
   loop_control:
     label: "{{ incus_instances_instance_name }}"

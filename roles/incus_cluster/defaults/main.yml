@@ -1,2 +1,3 @@
 ---
 incus_cluster_socket_path: /var/lib/incus/unix.socket
+incus_cluster_validate_certs: true

@@ -1,5 +1,6 @@
 ---
 incus_profiles: [] # noqa: var-naming[no-role-prefix]
 incus_profiles_socket_path: /var/lib/incus/unix.socket
+incus_profiles_validate_certs: true
 incus_profiles_project: default
 incus_profiles_state: present

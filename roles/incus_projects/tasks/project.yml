@@ -5,6 +5,12 @@
     state: "{{ incus_projects_project_state }}"
     description: "{{ incus_projects_project.description | default(omit) }}"
     config: "{{ incus_projects_project.config | default(omit) }}"
-    socket_path: "{{ incus_projects_socket_path }}"
+    socket_path: "{{ incus_projects_project_socket_path }}"
+    url: "{{ incus_projects_project_url }}"
+    client_cert: "{{ incus_projects_project_client_cert }}"
+    client_key: "{{ incus_projects_project_client_key }}"
+    server_cert: "{{ incus_projects_project_server_cert }}"
+    token: "{{ incus_projects_project_token }}"
+    validate_certs: "{{ incus_projects_project_validate_certs }}"
   become: true
   when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database' in incus_projects_cluster_info_state.cluster_members[0].roles

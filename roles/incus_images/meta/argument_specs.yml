@@ -28,6 +28,20 @@ argument_specs:
               - absent
       incus_images_socket_path:
         type: path
+      incus_images_url:
+        type: str
+      incus_images_client_cert:
+        type: path
+      incus_images_client_key:
+        type: path
+        no_log: true
+      incus_images_server_cert:
+        type: path
+      incus_images_token:
+        type: str
+        no_log: true
+      incus_images_validate_certs:
+        type: bool
       incus_images_type:
         type: str
         choices:

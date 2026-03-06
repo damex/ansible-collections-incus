@@ -7,6 +7,13 @@
     incus_networks_network_project: "{{ incus_networks_network.project | default(incus_networks_project) }}"
     incus_networks_network_config: "{{ incus_networks_network.config | default(omit) }}"
     incus_networks_network_state: "{{ incus_networks_network.state | default(incus_networks_state) }}"
+    incus_networks_network_socket_path: "{{ incus_networks_socket_path }}"
+    incus_networks_network_url: "{{ incus_networks_url | default(omit) }}"
+    incus_networks_network_client_cert: "{{ incus_networks_client_cert | default(omit) }}"
+    incus_networks_network_client_key: "{{ incus_networks_client_key | default(omit) }}"
+    incus_networks_network_server_cert: "{{ incus_networks_server_cert | default(omit) }}"
+    incus_networks_network_token: "{{ incus_networks_token | default(omit) }}"
+    incus_networks_network_validate_certs: "{{ incus_networks_validate_certs }}"
   loop: "{{ incus_networks }}"
   loop_control:
     label: "{{ incus_networks_network_name }}"

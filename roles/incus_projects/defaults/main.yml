@@ -1,4 +1,5 @@
 ---
 incus_projects: [] # noqa: var-naming[no-role-prefix]
 incus_projects_socket_path: /var/lib/incus/unix.socket
+incus_projects_validate_certs: true
 incus_projects_state: present

@@ -4,6 +4,20 @@ argument_specs:
     options:
       incus_cluster_socket_path:
         type: path
+      incus_cluster_url:
+        type: str
+      incus_cluster_client_cert:
+        type: path
+      incus_cluster_client_key:
+        type: path
+        no_log: true
+      incus_cluster_server_cert:
+        type: path
+      incus_cluster_token:
+        type: str
+        no_log: true
+      incus_cluster_validate_certs:
+        type: bool
       incus_cluster_group:
         required: true
         type: str

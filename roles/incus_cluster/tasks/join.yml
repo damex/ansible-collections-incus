@@ -6,6 +6,13 @@
     - name: Ensure incus cluster member info
       damex.incus.incus_cluster_info:
         name: "{{ incus_cluster_preseed.cluster.server_name }}"
+        socket_path: "{{ incus_cluster_socket_path }}"
+        url: "{{ incus_cluster_url | default(omit) }}"
+        client_cert: "{{ incus_cluster_client_cert | default(omit) }}"
+        client_key: "{{ incus_cluster_client_key | default(omit) }}"
+        server_cert: "{{ incus_cluster_server_cert | default(omit) }}"
+        token: "{{ incus_cluster_token | default(omit) }}"
+        validate_certs: "{{ incus_cluster_validate_certs }}"
       delegate_to: "{{ incus_cluster_primary }}"
       register: incus_cluster_member_info_state
     - name: Ensure incus cluster member is joined {{ incus_cluster_preseed.cluster.server_name }}

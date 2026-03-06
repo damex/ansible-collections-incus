@@ -9,6 +9,13 @@
     incus_images_image_copy_aliases: "{{ incus_images_image.copy_aliases | default(incus_images_copy_aliases) }}"
     incus_images_image_project: "{{ incus_images_image.project | default(incus_images_project) }}"
     incus_images_image_state: "{{ incus_images_image.state | default(incus_images_state) }}"
+    incus_images_image_socket_path: "{{ incus_images_socket_path }}"
+    incus_images_image_url: "{{ incus_images_url | default(omit) }}"
+    incus_images_image_client_cert: "{{ incus_images_client_cert | default(omit) }}"
+    incus_images_image_client_key: "{{ incus_images_client_key | default(omit) }}"
+    incus_images_image_server_cert: "{{ incus_images_server_cert | default(omit) }}"
+    incus_images_image_token: "{{ incus_images_token | default(omit) }}"
+    incus_images_image_validate_certs: "{{ incus_images_validate_certs }}"
   loop: "{{ incus_images }}"
   loop_control:
     label: "{{ incus_images_image_name }}"

@@ -3,5 +3,11 @@
   damex.incus.incus_cluster_info:
     name: "{{ inventory_hostname }}"
     socket_path: "{{ incus_instances_socket_path }}"
+    url: "{{ incus_instances_url | default(omit) }}"
+    client_cert: "{{ incus_instances_client_cert | default(omit) }}"
+    client_key: "{{ incus_instances_client_key | default(omit) }}"
+    server_cert: "{{ incus_instances_server_cert | default(omit) }}"
+    token: "{{ incus_instances_token | default(omit) }}"
+    validate_certs: "{{ incus_instances_validate_certs }}"
   register: incus_instances_cluster_info_state
   become: true

@@ -2,6 +2,12 @@
 - name: Ensure incus cluster facts
   damex.incus.incus_server_info:
     socket_path: "{{ incus_cluster_socket_path }}"
+    url: "{{ incus_cluster_url | default(omit) }}"
+    client_cert: "{{ incus_cluster_client_cert | default(omit) }}"
+    client_key: "{{ incus_cluster_client_key | default(omit) }}"
+    server_cert: "{{ incus_cluster_server_cert | default(omit) }}"
+    token: "{{ incus_cluster_token | default(omit) }}"
+    validate_certs: "{{ incus_cluster_validate_certs }}"
   register: incus_cluster_info_state
   become: true
 

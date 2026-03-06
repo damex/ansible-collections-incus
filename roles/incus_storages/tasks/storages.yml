@@ -7,6 +7,13 @@
     incus_storages_storage_project: "{{ incus_storages_storage.project | default(incus_storages_project) }}"
     incus_storages_storage_config: "{{ incus_storages_storage.config | default(omit) }}"
     incus_storages_storage_state: "{{ incus_storages_storage.state | default(incus_storages_state) }}"
+    incus_storages_storage_socket_path: "{{ incus_storages_socket_path }}"
+    incus_storages_storage_url: "{{ incus_storages_url | default(omit) }}"
+    incus_storages_storage_client_cert: "{{ incus_storages_client_cert | default(omit) }}"
+    incus_storages_storage_client_key: "{{ incus_storages_client_key | default(omit) }}"
+    incus_storages_storage_server_cert: "{{ incus_storages_server_cert | default(omit) }}"
+    incus_storages_storage_token: "{{ incus_storages_token | default(omit) }}"
+    incus_storages_storage_validate_certs: "{{ incus_storages_validate_certs }}"
   loop: "{{ incus_storages }}"
   loop_control:
     label: "{{ incus_storages_storage_name }}"

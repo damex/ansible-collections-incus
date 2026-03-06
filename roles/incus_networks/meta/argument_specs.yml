@@ -156,6 +156,20 @@ argument_specs:
               - absent
       incus_networks_socket_path:
         type: path
+      incus_networks_url:
+        type: str
+      incus_networks_client_cert:
+        type: path
+      incus_networks_client_key:
+        type: path
+        no_log: true
+      incus_networks_server_cert:
+        type: path
+      incus_networks_token:
+        type: str
+        no_log: true
+      incus_networks_validate_certs:
+        type: bool
       incus_networks_project:
         type: str
       incus_networks_state:

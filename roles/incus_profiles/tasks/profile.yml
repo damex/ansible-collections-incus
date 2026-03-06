@@ -7,6 +7,12 @@
     config: "{{ incus_profiles_profile.config | default(omit) }}"
     devices: "{{ incus_profiles_profile.devices | default(omit) }}"
     project: "{{ incus_profiles_profile_project }}"
-    socket_path: "{{ incus_profiles_socket_path }}"
+    socket_path: "{{ incus_profiles_profile_socket_path }}"
+    url: "{{ incus_profiles_profile_url }}"
+    client_cert: "{{ incus_profiles_profile_client_cert }}"
+    client_key: "{{ incus_profiles_profile_client_key }}"
+    server_cert: "{{ incus_profiles_profile_server_cert }}"
+    token: "{{ incus_profiles_profile_token }}"
+    validate_certs: "{{ incus_profiles_profile_validate_certs }}"
   become: true
   when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database' in incus_profiles_cluster_info_state.cluster_members[0].roles
