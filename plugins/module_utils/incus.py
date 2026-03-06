@@ -299,7 +299,7 @@ def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable
 
 
 def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str) -> None:
-    """Run common info module logic. project param optional."""
+    """Execute info module."""
     name = module.params.get('name')
     project = module.params.get('project')
     result: list[Any] = []
@@ -328,19 +328,19 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
 
 
 def incus_ensure_project_info(resource: str, return_key: str) -> None:
-    """Create and run a project-scoped info module."""
+    """Execute project-scoped info."""
     module = incus_create_info_module({'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}})
     incus_run_info_module(module, resource, return_key)
 
 
 def incus_ensure_global_info(resource: str, return_key: str) -> None:
-    """Create and run a global (non-project-scoped) info module."""
+    """Execute global info."""
     module = incus_create_info_module({'name': {'type': 'str'}})
     incus_run_info_module(module, resource, return_key)
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
-    """Create AnsibleModule with common args merged in for info modules."""
+    """Create info module."""
     argument_spec.update(INCUS_COMMON_ARGS)
     return AnsibleModule(
         argument_spec=argument_spec,
@@ -354,7 +354,7 @@ def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
 def incus_create_write_module(
     argument_spec: dict[str, Any], *, require_yaml: bool = False,
 ) -> AnsibleModule:
-    """Create AnsibleModule with common and write args merged in."""
+    """Create write module."""
     argument_spec.update(INCUS_COMMON_ARGS)
     argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(
@@ -370,6 +370,6 @@ def incus_create_write_module(
 
 
 def incus_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
-    """Wait for an async operation only if the wait param is true."""
+    """Wait for operation."""
     if module.params.get('wait', True):
         client.wait(response)
