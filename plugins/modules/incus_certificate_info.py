@@ -29,6 +29,7 @@ options:
 EXAMPLES = r"""
 - name: Get all trusted certificates
   damex.incus.incus_certificate_info:
+    socket_path: /var/lib/incus/unix.socket
   register: result
 
 - name: Get specific certificate by name
