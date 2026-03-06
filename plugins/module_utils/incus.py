@@ -18,6 +18,13 @@ try:
 except ImportError:
     HAS_YAML = False
 
+import collections.abc
+
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ansible.module_utils.basic import AnsibleModule
+
 __all__ = [
     'HAS_YAML',
     'INCUS_COMMON_ARGS',
@@ -70,12 +77,12 @@ class IncusNotFoundException(IncusClientException):
 class _UnixSocketHTTPConnection(http.client.HTTPConnection):
     """HTTP over Unix socket."""
 
-    def __init__(self, socket_path):
+    def __init__(self, socket_path: str) -> None:
         """Set socket path."""
         super().__init__('localhost')
         self.socket_path = socket_path
 
-    def connect(self):
+    def connect(self) -> None:
         """Connect to socket."""
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.socket_path)
@@ -85,9 +92,11 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
     """Incus REST API client."""
 
     def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-        self, socket_path=None, url=None, client_cert=None, client_key=None,
-        server_cert=None, token=None, validate_certs=True,
-    ):
+        self, socket_path: str | None = None, url: str | None = None,
+        client_cert: str | None = None, client_key: str | None = None,
+        server_cert: str | None = None, token: str | None = None,
+        validate_certs: bool = True,
+    ) -> None:
         """Store connection params."""
         self.socket_path = socket_path or INCUS_SOCKET_PATH
         self.url = url
@@ -96,13 +105,15 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         self.server_cert = server_cert
         self.token = token
         self.validate_certs = validate_certs
+        self.host: str | None = None
+        self.port: int = 8443
 
         if url:
             parsed = urlparse(url)
             self.host = parsed.hostname
             self.port = parsed.port or 8443
 
-    def _connection(self):
+    def _connection(self) -> http.client.HTTPConnection:
         """Return HTTP or HTTPS connection."""
         if self.url:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
@@ -113,24 +124,26 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
                 context.load_verify_locations(self.server_cert)
             if self.client_cert and self.client_key:
                 context.load_cert_chain(self.client_cert, self.client_key)
+            if self.host is None:
+                raise IncusClientException('URL provided but hostname could not be parsed')
             return http.client.HTTPSConnection(self.host, self.port, context=context)
         return _UnixSocketHTTPConnection(self.socket_path)
 
-    def _headers(self):
+    def _headers(self) -> dict[str, str]:
         """Build request headers."""
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
         if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
         return headers
 
-    def _request(self, method, path, data=None):
+    def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
         """Send request, return parsed response."""
         conn = self._connection()
         try:
             body = json.dumps(data) if data is not None else None
             conn.request(method, path, body=body, headers=self._headers())
             response = conn.getresponse()
-            content = json.loads(response.read().decode('utf-8'))
+            content: dict[str, Any] = json.loads(response.read().decode('utf-8'))
         except Exception as e:
             raise IncusClientException(str(e)) from e
         finally:
@@ -143,34 +156,34 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
 
         return content
 
-    def get(self, path):
+    def get(self, path: str) -> dict[str, Any]:
         """GET request."""
         return self._request('GET', path)
 
-    def post(self, path, data=None):
+    def post(self, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
         """POST request."""
         return self._request('POST', path, data)
 
-    def put(self, path, data):
+    def put(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
         """PUT request."""
         return self._request('PUT', path, data)
 
-    def patch(self, path, data):
+    def patch(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
         """PATCH request."""
         return self._request('PATCH', path, data)
 
-    def delete(self, path):
+    def delete(self, path: str) -> dict[str, Any]:
         """DELETE request."""
         return self._request('DELETE', path)
 
-    def wait(self, response):
+    def wait(self, response: dict[str, Any]) -> None:
         """Wait for an async operation to complete."""
         if response.get('type') == 'async':
             op_id = response['metadata']['id']
             self._request('GET', f'/1.0/operations/{op_id}/wait')
 
 
-def incus_client_from_module(module):
+def incus_client_from_module(module: 'AnsibleModule') -> IncusClient:
     """Build client from module params."""
     return IncusClient(
         socket_path=module.params.get('socket_path'),
@@ -179,11 +192,11 @@ def incus_client_from_module(module):
         client_key=module.params.get('client_key'),
         server_cert=module.params.get('server_cert'),
         token=module.params.get('token'),
-        validate_certs=module.params.get('validate_certs'),
+        validate_certs=module.params.get('validate_certs', True),
     )
 
 
-def stringify_config(config):
+def stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Convert config dict values to strings as Incus stores them."""
     result = {}
     for k, v in (config or {}).items():
@@ -194,7 +207,7 @@ def stringify_config(config):
     return result
 
 
-def stringify_instance_config(config):
+def stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Convert config dict values to strings, serializing cloud-init dict values to YAML."""
     result = {}
     for k, v in (config or {}).items():
@@ -208,7 +221,7 @@ def stringify_instance_config(config):
     return result
 
 
-def build_desired(module):
+def build_desired(module: 'AnsibleModule') -> dict[str, Any]:
     """Build standard desired-state dict from description and config params."""
     return {
         'description': module.params['description'],
@@ -216,7 +229,7 @@ def build_desired(module):
     }
 
 
-def run_write_module(module, impl):
+def run_write_module(module: 'AnsibleModule', impl: collections.abc.Callable[[], bool]) -> None:
     """Run write module logic with standard error handling and exit."""
     try:
         module.exit_json(changed=impl())
@@ -224,10 +237,11 @@ def run_write_module(module, impl):
         module.fail_json(msg=str(exc))
 
 
-def run_info_module(module, resource, return_key):
+def run_info_module(module: 'AnsibleModule', resource: str, return_key: str) -> None:
     """Run common info module logic. project param optional."""
     name = module.params.get('name')
     project = module.params.get('project')
+    result: list[Any] = []
 
     try:
         client = incus_client_from_module(module)
@@ -251,7 +265,7 @@ def run_info_module(module, resource, return_key):
     module.exit_json(**{return_key: result})
 
 
-def maybe_wait(module, client, response):
+def maybe_wait(module: 'AnsibleModule', client: IncusClient, response: dict[str, Any]) -> None:
     """Wait for an async operation only if the wait param is true."""
     if module.params.get('wait', True):
         client.wait(response)
