@@ -16,7 +16,7 @@ types-PyYAML = "==6.0.12.20250915"
 
 [scripts]
 lint = "ansible-lint"
-lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins && mypy plugins'"
+lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins && MYPYPATH=../../.. mypy plugins'"
 sanity = "bash -c 'ansible-test sanity --python-interpreter $(which python)'"
 lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
 build-for-galaxy = "ansible-galaxy collection build"
