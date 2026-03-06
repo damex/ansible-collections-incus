@@ -1,0 +1,6 @@
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = "ansible.module_utils.basic"
+follow_untyped_imports = true
