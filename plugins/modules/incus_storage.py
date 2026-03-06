@@ -81,8 +81,11 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusClient,
     IncusNotFoundException,
     build_desired,
     incus_client_from_module,
@@ -94,7 +97,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _get_storage(client, name):
+def _get_storage(client: IncusClient, name: str) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the storage pool."""
     try:
         return client.get(f'/1.0/storage-pools/{name}').get('metadata') or {}, True
@@ -102,28 +105,28 @@ def _get_storage(client, name):
         return {}, False
 
 
-def _create_storage(module, client, name, driver, desired):
+def _create_storage(module: Any, client: IncusClient, name: str, driver: str, desired: dict[str, Any]) -> bool:
     """Create storage pool."""
     if not module.check_mode:
         maybe_wait(module, client, client.post('/1.0/storage-pools', {'name': name, 'driver': driver, **desired}))
     return True
 
 
-def _update_storage(module, client, name, desired):
+def _update_storage(module: Any, client: IncusClient, name: str, desired: dict[str, Any]) -> bool:
     """Update storage pool configuration."""
     if not module.check_mode:
         maybe_wait(module, client, client.put(f'/1.0/storage-pools/{name}', desired))
     return True
 
 
-def _delete_storage(module, client, name):
+def _delete_storage(module: Any, client: IncusClient, name: str) -> bool:
     """Delete storage pool."""
     if not module.check_mode:
         maybe_wait(module, client, client.delete(f'/1.0/storage-pools/{name}'))
     return True
 
 
-def main():
+def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
@@ -140,7 +143,7 @@ def main():
     name = module.params['name']
     desired = build_desired(module)
 
-    def _ensure_storage():
+    def _ensure_storage() -> bool:
         client = incus_client_from_module(module)
         current, exists = _get_storage(client, name)
         if module.params['state'] == 'present':
