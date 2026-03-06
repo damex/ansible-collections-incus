@@ -6,12 +6,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 __all__ = [
     'INCUS_DEVICE_OPTIONS',
     'devices_to_api',
 ]
 
-INCUS_DEVICE_OPTIONS = {
+INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
     'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic']},
     # disk
@@ -33,12 +35,12 @@ INCUS_DEVICE_OPTIONS = {
 }
 
 
-def devices_to_api(devices):
+def devices_to_api(devices: list[dict[str, Any]] | None) -> dict[str, dict[str, str]]:
     """Convert list of devices to Incus API dict format keyed by device name."""
-    api_devices = {}
+    api_devices: dict[str, dict[str, str]] = {}
     for device in (devices or []):
-        device_name = device['name']
-        device_config = {}
+        device_name: str = device['name']
+        device_config: dict[str, str] = {}
         for k, v in device.items():
             if k == 'name' or v is None:
                 continue
