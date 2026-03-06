@@ -279,6 +279,7 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
         if not server:
             if remote not in INCUS_KNOWN_REMOTES:
                 module.fail_json(msg=f"Unknown remote '{remote}'. Set source_server explicitly.")
+                return {'type': 'image', 'alias': alias}
             server, protocol = INCUS_KNOWN_REMOTES[remote]
 
     source = {'type': 'image', 'alias': alias}
