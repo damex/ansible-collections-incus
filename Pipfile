@@ -14,12 +14,13 @@ pylint = {extras = ["spelling"], version = "==4.0.5"}
 pylint-pytest = "==1.1.8"
 mypy = "==1.19.1"
 pytest = "==8.2.0"
+pytest-xdist = "==3.8.0"
 types-PyYAML = "==6.0.12.20250915"
 
 [scripts]
 lint = "ansible-lint"
 lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins tests && cd ../../.. && mypy --config-file ansible_collections/damex/incus/pyproject.toml ansible_collections/damex/incus/plugins ansible_collections/damex/incus/tests'"
-test = "bash -c 'PYTHONPATH=../../.. pytest tests'"
+test = "bash -c 'ansible-test units --python-interpreter $(which python)'"
 sanity = "bash -c 'ansible-test sanity --python-interpreter $(which python)'"
 lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
 build-for-galaxy = "ansible-galaxy collection build"
