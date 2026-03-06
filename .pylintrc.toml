@@ -1,3 +1,6 @@
+[tool.pylint.main]
+load-plugins = "pylint_pytest"
+
 [tool.pylint.format]
 max-line-length = 120
 
