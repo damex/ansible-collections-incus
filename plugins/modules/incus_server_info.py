@@ -71,6 +71,7 @@ def main() -> None:
         server = response.get('metadata') or {}
     except IncusClientException as e:
         module.fail_json(msg=str(e))
+        return
     module.exit_json(server=server)
 
 

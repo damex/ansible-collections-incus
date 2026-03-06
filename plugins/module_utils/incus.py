@@ -363,6 +363,7 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
 
     except IncusClientException as e:
         module.fail_json(msg=str(e))
+        return
 
     module.exit_json(**{return_key: result})
 
