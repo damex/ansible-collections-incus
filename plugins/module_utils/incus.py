@@ -326,7 +326,6 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     module.exit_json(**{return_key: result})
 
 
-
 def incus_ensure_project_info(resource: str, return_key: str) -> None:
     """Execute project-scoped info."""
     module = incus_create_info_module({'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}})
