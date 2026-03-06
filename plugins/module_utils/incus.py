@@ -67,6 +67,21 @@ INCUS_COMMON_ARGS = {
     'validate_certs': {'type': 'bool', 'default': True},
 }
 
+INCUS_COMMON_MUTUALLY_EXCLUSIVE = [
+    ['token', 'client_cert'],
+]
+
+INCUS_COMMON_REQUIRED_TOGETHER = [
+    ['client_cert', 'client_key'],
+]
+
+INCUS_COMMON_REQUIRED_BY = {
+    'client_cert': 'url',
+    'client_key': 'url',
+    'server_cert': 'url',
+    'token': 'url',
+}
+
 
 class IncusClientException(Exception):
     """API error."""
@@ -279,7 +294,13 @@ def incus_build_desired_with_devices(module: AnsibleModule) -> dict[str, Any]:
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
     """Create AnsibleModule with common args merged in for info modules."""
     argument_spec.update(INCUS_COMMON_ARGS)
-    return AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    return AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
+        required_together=INCUS_COMMON_REQUIRED_TOGETHER,
+        required_by=INCUS_COMMON_REQUIRED_BY,
+    )
 
 
 def incus_create_write_module(
@@ -288,7 +309,13 @@ def incus_create_write_module(
     """Create AnsibleModule with common and write args merged in."""
     argument_spec.update(INCUS_COMMON_ARGS)
     argument_spec.update(INCUS_WRITE_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True,
+        mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
+        required_together=INCUS_COMMON_REQUIRED_TOGETHER,
+        required_by=INCUS_COMMON_REQUIRED_BY,
+    )
     if require_yaml and not HAS_YAML:
         module.fail_json(msg='PyYAML is required for this module')
     return module
