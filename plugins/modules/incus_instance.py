@@ -124,9 +124,9 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusNotFoundException,
     incus_build_desired,
-    incus_client_from_module,
+    incus_create_client,
     incus_create_write_module,
-    incus_maybe_wait,
+    incus_wait,
     incus_run_write_module,
 )
 
@@ -172,21 +172,21 @@ def _create_instance(module: Any, client: IncusClient, project: str, name: str, 
     """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
     if not module.check_mode:
         response = client.post(f'/1.0/instances?project={project}', {'name': name, **desired})
-        incus_maybe_wait(module, client, response)
+        incus_wait(module, client, response)
     return True
 
 
 def _update_instance(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
-        incus_maybe_wait(module, client, client.put(f'/1.0/instances/{name}?project={project}', desired))
+        incus_wait(module, client, client.put(f'/1.0/instances/{name}?project={project}', desired))
     return True
 
 
 def _delete_instance(module: Any, client: IncusClient, project: str, name: str) -> bool:
     """Delete instance."""
     if not module.check_mode:
-        incus_maybe_wait(module, client, client.delete(f'/1.0/instances/{name}?project={project}'))
+        incus_wait(module, client, client.delete(f'/1.0/instances/{name}?project={project}'))
     return True
 
 
@@ -194,15 +194,15 @@ def _manage_state(module: Any, client: IncusClient, state_path: str, state: str,
     """Start, stop, or restart the instance based on desired state."""
     if state == 'started' and status != 'Running':
         if not module.check_mode:
-            incus_maybe_wait(module, client, client.put(state_path, {'action': 'start'}))
+            incus_wait(module, client, client.put(state_path, {'action': 'start'}))
         return True
     if state == 'stopped' and status != 'Stopped':
         if not module.check_mode:
-            incus_maybe_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
+            incus_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
         return True
     if state == 'restarted' and status == 'Running':
         if not module.check_mode:
-            incus_maybe_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
+            incus_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
         return True
     return False
 
@@ -230,7 +230,7 @@ def main() -> None:
     desired = {**incus_build_desired(module), 'profiles': module.params['profiles']}
 
     def _ensure_instance() -> bool:
-        client = incus_client_from_module(module)
+        client = incus_create_client(module)
         current, exists = _get_instance(client, project, name)
 
         if state == 'absent':

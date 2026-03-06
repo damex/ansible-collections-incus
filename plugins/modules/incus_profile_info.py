@@ -67,7 +67,7 @@ profiles:
 """
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    incus_run_project_info,
+    incus_ensure_project_info,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -75,7 +75,7 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 def main() -> None:
     """Run module."""
-    incus_run_project_info('profiles', 'profiles')
+    incus_ensure_project_info('profiles', 'profiles')
 
 
 if __name__ == '__main__':

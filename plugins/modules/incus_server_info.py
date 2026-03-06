@@ -55,7 +55,7 @@ server:
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
-    incus_client_from_module,
+    incus_create_client,
     incus_create_info_module,
 )
 
@@ -66,7 +66,7 @@ def main() -> None:
     """Run module."""
     module = incus_create_info_module({})
     try:
-        client = incus_client_from_module(module)
+        client = incus_create_client(module)
         response = client.get('/1.0')
         server = response.get('metadata') or {}
     except IncusClientException as e:

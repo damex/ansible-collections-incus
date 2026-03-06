@@ -72,7 +72,7 @@ cluster_members:
 """
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    incus_run_global_info,
+    incus_ensure_global_info,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -80,7 +80,7 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 def main() -> None:
     """Run module."""
-    incus_run_global_info('cluster/members', 'cluster_members')
+    incus_ensure_global_info('cluster/members', 'cluster_members')
 
 
 if __name__ == '__main__':

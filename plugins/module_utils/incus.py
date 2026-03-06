@@ -30,14 +30,14 @@ __all__ = [
     'IncusClientException',
     'IncusNotFoundException',
     'incus_build_desired',
-    'incus_client_from_module',
+    'incus_create_client',
     'incus_ensure_resource',
     'incus_create_info_module',
     'incus_create_write_module',
-    'incus_maybe_wait',
-    'incus_run_global_info',
+    'incus_wait',
+    'incus_ensure_global_info',
     'incus_run_info_module',
-    'incus_run_project_info',
+    'incus_ensure_project_info',
     'incus_run_write_module',
 ]
 
@@ -197,7 +197,7 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             self._request('GET', f'/1.0/operations/{op_id}/wait')
 
 
-def incus_client_from_module(module: AnsibleModule) -> IncusClient:
+def incus_create_client(module: AnsibleModule) -> IncusClient:
     """Build client from module params."""
     return IncusClient(
         socket_path=module.params.get('socket_path'),
@@ -253,7 +253,7 @@ def incus_ensure_resource(
     create_only_params: list[str] | None = None,
 ) -> bool:
     """Ensure Incus resource."""
-    client = incus_client_from_module(module)
+    client = incus_create_client(module)
     name = module.params['name']
     project = module.params.get('project')
     query = f'?project={project}' if project else ''
@@ -274,18 +274,18 @@ def incus_ensure_resource(
                     module.fail_json(msg=f"'{param}' is required when creating")
                 create_data[param] = value
             if not module.check_mode:
-                incus_maybe_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
+                incus_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
             return True
         if (current.get('description', '') == desired['description']
                 and current.get('config', {}) == desired['config']):
             return False
         if not module.check_mode:
-            incus_maybe_wait(module, client, client.put(f'/1.0/{resource}/{name}{query}', desired))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{name}{query}', desired))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_maybe_wait(module, client, client.delete(f'/1.0/{resource}/{name}{query}'))
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{name}{query}'))
         return True
     return False
 
@@ -305,7 +305,7 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     result: list[Any] = []
 
     try:
-        client = incus_client_from_module(module)
+        client = incus_create_client(module)
 
         if name:
             path = f'/1.0/{resource}/{name}' + (f'?project={project}' if project else '')
@@ -327,13 +327,13 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
 
 
 
-def incus_run_project_info(resource: str, return_key: str) -> None:
+def incus_ensure_project_info(resource: str, return_key: str) -> None:
     """Create and run a project-scoped info module."""
     module = incus_create_info_module({'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}})
     incus_run_info_module(module, resource, return_key)
 
 
-def incus_run_global_info(resource: str, return_key: str) -> None:
+def incus_ensure_global_info(resource: str, return_key: str) -> None:
     """Create and run a global (non-project-scoped) info module."""
     module = incus_create_info_module({'name': {'type': 'str'}})
     incus_run_info_module(module, resource, return_key)
@@ -369,7 +369,7 @@ def incus_create_write_module(
     return module
 
 
-def incus_maybe_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
+def incus_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
     """Wait for an async operation only if the wait param is true."""
     if module.params.get('wait', True):
         client.wait(response)

@@ -86,9 +86,9 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusNotFoundException,
     incus_build_desired,
-    incus_client_from_module,
+    incus_create_client,
     incus_create_write_module,
-    incus_maybe_wait,
+    incus_wait,
     incus_run_write_module,
 )
 
@@ -106,21 +106,21 @@ def _get_profile(client: IncusClient, project: str, name: str) -> tuple[dict[str
 def _create_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Create profile."""
     if not module.check_mode:
-        incus_maybe_wait(module, client, client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
+        incus_wait(module, client, client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
     return True
 
 
 def _update_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Update profile configuration and devices."""
     if not module.check_mode:
-        incus_maybe_wait(module, client, client.put(f'/1.0/profiles/{name}?project={project}', desired))
+        incus_wait(module, client, client.put(f'/1.0/profiles/{name}?project={project}', desired))
     return True
 
 
 def _delete_profile(module: Any, client: IncusClient, project: str, name: str) -> bool:
     """Delete profile."""
     if not module.check_mode:
-        incus_maybe_wait(module, client, client.delete(f'/1.0/profiles/{name}?project={project}'))
+        incus_wait(module, client, client.delete(f'/1.0/profiles/{name}?project={project}'))
     return True
 
 
@@ -138,7 +138,7 @@ def main() -> None:
     desired = incus_build_desired(module)
 
     def _ensure_profile() -> bool:
-        client = incus_client_from_module(module)
+        client = incus_create_client(module)
         current, exists = _get_profile(client, project, name)
         if module.params['state'] == 'present':
             if not exists:
