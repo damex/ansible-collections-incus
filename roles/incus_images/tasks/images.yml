@@ -7,7 +7,6 @@
     incus_images_image_alias: "{{ incus_images_image.alias }}"
     incus_images_image_type: "{{ incus_images_image.type | default(incus_images_type) }}"
     incus_images_image_copy_aliases: "{{ incus_images_image.copy_aliases | default(incus_images_copy_aliases) }}"
-    incus_images_image_target: "{{ incus_images_image.target | default(incus_images_target) }}"
     incus_images_image_project: "{{ incus_images_image.project | default(incus_images_project) }}"
     incus_images_image_state: "{{ incus_images_image.state | default(incus_images_state) }}"
   loop: "{{ incus_images }}"

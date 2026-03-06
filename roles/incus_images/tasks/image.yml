@@ -7,3 +7,4 @@
     type: "{{ incus_images_image_type }}"
     copy_aliases: "{{ incus_images_image_copy_aliases }}"
     state: "{{ incus_images_image_state }}"
+    socket_path: "{{ incus_images_socket_path }}"

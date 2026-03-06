@@ -26,6 +26,8 @@ argument_specs:
             choices:
               - present
               - absent
+      incus_images_socket_path:
+        type: path
       incus_images_type:
         type: str
         choices:
