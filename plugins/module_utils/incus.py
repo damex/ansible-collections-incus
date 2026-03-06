@@ -2,7 +2,7 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Incus REST API client."""
+"""Incus API client."""
 
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ class IncusClientException(Exception):
 
 
 class IncusNotFoundException(IncusClientException):
-    """Resource not found (404)."""
+    """Resource not found."""
 
 
 class _UnixSocketHTTPConnection(http.client.HTTPConnection):
@@ -103,7 +103,7 @@ class _UnixSocketHTTPConnection(http.client.HTTPConnection):
 
 
 class IncusClient:  # pylint: disable=too-many-instance-attributes
-    """Incus REST API client."""
+    """Incus API client."""
 
     def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self, socket_path: str | None = None, url: str | None = None,
@@ -111,7 +111,7 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         server_cert: str | None = None, token: str | None = None,
         validate_certs: bool = True,
     ) -> None:
-        """Store connection params."""
+        """Set connection params."""
         self.socket_path = socket_path or INCUS_SOCKET_PATH
         self.url = url
         self.client_cert = client_cert
@@ -128,7 +128,7 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             self.port = parsed.port or 8443
 
     def _connection(self) -> http.client.HTTPConnection:
-        """Return HTTP or HTTPS connection."""
+        """Get connection."""
         if self.url:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
             if not self.validate_certs:
@@ -144,14 +144,14 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         return _UnixSocketHTTPConnection(self.socket_path)
 
     def _headers(self) -> dict[str, str]:
-        """Build request headers."""
+        """Build headers."""
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
         if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
         return headers
 
     def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Send request, return parsed response."""
+        """Send request."""
         conn = self._connection()
         try:
             body = json.dumps(data) if data is not None else None
@@ -191,14 +191,14 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         return self._request('DELETE', path)
 
     def wait(self, response: dict[str, Any]) -> None:
-        """Wait for an async operation to complete."""
+        """Wait for operation."""
         if response.get('type') == 'async':
             op_id = response['metadata']['id']
             self._request('GET', f'/1.0/operations/{op_id}/wait')
 
 
 def incus_create_client(module: AnsibleModule) -> IncusClient:
-    """Build client from module params."""
+    """Create client."""
     return IncusClient(
         socket_path=module.params.get('socket_path'),
         url=module.params.get('url'),
@@ -211,7 +211,7 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
 
 
 def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
-    """Convert config dict values to strings as Incus stores them."""
+    """Stringify config."""
     result = {}
     for k, v in (config or {}).items():
         if isinstance(v, bool):
@@ -222,7 +222,7 @@ def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
 
 
 def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
-    """Convert config dict values to strings, serializing cloud-init dict values to YAML."""
+    """Stringify config with cloud-init YAML."""
     result = {}
     for k, v in (config or {}).items():
         if isinstance(v, (dict, list)):
@@ -236,7 +236,7 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
 
 
 def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
-    """Build desired-state dict from module params. Includes devices and cloud-init YAML when applicable."""
+    """Build desired state."""
     has_devices = 'devices' in module.params and module.params['devices'] is not None
     desired: dict[str, Any] = {
         'description': module.params['description'],
@@ -252,7 +252,7 @@ def incus_ensure_resource(
     module: AnsibleModule, resource: str, desired: dict[str, Any],
     create_only_params: list[str] | None = None,
 ) -> bool:
-    """Ensure Incus resource."""
+    """Ensure resource."""
     client = incus_create_client(module)
     name = module.params['name']
     project = module.params.get('project')
@@ -291,7 +291,7 @@ def incus_ensure_resource(
 
 
 def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
-    """Run write module logic with standard error handling and exit."""
+    """Execute write module."""
     try:
         module.exit_json(changed=impl())
     except IncusClientException as exc:
