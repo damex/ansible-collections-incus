@@ -117,7 +117,10 @@ RETURN = r"""
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    IncusClient,
     IncusNotFoundException,
     incus_build_desired_with_devices,
     incus_client_from_module,
@@ -135,7 +138,7 @@ _KNOWN_REMOTES = {
 }
 
 
-def _build_source(module):
+def _build_source(module: Any) -> dict[str, str]:
     """Build source dict for instance creation from source/source_server/source_protocol params."""
     raw = module.params['source']
     server = module.params.get('source_server')
@@ -156,7 +159,7 @@ def _build_source(module):
     return source
 
 
-def _get_instance(client, project, name):
+def _get_instance(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the instance."""
     try:
         return client.get(f'/1.0/instances/{name}?project={project}').get('metadata') or {}, True
@@ -164,7 +167,7 @@ def _get_instance(client, project, name):
         return {}, False
 
 
-def _create_instance(module, client, project, name, desired):
+def _create_instance(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
     if not module.check_mode:
         response = client.post(f'/1.0/instances?project={project}', {'name': name, **desired})
@@ -172,21 +175,21 @@ def _create_instance(module, client, project, name, desired):
     return True
 
 
-def _update_instance(module, client, project, name, desired):
+def _update_instance(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
         maybe_wait(module, client, client.put(f'/1.0/instances/{name}?project={project}', desired))
     return True
 
 
-def _delete_instance(module, client, project, name):
+def _delete_instance(module: Any, client: IncusClient, project: str, name: str) -> bool:
     """Delete instance."""
     if not module.check_mode:
         maybe_wait(module, client, client.delete(f'/1.0/instances/{name}?project={project}'))
     return True
 
 
-def _manage_state(module, client, state_path, state, status):
+def _manage_state(module: Any, client: IncusClient, state_path: str, state: str, status: str) -> bool:
     """Start, stop, or restart the instance based on desired state."""
     if state == 'started' and status != 'Running':
         if not module.check_mode:
@@ -203,7 +206,7 @@ def _manage_state(module, client, state_path, state, status):
     return False
 
 
-def main():
+def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         'name': {'type': 'str', 'required': True},
@@ -225,7 +228,7 @@ def main():
     name = module.params['name']
     desired = {**incus_build_desired_with_devices(module), 'profiles': module.params['profiles']}
 
-    def _ensure_instance():
+    def _ensure_instance() -> bool:
         client = incus_client_from_module(module)
         current, exists = _get_instance(client, project, name)
 
