@@ -1,5 +1,6 @@
 [tool.mypy]
 strict = true
+explicit_package_bases = true
 
 [[tool.mypy.overrides]]
 module = "ansible.module_utils.basic"
