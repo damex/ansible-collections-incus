@@ -25,22 +25,17 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
 
 __all__ = [
-    'HAS_YAML',
-    'INCUS_COMMON_ARGS',
     'INCUS_COMMON_ARGUMENT_SPEC',
-    'INCUS_WRITE_ARGS',
+    'IncusClient',
     'IncusClientException',
     'IncusNotFoundException',
-    'IncusClient',
+    'incus_build_desired',
     'incus_client_from_module',
+    'incus_create_info_module',
+    'incus_create_write_module',
     'incus_maybe_wait',
     'incus_run_info_module',
     'incus_run_write_module',
-    'incus_stringify_config',
-    'incus_stringify_instance_config',
-    'incus_build_desired',
-    'incus_create_info_module',
-    'incus_create_write_module',
 ]
 
 _CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
