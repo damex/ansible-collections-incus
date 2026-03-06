@@ -70,8 +70,7 @@ storage_pools:
 """
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    incus_create_info_module,
-    incus_run_info_module,
+    incus_run_global_info,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -79,8 +78,7 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 def main() -> None:
     """Run module."""
-    module = incus_create_info_module({'name': {'type': 'str'}})
-    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+    incus_run_global_info('storage-pools', 'storage_pools')
 
 
 if __name__ == '__main__':

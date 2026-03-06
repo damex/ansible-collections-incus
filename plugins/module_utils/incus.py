@@ -34,7 +34,9 @@ __all__ = [
     'incus_create_info_module',
     'incus_create_write_module',
     'incus_maybe_wait',
+    'incus_run_global_info',
     'incus_run_info_module',
+    'incus_run_project_info',
     'incus_run_write_module',
 ]
 
@@ -280,6 +282,18 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
 
     module.exit_json(**{return_key: result})
 
+
+
+def incus_run_project_info(resource: str, return_key: str) -> None:
+    """Create and run a project-scoped info module."""
+    module = incus_create_info_module({'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}})
+    incus_run_info_module(module, resource, return_key)
+
+
+def incus_run_global_info(resource: str, return_key: str) -> None:
+    """Create and run a global (non-project-scoped) info module."""
+    module = incus_create_info_module({'name': {'type': 'str'}})
+    incus_run_info_module(module, resource, return_key)
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
