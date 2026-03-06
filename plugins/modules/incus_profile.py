@@ -78,8 +78,11 @@ RETURN = r"""
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusClient,
     IncusNotFoundException,
     incus_build_desired_with_devices,
     incus_client_from_module,
@@ -91,7 +94,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _get_profile(client, project, name):
+def _get_profile(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the profile."""
     try:
         return client.get(f'/1.0/profiles/{name}?project={project}').get('metadata') or {}, True
@@ -99,28 +102,28 @@ def _get_profile(client, project, name):
         return {}, False
 
 
-def _create_profile(module, client, project, name, desired):
+def _create_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Create profile."""
     if not module.check_mode:
         maybe_wait(module, client, client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
     return True
 
 
-def _update_profile(module, client, project, name, desired):
+def _update_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
     """Update profile configuration and devices."""
     if not module.check_mode:
         maybe_wait(module, client, client.put(f'/1.0/profiles/{name}?project={project}', desired))
     return True
 
 
-def _delete_profile(module, client, project, name):
+def _delete_profile(module: Any, client: IncusClient, project: str, name: str) -> bool:
     """Delete profile."""
     if not module.check_mode:
         maybe_wait(module, client, client.delete(f'/1.0/profiles/{name}?project={project}'))
     return True
 
 
-def main():
+def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
@@ -133,7 +136,7 @@ def main():
     name = module.params['name']
     desired = incus_build_desired_with_devices(module)
 
-    def _ensure_profile():
+    def _ensure_profile() -> bool:
         client = incus_client_from_module(module)
         current, exists = _get_profile(client, project, name)
         if module.params['state'] == 'present':
