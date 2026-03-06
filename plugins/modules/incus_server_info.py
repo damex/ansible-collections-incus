@@ -53,21 +53,18 @@ server:
       type: str
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
     IncusClientException,
     incus_client_from_module,
+    incus_create_info_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def main():
+def main() -> None:
     """Run module."""
-    argument_spec = {}
-    argument_spec.update(INCUS_COMMON_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = incus_create_info_module({})
     try:
         client = incus_client_from_module(module)
         response = client.get('/1.0')

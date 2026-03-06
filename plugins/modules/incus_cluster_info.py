@@ -71,20 +71,17 @@ cluster_members:
       type: bool
 """
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
+    incus_create_info_module,
     run_info_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def main():
+def main() -> None:
     """Run module."""
-    argument_spec = {'name': {'type': 'str'}}
-    argument_spec.update(INCUS_COMMON_ARGS)
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = incus_create_info_module({'name': {'type': 'str'}})
     run_info_module(module, 'cluster/members', 'cluster_members')
 
 

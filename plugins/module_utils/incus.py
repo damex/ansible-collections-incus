@@ -40,6 +40,7 @@ __all__ = [
     'stringify_instance_config',
     'build_desired',
     'incus_build_desired_with_devices',
+    'incus_create_info_module',
     'incus_create_write_module',
 ]
 
@@ -273,6 +274,12 @@ def incus_build_desired_with_devices(module: AnsibleModule) -> dict[str, Any]:
         'config': stringify_instance_config(module.params['config']),
         'devices': devices_to_api(module.params['devices']),
     }
+
+
+def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
+    """Create AnsibleModule with common args merged in for info modules."""
+    argument_spec.update(INCUS_COMMON_ARGS)
+    return AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
 
 def incus_create_write_module(
