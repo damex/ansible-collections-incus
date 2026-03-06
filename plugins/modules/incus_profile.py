@@ -75,10 +75,11 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
-from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
