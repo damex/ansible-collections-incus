@@ -21,6 +21,7 @@ extends_documentation_fragment:
   - damex.incus.common
   - damex.incus.common.project
   - damex.incus.common.write
+  - damex.incus.common.source
   - damex.incus.common.devices
 options:
   name:
@@ -38,25 +39,6 @@ options:
     type: str
     choices: [started, stopped, restarted, absent]
     default: started
-  source:
-    description:
-      - Image alias to use when creating the instance, e.g. C(debian/13) or C(images:debian/13).
-      - The C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily)).
-      - Required when creating a new instance. Ignored on update.
-    type: str
-  source_server:
-    description:
-      - URL of the image server to pull from, e.g. C(https://images.linuxcontainers.org).
-      - Takes precedence over auto-resolved remotes when C(source) uses the C(remote:alias) format.
-      - Not required for local images or when using a well-known remote prefix.
-    type: str
-  source_protocol:
-    description:
-      - Protocol used to communicate with C(source_server).
-      - Defaults to C(simplestreams) when C(source_server) is set.
-    type: str
-    choices: [simplestreams, lxd]
-    default: simplestreams
   type:
     description:
       - Instance type.
@@ -121,9 +103,11 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 )
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_SOURCE_ARGS,
     IncusClient,
     IncusNotFoundException,
     incus_build_desired,
+    incus_build_source,
     incus_create_client,
     incus_create_write_module,
     incus_wait,
@@ -131,33 +115,6 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
-
-_KNOWN_REMOTES = {
-    'images': ('https://images.linuxcontainers.org', 'simplestreams'),
-    'ubuntu': ('https://cloud-images.ubuntu.com/releases', 'simplestreams'),
-    'ubuntu-daily': ('https://cloud-images.ubuntu.com/daily', 'simplestreams'),
-}
-
-
-def _build_source(module: Any) -> dict[str, str]:
-    """Build source dict for instance creation from source/source_server/source_protocol params."""
-    raw = module.params['source']
-    server = module.params.get('source_server')
-    protocol = module.params.get('source_protocol') or 'simplestreams'
-
-    alias = raw
-    if ':' in raw:
-        remote, alias = raw.split(':', 1)
-        if not server:
-            if remote not in _KNOWN_REMOTES:
-                module.fail_json(msg=f"Unknown remote '{remote}'. Set source_server explicitly.")
-            server, protocol = _KNOWN_REMOTES[remote]
-
-    source = {'type': 'image', 'alias': alias}
-    if server:
-        source['server'] = server
-        source['protocol'] = protocol
-    return source
 
 
 def _get_instance(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
@@ -214,9 +171,7 @@ def main() -> None:
         'state': {'type': 'str', 'default': 'started',
                   'choices': ['started', 'stopped', 'restarted', 'absent']},
         'project': {'type': 'str', 'default': 'default'},
-        'source': {'type': 'str'},
-        'source_server': {'type': 'str'},
-        'source_protocol': {'type': 'str', 'default': 'simplestreams', 'choices': ['simplestreams', 'lxd']},
+        **INCUS_SOURCE_ARGS,
         'type': {'type': 'str', 'default': 'container', 'choices': ['container', 'virtual-machine']},
         'ephemeral': {'type': 'bool', 'default': False},
         'profiles': {'type': 'list', 'elements': 'str', 'default': ['default']},
@@ -247,7 +202,7 @@ def main() -> None:
                 **desired,
                 'type': module.params['type'],
                 'ephemeral': module.params['ephemeral'],
-                'source': _build_source(module),
+                'source': incus_build_source(module),
             }
             _create_instance(module, client, project, name, create_desired)
             changed = True

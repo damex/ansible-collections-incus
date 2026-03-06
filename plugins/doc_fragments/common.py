@@ -124,6 +124,26 @@ options:
         type: str
 """
 
+    SOURCE = r"""
+options:
+  source:
+    description:
+      - Image reference to copy from, e.g. C(images:debian/13) or C(ubuntu/24.04).
+      - The C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily)).
+    type: str
+  source_server:
+    description:
+      - URL of the image server to pull from, e.g. C(https://images.linuxcontainers.org).
+      - Takes precedence over auto-resolved remotes when O(source) uses the C(remote:alias) format.
+    type: str
+  source_protocol:
+    description:
+      - Protocol used to communicate with O(source_server).
+    type: str
+    choices: [simplestreams, lxd]
+    default: simplestreams
+"""
+
     WRITE = r"""
 options:
   wait:

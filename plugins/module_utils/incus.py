@@ -26,19 +26,25 @@ from ansible_collections.damex.incus.plugins.module_utils.device import devices_
 
 __all__ = [
     'INCUS_COMMON_ARGUMENT_SPEC',
+    'INCUS_COMMON_ARGS',
+    'INCUS_COMMON_MUTUALLY_EXCLUSIVE',
+    'INCUS_COMMON_REQUIRED_BY',
+    'INCUS_COMMON_REQUIRED_TOGETHER',
+    'INCUS_SOURCE_ARGS',
     'IncusClient',
     'IncusClientException',
     'IncusNotFoundException',
     'incus_build_desired',
+    'incus_build_source',
     'incus_create_client',
-    'incus_ensure_resource',
     'incus_create_info_module',
     'incus_create_write_module',
-    'incus_wait',
     'incus_ensure_global_info',
-    'incus_run_info_module',
     'incus_ensure_project_info',
+    'incus_ensure_resource',
+    'incus_run_info_module',
     'incus_run_write_module',
+    'incus_wait',
 ]
 
 _CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
@@ -246,6 +252,40 @@ def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
     if has_devices:
         desired['devices'] = devices_to_api(module.params['devices'])
     return desired
+
+
+INCUS_KNOWN_REMOTES = {
+    'images': ('https://images.linuxcontainers.org', 'simplestreams'),
+    'ubuntu': ('https://cloud-images.ubuntu.com/releases', 'simplestreams'),
+    'ubuntu-daily': ('https://cloud-images.ubuntu.com/daily', 'simplestreams'),
+}
+
+INCUS_SOURCE_ARGS = {
+    'source': {'type': 'str'},
+    'source_server': {'type': 'str'},
+    'source_protocol': {'type': 'str', 'default': 'simplestreams', 'choices': ['simplestreams', 'lxd']},
+}
+
+
+def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
+    """Build image source."""
+    raw = module.params['source']
+    server = module.params.get('source_server')
+    protocol = module.params.get('source_protocol') or 'simplestreams'
+
+    alias = raw
+    if ':' in raw:
+        remote, alias = raw.split(':', 1)
+        if not server:
+            if remote not in INCUS_KNOWN_REMOTES:
+                module.fail_json(msg=f"Unknown remote '{remote}'. Set source_server explicitly.")
+            server, protocol = INCUS_KNOWN_REMOTES[remote]
+
+    source = {'type': 'image', 'alias': alias}
+    if server:
+        source['server'] = server
+        source['protocol'] = protocol
+    return source
 
 
 def incus_ensure_resource(
