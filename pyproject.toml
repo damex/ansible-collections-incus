@@ -1,6 +1,5 @@
 [tool.mypy]
 strict = true
-mypy_path = "../../.."
 
 [[tool.mypy.overrides]]
 module = "ansible.module_utils.basic"
