@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus networks.
     description:
       - Ensure Incus networks.
+    examples: |
+      - name: Ensure incus networks
+        hosts: incus
+        tasks:
+          - name: Ensure incus networks
+            ansible.builtin.import_role:
+              name: damex.incus.incus_networks
     options:
       incus_networks:
         description: List of networks to ensure.

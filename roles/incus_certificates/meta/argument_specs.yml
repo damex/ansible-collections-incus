@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus trusted certificates.
     description:
       - Ensure trusted TLS certificates on an Incus server.
+    examples: |
+      - name: Ensure incus certificates
+        hosts: incus
+        tasks:
+          - name: Ensure incus certificates
+            ansible.builtin.import_role:
+              name: damex.incus.incus_certificates
     options:
       incus_certificates:
         description: List of certificates to ensure.

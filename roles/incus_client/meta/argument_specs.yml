@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus client.
     description:
       - Ensure the Incus client package and configuration.
+    examples: |
+      - name: Ensure incus client
+        hosts: incus
+        tasks:
+          - name: Ensure incus client
+            ansible.builtin.import_role:
+              name: damex.incus.incus_client
     options:
       incus_client_package_name:
         type: str

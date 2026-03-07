@@ -5,6 +5,13 @@ argument_specs:
     description:
       - Ensure Incus instances.
       - Supports containers and virtual machines with cloud-init configuration.
+    examples: |
+      - name: Ensure incus instances
+        hosts: incus
+        tasks:
+          - name: Ensure incus instances
+            ansible.builtin.import_role:
+              name: damex.incus.incus_instances
     options:
       incus_instances:
         description: List of instances to ensure.

@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus cluster.
     description:
       - Ensure an Incus cluster is bootstrapped and members are joined.
+    examples: |
+      - name: Ensure incus cluster
+        hosts: incus
+        tasks:
+          - name: Ensure incus cluster
+            ansible.builtin.import_role:
+              name: damex.incus.incus_cluster
     options:
       incus_cluster_socket_path:
         type: path

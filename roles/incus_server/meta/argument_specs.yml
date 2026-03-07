@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus server configuration.
     description:
       - Ensure preseed configuration on the Incus server.
+    examples: |
+      - name: Ensure incus server
+        hosts: incus
+        tasks:
+          - name: Ensure incus server
+            ansible.builtin.import_role:
+              name: damex.incus.incus_server
     options:
       incus_server_force:
         type: bool

@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Zabbly APT repository for Incus packages.
     description:
       - Ensure the Zabbly GPG key and APT repository source for Incus packages.
+    examples: |
+      - name: Ensure incus repository
+        hosts: incus
+        tasks:
+          - name: Ensure incus repository
+            ansible.builtin.import_role:
+              name: damex.incus.incus_repository
     options:
       incus_repository_apt_key_id:
         type: str

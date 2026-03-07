@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus storage pools.
     description:
       - Ensure Incus storage pools.
+    examples: |
+      - name: Ensure incus storages
+        hosts: incus
+        tasks:
+          - name: Ensure incus storages
+            ansible.builtin.import_role:
+              name: damex.incus.incus_storages
     options:
       incus_storages:
         description: List of storage pools to ensure.

@@ -4,6 +4,13 @@ argument_specs:
     short_description: Ensure Incus images.
     description:
       - Ensure images on an Incus server.
+    examples: |
+      - name: Ensure incus images
+        hosts: incus
+        tasks:
+          - name: Ensure incus images
+            ansible.builtin.import_role:
+              name: damex.incus.incus_images
     options:
       incus_images:
         type: list

@@ -5,6 +5,13 @@ argument_specs:
     description:
       - Ensure Incus instance profiles.
       - Profiles define configuration and devices applied to instances.
+    examples: |
+      - name: Ensure incus profiles
+        hosts: incus
+        tasks:
+          - name: Ensure incus profiles
+            ansible.builtin.import_role:
+              name: damex.incus.incus_profiles
     options:
       incus_profiles:
         description: List of Incus profiles to ensure.
