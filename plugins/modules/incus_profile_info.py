@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Gather Incus profile info."""
+"""Ensure Incus profile info is gathered."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_profile_info
-short_description: Gather information about Incus profiles
+short_description: Ensure Incus profile information is gathered
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus profiles via the Incus REST API.

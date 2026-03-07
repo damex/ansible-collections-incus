@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Gather Incus certificate info."""
+"""Ensure Incus certificate info is gathered."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_certificate_info
-short_description: Gather information about Incus trusted certificates
+short_description: Ensure Incus trusted certificate information is gathered
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about trusted certificates in the Incus trust store via the Incus REST API.

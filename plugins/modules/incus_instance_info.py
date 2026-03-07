@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Gather Incus instance info."""
+"""Ensure Incus instance info is gathered."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_instance_info
-short_description: Gather information about Incus instances
+short_description: Ensure Incus instance information is gathered
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Gather information about Incus instances via the Incus REST API.
