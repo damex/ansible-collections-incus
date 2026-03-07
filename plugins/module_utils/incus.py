@@ -263,7 +263,7 @@ INCUS_KNOWN_REMOTES = {
 INCUS_SOURCE_ARGS = {
     'source': {'type': 'str'},
     'source_server': {'type': 'str'},
-    'source_protocol': {'type': 'str', 'default': 'simplestreams', 'choices': ['simplestreams', 'lxd']},
+    'source_protocol': {'type': 'str', 'default': 'simplestreams', 'choices': ['simplestreams', 'incus']},
 }
 
 
