@@ -24,6 +24,9 @@ argument_specs:
               - ovn
               - physical
               - sriov
+          description:
+            description: Network description.
+            type: str
           project:
             description: Incus project to scope the network to.
             type: str
