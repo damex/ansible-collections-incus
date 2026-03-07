@@ -39,8 +39,9 @@ options:
     choices:
       - bridge
       - macvlan
-      - sriov
+      - ovn
       - physical
+      - sriov
   description:
     description:
       - Network description.
@@ -88,7 +89,7 @@ def main() -> None:
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
-        'type': {'type': 'str', 'choices': ['bridge', 'macvlan', 'sriov', 'physical']},
+        'type': {'type': 'str', 'choices': ['bridge', 'macvlan', 'ovn', 'physical', 'sriov']},
         'config': {'type': 'dict', 'default': {}},
         'description': {'type': 'str', 'default': ''},
     })
