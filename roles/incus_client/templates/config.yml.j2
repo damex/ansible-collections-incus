@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+{% for incus_client_configuration_key, incus_client_configuration_value in incus_client_configuration.items() %}
+{%     if incus_client_configuration_value | type_debug == 'list' %}
+{{ incus_client_configuration_key }}:
+{%         for incus_client_configuration_item in incus_client_configuration_value %}
+  {{ incus_client_configuration_item.name }}:
+{%             for incus_client_configuration_item_key, incus_client_configuration_item_value in incus_client_configuration_item.items() %}
+{%                 if incus_client_configuration_item_key != 'name' %}
+    {{ incus_client_configuration_item_key }}: {{ incus_client_configuration_item_value | lower if incus_client_configuration_item_value | type_debug == 'bool' else incus_client_configuration_item_value }}
+{%                 endif %}
+{%             endfor %}
+{%         endfor %}
+{%     else %}
+{{ incus_client_configuration_key }}: {{ incus_client_configuration_value | lower if incus_client_configuration_value | type_debug == 'bool' else incus_client_configuration_value }}
+{%     endif %}
+{% endfor %}

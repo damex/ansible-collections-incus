@@ -7,7 +7,6 @@
       - name: "{{ incus_apt_preference_name }}"
         package_names:
           - "{{ incus_package_name }}"
-          - "{{ incus_client_package_name }}"
         pin: "{{ incus_apt_preference_pin }}"
         pin_priority: "{{ incus_apt_preference_pin_priority }}"
   when: ansible_facts['pkg_mgr'] == "apt"

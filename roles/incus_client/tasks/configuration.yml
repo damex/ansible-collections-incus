@@ -1,0 +1,18 @@
+---
+- name: Ensure incus client configuration directory
+  ansible.builtin.file:
+    path: "{{ incus_client_configuration_directory }}"
+    state: directory
+    owner: "{{ incus_client_user }}"
+    group: "{{ incus_client_group }}"
+    mode: "0750"
+  become: true
+
+- name: Ensure incus client configuration file
+  ansible.builtin.template:
+    src: config.yml.j2
+    dest: "{{ incus_client_configuration_file }}"
+    owner: "{{ incus_client_user }}"
+    group: "{{ incus_client_group }}"
+    mode: "0640"
+  become: true

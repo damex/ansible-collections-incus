@@ -1,0 +1,12 @@
+---
+- name: Ensure incus client apt preference {{ incus_client_apt_preference_name }}
+  ansible.builtin.include_role:
+    name: damex.apt.apt_preferences
+  vars:
+    apt_preferences: # noqa: var-naming[no-role-prefix]
+      - name: "{{ incus_client_apt_preference_name }}"
+        package_names:
+          - "{{ incus_client_package_name }}"
+        pin: "{{ incus_client_apt_preference_pin }}"
+        pin_priority: "{{ incus_client_apt_preference_pin_priority }}"
+  when: ansible_facts['pkg_mgr'] == "apt"

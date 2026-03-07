@@ -1,0 +1,59 @@
+---
+argument_specs:
+  main:
+    options:
+      incus_client_package_name:
+        type: str
+      incus_client_package_state:
+        type: str
+        choices:
+          - present
+          - absent
+      incus_client_apt_preference_name:
+        type: str
+      incus_client_apt_preference_pin:
+        type: str
+      incus_client_apt_preference_pin_priority:
+        type: int
+      incus_client_user:
+        type: str
+      incus_client_group:
+        type: str
+      incus_client_configuration_directory:
+        type: path
+      incus_client_configuration_file:
+        type: path
+      incus_client_configuration:
+        type: dict
+        required: true
+        options:
+          default-remote:
+            type: str
+            required: true
+          remotes:
+            type: list
+            elements: dict
+            required: true
+            options:
+              name:
+                type: str
+                required: true
+              addr:
+                type: str
+                required: true
+              protocol:
+                type: str
+                required: true
+              public:
+                type: bool
+          aliases:
+            type: dict
+          defaults:
+            type: dict
+            options:
+              list_format:
+                type: str
+              console_type:
+                type: str
+              console_spice_command:
+                type: str

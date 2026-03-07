@@ -4,16 +4,9 @@ argument_specs:
     options:
       incus_package_name:
         type: str
-      incus_client_package_name:
-        type: str
       incus_package_version:
         type: str
       incus_package_state:
-        type: str
-        choices:
-          - present
-          - absent
-      incus_client_package_state:
         type: str
         choices:
           - present
