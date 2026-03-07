@@ -140,7 +140,7 @@ options:
     description:
       - Protocol used to communicate with O(source_server).
     type: str
-    choices: [simplestreams, lxd]
+    choices: [simplestreams, incus]
     default: simplestreams
 """
 
