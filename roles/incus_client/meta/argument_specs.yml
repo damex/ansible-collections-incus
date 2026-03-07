@@ -11,6 +11,25 @@ argument_specs:
           - name: Ensure incus client
             ansible.builtin.import_role:
               name: damex.incus.incus_client
+
+      - name: Ensure incus client with remote servers
+        hosts: workstations
+        tasks:
+          - name: Ensure incus client with remote servers
+            ansible.builtin.import_role:
+              name: damex.incus.incus_client
+            vars:
+              incus_client_configuration:
+                default-remote: local
+                remotes:
+                  - name: local
+                    addr: unix://
+                    protocol: incus
+                    public: false
+                  - name: production
+                    addr: https://incus.example.com:8443
+                    protocol: incus
+                    public: false
     options:
       incus_client_package_name:
         type: str

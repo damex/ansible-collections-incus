@@ -11,6 +11,10 @@ argument_specs:
           - name: Ensure incus server
             ansible.builtin.import_role:
               name: damex.incus.incus_server
+            vars:
+              incus_server_preseed:
+                config:
+                  core.https_address: :8443
     options:
       incus_server_force:
         type: bool

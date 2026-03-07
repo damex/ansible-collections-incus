@@ -11,6 +11,14 @@ argument_specs:
           - name: Ensure incus storages
             ansible.builtin.import_role:
               name: damex.incus.incus_storages
+            vars:
+              incus_storages:
+                - name: local
+                  driver: dir
+                - name: data
+                  driver: zfs
+                  config:
+                    source: tank/incus
     options:
       incus_storages:
         description: List of storage pools to ensure.

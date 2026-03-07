@@ -11,6 +11,14 @@ argument_specs:
           - name: Ensure incus certificates
             ansible.builtin.import_role:
               name: damex.incus.incus_certificates
+            vars:
+              incus_certificates:
+                - name: monitoring
+                  certificate: "{{ lookup('file', 'certs/monitoring.crt') }}"
+                  type: client
+                - name: backup
+                  certificate: "{{ lookup('file', 'certs/backup.crt') }}"
+                  type: client
     options:
       incus_certificates:
         description: List of certificates to ensure.

@@ -11,6 +11,14 @@ argument_specs:
           - name: Ensure incus images
             ansible.builtin.import_role:
               name: damex.incus.incus_images
+            vars:
+              incus_images:
+                - source: images:debian/13
+                  alias: debian13
+                - source: images:ubuntu/24.04
+                  alias: ubuntu2404
+                  type: virtual-machine
+                  auto_update: true
     options:
       incus_images:
         type: list

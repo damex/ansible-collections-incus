@@ -11,6 +11,16 @@ argument_specs:
           - name: Ensure incus
             ansible.builtin.import_role:
               name: damex.incus.incus
+
+      - name: Ensure incus with specific version
+        hosts: incus
+        tasks:
+          - name: Ensure incus with specific version
+            ansible.builtin.import_role:
+              name: damex.incus.incus
+            vars:
+              incus_package_name: incus-lts
+              incus_package_version: 6.0.4-zabbly1
     options:
       incus_package_name:
         type: str

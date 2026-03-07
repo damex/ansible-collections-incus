@@ -11,6 +11,19 @@ argument_specs:
           - name: Ensure incus profiles
             ansible.builtin.import_role:
               name: damex.incus.incus_profiles
+            vars:
+              incus_profiles:
+                - name: default
+                  config:
+                    security.nesting: "true"
+                  devices:
+                    root:
+                      type: disk
+                      pool: local
+                      path: /
+                    eth0:
+                      type: nic
+                      network: incusbr0
     options:
       incus_profiles:
         description: List of Incus profiles to ensure.

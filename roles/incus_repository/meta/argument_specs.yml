@@ -11,6 +11,15 @@ argument_specs:
           - name: Ensure incus repository
             ansible.builtin.import_role:
               name: damex.incus.incus_repository
+
+      - name: Ensure incus LTS repository
+        hosts: incus
+        tasks:
+          - name: Ensure incus LTS repository
+            ansible.builtin.import_role:
+              name: damex.incus.incus_repository
+            vars:
+              incus_repository_apt_repository_url: https://pkgs.zabbly.com/incus/lts-6.0
     options:
       incus_repository_apt_key_id:
         type: str

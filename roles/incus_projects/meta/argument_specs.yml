@@ -11,6 +11,15 @@ argument_specs:
           - name: Ensure incus projects
             ansible.builtin.import_role:
               name: damex.incus.incus_projects
+            vars:
+              incus_projects:
+                - name: production
+                  config:
+                    features.images: "true"
+                    features.profiles: "true"
+                    features.networks: "true"
+                    features.storage.volumes: "true"
+                - name: staging
     options:
       incus_projects:
         description: List of Incus projects to ensure.

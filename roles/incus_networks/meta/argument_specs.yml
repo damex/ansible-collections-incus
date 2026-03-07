@@ -11,6 +11,14 @@ argument_specs:
           - name: Ensure incus networks
             ansible.builtin.import_role:
               name: damex.incus.incus_networks
+            vars:
+              incus_networks:
+                - name: incusbr0
+                  type: bridge
+                  config:
+                    ipv4.address: 10.0.0.1/24
+                    ipv4.nat: "true"
+                    ipv6.address: none
     options:
       incus_networks:
         description: List of networks to ensure.

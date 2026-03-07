@@ -11,6 +11,48 @@ argument_specs:
           - name: Ensure incus instances
             ansible.builtin.import_role:
               name: damex.incus.incus_instances
+            vars:
+              incus_instances:
+                - name: web-01
+                  source: images:debian/13
+                  profiles:
+                    - default
+                  config:
+                    limits.cpu: "2"
+                    limits.memory: 2GB
+                - name: db-01
+                  source: images:ubuntu/24.04
+                  type: virtual-machine
+                  config:
+                    limits.cpu: "4"
+                    limits.memory: 4GB
+                  devices:
+                    data:
+                      type: disk
+                      source: data
+                      path: /var/lib/postgresql
+
+      - name: Ensure incus instances with cloud-init
+        hosts: incus
+        tasks:
+          - name: Ensure incus instances with cloud-init
+            ansible.builtin.import_role:
+              name: damex.incus.incus_instances
+            vars:
+              incus_instances:
+                - name: app-01
+                  source: images:debian/13
+                  config:
+                    cloud-init.user-data:
+                      users:
+                        - name: deploy
+                          groups: sudo
+                          shell: /bin/bash
+                          ssh_authorized_keys:
+                            - ssh-ed25519 AAAA... deploy@example.com
+                      packages:
+                        - nginx
+                        - postgresql-client
     options:
       incus_instances:
         description: List of instances to ensure.

@@ -11,6 +11,33 @@ argument_specs:
           - name: Ensure incus cluster
             ansible.builtin.import_role:
               name: damex.incus.incus_cluster
+            vars:
+              incus_cluster_group: incus
+              incus_cluster_preseed:
+                cluster:
+                  server_name: "{{ inventory_hostname }}"
+                  enabled: true
+                  server_address: "{{ ansible_default_ipv4.address }}:8443"
+                  cluster_address: "{{ ansible_default_ipv4.address }}:8443"
+
+      - name: Ensure incus cluster with letsencrypt
+        hosts: incus
+        tasks:
+          - name: Ensure incus cluster with letsencrypt
+            ansible.builtin.import_role:
+              name: damex.incus.incus_cluster
+            vars:
+              incus_cluster_group: incus
+              incus_cluster_preseed:
+                config:
+                  acme.ca_url: https://acme-v02.api.letsencrypt.org/directory
+                  acme.domain: incus.example.com
+                  acme.agree_tos: "true"
+                cluster:
+                  server_name: "{{ inventory_hostname }}"
+                  enabled: true
+                  server_address: "{{ ansible_default_ipv4.address }}:8443"
+                  cluster_address: "{{ ansible_default_ipv4.address }}:8443"
     options:
       incus_cluster_socket_path:
         type: path
