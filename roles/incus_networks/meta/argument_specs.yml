@@ -21,8 +21,9 @@ argument_specs:
             choices:
               - bridge
               - macvlan
-              - sriov
+              - ovn
               - physical
+              - sriov
           project:
             description: Incus project to scope the network to.
             type: str
