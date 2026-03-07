@@ -15,4 +15,4 @@ galaxy_info:
       versions:
         - all
 dependencies:
-  - name: damex.incus.incus_repository
+  - role: damex.incus.incus_repository
