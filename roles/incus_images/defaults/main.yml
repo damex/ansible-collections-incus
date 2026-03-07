@@ -4,5 +4,8 @@ incus_images_socket_path: /var/lib/incus/unix.socket
 incus_images_validate_certs: true
 incus_images_type: container
 incus_images_copy_aliases: false
+incus_images_auto_update: false
+incus_images_public: false
+incus_images_source_protocol: simplestreams
 incus_images_project: default
 incus_images_state: present

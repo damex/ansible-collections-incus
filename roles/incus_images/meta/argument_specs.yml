@@ -27,6 +27,21 @@ argument_specs:
           copy_aliases:
             type: bool
             description: Whether to copy aliases from the source.
+          auto_update:
+            type: bool
+            description: Whether to automatically update the image when a new build is available.
+          public:
+            type: bool
+            description: Whether to make the image available to unauthenticated users.
+          source_server:
+            type: str
+            description: URL of the remote image server.
+          source_protocol:
+            type: str
+            description: Protocol to use for the remote image server.
+            choices:
+              - simplestreams
+              - incus
           project:
             type: str
             description: Incus project to scope the image to.
@@ -68,6 +83,21 @@ argument_specs:
       incus_images_copy_aliases:
         type: bool
         description: Whether to copy aliases from the source.
+      incus_images_auto_update:
+        type: bool
+        description: Whether to automatically update images when a new build is available.
+      incus_images_public:
+        type: bool
+        description: Whether to make images available to unauthenticated users.
+      incus_images_source_server:
+        type: str
+        description: URL of the remote image server.
+      incus_images_source_protocol:
+        type: str
+        description: Protocol to use for the remote image server.
+        choices:
+          - simplestreams
+          - incus
       incus_images_project:
         type: str
         description: Incus project to scope images to.
