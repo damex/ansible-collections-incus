@@ -31,7 +31,7 @@ rules:
   hyphens:
     max-spaces-after: 1
   indentation:
-    check-multi-line-strings: true
+    check-multi-line-strings: false
     indent-sequences: true
     spaces: 2
   key-duplicates: enable
