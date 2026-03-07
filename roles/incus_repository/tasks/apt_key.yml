@@ -1,0 +1,9 @@
+---
+- name: Ensure incus repository apt key {{ incus_repository_apt_key_id }}
+  ansible.builtin.include_role:
+    name: damex.apt.apt_keys
+  vars:
+    apt_keys: # noqa: var-naming[no-role-prefix]
+      - id: "{{ incus_repository_apt_key_id }}"
+        url: "{{ incus_repository_apt_key_url }}"
+  when: ansible_facts['pkg_mgr'] == "apt"

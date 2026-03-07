@@ -1,0 +1,7 @@
+---
+incus_repository_apt_key_id: C838DCFD
+incus_repository_apt_key_url: https://pkgs.zabbly.com/key.asc
+incus_repository_apt_repository_name: incus
+incus_repository_apt_repository_url: https://pkgs.zabbly.com/incus/stable
+incus_repository_apt_repository_components:
+  - main

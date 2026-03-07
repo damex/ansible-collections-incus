@@ -1,0 +1,12 @@
+---
+- name: Ensure incus repository
+  tags:
+    - incus
+    - incus_repository
+  block:
+    - name: Ensure incus repository facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus repository apt key
+      ansible.builtin.import_tasks: apt_key.yml
+    - name: Ensure incus repository apt repository
+      ansible.builtin.import_tasks: apt_repository.yml

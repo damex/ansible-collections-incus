@@ -1,0 +1,26 @@
+---
+argument_specs:
+  main:
+    short_description: Configure the Zabbly APT repository for Incus packages.
+    description:
+      - Add the Zabbly GPG key and APT repository source for installing Incus packages.
+    options:
+      incus_repository_apt_key_id:
+        type: str
+        description: GPG key ID for the Incus APT repository.
+      incus_repository_apt_key_url:
+        type: str
+        description: URL of the GPG key for the Incus APT repository.
+      incus_repository_apt_repository_name:
+        type: str
+        description: Name of the Incus APT repository source entry.
+      incus_repository_apt_repository_url:
+        type: str
+        description: Base URL of the Incus APT repository.
+      incus_repository_apt_repository_distribution:
+        type: str
+        description: Distribution component override for the APT repository.
+      incus_repository_apt_repository_components:
+        type: list
+        elements: str
+        description: List of APT repository components to enable.
