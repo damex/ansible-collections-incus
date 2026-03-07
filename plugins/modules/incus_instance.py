@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Manage Incus instances."""
+"""Ensure Incus instances."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_instance
-short_description: Manage Incus instances
+short_description: Ensure Incus instances
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, configure, and manage the lifecycle of Incus instances via the Incus REST API.

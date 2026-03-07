@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Manage Incus networks."""
+"""Ensure Incus networks."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_network
-short_description: Manage Incus networks
+short_description: Ensure Incus networks
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus networks via the Incus REST API.

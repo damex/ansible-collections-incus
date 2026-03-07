@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Manage Incus profiles."""
+"""Ensure Incus profiles."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_profile
-short_description: Manage Incus profiles
+short_description: Ensure Incus profiles
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus profiles via the Incus REST API.

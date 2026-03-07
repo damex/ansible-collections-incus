@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Manage Incus trusted certificates."""
+"""Ensure Incus trusted certificates."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_certificate
-short_description: Manage Incus trusted certificates
+short_description: Ensure Incus trusted certificates
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Add, update, and remove trusted certificates in the Incus trust store via the Incus REST API.
