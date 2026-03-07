@@ -2,6 +2,15 @@
 incus_package_name: incus
 incus_package_state: present
 incus_service_name: incus
+incus_service_state: started
+incus_socket_name: incus.socket
+incus_socket_state: started
+incus_lxcfs_service_name: incus-lxcfs
+incus_lxcfs_service_state: started
+incus_user_service_name: incus-user
+incus_user_service_state: stopped
+incus_user_socket_name: incus-user.socket
+incus_user_socket_state: stopped
 incus_apt_preference_name: incus
 incus_apt_preference_pin: origin pkgs.zabbly.com
 incus_apt_preference_pin_priority: 990

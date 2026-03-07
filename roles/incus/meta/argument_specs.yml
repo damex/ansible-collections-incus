@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Install and configure Incus server package.
+    short_description: Ensure Incus server package and systemd units.
     description:
-      - Install the Incus server package and manage the systemd service.
+      - Ensure the Incus server package and manage the systemd services and sockets.
     options:
       incus_package_name:
         type: str
@@ -20,6 +20,48 @@ argument_specs:
       incus_service_name:
         type: str
         description: Name of the Incus systemd service.
+      incus_service_state:
+        type: str
+        description: Desired state of the Incus systemd service.
+        choices:
+          - started
+          - stopped
+      incus_socket_name:
+        type: str
+        description: Name of the Incus systemd socket unit.
+      incus_socket_state:
+        type: str
+        description: Desired state of the Incus systemd socket unit.
+        choices:
+          - started
+          - stopped
+      incus_lxcfs_service_name:
+        type: str
+        description: Name of the Incus LXCFS systemd service.
+      incus_lxcfs_service_state:
+        type: str
+        description: Desired state of the Incus LXCFS systemd service.
+        choices:
+          - started
+          - stopped
+      incus_user_service_name:
+        type: str
+        description: Name of the Incus user systemd service.
+      incus_user_service_state:
+        type: str
+        description: Desired state of the Incus user systemd service.
+        choices:
+          - started
+          - stopped
+      incus_user_socket_name:
+        type: str
+        description: Name of the Incus user systemd socket unit.
+      incus_user_socket_state:
+        type: str
+        description: Desired state of the Incus user systemd socket unit.
+        choices:
+          - started
+          - stopped
       incus_apt_preference_name:
         type: str
         description: Name of the APT pinning preference file.

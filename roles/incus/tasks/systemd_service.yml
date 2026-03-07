@@ -1,6 +1,35 @@
 ---
-- name: Ensure incus systemd service
+- name: Ensure incus systemd service {{ incus_service_name }}
   ansible.builtin.include_role:
     name: damex.systemd.systemd_service
   vars:
     systemd_service_name: "{{ incus_service_name }}"
+    systemd_service_state: "{{ incus_service_state }}"
+
+- name: Ensure incus systemd socket {{ incus_socket_name }}
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: "{{ incus_socket_name }}"
+    systemd_service_state: "{{ incus_socket_state }}"
+
+- name: Ensure incus systemd service {{ incus_lxcfs_service_name }}
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: "{{ incus_lxcfs_service_name }}"
+    systemd_service_state: "{{ incus_lxcfs_service_state }}"
+
+- name: Ensure incus systemd service {{ incus_user_service_name }}
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: "{{ incus_user_service_name }}"
+    systemd_service_state: "{{ incus_user_service_state }}"
+
+- name: Ensure incus systemd socket {{ incus_user_socket_name }}
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: "{{ incus_user_socket_name }}"
+    systemd_service_state: "{{ incus_user_socket_state }}"
