@@ -232,14 +232,12 @@ argument_specs:
       incus_networks_client_key:
         description: Path to the TLS client key.
         type: path
-        no_log: true
       incus_networks_server_cert:
         description: Path to the TLS server certificate.
         type: path
       incus_networks_token:
         description: Authentication token for the Incus API.
         type: str
-        no_log: true
       incus_networks_validate_certs:
         description: Whether to validate TLS certificates.
         type: bool

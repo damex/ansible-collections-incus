@@ -63,14 +63,12 @@ argument_specs:
       incus_images_client_key:
         type: path
         description: Path to the TLS client key.
-        no_log: true
       incus_images_server_cert:
         type: path
         description: Path to the TLS server certificate.
       incus_images_token:
         type: str
         description: Authentication token for the Incus API.
-        no_log: true
       incus_images_validate_certs:
         type: bool
         description: Whether to validate TLS certificates.

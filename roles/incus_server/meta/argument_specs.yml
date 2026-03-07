@@ -175,7 +175,6 @@ argument_specs:
               openfga.api.token:
                 type: str
                 description: API token for the OpenFGA server.
-                no_log: true
               openfga.api.url:
                 type: str
                 description: URL of the OpenFGA server.

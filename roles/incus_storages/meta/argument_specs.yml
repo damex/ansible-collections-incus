@@ -176,7 +176,6 @@ argument_specs:
               truenas.api_key:
                 description: API key for TrueNAS authentication.
                 type: str
-                no_log: true
               truenas.clone_copy:
                 description: Whether to use TrueNAS lightweight clones.
                 type: bool
@@ -216,14 +215,12 @@ argument_specs:
       incus_storages_client_key:
         description: Path to the TLS client key.
         type: path
-        no_log: true
       incus_storages_server_cert:
         description: Path to the TLS server certificate.
         type: path
       incus_storages_token:
         description: Authentication token for the Incus API.
         type: str
-        no_log: true
       incus_storages_validate_certs:
         description: Whether to validate TLS certificates.
         type: bool

@@ -509,7 +509,6 @@ argument_specs:
                   password:
                     description: Password for the default user.
                     type: str
-                    no_log: true
                   ssh_pwauth:
                     description: Whether to enable SSH password authentication.
                     type: bool
@@ -574,7 +573,6 @@ argument_specs:
                   password:
                     description: Password for the default user.
                     type: str
-                    no_log: true
                   ssh_pwauth:
                     description: Whether to enable SSH password authentication.
                     type: bool
@@ -704,14 +702,12 @@ argument_specs:
       incus_profiles_client_key:
         description: Path to the TLS client key.
         type: path
-        no_log: true
       incus_profiles_server_cert:
         description: Path to the TLS server certificate.
         type: path
       incus_profiles_token:
         description: Authentication token for the Incus API.
         type: str
-        no_log: true
       incus_profiles_validate_certs:
         description: Whether to validate TLS certificates.
         type: bool
