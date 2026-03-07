@@ -54,6 +54,18 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 ansible-galaxy collection install damex.incus
 ```
 
+Or via `requirements.yml`:
+
+```yaml
+collections:
+  - name: damex.incus
+    version: 1.6.0
+```
+
+```
+ansible-galaxy collection install -r requirements.yml
+```
+
 ## Documentation
 
 Automatically generated documentation is available at [incus.ansible.damex.org](https://incus.ansible.damex.org).
