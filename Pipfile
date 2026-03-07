@@ -17,6 +17,9 @@ pytest = "==8.2.0"
 pytest-xdist = "==3.8.0"
 types-PyYAML = "==6.0.12.20250915"
 antsibull-docs = "==2.24.0"
+Sphinx = "==9.1.0"
+sphinx-ansible-theme = "==0.10.4"
+ansible-pygments = "==0.1.2"
 
 [scripts]
 lint = "ansible-lint"
@@ -24,6 +27,7 @@ lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins tests && cd ../../..
 test = "bash -c 'ansible-test units --python-interpreter $(which python)'"
 sanity = "bash -c 'ansible-test sanity --python-interpreter $(which python)'"
 lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
+docs = "bash -c 'mkdir -p documentation/rst && ANSIBLE_COLLECTIONS_PATHS=../../.. antsibull-docs --config-file antsibull-docs.cfg collection --squash-hierarchy --cleanup similar-files --use-current --dest-dir documentation/rst damex.incus && sphinx-build -M html documentation/rst documentation/build -c . -W --keep-going'"
 build-for-galaxy = "ansible-galaxy collection build"
 publish-to-galaxy = "ansible-galaxy collection publish"
 

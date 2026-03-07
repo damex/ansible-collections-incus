@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bfa62aa8368299203a264262cb81f92a37c2d663c56df90341a243bec09a30fa"
+            "sha256": "1f20731fffa1d54c4927770b37177178529fc703095f8daefc4ab54a14574768"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -221,6 +221,7 @@
                 "sha256:0be5c7a99c15ac3a28905052705e1eb9d0eec9a4f5135ca35c8547e983a82382",
                 "sha256:a8c0c54c2f0237367b722f02941dfc52ecc850cb669b0e2ca842d0c0b8a7262d"
             ],
+            "index": "pypi",
             "markers": "python_full_version >= '3.9.0'",
             "version": "==0.1.2"
         },
@@ -2019,8 +2020,26 @@
                 "sha256:7741722357dd75f8190766926071fed3bdc211c74dd2d7d4df5404da95930ddb",
                 "sha256:c84fdd4e782504495fe4f2c0b3413d6c2bf388589bb352d439b2a3bb99991978"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.12'",
             "version": "==9.1.0"
+        },
+        "sphinx-ansible-theme": {
+            "hashes": [
+                "sha256:331981eee1203b7009efa5e47a68e9a77325319236cef8e39581bf221c9e05f7",
+                "sha256:724c29a00555794bd56fa6bd570c08c3762439be2fb2897018e37715158ddb98"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.10.4"
+        },
+        "sphinx-rtd-theme": {
+            "hashes": [
+                "sha256:1785824ae8e6632060490f67cf3a72d404a85d2d9fc26bce3619944de5682b89",
+                "sha256:b44276f2c276e909239a4f6c955aa667aaafeb78597923b1c60babc76db78e4c"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==3.1.0"
         },
         "sphinxcontrib-applehelp": {
             "hashes": [
@@ -2045,6 +2064,14 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==2.1.0"
+        },
+        "sphinxcontrib-jquery": {
+            "hashes": [
+                "sha256:1620739f04e36a2c779f1a131a2dfd49b2fd07351bf1968ced074365933abc7a",
+                "sha256:f936030d7d0147dd026a4f2b5a57343d233f1fc7b363f68b3d4f1cb0993878ae"
+            ],
+            "markers": "python_version >= '2.7'",
+            "version": "==4.1"
         },
         "sphinxcontrib-jsmath": {
             "hashes": [
