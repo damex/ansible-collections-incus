@@ -53,6 +53,225 @@ options:
       - Boolean values are converted to lowercase strings.
     type: dict
     default: {}
+    suboptions:
+      bridge.driver:
+        description:
+          - Bridge driver to use.
+        type: str
+        choices: [native, openvswitch]
+      bridge.external_interfaces:
+        description:
+          - Comma-separated list of unconfigured NICs to bridge.
+        type: str
+      bridge.hwaddr:
+        description:
+          - MAC address for the bridge.
+        type: str
+      bridge.mtu:
+        description:
+          - Bridge MTU.
+        type: str
+      dns.domain:
+        description:
+          - Domain to advertise to DHCP clients and use for DNS resolution.
+        type: str
+      dns.mode:
+        description:
+          - DNS registration mode.
+        type: str
+        choices: [managed, dynamic, none]
+      dns.nameservers:
+        description:
+          - Comma-separated list of DNS nameservers.
+        type: str
+      dns.search:
+        description:
+          - Comma-separated list of DNS search domains.
+        type: str
+      dns.zone.forward:
+        description:
+          - Comma-separated list of DNS zone names for forward DNS records.
+        type: str
+      dns.zone.reverse.ipv4:
+        description:
+          - DNS zone name for IPv4 reverse DNS records.
+        type: str
+      dns.zone.reverse.ipv6:
+        description:
+          - DNS zone name for IPv6 reverse DNS records.
+        type: str
+      ipv4.address:
+        description:
+          - IPv4 address for the bridge (use none or auto).
+        type: str
+      ipv4.dhcp:
+        description:
+          - Whether to allocate addresses via DHCP.
+        type: bool
+      ipv4.dhcp.expiry:
+        description:
+          - DHCP lease expiry time.
+        type: str
+      ipv4.dhcp.gateway:
+        description:
+          - Address of the gateway for the subnet.
+        type: str
+      ipv4.dhcp.ranges:
+        description:
+          - Comma-separated list of IPv4 DHCP ranges.
+        type: str
+      ipv4.dhcp.routes:
+        description:
+          - Additional IPv4 routes to advertise via DHCP.
+        type: str
+      ipv4.firewall:
+        description:
+          - Whether to generate filtering firewall rules.
+        type: bool
+      ipv4.gateway:
+        description:
+          - Override gateway for the subnet.
+        type: str
+      ipv4.gateway.hwaddr:
+        description:
+          - MAC address of the gateway.
+        type: str
+      ipv4.nat:
+        description:
+          - Whether to NAT IPv4 traffic.
+        type: bool
+      ipv4.nat.address:
+        description:
+          - Source address for outbound IPv4 NAT.
+        type: str
+      ipv4.nat.order:
+        description:
+          - Whether to add NAT rules before or after pre-existing rules.
+        type: str
+        choices: [before, after]
+      ipv4.routes:
+        description:
+          - Comma-separated list of additional IPv4 CIDR subnets to route to the bridge.
+        type: str
+      ipv4.routes.anycast:
+        description:
+          - Whether to allow overlapping routes on multiple networks.
+        type: bool
+      ipv4.routing:
+        description:
+          - Whether to route IPv4 traffic in and out of the bridge.
+        type: bool
+      ipv6.address:
+        description:
+          - IPv6 address for the bridge (use none or auto).
+        type: str
+      ipv6.dhcp:
+        description:
+          - Whether to provide additional network configuration via DHCPv6.
+        type: bool
+      ipv6.dhcp.expiry:
+        description:
+          - DHCPv6 lease expiry time.
+        type: str
+      ipv6.dhcp.ranges:
+        description:
+          - Comma-separated list of IPv6 DHCP ranges.
+        type: str
+      ipv6.dhcp.stateful:
+        description:
+          - Whether to enable stateful DHCPv6 address allocation.
+        type: bool
+      ipv6.firewall:
+        description:
+          - Whether to generate filtering firewall rules.
+        type: bool
+      ipv6.gateway:
+        description:
+          - Override gateway for the subnet.
+        type: str
+      ipv6.gateway.hwaddr:
+        description:
+          - MAC address of the gateway.
+        type: str
+      ipv6.nat:
+        description:
+          - Whether to NAT IPv6 traffic.
+        type: bool
+      ipv6.nat.address:
+        description:
+          - Source address for outbound IPv6 NAT.
+        type: str
+      ipv6.nat.order:
+        description:
+          - Whether to add NAT rules before or after pre-existing rules.
+        type: str
+        choices: [before, after]
+      ipv6.routes:
+        description:
+          - Comma-separated list of additional IPv6 CIDR subnets to route to the bridge.
+        type: str
+      ipv6.routes.anycast:
+        description:
+          - Whether to allow overlapping routes on multiple networks.
+        type: bool
+      ipv6.routing:
+        description:
+          - Whether to route IPv6 traffic in and out of the bridge.
+        type: bool
+      raw.dnsmasq:
+        description:
+          - Additional dnsmasq configuration to append.
+        type: str
+      security.acls:
+        description:
+          - Comma-separated list of network ACLs to apply.
+        type: str
+      security.acls.default.egress.action:
+        description:
+          - Default action for egress traffic not matching any ACL rule.
+        type: str
+        choices: [allow, reject, drop]
+      security.acls.default.egress.logged:
+        description:
+          - Whether to log default egress actions.
+        type: bool
+      security.acls.default.ingress.action:
+        description:
+          - Default action for ingress traffic not matching any ACL rule.
+        type: str
+        choices: [allow, reject, drop]
+      security.acls.default.ingress.logged:
+        description:
+          - Whether to log default ingress actions.
+        type: bool
+      bgp.ipv4.nexthop:
+        description:
+          - Override the next-hop for advertised IPv4 prefixes.
+        type: str
+      bgp.ipv6.nexthop:
+        description:
+          - Override the next-hop for advertised IPv6 prefixes.
+        type: str
+      gvrp:
+        description:
+          - Whether to register VLAN via GARP VLAN Registration Protocol.
+        type: bool
+      mtu:
+        description:
+          - MTU of the network interface.
+        type: str
+      parent:
+        description:
+          - Parent interface to use for the network.
+        type: str
+      vlan:
+        description:
+          - VLAN ID to attach to.
+        type: int
+      vlan.tagged:
+        description:
+          - Comma-separated list of VLAN IDs to join for tagged traffic.
+        type: str
 """
 
 EXAMPLES = r"""
@@ -90,7 +309,61 @@ def main() -> None:
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
         'type': {'type': 'str', 'choices': ['bridge', 'macvlan', 'ovn', 'physical', 'sriov']},
-        'config': {'type': 'dict', 'default': {}},
+        'config': {'type': 'dict', 'default': {}, 'options': {
+            'bridge.driver': {'type': 'str', 'choices': ['native', 'openvswitch']},
+            'bridge.external_interfaces': {'type': 'str'},
+            'bridge.hwaddr': {'type': 'str'},
+            'bridge.mtu': {'type': 'str'},
+            'dns.domain': {'type': 'str'},
+            'dns.mode': {'type': 'str', 'choices': ['managed', 'dynamic', 'none']},
+            'dns.nameservers': {'type': 'str'},
+            'dns.search': {'type': 'str'},
+            'dns.zone.forward': {'type': 'str'},
+            'dns.zone.reverse.ipv4': {'type': 'str'},
+            'dns.zone.reverse.ipv6': {'type': 'str'},
+            'ipv4.address': {'type': 'str'},
+            'ipv4.dhcp': {'type': 'bool'},
+            'ipv4.dhcp.expiry': {'type': 'str'},
+            'ipv4.dhcp.gateway': {'type': 'str'},
+            'ipv4.dhcp.ranges': {'type': 'str'},
+            'ipv4.dhcp.routes': {'type': 'str'},
+            'ipv4.firewall': {'type': 'bool'},
+            'ipv4.gateway': {'type': 'str'},
+            'ipv4.gateway.hwaddr': {'type': 'str'},
+            'ipv4.nat': {'type': 'bool'},
+            'ipv4.nat.address': {'type': 'str'},
+            'ipv4.nat.order': {'type': 'str', 'choices': ['before', 'after']},
+            'ipv4.routes': {'type': 'str'},
+            'ipv4.routes.anycast': {'type': 'bool'},
+            'ipv4.routing': {'type': 'bool'},
+            'ipv6.address': {'type': 'str'},
+            'ipv6.dhcp': {'type': 'bool'},
+            'ipv6.dhcp.expiry': {'type': 'str'},
+            'ipv6.dhcp.ranges': {'type': 'str'},
+            'ipv6.dhcp.stateful': {'type': 'bool'},
+            'ipv6.firewall': {'type': 'bool'},
+            'ipv6.gateway': {'type': 'str'},
+            'ipv6.gateway.hwaddr': {'type': 'str'},
+            'ipv6.nat': {'type': 'bool'},
+            'ipv6.nat.address': {'type': 'str'},
+            'ipv6.nat.order': {'type': 'str', 'choices': ['before', 'after']},
+            'ipv6.routes': {'type': 'str'},
+            'ipv6.routes.anycast': {'type': 'bool'},
+            'ipv6.routing': {'type': 'bool'},
+            'raw.dnsmasq': {'type': 'str'},
+            'security.acls': {'type': 'str'},
+            'security.acls.default.egress.action': {'type': 'str', 'choices': ['allow', 'reject', 'drop']},
+            'security.acls.default.egress.logged': {'type': 'bool'},
+            'security.acls.default.ingress.action': {'type': 'str', 'choices': ['allow', 'reject', 'drop']},
+            'security.acls.default.ingress.logged': {'type': 'bool'},
+            'bgp.ipv4.nexthop': {'type': 'str'},
+            'bgp.ipv6.nexthop': {'type': 'str'},
+            'gvrp': {'type': 'bool'},
+            'mtu': {'type': 'str'},
+            'parent': {'type': 'str'},
+            'vlan': {'type': 'int'},
+            'vlan.tagged': {'type': 'str'},
+        }},
         'description': {'type': 'str', 'default': ''},
     })
     desired = incus_build_desired(module)

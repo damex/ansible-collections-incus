@@ -19,6 +19,7 @@ description:
   - The instance type and source are set on creation and cannot be changed afterwards.
 extends_documentation_fragment:
   - damex.incus.common
+  - damex.incus.common.instance_config
   - damex.incus.common.project
   - damex.incus.common.write
   - damex.incus.common.source
@@ -63,12 +64,6 @@ options:
       - Instance description.
     type: str
     default: ''
-  config:
-    description:
-      - Instance configuration key-value pairs.
-      - Booleans are converted to lowercase strings; cloud-init dict values are serialized to YAML.
-    type: dict
-    default: {}
 """
 
 EXAMPLES = r"""
@@ -103,6 +98,7 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 )
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_INSTANCE_CONFIG_OPTIONS,
     INCUS_SOURCE_ARGS,
     IncusClient,
     IncusNotFoundException,
@@ -176,7 +172,7 @@ def main() -> None:
         'ephemeral': {'type': 'bool', 'default': False},
         'profiles': {'type': 'list', 'elements': 'str', 'default': ['default']},
         'description': {'type': 'str', 'default': ''},
-        'config': {'type': 'dict', 'default': {}},
+        'config': {'type': 'dict', 'default': {}, 'options': INCUS_INSTANCE_CONFIG_OPTIONS},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
     }, require_yaml=True)
     state = module.params['state']

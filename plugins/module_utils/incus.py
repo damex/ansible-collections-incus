@@ -25,6 +25,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
 
 __all__ = [
+    'INCUS_INSTANCE_CONFIG_OPTIONS',
     'INCUS_COMMON_ARGUMENT_SPEC',
     'INCUS_COMMON_ARGS',
     'INCUS_COMMON_MUTUALLY_EXCLUSIVE',
@@ -53,6 +54,170 @@ INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
 
 INCUS_WRITE_ARGS = {
     'wait': {'type': 'bool', 'default': True},
+}
+
+
+def _cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
+    """Build cloud-init network interface options."""
+    opts: dict[str, Any] = {
+        'name': {'type': 'str', 'required': True},
+        'dhcp4': {'type': 'bool'},
+        'addresses': {'type': 'list', 'elements': 'str'},
+        'routes': {'type': 'list', 'elements': 'dict', 'options': {
+            'to': {'type': 'str'},
+            'via': {'type': 'str'},
+        }},
+        'nameservers': {'type': 'dict', 'options': {
+            'addresses': {'type': 'list', 'elements': 'str'},
+        }},
+    }
+    opts.update(extra)
+    return opts
+
+
+_CLOUD_INIT_DATA_OPTIONS = {
+    'bootcmd': {'type': 'list', 'elements': 'raw'},
+    'user': {'type': 'str'},
+    'password': {'type': 'str', 'no_log': True},
+    'ssh_pwauth': {'type': 'bool'},
+    'chpasswd': {'type': 'dict', 'no_log': False, 'options': {
+        'expire': {'type': 'bool'},
+    }},
+    'package_upgrade': {'type': 'bool'},
+    'packages': {'type': 'list', 'elements': 'str'},
+    'power_state': {'type': 'dict', 'options': {
+        'mode': {'type': 'str', 'choices': ['reboot', 'poweroff', 'halt']},
+    }},
+    'write_files': {'type': 'list', 'elements': 'dict', 'options': {
+        'path': {'type': 'str', 'required': True},
+        'content': {'type': 'str'},
+        'owner': {'type': 'str'},
+        'permissions': {'type': 'str'},
+    }},
+    'runcmd': {'type': 'list', 'elements': 'raw'},
+}
+
+INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
+    'limits.cpu': {'type': 'str'},
+    'limits.memory': {'type': 'str'},
+    'limits.processes': {'type': 'int'},
+    'limits.cpu.priority': {'type': 'int'},
+    'limits.cpu.allowance': {'type': 'str'},
+    'limits.cpu.nodes': {'type': 'str'},
+    'limits.disk.priority': {'type': 'int'},
+    'limits.network.priority': {'type': 'int'},
+    'limits.hugepages.1GB': {'type': 'str'},
+    'limits.hugepages.1MB': {'type': 'str'},
+    'limits.hugepages.2MB': {'type': 'str'},
+    'limits.hugepages.64KB': {'type': 'str'},
+    'limits.memory.enforce': {'type': 'str'},
+    'limits.memory.hotplug': {'type': 'str'},
+    'limits.memory.hugepages': {'type': 'bool'},
+    'limits.memory.oom_priority': {'type': 'int'},
+    'limits.memory.swap': {'type': 'str'},
+    'limits.memory.swap.priority': {'type': 'int'},
+    'boot.autostart': {'type': 'bool'},
+    'boot.autostart.delay': {'type': 'int'},
+    'boot.autostart.priority': {'type': 'int'},
+    'boot.autorestart': {'type': 'bool'},
+    'boot.host_shutdown_action': {'type': 'str'},
+    'boot.host_shutdown_timeout': {'type': 'int'},
+    'boot.stop.priority': {'type': 'int'},
+    'security.privileged': {'type': 'bool'},
+    'security.nesting': {'type': 'bool'},
+    'security.agent.metrics': {'type': 'bool'},
+    'security.bpffs.delegate_attachs': {'type': 'str'},
+    'security.bpffs.delegate_cmds': {'type': 'str'},
+    'security.bpffs.delegate_maps': {'type': 'str'},
+    'security.bpffs.delegate_progs': {'type': 'str'},
+    'security.bpffs.path': {'type': 'str'},
+    'security.csm': {'type': 'bool'},
+    'security.guestapi': {'type': 'bool'},
+    'security.guestapi.images': {'type': 'bool'},
+    'security.idmap.base': {'type': 'int'},
+    'security.idmap.isolated': {'type': 'bool'},
+    'security.idmap.size': {'type': 'int'},
+    'security.iommu': {'type': 'bool'},
+    'security.protection.delete': {'type': 'bool'},
+    'security.protection.shift': {'type': 'bool'},
+    'security.secureboot': {'type': 'bool'},
+    'security.sev': {'type': 'bool'},
+    'security.sev.policy.es': {'type': 'bool'},
+    'security.sev.session.data': {'type': 'str'},
+    'security.sev.session.dh': {'type': 'str'},
+    'security.syscalls.allow': {'type': 'str'},
+    'security.syscalls.deny': {'type': 'str'},
+    'security.syscalls.deny_compat': {'type': 'bool'},
+    'security.syscalls.deny_default': {'type': 'bool'},
+    'security.syscalls.intercept.bpf': {'type': 'bool'},
+    'security.syscalls.intercept.bpf.devices': {'type': 'bool'},
+    'security.syscalls.intercept.mknod': {'type': 'bool'},
+    'security.syscalls.intercept.mount': {'type': 'bool'},
+    'security.syscalls.intercept.mount.allowed': {'type': 'str'},
+    'security.syscalls.intercept.mount.fuse': {'type': 'str'},
+    'security.syscalls.intercept.mount.shift': {'type': 'bool'},
+    'security.syscalls.intercept.sched_setscheduler': {'type': 'bool'},
+    'security.syscalls.intercept.setxattr': {'type': 'bool'},
+    'security.syscalls.intercept.sysinfo': {'type': 'bool'},
+    'migration.stateful': {'type': 'bool'},
+    'migration.incremental.memory': {'type': 'bool'},
+    'migration.incremental.memory.goal': {'type': 'int'},
+    'migration.incremental.memory.iterations': {'type': 'int'},
+    'snapshots.expiry': {'type': 'str'},
+    'snapshots.expiry.manual': {'type': 'str'},
+    'snapshots.pattern': {'type': 'str'},
+    'snapshots.schedule': {'type': 'str'},
+    'snapshots.schedule.stopped': {'type': 'bool'},
+    'nvidia.driver.capabilities': {'type': 'str'},
+    'nvidia.require.cuda': {'type': 'str'},
+    'nvidia.require.driver': {'type': 'str'},
+    'nvidia.runtime': {'type': 'bool'},
+    'raw.apparmor': {'type': 'str'},
+    'raw.idmap': {'type': 'str'},
+    'raw.lxc': {'type': 'str'},
+    'raw.qemu': {'type': 'str'},
+    'raw.qemu.conf': {'type': 'str'},
+    'raw.qemu.qmp.early': {'type': 'str'},
+    'raw.qemu.qmp.pre-start': {'type': 'str'},
+    'raw.qemu.qmp.post-start': {'type': 'str'},
+    'raw.qemu.scriptlet': {'type': 'str'},
+    'raw.seccomp': {'type': 'str'},
+    'agent.nic_config': {'type': 'bool'},
+    'cluster.evacuate': {'type': 'str', 'choices': [
+        'auto', 'live-migrate', 'migrate', 'stop', 'stateful-stop', 'force-stop',
+    ]},
+    'linux.kernel_modules': {'type': 'str'},
+    'oci.cwd': {'type': 'str'},
+    'oci.entrypoint': {'type': 'str'},
+    'oci.gid': {'type': 'str'},
+    'oci.uid': {'type': 'str'},
+    'cloud-init.network-config': {'type': 'dict', 'options': {
+        'version': {'type': 'int'},
+        'renderer': {'type': 'str'},
+        'ethernets': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
+            match={'type': 'dict', 'options': {'driver': {'type': 'str'}}},
+        )},
+        'bonds': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
+            interfaces={'type': 'list', 'elements': 'str'},
+            parameters={'type': 'dict', 'options': {
+                'mode': {'type': 'str'},
+                'mii-monitor-interval': {'type': 'int'},
+            }},
+        )},
+        'bridges': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
+            interfaces={'type': 'list', 'elements': 'str'},
+            parameters={'type': 'dict', 'options': {
+                'stp': {'type': 'bool'},
+                'forward-delay': {'type': 'int'},
+            }},
+        )},
+        'vlans': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
+            id={'type': 'int', 'required': True},
+            link={'type': 'str', 'required': True},
+        )},
+    }},
+    'cloud-init.user-data': {'type': 'dict', 'options': _CLOUD_INIT_DATA_OPTIONS},
+    'cloud-init.vendor-data': {'type': 'dict', 'options': _CLOUD_INIT_DATA_OPTIONS},
 }
 
 INCUS_COMMON_ARGUMENT_SPEC = {
@@ -220,6 +385,8 @@ def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Stringify config."""
     result = {}
     for k, v in (config or {}).items():
+        if v is None:
+            continue
         if isinstance(v, bool):
             result[k] = str(v).lower()
         else:
@@ -231,6 +398,8 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
     """Stringify config with cloud-init YAML."""
     result = {}
     for k, v in (config or {}).items():
+        if v is None:
+            continue
         if isinstance(v, (dict, list)):
             prefix = '#cloud-config\n' if k in _CLOUD_INIT_USER_KEYS else ''
             result[k] = prefix + yaml.dump(v, default_flow_style=False)

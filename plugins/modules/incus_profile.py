@@ -18,6 +18,7 @@ description:
   - Profiles are project-scoped resources.
 extends_documentation_fragment:
   - damex.incus.common
+  - damex.incus.common.instance_config
   - damex.incus.common.write
   - damex.incus.common.project
   - damex.incus.common.devices
@@ -40,13 +41,6 @@ options:
       - Profile description.
     type: str
     default: ''
-  config:
-    description:
-      - Profile configuration key-value pairs.
-      - Boolean values are converted to lowercase strings.
-      - Dict values for C(cloud-init.*) keys are serialized to YAML.
-    type: dict
-    default: {}
 """
 
 EXAMPLES = r"""
@@ -82,6 +76,7 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 )
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_INSTANCE_CONFIG_OPTIONS,
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusClient,
     IncusNotFoundException,
@@ -131,7 +126,7 @@ def main() -> None:
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
-        'config': {'type': 'dict', 'default': {}},
+        'config': {'type': 'dict', 'default': {}, 'options': INCUS_INSTANCE_CONFIG_OPTIONS},
     }, require_yaml=True)
     project = module.params['project']
     name = module.params['name']

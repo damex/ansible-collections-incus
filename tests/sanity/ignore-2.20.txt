@@ -1,2 +1,5 @@
 plugins/modules/incus_instance.py validate-modules:parameter-invalid # needed because of Incus API dot notation
+plugins/modules/incus_network.py validate-modules:parameter-invalid # needed because of Incus API dot notation
 plugins/modules/incus_profile.py validate-modules:parameter-invalid # needed because of Incus API dot notation
+plugins/modules/incus_project.py validate-modules:parameter-invalid # needed because of Incus API dot notation
+plugins/modules/incus_storage.py validate-modules:parameter-invalid # needed because of Incus API dot notation
