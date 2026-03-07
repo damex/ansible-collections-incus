@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  docs:
-    name: docs
+  documentation:
+    name: documentation
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -25,9 +25,10 @@ jobs:
           python-version: "3.14"
       - run: pip install --user pipenv
       - run: pipenv install --deploy
-      - run: pipenv run docs
+      - run: pipenv run documentation
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy documentation/build/html --project-name=ansible-collections-incus
           workingDirectory: ansible_collections/damex/incus

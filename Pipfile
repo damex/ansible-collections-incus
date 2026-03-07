@@ -27,7 +27,7 @@ lint-plugins = "bash -c 'PYTHONPATH=../../.. pylint plugins tests && cd ../../..
 test = "bash -c 'ansible-test units --python-interpreter $(which python)'"
 sanity = "bash -c 'ansible-test sanity --python-interpreter $(which python)'"
 lint-templates = "find . -name 'templates' -type d -exec j2lint {} +"
-docs = "bash -c 'mkdir -p documentation/rst && ANSIBLE_COLLECTIONS_PATHS=../../.. antsibull-docs --config-file antsibull-docs.cfg collection --squash-hierarchy --cleanup similar-files --use-current --dest-dir documentation/rst damex.incus && sphinx-build -M html documentation/rst documentation/build -c . -W --keep-going'"
+documentation = "bash -c 'mkdir -p documentation/rst && ANSIBLE_COLLECTIONS_PATHS=../../.. antsibull-docs --config-file antsibull-docs.cfg collection --squash-hierarchy --cleanup similar-files --use-current --dest-dir documentation/rst damex.incus && sphinx-build -M html documentation/rst documentation/build -c . -W --keep-going'"
 build-for-galaxy = "ansible-galaxy collection build"
 publish-to-galaxy = "ansible-galaxy collection publish"
 
