@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Ensure Zabbly APT repository for Incus packages.
+    short_description: Ensure Incus repository.
     description:
-      - Ensure the Zabbly GPG key and APT repository source for Incus packages.
+      - Ensure the Incus repository.
     examples: |
       - name: Ensure incus repository
         hosts: incus

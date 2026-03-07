@@ -39,7 +39,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_networks` | Ensure Incus networks |
 | `incus_profiles` | Ensure Incus profiles |
 | `incus_projects` | Ensure Incus projects |
-| `incus_repository` | Ensure Zabbly APT repository for Incus packages |
+| `incus_repository` | Ensure Incus repository |
 | `incus_server` | Ensure Incus server configuration |
 | `incus_storages` | Ensure Incus storage pools |
 
