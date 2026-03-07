@@ -31,10 +31,12 @@ __all__ = [
     'test_stringify_config_bool_true',
     'test_stringify_config_bool_false',
     'test_stringify_config_mixed',
+    'test_stringify_config_skips_none_values',
     'test_stringify_instance_config_empty',
     'test_stringify_instance_config_none',
     'test_stringify_instance_config_string_values',
     'test_stringify_instance_config_bool_values',
+    'test_stringify_instance_config_skips_none_values',
     'test_stringify_instance_config_cloud_init_user_data_dict',
     'test_stringify_instance_config_cloud_init_vendor_data_dict',
     'test_stringify_instance_config_non_cloud_init_dict',
@@ -116,6 +118,16 @@ def test_stringify_config_mixed() -> None:
     }
 
 
+def test_stringify_config_skips_none_values() -> None:
+    """Skip None values from unset options."""
+    result = incus_stringify_config({
+        'limits.cpu': '2',
+        'boot.autostart': None,
+        'limits.memory': None,
+    })
+    assert result == {'limits.cpu': '2'}
+
+
 def test_stringify_instance_config_empty() -> None:
     """Return empty dict for empty input."""
     assert not incus_stringify_instance_config({})
@@ -134,6 +146,17 @@ def test_stringify_instance_config_string_values() -> None:
 def test_stringify_instance_config_bool_values() -> None:
     """Stringify bool values."""
     assert incus_stringify_instance_config({'boot.autostart': True}) == {'boot.autostart': 'true'}
+
+
+def test_stringify_instance_config_skips_none_values() -> None:
+    """Skip None values from unset options."""
+    result = incus_stringify_instance_config({
+        'limits.cpu': '2',
+        'boot.autostart': None,
+        'security.nesting': None,
+        'security.privileged': True,
+    })
+    assert result == {'limits.cpu': '2', 'security.privileged': 'true'}
 
 
 def test_stringify_instance_config_cloud_init_user_data_dict() -> None:
