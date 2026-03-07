@@ -16,6 +16,7 @@ mypy = "==1.19.1"
 pytest = "==8.2.0"
 pytest-xdist = "==3.8.0"
 types-PyYAML = "==6.0.12.20250915"
+antsibull-docs = "==2.24.0"
 
 [scripts]
 lint = "ansible-lint"
