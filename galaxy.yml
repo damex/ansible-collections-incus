@@ -11,5 +11,9 @@ tags:
   - incus
   - linux
   - system
+dependencies:
+  damex.apt: ">=1.4.8"
+  damex.yum: ">=1.3.5"
+  damex.systemd: ">=2.0.3"
 repository: https://github.com/damex/ansible-collections-incus
 issues: https://github.com/damex/ansible-collections-incus/issues
