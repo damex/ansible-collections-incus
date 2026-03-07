@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Ensure Incus server package and systemd units.
+    short_description: Ensure Incus.
     description:
-      - Ensure the Incus server package and systemd services and sockets.
+      - Ensure Incus.
     examples: |
       - name: Ensure incus
         hosts: incus

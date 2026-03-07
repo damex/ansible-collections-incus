@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus storage pools."""
+"""Ensure Incus storage."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_storage
-short_description: Ensure Incus storage pools
+short_description: Ensure Incus storage
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus storage pools via the Incus REST API.

@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Ensure Incus trusted certificates.
+    short_description: Ensure Incus certificates.
     description:
-      - Ensure trusted TLS certificates on an Incus server.
+      - Ensure Incus certificates.
     examples: |
       - name: Ensure incus certificates
         hosts: incus

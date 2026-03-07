@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus projects."""
+"""Ensure Incus project."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_project
-short_description: Ensure Incus projects
+short_description: Ensure Incus project
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, configure, and delete Incus projects via the Incus REST API.

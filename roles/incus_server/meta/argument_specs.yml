@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Ensure Incus server configuration.
+    short_description: Ensure Incus server.
     description:
-      - Ensure preseed configuration on the Incus server.
+      - Ensure Incus server.
     examples: |
       - name: Ensure incus server
         hosts: incus

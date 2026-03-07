@@ -3,7 +3,7 @@ argument_specs:
   main:
     short_description: Ensure Incus images.
     description:
-      - Ensure images on an Incus server.
+      - Ensure Incus images.
     examples: |
       - name: Ensure incus images
         hosts: incus

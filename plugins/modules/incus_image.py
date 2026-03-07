@@ -4,14 +4,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus images."""
+"""Ensure Incus image."""
 
 from __future__ import annotations
 
 DOCUMENTATION = r"""
 ---
 module: incus_image
-short_description: Ensure Incus images
+short_description: Ensure Incus image
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Copy and delete Incus images via the Incus REST API.
