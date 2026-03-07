@@ -6,8 +6,7 @@ incus_client_apt_preference_pin: origin pkgs.zabbly.com
 incus_client_apt_preference_pin_priority: 990
 incus_client_user: root
 incus_client_group: incus-admin
-incus_client_configuration_directory: /root/.config/incus
-incus_client_configuration_file: "{{ incus_client_configuration_directory }}/config.yml"
+incus_client_configuration_file: config.yml
 incus_client_configuration:
   default-remote: local
   remotes:

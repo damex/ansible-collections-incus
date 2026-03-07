@@ -4,6 +4,8 @@
     - incus
     - incus_client
   block:
+    - name: Ensure incus client facts
+      ansible.builtin.import_tasks: facts.yml
     - name: Ensure incus client apt preference
       ansible.builtin.import_tasks: apt_preference.yml
     - name: Ensure incus client package

@@ -1,0 +1,7 @@
+---
+- name: Gather incus client facts
+  ansible.builtin.setup:
+    gather_subset:
+      - pkg_mgr
+      - user_dir
+  become: true
