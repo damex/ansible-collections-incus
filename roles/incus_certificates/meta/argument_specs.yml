@@ -1,48 +1,66 @@
 ---
 argument_specs:
   main:
+    short_description: Manage Incus trusted certificates.
+    description:
+      - Manage trusted TLS certificates on an Incus server.
     options:
       incus_certificates:
+        description: List of certificates to manage.
         type: list
         elements: dict
         options:
           name:
+            description: Name of the certificate.
             required: true
             type: str
           certificate:
+            description: PEM-encoded certificate content.
             type: str
           type:
+            description: Type of the certificate.
             type: str
             choices:
               - client
               - metrics
           restricted:
+            description: Whether the certificate is restricted.
             type: bool
           projects:
+            description: List of projects the certificate has access to.
             type: list
             elements: str
           state:
+            description: Desired state of the certificate.
             type: str
             choices:
               - present
               - absent
       incus_certificates_socket_path:
+        description: Path to the Incus Unix socket.
         type: path
       incus_certificates_url:
+        description: URL of the Incus server API.
         type: str
       incus_certificates_client_cert:
+        description: Path to the TLS client certificate.
         type: path
       incus_certificates_client_key:
+        description: Path to the TLS client key.
         type: path
         no_log: true
       incus_certificates_server_cert:
+        description: Path to the TLS server certificate.
         type: path
       incus_certificates_token:
+        description: Authentication token for the Incus API.
         type: str
         no_log: true
       incus_certificates_validate_certs:
+        description: Whether to validate TLS certificates.
         type: bool
       incus_certificates_state:
+        description: Desired state of the certificates.
         type: str
         choices:
           - present

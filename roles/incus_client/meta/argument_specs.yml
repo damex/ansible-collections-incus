@@ -1,59 +1,83 @@
 ---
 argument_specs:
   main:
+    short_description: Install and configure the Incus client.
+    description:
+      - Install the Incus client package and manage the client configuration.
     options:
       incus_client_package_name:
         type: str
+        description: Name of the Incus client package.
       incus_client_package_state:
         type: str
+        description: Desired state of the Incus client package.
         choices:
           - present
           - absent
       incus_client_apt_preference_name:
         type: str
+        description: Name of the APT preference file for the Incus client.
       incus_client_apt_preference_pin:
         type: str
+        description: APT pin specification for the Incus client package.
       incus_client_apt_preference_pin_priority:
         type: int
+        description: APT pin priority for the Incus client package.
       incus_client_user:
         type: str
+        description: Owner of the client configuration files.
       incus_client_group:
         type: str
+        description: Group of the client configuration files.
       incus_client_configuration_directory:
         type: path
+        description: Path to the Incus client configuration directory.
       incus_client_configuration_file:
         type: path
+        description: Path to the Incus client configuration file.
       incus_client_configuration:
         type: dict
         required: true
+        description: Incus client configuration dictionary.
         options:
           default-remote:
             type: str
             required: true
+            description: Name of the default remote.
           remotes:
             type: list
             elements: dict
             required: true
+            description: List of remote server definitions.
             options:
               name:
                 type: str
                 required: true
+                description: Name of the remote.
               addr:
                 type: str
                 required: true
+                description: Address of the remote server.
               protocol:
                 type: str
                 required: true
+                description: Protocol used to communicate with the remote.
               public:
                 type: bool
+                description: Whether the remote is public.
           aliases:
             type: dict
+            description: Command aliases for the Incus client.
           defaults:
             type: dict
+            description: Default settings for the Incus client.
             options:
               list_format:
                 type: str
+                description: Default output format for list commands.
               console_type:
                 type: str
+                description: Default console type.
               console_spice_command:
                 type: str
+                description: Command used for SPICE console connections.

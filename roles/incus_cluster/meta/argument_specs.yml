@@ -1,209 +1,304 @@
 ---
 argument_specs:
   main:
+    short_description: Bootstrap and join an Incus cluster.
+    description:
+      - Bootstrap a new Incus cluster or join an existing one.
     options:
       incus_cluster_socket_path:
         type: path
+        description: Path to the Incus Unix socket.
       incus_cluster_url:
         type: str
+        description: URL of the Incus REST API endpoint.
       incus_cluster_client_cert:
         type: path
+        description: Path to the TLS client certificate for API authentication.
       incus_cluster_client_key:
         type: path
+        description: Path to the TLS client key for API authentication.
         no_log: true
       incus_cluster_server_cert:
         type: path
+        description: Path to the trusted server certificate.
       incus_cluster_token:
         type: str
+        description: Authentication token for the Incus API.
         no_log: true
       incus_cluster_validate_certs:
         type: bool
+        description: Whether to validate TLS certificates.
       incus_cluster_group:
         required: true
         type: str
+        description: Cluster group to assign the member to.
       incus_cluster_preseed:
         required: true
         type: dict
+        description: Preseed configuration for the Incus cluster.
         options:
           config:
             required: true
             type: dict
+            description: Server configuration key/value pairs.
             options:
               core.bgp_address:
                 type: str
+                description: Address to bind the BGP server to.
               core.bgp_asn:
                 type: str
+                description: BGP Autonomous System Number for the local server.
               core.bgp_routerid:
                 type: str
+                description: Unique BGP router ID for the local server.
               core.debug_address:
                 type: str
+                description: Address to bind the pprof debug server to.
               core.dns_address:
                 type: str
+                description: Address to bind the authoritative DNS server to.
               core.https_address:
                 required: true
                 type: str
+                description: Address to bind the HTTPS API server to.
               core.https_allowed_credentials:
                 type: bool
+                description: Whether to set Access-Control-Allow-Credentials.
               core.https_allowed_headers:
                 type: str
+                description: Access-Control-Allow-Headers header value.
               core.https_allowed_methods:
                 type: str
+                description: Access-Control-Allow-Methods header value.
               core.https_allowed_origin:
                 type: str
+                description: Access-Control-Allow-Origin header value.
               core.https_trusted_proxy:
                 type: str
+                description: Comma-separated list of trusted proxy IP addresses.
               core.metrics_address:
                 type: str
+                description: Address to bind the metrics server to.
               core.metrics_authentication:
                 type: bool
+                description: Whether to require authentication for metrics.
               core.proxy_http:
                 type: str
+                description: HTTP proxy for the server to use.
               core.proxy_https:
                 type: str
+                description: HTTPS proxy for the server to use.
               core.proxy_ignore_hosts:
                 type: str
+                description: Hosts that should bypass the proxy.
               core.remote_token_expiry:
                 type: str
+                description: Expiry time for remote add tokens.
               core.shutdown_timeout:
                 type: int
+                description: Number of minutes to wait for running operations to complete before shutdown.
               core.storage_buckets_address:
                 type: str
+                description: Address to bind the storage buckets server to.
               core.syslog_socket:
                 type: bool
+                description: Whether to enable the syslog Unix socket listener.
               core.trust_ca_certificates:
                 type: bool
+                description: Whether to trust CA-signed client certificates.
               acme.agree_tos:
                 type: bool
+                description: Agree to ACME terms of service.
               acme.ca_url:
                 type: str
+                description: URL of the ACME directory.
               acme.challenge:
                 type: str
+                description: ACME challenge type to use.
                 choices:
                   - HTTP-01
                   - DNS-01
               acme.domain:
                 type: str
+                description: Domain for which the certificate is issued.
               acme.email:
                 type: str
+                description: Email address for the ACME account.
               acme.http.port:
                 type: str
+                description: Port to use for HTTP-01 challenge.
               acme.provider:
                 type: str
+                description: DNS provider for DNS-01 challenge.
               acme.provider.environment:
                 type: str
+                description: Environment variables for the DNS provider.
               acme.provider.resolvers:
                 type: str
+                description: DNS resolvers for the DNS provider.
               cluster.healing_threshold:
                 type: int
+                description: Number of seconds after which an offline member is evacuated.
               cluster.https_address:
                 type: str
+                description: Address to use for cluster communication.
               cluster.images_minimal_replica:
                 type: int
+                description: Minimum number of cluster members with a copy of an image.
               cluster.join_token_expiry:
                 type: str
+                description: Expiry time for cluster join tokens.
               cluster.max_standby:
                 type: int
+                description: Maximum number of standby database members.
               cluster.max_voters:
                 type: int
+                description: Maximum number of voting database members.
               cluster.offline_threshold:
                 type: int
+                description: Number of seconds after which a heartbeat-less member is considered offline.
               cluster.rebalance.batch:
                 type: int
+                description: Number of instances to move per rebalance batch.
               cluster.rebalance.cooldown:
                 type: str
+                description: Cooldown period between rebalance runs.
               cluster.rebalance.interval:
                 type: int
+                description: Interval in seconds between rebalance checks.
               cluster.rebalance.threshold:
                 type: int
+                description: Percentage threshold to trigger rebalancing.
               images.auto_update_cached:
                 type: bool
+                description: Whether to auto-update cached images.
               images.auto_update_interval:
                 type: int
+                description: Interval in hours between image update checks.
               images.compression_algorithm:
                 type: str
+                description: Compression algorithm for images.
               images.default_architecture:
                 type: str
+                description: Default architecture for images.
               images.remote_cache_expiry:
                 type: int
+                description: Number of days after which unused cached images expire.
               oidc.audience:
                 type: str
+                description: Expected audience value for OIDC tokens.
               oidc.claim:
                 type: str
+                description: OIDC claim to use as the username.
               oidc.client.id:
                 type: str
+                description: OIDC client ID.
               oidc.issuer:
                 type: str
+                description: OIDC issuer URL.
               oidc.scopes:
                 type: str
+                description: Comma-separated list of OIDC scopes to request.
               openfga.api.token:
                 type: str
+                description: API token for the OpenFGA server.
                 no_log: true
               openfga.api.url:
                 type: str
+                description: URL of the OpenFGA server.
               openfga.store.id:
                 type: str
+                description: OpenFGA store ID.
               authorization.scriptlet:
                 type: str
+                description: Starlark scriptlet for custom authorization logic.
               backups.compression_algorithm:
                 type: str
+                description: Compression algorithm for backups.
               instances.lxcfs.per_instance:
                 type: bool
+                description: Whether to run a separate LXCFS per instance.
               instances.nic.host_name:
                 type: str
+                description: Template for host-side veth interface names.
               instances.placement.scriptlet:
                 type: str
+                description: Starlark scriptlet for custom instance placement.
               network.ovn.ca_cert:
                 type: str
+                description: CA certificate for OVN northbound connection.
               network.ovn.client_cert:
                 type: str
+                description: Client certificate for OVN northbound connection.
               network.ovn.client_key:
                 type: str
+                description: Client key for OVN northbound connection.
               network.ovn.integration_bridge:
                 type: str
+                description: OVS integration bridge to use for OVN networks.
               network.ovn.northbound_connection:
                 type: str
+                description: OVN northbound database connection string.
               network.ovs.connection:
                 type: str
+                description: OVS database connection string.
               storage.backups_volume:
                 type: str
+                description: Volume to use for storing backup tarballs.
               storage.images_volume:
                 type: str
+                description: Volume to use for storing image tarballs.
               storage.linstor.ca_cert:
                 type: str
+                description: CA certificate for LINSTOR controller connection.
               storage.linstor.client_cert:
                 type: str
+                description: Client certificate for LINSTOR controller connection.
               storage.linstor.client_key:
                 type: str
+                description: Client key for LINSTOR controller connection.
               storage.linstor.controller_connection:
                 type: str
+                description: LINSTOR controller connection string.
               storage.linstor.satellite.name:
                 type: str
+                description: Name of the LINSTOR satellite on this cluster member.
               storage.logs_volume:
                 type: str
+                description: Volume to use for storing log files.
           cluster:
             required: true
             type: dict
+            description: Cluster-specific preseed settings.
             options:
               enabled:
                 type: bool
+                description: Whether clustering is enabled.
               server_name:
                 required: true
                 type: str
+                description: Name of the cluster member.
               server_address:
                 required: true
                 type: str
+                description: Address of the cluster member.
               member_config:
                 type: list
                 elements: dict
+                description: Member-specific configuration overrides.
                 options:
                   entity:
                     required: true
                     type: str
+                    description: Type of entity being configured.
                   name:
                     required: true
                     type: str
+                    description: Name of the entity.
                   key:
                     required: true
                     type: str
+                    description: Configuration key to set.
                   value:
                     type: str
+                    description: Value for the configuration key.

@@ -1,58 +1,79 @@
 ---
 argument_specs:
   main:
+    short_description: Manage Incus images.
+    description:
+      - Manage images on an Incus server, including downloading from remote sources and removing unused images.
     options:
       incus_images:
         type: list
         elements: dict
+        description: List of images to manage.
         options:
           source:
             required: true
             type: str
+            description: Remote source identifier for the image.
           type:
             type: str
+            description: Instance type for the image.
             choices:
               - container
               - virtual-machine
           alias:
             required: true
             type: str
+            description: Local alias to assign to the image.
           copy_aliases:
             type: bool
+            description: Whether to copy aliases from the source.
           project:
             type: str
+            description: Incus project to scope the image to.
           state:
             type: str
+            description: Desired state of the image.
             choices:
               - present
               - absent
       incus_images_socket_path:
         type: path
+        description: Path to the Incus Unix socket.
       incus_images_url:
         type: str
+        description: URL of the Incus server API.
       incus_images_client_cert:
         type: path
+        description: Path to the TLS client certificate.
       incus_images_client_key:
         type: path
+        description: Path to the TLS client key.
         no_log: true
       incus_images_server_cert:
         type: path
+        description: Path to the TLS server certificate.
       incus_images_token:
         type: str
+        description: Authentication token for the Incus API.
         no_log: true
       incus_images_validate_certs:
         type: bool
+        description: Whether to validate TLS certificates.
       incus_images_type:
         type: str
+        description: Instance type for the images.
         choices:
           - container
           - virtual-machine
       incus_images_copy_aliases:
         type: bool
+        description: Whether to copy aliases from the source.
       incus_images_project:
         type: str
+        description: Incus project to scope images to.
       incus_images_state:
         type: str
+        description: Desired state of the images.
         choices:
           - present
           - absent

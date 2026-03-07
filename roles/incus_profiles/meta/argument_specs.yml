@@ -1,190 +1,284 @@
 ---
 argument_specs:
   main:
+    short_description: Manage Incus profiles.
+    description:
+      - Create, update, and delete Incus instance profiles.
+      - Profiles define configuration and devices applied to instances.
     options:
       incus_profiles:
+        description: List of Incus profiles to manage.
         type: list
         elements: dict
         options:
           name:
+            description: Name of the profile.
             required: true
             type: str
           description:
+            description: Description of the profile.
             type: str
           config:
+            description: Profile configuration key-value pairs.
             type: dict
             options:
               limits.cpu:
+                description: Number or range of CPUs to expose.
                 type: str
               limits.memory:
+                description: Percentage of host memory or fixed value in bytes.
                 type: str
               limits.processes:
+                description: Maximum number of processes in the instance.
                 type: int
               limits.cpu.priority:
+                description: CPU scheduling priority compared to other instances.
                 type: int
               limits.cpu.allowance:
+                description: CPU time allowance as percentage or fixed rate.
                 type: str
               limits.disk.priority:
+                description: I/O request priority when under load (0-10).
                 type: int
               limits.network.priority:
+                description: Network traffic priority compared to other instances.
                 type: int
               boot.autostart:
+                description: Whether to start the instance on daemon startup.
                 type: bool
               boot.autostart.delay:
+                description: Seconds to wait after the instance started.
                 type: int
               boot.autostart.priority:
+                description: Instance startup priority, higher starts first.
                 type: int
               security.privileged:
+                description: Whether to run the instance in privileged mode.
                 type: bool
               security.nesting:
+                description: Allow running Incus inside the instance.
                 type: bool
               security.agent.metrics:
+                description: Whether the guest agent exposes metrics.
                 type: bool
               security.bpffs.delegate_attachs:
+                description: BPF attach types to delegate to the instance.
                 type: str
               security.bpffs.delegate_cmds:
+                description: BPF commands to delegate to the instance.
                 type: str
               security.bpffs.delegate_maps:
+                description: BPF map types to delegate to the instance.
                 type: str
               security.bpffs.delegate_progs:
+                description: BPF program types to delegate to the instance.
                 type: str
               security.bpffs.path:
+                description: Path at which to mount the BPF filesystem.
                 type: str
               security.csm:
+                description: Whether to enable Compatibility Support Module for VMs.
                 type: bool
               security.guestapi:
+                description: Whether to enable the guest API.
                 type: bool
               security.guestapi.images:
+                description: Whether to allow image access via the guest API.
                 type: bool
               security.idmap.base:
+                description: Base host ID for the instance UID/GID map.
                 type: int
               security.idmap.isolated:
+                description: Whether to use a unique ID map for the instance.
                 type: bool
               security.idmap.size:
+                description: Size of the UID/GID range to allocate.
                 type: int
               security.iommu:
+                description: Whether to enable IOMMU for the instance.
                 type: bool
               security.protection.delete:
+                description: Whether to prevent deletion of the instance.
                 type: bool
               security.protection.shift:
+                description: Whether to prevent UID/GID shifting.
                 type: bool
               security.secureboot:
+                description: Whether to enable UEFI Secure Boot.
                 type: bool
               security.sev:
+                description: Whether to enable AMD SEV encryption.
                 type: bool
               security.sev.policy.es:
+                description: Whether to enable SEV-ES (Encrypted State).
                 type: bool
               security.sev.session.data:
+                description: SEV session data blob in base64.
                 type: str
               security.sev.session.dh:
+                description: SEV guest Diffie-Hellman key in base64.
                 type: str
               security.syscalls.allow:
+                description: Allowlist of syscalls to permit.
                 type: str
               security.syscalls.deny:
+                description: List of syscalls to deny.
                 type: str
               security.syscalls.deny_compat:
+                description: Whether to block compat syscalls for x86 on x86_64.
                 type: bool
               security.syscalls.deny_default:
+                description: Whether to enable default syscall deny list.
                 type: bool
               security.syscalls.intercept.bpf:
+                description: Whether to intercept bpf syscalls.
                 type: bool
               security.syscalls.intercept.bpf.devices:
+                description: Whether to allow device map types in intercepted bpf.
                 type: bool
               security.syscalls.intercept.mknod:
+                description: Whether to intercept mknod syscalls.
                 type: bool
               security.syscalls.intercept.mount:
+                description: Whether to intercept mount syscalls.
                 type: bool
               security.syscalls.intercept.mount.allowed:
+                description: Filesystems allowed for intercepted mount calls.
                 type: str
               security.syscalls.intercept.mount.fuse:
+                description: FUSE handler for intercepted mount calls.
                 type: str
               security.syscalls.intercept.mount.shift:
+                description: Whether to enable UID/GID shifting for intercepted mounts.
                 type: bool
               security.syscalls.intercept.sched_setscheduler:
+                description: Whether to intercept sched_setscheduler syscalls.
                 type: bool
               security.syscalls.intercept.setxattr:
+                description: Whether to intercept setxattr syscalls.
                 type: bool
               security.syscalls.intercept.sysinfo:
+                description: Whether to intercept sysinfo syscalls.
                 type: bool
               migration.stateful:
+                description: Allow stateful stop/start and snapshots.
                 type: bool
               migration.incremental.memory:
+                description: Whether to use incremental memory transfer.
                 type: bool
               migration.incremental.memory.goal:
+                description: Target percentage of dirty memory for completion.
                 type: int
               migration.incremental.memory.iterations:
+                description: Maximum number of incremental memory transfer rounds.
                 type: int
               limits.cpu.nodes:
+                description: NUMA nodes to place the instance on.
                 type: str
               limits.hugepages.1GB:
+                description: Limit for 1GB hugepages.
                 type: str
               limits.hugepages.1MB:
+                description: Limit for 1MB hugepages.
                 type: str
               limits.hugepages.2MB:
+                description: Limit for 2MB hugepages.
                 type: str
               limits.hugepages.64KB:
+                description: Limit for 64KB hugepages.
                 type: str
               limits.memory.enforce:
+                description: Memory limit enforcement mode.
                 type: str
               limits.memory.hotplug:
+                description: Whether to allow memory hotplug.
                 type: str
               limits.memory.hugepages:
+                description: Whether to back instance memory with hugepages.
                 type: bool
               limits.memory.oom_priority:
+                description: OOM killer priority compared to other instances.
                 type: int
               limits.memory.swap:
+                description: Whether to enable swap for the instance.
                 type: str
               limits.memory.swap.priority:
+                description: Swap usage priority compared to other instances.
                 type: int
               boot.autorestart:
+                description: Whether to restart the instance on unexpected stop.
                 type: bool
               boot.host_shutdown_action:
+                description: Action to perform on host shutdown.
                 type: str
               boot.host_shutdown_timeout:
+                description: Seconds to wait for graceful shutdown on host stop.
                 type: int
               boot.stop.priority:
+                description: Instance shutdown priority, higher stops first.
                 type: int
               snapshots.expiry:
+                description: Expiry time for automatic snapshots.
                 type: str
               snapshots.expiry.manual:
+                description: Expiry time for manual snapshots.
                 type: str
               snapshots.pattern:
+                description: Naming pattern for automatic snapshots.
                 type: str
               snapshots.schedule:
+                description: Cron expression for automatic snapshots.
                 type: str
               snapshots.schedule.stopped:
+                description: Whether to snapshot stopped instances.
                 type: bool
               nvidia.driver.capabilities:
+                description: NVIDIA driver capabilities to expose.
                 type: str
               nvidia.require.cuda:
+                description: Required CUDA version expression.
                 type: str
               nvidia.require.driver:
+                description: Required NVIDIA driver version expression.
                 type: str
               nvidia.runtime:
+                description: Pass NVIDIA runtime libraries into the container.
                 type: bool
               raw.apparmor:
+                description: Raw AppArmor profile entries to append.
                 type: str
               raw.idmap:
+                description: Raw UID/GID mapping configuration.
                 type: str
               raw.lxc:
+                description: Raw LXC configuration to append.
                 type: str
               raw.qemu:
+                description: Raw QEMU command-line arguments to append.
                 type: str
               raw.qemu.conf:
+                description: Raw QEMU configuration file overrides.
                 type: str
               raw.qemu.qmp.early:
+                description: QMP commands to run early in QEMU startup.
                 type: str
               raw.qemu.qmp.pre-start:
+                description: QMP commands to run before instance start.
                 type: str
               raw.qemu.qmp.post-start:
+                description: QMP commands to run after instance start.
                 type: str
               raw.qemu.scriptlet:
+                description: Scriptlet to run during QEMU startup.
                 type: str
               raw.seccomp:
+                description: Raw seccomp profile to apply.
                 type: str
               agent.nic_config:
+                description: Use instance NIC names and MTU for default interfaces.
                 type: bool
               cluster.evacuate:
+                description: Action to perform on cluster member evacuation.
                 type: str
                 choices:
                   - auto
@@ -194,322 +288,438 @@ argument_specs:
                   - stateful-stop
                   - force-stop
               oci.cwd:
+                description: Working directory for OCI containers.
                 type: str
               oci.entrypoint:
+                description: Entrypoint override for OCI containers.
                 type: str
               oci.gid:
+                description: GID to run OCI container process as.
                 type: str
               oci.uid:
+                description: UID to run OCI container process as.
                 type: str
               linux.kernel_modules:
+                description: Comma-separated list of kernel modules to load.
                 type: str
               cloud-init.network-config:
+                description: Cloud-init network configuration.
                 type: dict
                 options:
                   version:
+                    description: Network config format version.
                     type: int
                   renderer:
+                    description: Network renderer backend.
                     type: str
                   ethernets:
+                    description: Ethernet device configurations.
                     type: list
                     elements: dict
                     options:
                       name:
+                        description: Ethernet device name.
                         required: true
                         type: str
                       dhcp4:
+                        description: Whether to enable DHCPv4.
                         type: bool
                       addresses:
+                        description: Static addresses in CIDR notation.
                         type: list
                         elements: str
                       routes:
+                        description: Static routes for the device.
                         type: list
                         elements: dict
                         options:
                           to:
+                            description: Destination network in CIDR notation.
                             type: str
                           via:
+                            description: Gateway address for the route.
                             type: str
                       match:
+                        description: Device match criteria.
                         type: dict
                         options:
                           driver:
+                            description: Kernel driver name to match.
                             type: str
                       nameservers:
+                        description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
+                            description: List of DNS server addresses.
                             type: list
                             elements: str
                   bonds:
+                    description: Bond device configurations.
                     type: list
                     elements: dict
                     options:
                       name:
+                        description: Bond device name.
                         required: true
                         type: str
                       dhcp4:
+                        description: Whether to enable DHCPv4.
                         type: bool
                       addresses:
+                        description: Static addresses in CIDR notation.
                         type: list
                         elements: str
                       interfaces:
+                        description: Member interfaces for the bond.
                         type: list
                         elements: str
                       parameters:
+                        description: Bond-specific parameters.
                         type: dict
                         options:
                           mode:
+                            description: Bonding mode.
                             type: str
                           mii-monitor-interval:
+                            description: MII monitoring interval in milliseconds.
                             type: int
                       routes:
+                        description: Static routes for the device.
                         type: list
                         elements: dict
                         options:
                           to:
+                            description: Destination network in CIDR notation.
                             type: str
                           via:
+                            description: Gateway address for the route.
                             type: str
                       nameservers:
+                        description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
+                            description: List of DNS server addresses.
                             type: list
                             elements: str
                   bridges:
+                    description: Bridge device configurations.
                     type: list
                     elements: dict
                     options:
                       name:
+                        description: Bridge device name.
                         required: true
                         type: str
                       dhcp4:
+                        description: Whether to enable DHCPv4.
                         type: bool
                       addresses:
+                        description: Static addresses in CIDR notation.
                         type: list
                         elements: str
                       interfaces:
+                        description: Member interfaces for the bridge.
                         type: list
                         elements: str
                       parameters:
+                        description: Bridge-specific parameters.
                         type: dict
                         options:
                           stp:
+                            description: Whether to enable Spanning Tree Protocol.
                             type: bool
                           forward-delay:
+                            description: Forwarding delay in seconds.
                             type: int
                       routes:
+                        description: Static routes for the device.
                         type: list
                         elements: dict
                         options:
                           to:
+                            description: Destination network in CIDR notation.
                             type: str
                           via:
+                            description: Gateway address for the route.
                             type: str
                       nameservers:
+                        description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
+                            description: List of DNS server addresses.
                             type: list
                             elements: str
                   vlans:
+                    description: VLAN device configurations.
                     type: list
                     elements: dict
                     options:
                       name:
+                        description: VLAN device name.
                         required: true
                         type: str
                       id:
+                        description: VLAN ID.
                         required: true
                         type: int
                       link:
+                        description: Parent device for the VLAN.
                         required: true
                         type: str
                       dhcp4:
+                        description: Whether to enable DHCPv4.
                         type: bool
                       addresses:
+                        description: Static addresses in CIDR notation.
                         type: list
                         elements: str
                       routes:
+                        description: Static routes for the device.
                         type: list
                         elements: dict
                         options:
                           to:
+                            description: Destination network in CIDR notation.
                             type: str
                           via:
+                            description: Gateway address for the route.
                             type: str
                       nameservers:
+                        description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
+                            description: List of DNS server addresses.
                             type: list
                             elements: str
               cloud-init.user-data:
+                description: Cloud-init user data configuration.
                 type: dict
                 options:
                   bootcmd:
+                    description: Commands to run early in the boot process.
                     type: list
                     elements: raw
                   user:
+                    description: Default user name to create.
                     type: str
                   password:
+                    description: Password for the default user.
                     type: str
                     no_log: true
                   ssh_pwauth:
+                    description: Whether to enable SSH password authentication.
                     type: bool
                   chpasswd:
+                    description: Password change settings.
                     type: dict
                     options:
                       expire:
+                        description: Whether to expire the password after first login.
                         type: bool
                   package_upgrade:
+                    description: Whether to upgrade packages on first boot.
                     type: bool
                   packages:
+                    description: Packages to install on first boot.
                     type: list
                     elements: str
                   power_state:
+                    description: Power state change after cloud-init completes.
                     type: dict
                     options:
                       mode:
+                        description: Power state action.
                         type: str
                         choices:
                           - reboot
                           - poweroff
                           - halt
                   write_files:
+                    description: Files to write on first boot.
                     type: list
                     elements: dict
                     options:
                       path:
+                        description: Absolute path of the file to write.
                         required: true
                         type: str
                       content:
+                        description: Content to write to the file.
                         type: str
                       owner:
+                        description: Owner and group in user:group format.
                         type: str
                       permissions:
+                        description: File permissions in octal notation.
                         type: str
                   runcmd:
+                    description: Commands to run after cloud-init completes.
                     type: list
                     elements: raw
               cloud-init.vendor-data:
+                description: Cloud-init vendor data configuration.
                 type: dict
                 options:
                   bootcmd:
+                    description: Commands to run early in the boot process.
                     type: list
                     elements: raw
                   user:
+                    description: Default user name to create.
                     type: str
                   password:
+                    description: Password for the default user.
                     type: str
                     no_log: true
                   ssh_pwauth:
+                    description: Whether to enable SSH password authentication.
                     type: bool
                   chpasswd:
+                    description: Password change settings.
                     type: dict
                     options:
                       expire:
+                        description: Whether to expire the password after first login.
                         type: bool
                   package_upgrade:
+                    description: Whether to upgrade packages on first boot.
                     type: bool
                   packages:
+                    description: Packages to install on first boot.
                     type: list
                     elements: str
                   power_state:
+                    description: Power state change after cloud-init completes.
                     type: dict
                     options:
                       mode:
+                        description: Power state action.
                         type: str
                         choices:
                           - reboot
                           - poweroff
                           - halt
                   write_files:
+                    description: Files to write on first boot.
                     type: list
                     elements: dict
                     options:
                       path:
+                        description: Absolute path of the file to write.
                         required: true
                         type: str
                       content:
+                        description: Content to write to the file.
                         type: str
                       owner:
+                        description: Owner and group in user:group format.
                         type: str
                       permissions:
+                        description: File permissions in octal notation.
                         type: str
                   runcmd:
+                    description: Commands to run after cloud-init completes.
                     type: list
                     elements: raw
           devices:
+            description: List of devices to attach to the profile.
             type: list
             elements: dict
             options:
               name:
+                description: Name of the device.
                 required: true
                 type: str
               type:
+                description: Type of the device.
                 required: true
                 type: str
                 choices:
                   - disk
                   - nic
-              # disk
               path:
+                description: Mount path inside the instance (disk).
                 type: str
               pool:
+                description: Storage pool for the disk device.
                 type: str
               source:
+                description: Source path or volume for the disk device.
                 type: str
               size:
+                description: Size of the disk device.
                 type: str
               readonly:
+                description: Whether the disk is read-only.
                 type: bool
-              # nic
               network:
+                description: Managed network to attach the NIC to.
                 type: str
               nictype:
+                description: NIC type when not using a managed network.
                 type: str
               parent:
+                description: Parent device for the NIC.
                 type: str
               hwaddr:
+                description: MAC address for the NIC.
                 type: str
               mtu:
+                description: MTU of the NIC.
                 type: str
               ipv4.address:
+                description: IPv4 address for the NIC.
                 type: str
               ipv4.routes:
+                description: IPv4 static routes to add for the NIC.
                 type: str
               ipv6.address:
+                description: IPv6 address for the NIC.
                 type: str
               ipv6.routes:
+                description: IPv6 static routes to add for the NIC.
                 type: str
           project:
+            description: Incus project to scope this profile to.
             type: str
           state:
+            description: Desired state of the profile.
             type: str
             choices:
               - present
               - absent
       incus_profiles_socket_path:
+        description: Path to the Incus Unix socket.
         type: path
       incus_profiles_url:
+        description: URL of the Incus server API.
         type: str
       incus_profiles_client_cert:
+        description: Path to the TLS client certificate.
         type: path
       incus_profiles_client_key:
+        description: Path to the TLS client key.
         type: path
         no_log: true
       incus_profiles_server_cert:
+        description: Path to the TLS server certificate.
         type: path
       incus_profiles_token:
+        description: Authentication token for the Incus API.
         type: str
         no_log: true
       incus_profiles_validate_certs:
+        description: Whether to validate TLS certificates.
         type: bool
       incus_profiles_project:
+        description: Incus project to scope profiles to.
         type: str
       incus_profiles_state:
+        description: Desired state of the profiles.
         type: str
         choices:
           - present
