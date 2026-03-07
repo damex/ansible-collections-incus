@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Bootstrap and join an Incus cluster.
+    short_description: Ensure Incus cluster.
     description:
-      - Bootstrap a new Incus cluster or join an existing one.
+      - Ensure an Incus cluster is bootstrapped and members are joined.
     options:
       incus_cluster_socket_path:
         type: path

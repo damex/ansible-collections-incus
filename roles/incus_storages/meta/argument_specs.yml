@@ -1,12 +1,12 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus storage pools.
+    short_description: Ensure Incus storage pools.
     description:
-      - Create, update, or remove Incus storage pools.
+      - Ensure Incus storage pools.
     options:
       incus_storages:
-        description: List of storage pools to manage.
+        description: List of storage pools to ensure.
         type: list
         elements: dict
         options:

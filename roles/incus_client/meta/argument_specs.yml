@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Install and configure the Incus client.
+    short_description: Ensure Incus client.
     description:
-      - Install the Incus client package and manage the client configuration.
+      - Ensure the Incus client package and configuration.
     options:
       incus_client_package_name:
         type: str

@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configure the Zabbly APT repository for Incus packages.
+    short_description: Ensure Zabbly APT repository for Incus packages.
     description:
-      - Add the Zabbly GPG key and APT repository source for installing Incus packages.
+      - Ensure the Zabbly GPG key and APT repository source for Incus packages.
     options:
       incus_repository_apt_key_id:
         type: str

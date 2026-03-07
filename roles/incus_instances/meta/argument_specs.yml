@@ -1,13 +1,13 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus instances.
+    short_description: Ensure Incus instances.
     description:
-      - Create, configure, and manage Incus instances.
+      - Ensure Incus instances.
       - Supports containers and virtual machines with cloud-init configuration.
     options:
       incus_instances:
-        description: List of instances to manage.
+        description: List of instances to ensure.
         type: list
         elements: dict
         options:

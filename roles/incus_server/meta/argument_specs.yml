@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configure the Incus server.
+    short_description: Ensure Incus server configuration.
     description:
-      - Apply preseed configuration to the Incus server.
+      - Ensure preseed configuration on the Incus server.
     options:
       incus_server_force:
         type: bool

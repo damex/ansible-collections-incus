@@ -3,7 +3,7 @@ argument_specs:
   main:
     short_description: Ensure Incus server package and systemd units.
     description:
-      - Ensure the Incus server package and manage the systemd services and sockets.
+      - Ensure the Incus server package and systemd services and sockets.
     options:
       incus_package_name:
         type: str

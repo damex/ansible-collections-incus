@@ -1,13 +1,13 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus profiles.
+    short_description: Ensure Incus profiles.
     description:
-      - Create, update, and delete Incus instance profiles.
+      - Ensure Incus instance profiles.
       - Profiles define configuration and devices applied to instances.
     options:
       incus_profiles:
-        description: List of Incus profiles to manage.
+        description: List of Incus profiles to ensure.
         type: list
         elements: dict
         options:

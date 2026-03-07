@@ -1,12 +1,12 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus projects.
+    short_description: Ensure Incus projects.
     description:
-      - Create, update, and delete Incus projects.
+      - Ensure Incus projects.
     options:
       incus_projects:
-        description: List of Incus projects to manage.
+        description: List of Incus projects to ensure.
         type: list
         elements: dict
         options:

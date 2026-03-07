@@ -1,12 +1,12 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus networks.
+    short_description: Ensure Incus networks.
     description:
-      - Create, update, or delete Incus networks.
+      - Ensure Incus networks.
     options:
       incus_networks:
-        description: List of networks to manage.
+        description: List of networks to ensure.
         type: list
         elements: dict
         options:

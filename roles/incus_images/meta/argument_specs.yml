@@ -1,14 +1,14 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Incus images.
+    short_description: Ensure Incus images.
     description:
-      - Manage images on an Incus server, including downloading from remote sources and removing unused images.
+      - Ensure images on an Incus server.
     options:
       incus_images:
         type: list
         elements: dict
-        description: List of images to manage.
+        description: List of images to ensure.
         options:
           source:
             required: true
