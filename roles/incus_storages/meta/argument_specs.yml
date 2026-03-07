@@ -28,6 +28,9 @@ argument_specs:
               - cephobject
               - linstor
               - truenas
+          description:
+            description: Storage pool description.
+            type: str
           project:
             description: Project to scope the storage pool to.
             type: str

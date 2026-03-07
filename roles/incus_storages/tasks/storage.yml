@@ -4,6 +4,7 @@
     name: "{{ incus_storages_storage_name }}"
     state: "{{ incus_storages_storage_state }}"
     driver: "{{ incus_storages_storage.driver }}"
+    description: "{{ incus_storages_storage_description }}"
     config: "{{ incus_storages_storage.config | default(omit) }}"
     socket_path: "{{ incus_storages_storage_socket_path }}"
     url: "{{ incus_storages_storage_url }}"
