@@ -1,34 +1,50 @@
 ---
 argument_specs:
   main:
+    short_description: Install and configure Incus server package.
+    description:
+      - Install the Incus server package from the Zabbly APT repository and manage the systemd service.
     options:
       incus_package_name:
         type: str
+        description: Name of the Incus server package.
       incus_package_version:
         type: str
+        description: Version of the Incus server package to install.
       incus_package_state:
         type: str
+        description: Desired state of the Incus server package.
         choices:
           - present
           - absent
       incus_service_name:
         type: str
+        description: Name of the Incus systemd service.
       incus_apt_key_id:
         type: str
+        description: GPG key ID for the Incus APT repository.
       incus_apt_key_url:
         type: str
+        description: URL of the GPG key for the Incus APT repository.
       incus_apt_repository_name:
         type: str
+        description: Name of the Incus APT repository source entry.
       incus_apt_repository_url:
         type: str
+        description: Base URL of the Incus APT repository.
       incus_apt_repository_distribution:
         type: str
+        description: Distribution component override for the APT repository.
       incus_apt_repository_components:
         type: list
         elements: str
+        description: List of APT repository components to enable.
       incus_apt_preference_name:
         type: str
+        description: Name of the APT pinning preference file.
       incus_apt_preference_pin:
         type: str
+        description: APT pin specification for package priority.
       incus_apt_preference_pin_priority:
         type: int
+        description: APT pin priority value for the Incus repository.

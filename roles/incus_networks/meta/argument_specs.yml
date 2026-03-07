@@ -1,15 +1,21 @@
 ---
 argument_specs:
   main:
+    short_description: Manage Incus networks.
+    description:
+      - Create, update, or delete Incus networks.
     options:
       incus_networks:
+        description: List of networks to manage.
         type: list
         elements: dict
         options:
           name:
+            description: Name of the network.
             required: true
             type: str
           type:
+            description: Type of the network.
             required: true
             type: str
             choices:
@@ -18,161 +24,226 @@ argument_specs:
               - sriov
               - physical
           project:
+            description: Incus project to scope the network to.
             type: str
           config:
+            description: Network configuration options.
             type: dict
             options:
               bridge.driver:
+                description: Bridge driver to use.
                 type: str
                 choices:
                   - native
                   - openvswitch
               bridge.external_interfaces:
+                description: Comma-separated list of unconfigured NICs to bridge.
                 type: str
               bridge.hwaddr:
+                description: MAC address for the bridge.
                 type: str
               bridge.mtu:
+                description: Bridge MTU.
                 type: str
               dns.domain:
+                description: Domain to advertise to DHCP clients and use for DNS resolution.
                 type: str
               dns.mode:
+                description: DNS registration mode.
                 type: str
                 choices:
                   - managed
                   - dynamic
                   - none
               dns.nameservers:
+                description: Comma-separated list of DNS nameservers.
                 type: str
               dns.search:
+                description: Comma-separated list of DNS search domains.
                 type: str
               dns.zone.forward:
+                description: Comma-separated list of DNS zone names for forward DNS records.
                 type: str
               dns.zone.reverse.ipv4:
+                description: DNS zone name for IPv4 reverse DNS records.
                 type: str
               dns.zone.reverse.ipv6:
+                description: DNS zone name for IPv6 reverse DNS records.
                 type: str
               ipv4.address:
+                description: IPv4 address for the bridge (use none or auto).
                 type: str
               ipv4.dhcp:
+                description: Whether to allocate addresses via DHCP.
                 type: bool
               ipv4.dhcp.expiry:
+                description: DHCP lease expiry time.
                 type: str
               ipv4.dhcp.gateway:
+                description: Address of the gateway for the subnet.
                 type: str
               ipv4.dhcp.ranges:
+                description: Comma-separated list of IPv4 DHCP ranges.
                 type: str
               ipv4.dhcp.routes:
+                description: Additional IPv4 routes to advertise via DHCP.
                 type: str
               ipv4.firewall:
+                description: Whether to generate filtering firewall rules.
                 type: bool
               ipv4.gateway:
+                description: Override gateway for the subnet.
                 type: str
               ipv4.gateway.hwaddr:
+                description: MAC address of the gateway.
                 type: str
               ipv4.nat:
+                description: Whether to NAT IPv4 traffic.
                 type: bool
               ipv4.nat.address:
+                description: Source address for outbound IPv4 NAT.
                 type: str
               ipv4.nat.order:
+                description: Whether to add NAT rules before or after pre-existing rules.
                 type: str
                 choices:
                   - before
                   - after
               ipv4.routes:
+                description: Comma-separated list of additional IPv4 CIDR subnets to route to the bridge.
                 type: str
               ipv4.routes.anycast:
+                description: Whether to allow overlapping routes on multiple networks.
                 type: bool
               ipv4.routing:
+                description: Whether to route IPv4 traffic in and out of the bridge.
                 type: bool
               ipv6.address:
+                description: IPv6 address for the bridge (use none or auto).
                 type: str
               ipv6.dhcp:
+                description: Whether to provide additional network configuration via DHCPv6.
                 type: bool
               ipv6.dhcp.expiry:
+                description: DHCPv6 lease expiry time.
                 type: str
               ipv6.dhcp.ranges:
+                description: Comma-separated list of IPv6 DHCP ranges.
                 type: str
               ipv6.dhcp.stateful:
+                description: Whether to enable stateful DHCPv6 address allocation.
                 type: bool
               ipv6.firewall:
+                description: Whether to generate filtering firewall rules.
                 type: bool
               ipv6.gateway:
+                description: Override gateway for the subnet.
                 type: str
               ipv6.gateway.hwaddr:
+                description: MAC address of the gateway.
                 type: str
               ipv6.nat:
+                description: Whether to NAT IPv6 traffic.
                 type: bool
               ipv6.nat.address:
+                description: Source address for outbound IPv6 NAT.
                 type: str
               ipv6.nat.order:
+                description: Whether to add NAT rules before or after pre-existing rules.
                 type: str
                 choices:
                   - before
                   - after
               ipv6.routes:
+                description: Comma-separated list of additional IPv6 CIDR subnets to route to the bridge.
                 type: str
               ipv6.routes.anycast:
+                description: Whether to allow overlapping routes on multiple networks.
                 type: bool
               ipv6.routing:
+                description: Whether to route IPv6 traffic in and out of the bridge.
                 type: bool
               raw.dnsmasq:
+                description: Additional dnsmasq configuration to append.
                 type: str
               security.acls:
+                description: Comma-separated list of network ACLs to apply.
                 type: str
               security.acls.default.egress.action:
+                description: Default action for egress traffic not matching any ACL rule.
                 type: str
                 choices:
                   - allow
                   - reject
                   - drop
               security.acls.default.egress.logged:
+                description: Whether to log default egress actions.
                 type: bool
               security.acls.default.ingress.action:
+                description: Default action for ingress traffic not matching any ACL rule.
                 type: str
                 choices:
                   - allow
                   - reject
                   - drop
               security.acls.default.ingress.logged:
+                description: Whether to log default ingress actions.
                 type: bool
               bgp.ipv4.nexthop:
+                description: Override the next-hop for advertised IPv4 prefixes.
                 type: str
               bgp.ipv6.nexthop:
+                description: Override the next-hop for advertised IPv6 prefixes.
                 type: str
               gvrp:
+                description: Whether to register VLAN via GARP VLAN Registration Protocol.
                 type: bool
               mtu:
+                description: MTU of the network interface.
                 type: str
               parent:
+                description: Parent interface to use for the network.
                 type: str
               vlan:
+                description: VLAN ID to attach to.
                 type: int
               vlan.tagged:
+                description: Comma-separated list of VLAN IDs to join for tagged traffic.
                 type: str
           state:
+            description: Desired state of the network.
             type: str
             choices:
               - present
               - absent
       incus_networks_socket_path:
+        description: Path to the Incus Unix socket.
         type: path
       incus_networks_url:
+        description: URL of the Incus server API.
         type: str
       incus_networks_client_cert:
+        description: Path to the TLS client certificate.
         type: path
       incus_networks_client_key:
+        description: Path to the TLS client key.
         type: path
         no_log: true
       incus_networks_server_cert:
+        description: Path to the TLS server certificate.
         type: path
       incus_networks_token:
+        description: Authentication token for the Incus API.
         type: str
         no_log: true
       incus_networks_validate_certs:
+        description: Whether to validate TLS certificates.
         type: bool
       incus_networks_project:
+        description: Incus project to scope networks to.
         type: str
       incus_networks_state:
+        description: Desired state of the networks.
         type: str
         choices:
           - present
