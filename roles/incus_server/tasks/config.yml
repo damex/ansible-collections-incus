@@ -5,3 +5,4 @@
     stdin: "{{ {'config': incus_server_preseed.config} | to_nice_yaml }}"
   become: true
   changed_when: false
+  no_log: "{{ 'openfga.api.token' in incus_server_preseed.config }}"

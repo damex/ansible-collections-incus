@@ -16,6 +16,7 @@
     incus_images_image_server_cert: "{{ incus_images_server_cert | default(omit) }}"
     incus_images_image_token: "{{ incus_images_token | default(omit) }}"
     incus_images_image_validate_certs: "{{ incus_images_validate_certs }}"
+  no_log: "{{ incus_images_client_key is defined or incus_images_token is defined }}"
   loop: "{{ incus_images }}"
   loop_control:
     label: "{{ incus_images_image_name }}"

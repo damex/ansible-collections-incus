@@ -9,5 +9,6 @@
     server_cert: "{{ incus_instances_server_cert | default(omit) }}"
     token: "{{ incus_instances_token | default(omit) }}"
     validate_certs: "{{ incus_instances_validate_certs }}"
+  no_log: "{{ incus_instances_client_key is defined or incus_instances_token is defined }}"
   register: incus_instances_cluster_info_state
   become: true

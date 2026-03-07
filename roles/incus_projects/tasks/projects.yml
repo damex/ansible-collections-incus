@@ -11,6 +11,7 @@
     incus_projects_project_server_cert: "{{ incus_projects_server_cert | default(omit) }}"
     incus_projects_project_token: "{{ incus_projects_token | default(omit) }}"
     incus_projects_project_validate_certs: "{{ incus_projects_validate_certs }}"
+  no_log: "{{ incus_projects_client_key is defined or incus_projects_token is defined }}"
   loop: "{{ incus_projects }}"
   loop_control:
     label: "{{ incus_projects_project_name }}"

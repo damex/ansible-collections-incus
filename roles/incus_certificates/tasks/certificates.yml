@@ -15,6 +15,7 @@
     incus_certificates_certificate_server_cert: "{{ incus_certificates_server_cert | default(omit) }}"
     incus_certificates_certificate_token: "{{ incus_certificates_token | default(omit) }}"
     incus_certificates_certificate_validate_certs: "{{ incus_certificates_validate_certs }}"
+  no_log: "{{ incus_certificates_client_key is defined or incus_certificates_token is defined }}"
   loop: "{{ incus_certificates }}"
   loop_control:
     label: "{{ incus_certificates_certificate_name }}"

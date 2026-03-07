@@ -5,4 +5,5 @@
     stdin: "{{ incus_server_preseed | to_nice_yaml }}"
   become: true
   changed_when: true
+  no_log: "{{ incus_server_preseed.config is defined and 'openfga.api.token' in incus_server_preseed.config }}"
   when: incus_server_info_state.rc != 0 or incus_server_force

@@ -18,6 +18,7 @@
     incus_instances_instance_server_cert: "{{ incus_instances_server_cert | default(omit) }}"
     incus_instances_instance_token: "{{ incus_instances_token | default(omit) }}"
     incus_instances_instance_validate_certs: "{{ incus_instances_validate_certs }}"
+  no_log: "{{ incus_instances_client_key is defined or incus_instances_token is defined }}"
   loop: "{{ incus_instances }}"
   loop_control:
     label: "{{ incus_instances_instance_name }}"

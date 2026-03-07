@@ -14,6 +14,7 @@
     incus_profiles_profile_server_cert: "{{ incus_profiles_server_cert | default(omit) }}"
     incus_profiles_profile_token: "{{ incus_profiles_token | default(omit) }}"
     incus_profiles_profile_validate_certs: "{{ incus_profiles_validate_certs }}"
+  no_log: "{{ incus_profiles_client_key is defined or incus_profiles_token is defined }}"
   loop: "{{ incus_profiles }}"
   loop_control:
     label: "{{ incus_profiles_profile_name }}"

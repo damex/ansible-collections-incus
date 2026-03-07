@@ -14,6 +14,7 @@
     incus_storages_storage_server_cert: "{{ incus_storages_server_cert | default(omit) }}"
     incus_storages_storage_token: "{{ incus_storages_token | default(omit) }}"
     incus_storages_storage_validate_certs: "{{ incus_storages_validate_certs }}"
+  no_log: "{{ incus_storages_client_key is defined or incus_storages_token is defined }}"
   loop: "{{ incus_storages }}"
   loop_control:
     label: "{{ incus_storages_storage_name }}"

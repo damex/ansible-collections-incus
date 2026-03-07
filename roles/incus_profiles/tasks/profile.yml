@@ -14,5 +14,6 @@
     server_cert: "{{ incus_profiles_profile_server_cert }}"
     token: "{{ incus_profiles_profile_token }}"
     validate_certs: "{{ incus_profiles_profile_validate_certs }}"
+  no_log: "{{ incus_profiles_client_key is defined or incus_profiles_token is defined or (incus_profiles_profile.config is defined and (('cloud-init.user-data' in incus_profiles_profile.config and 'password' in incus_profiles_profile.config['cloud-init.user-data']) or ('cloud-init.vendor-data' in incus_profiles_profile.config and 'password' in incus_profiles_profile.config['cloud-init.vendor-data']))) }}"
   become: true
   when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database' in incus_profiles_cluster_info_state.cluster_members[0].roles
