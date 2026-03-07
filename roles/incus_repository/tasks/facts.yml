@@ -1,5 +1,5 @@
 ---
-- name: Gather incus repository facts
+- name: Ensure incus repository facts
   ansible.builtin.setup:
     gather_subset:
       - pkg_mgr

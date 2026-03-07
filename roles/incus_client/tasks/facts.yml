@@ -1,5 +1,5 @@
 ---
-- name: Gather incus client facts
+- name: Ensure incus client facts
   ansible.builtin.setup:
     gather_subset:
       - pkg_mgr
