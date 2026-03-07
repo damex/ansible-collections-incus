@@ -1,0 +1,33 @@
+---
+name: documentation
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - production
+
+concurrency:
+  group: documentation
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/damex/incus
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ansible_collections/damex/incus
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install --user pipenv
+      - run: pipenv install --deploy
+      - run: pipenv run docs
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy documentation/build/html --project-name=ansible-collections-incus
+          workingDirectory: ansible_collections/damex/incus
