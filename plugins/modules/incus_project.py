@@ -260,7 +260,7 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Create project
+- name: Ensure project
   damex.incus.incus_project:
     name: myproject
     description: My project
@@ -268,7 +268,7 @@ EXAMPLES = r"""
       features.images: true
       features.networks: false
 
-- name: Remove project
+- name: Ensure project is absent
   damex.incus.incus_project:
     name: myproject
     state: absent

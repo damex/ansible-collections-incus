@@ -59,24 +59,24 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Copy Debian 13 container image
+- name: Ensure Debian 13 container image
   damex.incus.incus_image:
     alias: debian/13
     source: images:debian/13
 
-- name: Copy Ubuntu 24.04 VM image
+- name: Ensure Ubuntu 24.04 VM image
   damex.incus.incus_image:
     alias: ubuntu/24.04
     source: images:ubuntu/24.04
     type: virtual-machine
 
-- name: Copy image with auto-update
+- name: Ensure image with auto-update
   damex.incus.incus_image:
     alias: debian/13
     source: images:debian/13
     auto_update: true
 
-- name: Delete an image
+- name: Ensure image is absent
   damex.incus.incus_image:
     alias: debian/13
     state: absent

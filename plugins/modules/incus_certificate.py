@@ -57,12 +57,12 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Add client certificate
+- name: Ensure client certificate
   damex.incus.incus_certificate:
     name: ansible
     certificate: "{{ lookup('file', '/etc/incus/client.crt') }}"
 
-- name: Add restricted certificate
+- name: Ensure restricted certificate
   damex.incus.incus_certificate:
     name: ci-runner
     certificate: "{{ lookup('file', 'ci.crt') }}"
@@ -71,7 +71,7 @@ EXAMPLES = r"""
       - default
       - staging
 
-- name: Remove certificate
+- name: Ensure certificate is absent
   damex.incus.incus_certificate:
     name: old-client
     state: absent

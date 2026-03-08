@@ -44,7 +44,7 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Create profile
+- name: Ensure profile
   damex.incus.incus_profile:
     name: base
     description: Base profile
@@ -60,7 +60,7 @@ EXAMPLES = r"""
         type: nic
         network: incusbr0
 
-- name: Remove profile
+- name: Ensure profile is absent
   damex.incus.incus_profile:
     name: base
     state: absent
