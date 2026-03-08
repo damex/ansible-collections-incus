@@ -71,6 +71,10 @@ __all__ = [
     'test_ensure_resource_check_mode_create',
     'test_ensure_resource_project_query',
     'test_ensure_resource_create_only_params',
+    'test_client_wait_async_failure',
+    'test_client_wait_async_success',
+    'test_ensure_resource_target_create',
+    'test_ensure_resource_target_exists_skips_update',
 ]
 
 
@@ -539,3 +543,57 @@ def test_ensure_resource_create_only_params(mock_create_client: MagicMock) -> No
 
     post_data = client.post.call_args[0][1]
     assert post_data['driver'] == 'zfs'
+
+
+def test_client_wait_async_failure() -> None:
+    """Raise on failed async operation."""
+    client = IncusClient()
+    response = {'type': 'async', 'metadata': {'id': 'op-fail'}}
+    wait_result = {'metadata': {'status': 'Failure', 'err': 'image not found'}}
+    with patch.object(client, '_request', return_value=wait_result):
+        with pytest.raises(IncusClientException, match='image not found'):
+            client.wait(response)
+
+
+def test_client_wait_async_success() -> None:
+    """Complete without error on successful operation."""
+    client = IncusClient()
+    response = {'type': 'async', 'metadata': {'id': 'op-ok'}}
+    wait_result = {'metadata': {'status': 'Success'}}
+    with patch.object(client, '_request', return_value=wait_result):
+        client.wait(response)
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
+    """Include target in create query."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node1'
+    module.params['driver'] = 'dir'
+    desired = {'description': '', 'config': {}}
+    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+
+    assert result is True
+    post_path = client.post.call_args[0][0]
+    assert '?target=node1' in post_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_exists_skips_update(mock_create_client: MagicMock) -> None:
+    """Skip update when target is set and resource exists."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node1'
+    desired = {'description': 'new', 'config': {}}
+    result = incus_ensure_resource(module, 'storage-pools', desired)
+
+    assert result is False
+    client.put.assert_not_called()
