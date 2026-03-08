@@ -1,0 +1,11 @@
+---
+- name: Ensure incus profile info
+  damex.incus.incus_profile_info: {}
+  register: incus_profile_info_state
+
+- name: Ensure incus profile info
+  ansible.builtin.assert:
+    that:
+      - incus_profile_info_state.profiles is defined
+      - incus_profile_info_state.profiles | length > 0
+      - "'default' in incus_profile_info_state.profiles | map(attribute='name')"
