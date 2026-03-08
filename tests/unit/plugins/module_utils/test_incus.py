@@ -14,6 +14,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusClientException,
     IncusNotFoundException,
+    incus_build_desired,
     incus_build_query,
     incus_build_source,
     incus_ensure_resource,
@@ -83,6 +84,9 @@ __all__ = [
     'test_build_query_target_only',
     'test_build_query_project_and_target',
     'test_ensure_resource_create_only_param_missing_fails',
+    'test_build_desired_without_devices',
+    'test_build_desired_with_devices',
+    'test_build_desired_devices_none',
 ]
 
 
@@ -679,3 +683,35 @@ def test_ensure_resource_create_only_param_missing_fails(mock_create_client: Mag
 
     module.fail_json.assert_called_once()
     assert 'driver' in module.fail_json.call_args[1]['msg']
+
+
+def test_build_desired_without_devices() -> None:
+    """Build desired with config only."""
+    module = MagicMock()
+    module.params = {'description': 'test pool', 'config': {'size': 10}}
+    result = incus_build_desired(module)
+    assert result == {'description': 'test pool', 'config': {'size': '10'}}
+    assert 'devices' not in result
+
+
+def test_build_desired_with_devices() -> None:
+    """Build desired with devices and instance config."""
+    module = MagicMock()
+    module.params = {
+        'description': 'test profile',
+        'config': {'boot.autostart': True},
+        'devices': [{'name': 'root', 'type': 'disk', 'pool': 'local', 'path': '/'}],
+    }
+    result = incus_build_desired(module)
+    assert result['description'] == 'test profile'
+    assert result['config'] == {'boot.autostart': 'true'}
+    assert result['devices'] == {'root': {'type': 'disk', 'pool': 'local', 'path': '/'}}
+
+
+def test_build_desired_devices_none() -> None:
+    """Treat devices=None as no devices."""
+    module = MagicMock()
+    module.params = {'description': '', 'config': {'size': 5}, 'devices': None}
+    result = incus_build_desired(module)
+    assert result == {'description': '', 'config': {'size': '5'}}
+    assert 'devices' not in result
