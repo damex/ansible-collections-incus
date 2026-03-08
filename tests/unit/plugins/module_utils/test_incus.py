@@ -75,6 +75,8 @@ __all__ = [
     'test_client_wait_async_success',
     'test_ensure_resource_target_create',
     'test_ensure_resource_target_exists_skips_update',
+    'test_ensure_resource_target_pending_posts',
+    'test_ensure_resource_pending_finalize',
 ]
 
 
@@ -585,9 +587,9 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_exists_skips_update(mock_create_client: MagicMock) -> None:
-    """Skip update when target is set and resource exists."""
+    """Skip update when target is set and resource exists and is created."""
     client = MagicMock()
-    client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
+    client.get.return_value = {'metadata': {'description': 'old', 'config': {}, 'status': 'Created'}}
     mock_create_client.return_value = client
 
     module = _ensure_module()
@@ -596,4 +598,43 @@ def test_ensure_resource_target_exists_skips_update(mock_create_client: MagicMoc
     result = incus_ensure_resource(module, 'storage-pools', desired)
 
     assert result is False
+    client.put.assert_not_called()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> None:
+    """POST per-member when member not yet defined."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node2'
+    module.params['driver'] = 'dir'
+    desired = {'description': '', 'config': {}}
+    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+
+    assert result is True
+    get_path = client.get.call_args[0][0]
+    assert '?target=node2' in get_path
+    post_path = client.post.call_args[0][0]
+    assert '?target=node2' in post_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None:
+    """POST to finalize when resource is pending and no target."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}}
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['driver'] = 'dir'
+    desired = {'description': '', 'config': {}}
+    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+
+    assert result is True
+    client.post.assert_called_once()
     client.put.assert_not_called()
