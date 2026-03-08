@@ -46,6 +46,8 @@ __all__ = [
     'incus_ensure_resource',
     'incus_run_info_module',
     'incus_run_write_module',
+    'incus_stringify_config',
+    'incus_stringify_instance_config',
     'incus_wait',
 ]
 
