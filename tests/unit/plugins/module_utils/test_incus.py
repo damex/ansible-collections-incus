@@ -87,6 +87,9 @@ __all__ = [
     'test_build_desired_without_devices',
     'test_build_desired_with_devices',
     'test_build_desired_devices_none',
+    'test_ensure_resource_check_mode_update',
+    'test_ensure_resource_check_mode_delete',
+    'test_ensure_resource_project_and_target',
 ]
 
 
@@ -715,3 +718,52 @@ def test_build_desired_devices_none() -> None:
     result = incus_build_desired(module)
     assert result == {'description': '', 'config': {'size': '5'}}
     assert 'devices' not in result
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_check_mode_update(mock_create_client: MagicMock) -> None:
+    """Skip PUT in check mode."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(check_mode=True)
+    desired = {'description': 'new', 'config': {}}
+    result = incus_ensure_resource(module, 'projects', desired)
+
+    assert result is True
+    client.put.assert_not_called()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_check_mode_delete(mock_create_client: MagicMock) -> None:
+    """Skip DELETE in check mode."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': '', 'config': {}}}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(state='absent', check_mode=True)
+    result = incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
+
+    assert result is True
+    client.delete.assert_not_called()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> None:
+    """Combine project and target in queries."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(project='myproject')
+    module.params['target'] = 'node1'
+    module.params['driver'] = 'dir'
+    desired = {'description': '', 'config': {}}
+    incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+
+    get_path = client.get.call_args[0][0]
+    assert '?project=myproject&target=node1' in get_path
+    post_path = client.post.call_args[0][0]
+    assert '?project=myproject&target=node1' in post_path
