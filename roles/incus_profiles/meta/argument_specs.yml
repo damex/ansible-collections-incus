@@ -17,11 +17,11 @@ argument_specs:
                   config:
                     security.nesting: "true"
                   devices:
-                    root:
+                    - name: root
                       type: disk
                       pool: local
                       path: /
-                    eth0:
+                    - name: eth0
                       type: nic
                       network: incusbr0
     options:
