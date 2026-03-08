@@ -72,7 +72,7 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Create and start a container
+- name: Ensure container is started
   damex.incus.incus_instance:
     name: mycontainer
     source: ubuntu/22.04
@@ -82,12 +82,20 @@ EXAMPLES = r"""
       limits.cpu: "2"
       limits.memory: 2GiB
 
-- name: Stop an instance
+- name: Ensure instance is stopped
   damex.incus.incus_instance:
     name: mycontainer
     state: stopped
 
-- name: Delete an instance
+- name: Ensure instance on specific cluster member
+  damex.incus.incus_instance:
+    name: mycontainer
+    source: ubuntu/22.04
+    target: node1
+    profiles:
+      - default
+
+- name: Ensure instance is absent
   damex.incus.incus_instance:
     name: mycontainer
     state: absent

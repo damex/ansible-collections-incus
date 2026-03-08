@@ -268,19 +268,30 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Create dir storage pool
+- name: Ensure dir storage pool
   damex.incus.incus_storage:
     name: default
     driver: dir
 
-- name: Create ZFS storage pool
+- name: Ensure ZFS storage pool
   damex.incus.incus_storage:
     name: tank
     driver: zfs
     config:
       zfs.pool_name: tank
 
-- name: Remove storage pool
+- name: Ensure storage pool on cluster member
+  damex.incus.incus_storage:
+    name: pool1
+    driver: dir
+    target: node1
+
+- name: Ensure storage pool is finalized
+  damex.incus.incus_storage:
+    name: pool1
+    driver: dir
+
+- name: Ensure storage pool is absent
   damex.incus.incus_storage:
     name: default
     state: absent

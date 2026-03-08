@@ -279,7 +279,7 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Create bridge network
+- name: Ensure bridge network
   damex.incus.incus_network:
     name: incusbr0
     type: bridge
@@ -287,7 +287,21 @@ EXAMPLES = r"""
       ipv4.address: 10.0.0.1/24
       ipv4.nat: true
 
-- name: Remove network
+- name: Ensure network on cluster member
+  damex.incus.incus_network:
+    name: incusbr0
+    type: bridge
+    target: node1
+
+- name: Ensure network is finalized
+  damex.incus.incus_network:
+    name: incusbr0
+    type: bridge
+    config:
+      ipv4.address: 10.0.0.1/24
+      ipv4.nat: true
+
+- name: Ensure network is absent
   damex.incus.incus_network:
     name: incusbr0
     state: absent
