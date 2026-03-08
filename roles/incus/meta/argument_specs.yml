@@ -52,6 +52,9 @@ argument_specs:
         choices:
           - started
           - stopped
+      incus_socket_path:
+        type: str
+        description: Path to the Incus Unix socket file.
       incus_user_service_name:
         type: str
         description: Name of the Incus user systemd service.
@@ -70,6 +73,9 @@ argument_specs:
         choices:
           - started
           - stopped
+      incus_user_socket_path:
+        type: str
+        description: Path to the Incus user Unix socket file.
       incus_apt_preference_name:
         type: str
         description: Name of the APT pinning preference file.

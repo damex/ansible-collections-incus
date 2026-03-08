@@ -1,0 +1,25 @@
+---
+- name: Ensure incus socket path {{ incus_socket_path }}
+  ansible.builtin.stat:
+    path: "{{ incus_socket_path }}"
+  register: incus_socket_file_status
+
+- name: Ensure incus socket symlinks
+  when: not incus_socket_file_status.stat.exists or not incus_socket_file_status.stat.issock
+  block:
+    - name: Ensure incus socket symlink {{ incus_socket_path }}
+      ansible.builtin.file:
+        src: /run/incus/unix.socket
+        dest: "{{ incus_socket_path }}"
+        state: link
+        force: true
+        follow: false
+      become: true
+    - name: Ensure incus user socket symlink {{ incus_user_socket_path }}
+      ansible.builtin.file:
+        src: /run/incus/unix.socket.user
+        dest: "{{ incus_user_socket_path }}"
+        state: link
+        force: true
+        follow: false
+      become: true
