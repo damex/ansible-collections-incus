@@ -1,0 +1,6 @@
+FROM registry.fedoraproject.org/fedora:43
+RUN dnf install --assumeyes python3 python3-pip systemd openssh-server iproute && \
+    dnf clean all && \
+    ssh-keygen -A && \
+    echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/PermitRootLogin.conf
+CMD ["/usr/lib/systemd/systemd"]

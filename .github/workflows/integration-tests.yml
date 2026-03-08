@@ -1,0 +1,41 @@
+---
+name: integration-tests
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - production
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  integration-tests:
+    name: integration-tests (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: debian-bookworm
+            build-script: build-integration-debian
+            test-script: integration-debian
+          - name: fedora-43
+            build-script: build-integration-fedora
+            test-script: integration-fedora
+    defaults:
+      run:
+        working-directory: ansible_collections/damex/incus
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ansible_collections/damex/incus
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install --user pipenv
+      - run: pipenv install --deploy
+      - run: pipenv run ansible-galaxy collection install --requirements-file tests/integration/requirements.yml --collections-path ../../..
+      - run: pipenv run ${{ matrix.build-script }}
+      - run: pipenv run ${{ matrix.test-script }}

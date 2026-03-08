@@ -1,0 +1,5 @@
+---
+- name: Ensure incus server info
+  block:
+    - name: Ensure incus server info
+      ansible.builtin.import_tasks: facts.yml

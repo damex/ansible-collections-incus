@@ -1,0 +1,9 @@
+---
+- name: Ensure incus package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Ensure incus package is installed
+  ansible.builtin.assert:
+    that:
+      - "'incus' in ansible_facts.packages"

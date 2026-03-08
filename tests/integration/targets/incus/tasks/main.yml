@@ -1,0 +1,9 @@
+---
+- name: Ensure incus
+  block:
+    - name: Ensure incus role
+      ansible.builtin.import_tasks: role.yml
+    - name: Ensure incus package
+      ansible.builtin.import_tasks: package.yml
+    - name: Ensure incus systemd
+      ansible.builtin.import_tasks: systemd.yml

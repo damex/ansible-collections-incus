@@ -1,0 +1,9 @@
+---
+- name: Ensure incus role
+  ansible.builtin.include_role:
+    name: damex.incus.incus
+
+- name: Ensure incusd is ready
+  ansible.builtin.command:
+    cmd: incus admin waitready --timeout=30
+  changed_when: false

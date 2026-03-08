@@ -1,0 +1,7 @@
+FROM docker.io/library/debian:bookworm-slim
+RUN apt-get update && apt-get install --yes --no-install-recommends \
+    ca-certificates curl gpg python3 systemd openssh-server && \
+    apt-get clean && rm --recursive --force /var/lib/apt/lists/* && \
+    ssh-keygen -A && \
+    echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/PermitRootLogin.conf
+CMD ["/lib/systemd/systemd"]
