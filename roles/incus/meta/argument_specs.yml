@@ -52,15 +52,6 @@ argument_specs:
         choices:
           - started
           - stopped
-      incus_lxcfs_service_name:
-        type: str
-        description: Name of the Incus LXCFS systemd service.
-      incus_lxcfs_service_state:
-        type: str
-        description: Desired state of the Incus LXCFS systemd service.
-        choices:
-          - started
-          - stopped
       incus_user_service_name:
         type: str
         description: Name of the Incus user systemd service.
