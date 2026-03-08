@@ -36,6 +36,7 @@ __all__ = [
     'IncusClientException',
     'IncusNotFoundException',
     'incus_build_desired',
+    'incus_build_query',
     'incus_build_source',
     'incus_create_client',
     'incus_create_info_module',
@@ -458,7 +459,7 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
     return source
 
 
-def _build_query(project: str | None, target: str | None) -> str:
+def incus_build_query(project: str | None, target: str | None) -> str:
     """Build query string."""
     params = []
     if project:
@@ -477,8 +478,8 @@ def incus_ensure_resource(
     name = module.params['name']
     project = module.params.get('project')
     target = module.params.get('target')
-    base_query = _build_query(project, None)
-    create_query = _build_query(project, target)
+    base_query = incus_build_query(project, None)
+    create_query = incus_build_query(project, target)
 
     try:
         current = client.get(f'/1.0/{resource}/{name}{base_query}').get('metadata') or {}

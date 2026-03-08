@@ -40,6 +40,11 @@ options:
     type: str
     choices: [started, stopped, restarted, absent]
     default: started
+  target:
+    description:
+      - Cluster member to place the instance on.
+      - Only used during creation — ignored for existing instances.
+    type: str
   type:
     description:
       - Instance type.
@@ -103,43 +108,46 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusNotFoundException,
     incus_build_desired,
+    incus_build_query,
     incus_build_source,
     incus_create_client,
     incus_create_write_module,
-    incus_wait,
     incus_run_write_module,
+    incus_wait,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _get_instance(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
+def _get_instance(client: IncusClient, query: str, name: str) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the instance."""
     try:
-        return client.get(f'/1.0/instances/{name}?project={project}').get('metadata') or {}, True
+        return client.get(f'/1.0/instances/{name}{query}').get('metadata') or {}, True
     except IncusNotFoundException:
         return {}, False
 
 
-def _create_instance(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
+def _create_instance(
+    module: Any, client: IncusClient, create_query: str,
+    name: str, desired: dict[str, Any],
+) -> bool:
     """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
     if not module.check_mode:
-        response = client.post(f'/1.0/instances?project={project}', {'name': name, **desired})
-        incus_wait(module, client, response)
+        incus_wait(module, client, client.post(f'/1.0/instances{create_query}', {'name': name, **desired}))
     return True
 
 
-def _update_instance(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
+def _update_instance(module: Any, client: IncusClient, query: str, name: str, desired: dict[str, Any]) -> bool:
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/instances/{name}?project={project}', desired))
+        incus_wait(module, client, client.put(f'/1.0/instances/{name}{query}', desired))
     return True
 
 
-def _delete_instance(module: Any, client: IncusClient, project: str, name: str) -> bool:
+def _delete_instance(module: Any, client: IncusClient, query: str, name: str) -> bool:
     """Delete instance."""
     if not module.check_mode:
-        incus_wait(module, client, client.delete(f'/1.0/instances/{name}?project={project}'))
+        incus_wait(module, client, client.delete(f'/1.0/instances/{name}{query}'))
     return True
 
 
@@ -166,6 +174,7 @@ def main() -> None:
         'name': {'type': 'str', 'required': True},
         'state': {'type': 'str', 'default': 'started',
                   'choices': ['started', 'stopped', 'restarted', 'absent']},
+        'target': {'type': 'str'},
         'project': {'type': 'str', 'default': 'default'},
         **INCUS_SOURCE_ARGS,
         'type': {'type': 'str', 'default': 'container', 'choices': ['container', 'virtual-machine']},
@@ -177,18 +186,21 @@ def main() -> None:
     }, require_yaml=True)
     state = module.params['state']
     project = module.params['project']
+    target = module.params.get('target')
     name = module.params['name']
+    query = incus_build_query(project, None)
+    create_query = incus_build_query(project, target)
     desired = {**incus_build_desired(module), 'profiles': module.params['profiles']}
 
     def _ensure_instance() -> bool:
         client = incus_create_client(module)
-        current, exists = _get_instance(client, project, name)
+        current, exists = _get_instance(client, query, name)
 
         if state == 'absent':
-            return _delete_instance(module, client, project, name) if exists else False
+            return _delete_instance(module, client, query, name) if exists else False
 
         status = current.get('status', 'Stopped') if exists else 'Stopped'
-        state_path = f'/1.0/instances/{name}/state?project={project}'
+        state_path = f'/1.0/instances/{name}/state{query}'
         changed = False
 
         if not exists:
@@ -200,7 +212,7 @@ def main() -> None:
                 'ephemeral': module.params['ephemeral'],
                 'source': incus_build_source(module),
             }
-            _create_instance(module, client, project, name, create_desired)
+            _create_instance(module, client, create_query, name, create_desired)
             changed = True
         else:
             current_config = {k: v for k, v in current.get('config', {}).items()
@@ -210,7 +222,7 @@ def main() -> None:
                     or current.get('devices', {}) != desired['devices']
                     or current.get('profiles', []) != desired['profiles']):
                 update_desired = {'architecture': current['architecture'], **desired}
-                _update_instance(module, client, project, name, update_desired)
+                _update_instance(module, client, query, name, update_desired)
                 changed = True
 
         return _manage_state(module, client, state_path, state, status) or changed

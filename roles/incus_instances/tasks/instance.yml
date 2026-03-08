@@ -7,6 +7,7 @@
     type: "{{ incus_instances_instance_type }}"
     project: "{{ incus_instances_instance_project }}"
     profiles: "{{ incus_instances_instance_profiles }}"
+    target: "{{ incus_instances_instance_target | default(omit) }}"
     ephemeral: "{{ incus_instances_instance_ephemeral }}"
     config: "{{ incus_instances_instance_config | default(omit) }}"
     devices: "{{ incus_instances_instance_devices | default(omit) }}"

@@ -736,6 +736,9 @@ argument_specs:
               ipv6.routes:
                 description: IPv6 routes to add for the NIC.
                 type: str
+          target:
+            description: Cluster member to place the instance on.
+            type: str
           ephemeral:
             description: Whether the instance is ephemeral.
             type: bool
