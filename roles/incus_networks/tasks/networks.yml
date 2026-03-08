@@ -1,6 +1,6 @@
 ---
 - name: Ensure incus networks
-  ansible.builtin.include_tasks: network.yml
+  ansible.builtin.include_tasks: "{{ 'cluster_network.yml' if incus_networks_network.targets is defined else 'network.yml' }}"
   vars:
     incus_networks_network_name: "{{ incus_networks_network.name }}"
     incus_networks_network_type: "{{ incus_networks_network.type }}"

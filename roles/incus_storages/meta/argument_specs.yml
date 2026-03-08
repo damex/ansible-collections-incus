@@ -46,6 +46,10 @@ argument_specs:
           description:
             description: Storage pool description.
             type: str
+          targets:
+            description: List of cluster members to create the storage pool on.
+            type: list
+            elements: str
           project:
             description: Project to scope the storage pool to.
             type: str

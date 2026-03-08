@@ -42,6 +42,10 @@ argument_specs:
           description:
             description: Network description.
             type: str
+          targets:
+            description: List of cluster members to create the network on.
+            type: list
+            elements: str
           project:
             description: Incus project to scope the network to.
             type: str

@@ -1,0 +1,40 @@
+---
+- name: Ensure incus cluster network member {{ incus_networks_network_name }}
+  damex.incus.incus_network:
+    name: "{{ incus_networks_network_name }}"
+    state: "{{ incus_networks_network_state }}"
+    type: "{{ incus_networks_network.type }}"
+    description: "{{ incus_networks_network_description }}"
+    project: "{{ incus_networks_network_project }}"
+    config: "{{ incus_networks_network.config | default(omit) }}"
+    target: "{{ incus_networks_target }}"
+    socket_path: "{{ incus_networks_network_socket_path }}"
+    url: "{{ incus_networks_network_url }}"
+    client_cert: "{{ incus_networks_network_client_cert }}"
+    client_key: "{{ incus_networks_network_client_key }}"
+    server_cert: "{{ incus_networks_network_server_cert }}"
+    token: "{{ incus_networks_network_token }}"
+    validate_certs: "{{ incus_networks_network_validate_certs }}"
+  no_log: "{{ incus_networks_client_key is defined or incus_networks_token is defined }}"
+  become: true
+  loop: "{{ incus_networks_network.targets }}"
+  loop_control:
+    label: "{{ incus_networks_target }}"
+    loop_var: incus_networks_target
+- name: Ensure incus cluster network {{ incus_networks_network_name }}
+  damex.incus.incus_network:
+    name: "{{ incus_networks_network_name }}"
+    state: "{{ incus_networks_network_state }}"
+    type: "{{ incus_networks_network.type }}"
+    description: "{{ incus_networks_network_description }}"
+    project: "{{ incus_networks_network_project }}"
+    config: "{{ incus_networks_network.config | default(omit) }}"
+    socket_path: "{{ incus_networks_network_socket_path }}"
+    url: "{{ incus_networks_network_url }}"
+    client_cert: "{{ incus_networks_network_client_cert }}"
+    client_key: "{{ incus_networks_network_client_key }}"
+    server_cert: "{{ incus_networks_network_server_cert }}"
+    token: "{{ incus_networks_network_token }}"
+    validate_certs: "{{ incus_networks_network_validate_certs }}"
+  no_log: "{{ incus_networks_client_key is defined or incus_networks_token is defined }}"
+  become: true

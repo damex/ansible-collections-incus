@@ -458,6 +458,16 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
     return source
 
 
+def _build_query(project: str | None, target: str | None) -> str:
+    """Build query string."""
+    params = []
+    if project:
+        params.append(f'project={project}')
+    if target:
+        params.append(f'target={target}')
+    return f'?{"&".join(params)}' if params else ''
+
+
 def incus_ensure_resource(
     module: AnsibleModule, resource: str, desired: dict[str, Any],
     create_only_params: list[str] | None = None,
@@ -466,10 +476,12 @@ def incus_ensure_resource(
     client = incus_create_client(module)
     name = module.params['name']
     project = module.params.get('project')
-    query = f'?project={project}' if project else ''
+    target = module.params.get('target')
+    base_query = _build_query(project, None)
+    create_query = _build_query(project, target)
 
     try:
-        current = client.get(f'/1.0/{resource}/{name}{query}').get('metadata') or {}
+        current = client.get(f'/1.0/{resource}/{name}{base_query}').get('metadata') or {}
         exists = True
     except IncusNotFoundException:
         current = {}
@@ -484,18 +496,20 @@ def incus_ensure_resource(
                     module.fail_json(msg=f"'{param}' is required when creating")
                 create_data[param] = value
             if not module.check_mode:
-                incus_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
+                incus_wait(module, client, client.post(f'/1.0/{resource}{create_query}', create_data))
             return True
+        if target:
+            return False
         if (current.get('description', '') == desired['description']
                 and current.get('config', {}) == desired['config']):
             return False
         if not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{name}{query}', desired))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{name}{base_query}', desired))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{name}{query}'))
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{name}{base_query}'))
         return True
     return False
 

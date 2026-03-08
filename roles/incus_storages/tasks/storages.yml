@@ -1,6 +1,6 @@
 ---
 - name: Ensure incus storages
-  ansible.builtin.include_tasks: storage.yml
+  ansible.builtin.include_tasks: "{{ 'cluster_storage.yml' if incus_storages_storage.targets is defined else 'storage.yml' }}"
   vars:
     incus_storages_storage_name: "{{ incus_storages_storage.name }}"
     incus_storages_storage_driver: "{{ incus_storages_storage.driver }}"
