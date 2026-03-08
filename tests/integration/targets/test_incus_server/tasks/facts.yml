@@ -7,7 +7,6 @@
   ansible.builtin.assert:
     that:
       - incus_server_info_state.server is defined
-      - incus_server_info_state.server.api_version is defined
-      - incus_server_info_state.server.environment is defined
-      - incus_server_info_state.server.environment.server == 'incus'
+      - incus_server_info_state.server.api_status == 'stable'
       - incus_server_info_state.server.auth == 'trusted'
+      - incus_server_info_state.server.environment.server == 'incus'

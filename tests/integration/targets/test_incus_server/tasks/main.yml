@@ -1,0 +1,7 @@
+---
+- name: Ensure incus server
+  block:
+    - name: Ensure incus server role
+      ansible.builtin.import_tasks: role.yml
+    - name: Ensure incus server facts
+      ansible.builtin.import_tasks: facts.yml

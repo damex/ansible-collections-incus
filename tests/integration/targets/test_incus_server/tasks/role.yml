@@ -1,0 +1,9 @@
+---
+- name: Ensure incus server role
+  ansible.builtin.include_role:
+    name: damex.incus.incus_server
+  vars:
+    incus_server_force: true
+    incus_server_preseed:
+      config:
+        core.https_address: :8443
