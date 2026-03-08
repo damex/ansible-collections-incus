@@ -1,0 +1,13 @@
+---
+- name: Ensure incus server info
+  damex.incus.incus_server_info: {}
+  register: incus_server_info_state
+
+- name: Ensure incus server info
+  ansible.builtin.assert:
+    that:
+      - incus_server_info_state.server is defined
+      - incus_server_info_state.server.api_version is defined
+      - incus_server_info_state.server.environment is defined
+      - incus_server_info_state.server.environment.server == 'incus'
+      - incus_server_info_state.server.auth == 'trusted'

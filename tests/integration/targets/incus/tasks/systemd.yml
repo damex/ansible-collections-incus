@@ -1,0 +1,9 @@
+---
+- name: Ensure incus service facts
+  ansible.builtin.service_facts: {}
+
+- name: Ensure incus services are in expected state
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services['incus.service'].state == 'running'
+      - ansible_facts.services['incus.socket'].state == 'running'
