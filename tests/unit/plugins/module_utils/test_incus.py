@@ -82,6 +82,7 @@ __all__ = [
     'test_build_query_project_only',
     'test_build_query_target_only',
     'test_build_query_project_and_target',
+    'test_ensure_resource_create_only_param_missing_fails',
 ]
 
 
@@ -663,3 +664,18 @@ def test_build_query_target_only() -> None:
 def test_build_query_project_and_target() -> None:
     """Return combined query."""
     assert incus_build_query('myproject', 'node1') == '?project=myproject&target=node1'
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_create_only_param_missing_fails(mock_create_client: MagicMock) -> None:
+    """Fail when required create-only param is missing."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    desired = {'description': '', 'config': {}}
+    incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+
+    module.fail_json.assert_called_once()
+    assert 'driver' in module.fail_json.call_args[1]['msg']
