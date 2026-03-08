@@ -366,7 +366,10 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         """Wait for operation."""
         if response.get('type') == 'async':
             op_id = response['metadata']['id']
-            self._request('GET', f'/1.0/operations/{op_id}/wait')
+            result = self._request('GET', f'/1.0/operations/{op_id}/wait')
+            metadata = result.get('metadata') or {}
+            if metadata.get('status') == 'Failure':
+                raise IncusClientException(metadata.get('err', 'operation failed'))
 
 
 def incus_create_client(module: AnsibleModule) -> IncusClient:
