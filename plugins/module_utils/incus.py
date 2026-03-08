@@ -515,8 +515,7 @@ def incus_ensure_resource(
             return True
         if target:
             return False
-        if (current.get('description', '') == desired['description']
-                and current.get('config', {}) == desired['config']):
+        if all(current.get(k, type(v)()) == v for k, v in desired.items()):
             return False
         if not module.check_mode:
             incus_wait(module, client, client.put(f'/1.0/{resource}/{name}{base_query}', desired))
