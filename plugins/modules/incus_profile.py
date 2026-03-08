@@ -69,8 +69,6 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from typing import Any
-
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
@@ -78,45 +76,13 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_INSTANCE_CONFIG_OPTIONS,
     INCUS_COMMON_ARGUMENT_SPEC,
-    IncusClient,
-    IncusNotFoundException,
     incus_build_desired,
-    incus_create_client,
     incus_create_write_module,
-    incus_wait,
+    incus_ensure_resource,
     incus_run_write_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
-
-
-def _get_profile(client: IncusClient, project: str, name: str) -> tuple[dict[str, Any], bool]:
-    """Return (metadata dict, exists bool) for the profile."""
-    try:
-        return client.get(f'/1.0/profiles/{name}?project={project}').get('metadata') or {}, True
-    except IncusNotFoundException:
-        return {}, False
-
-
-def _create_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
-    """Create profile."""
-    if not module.check_mode:
-        incus_wait(module, client, client.post(f'/1.0/profiles?project={project}', {'name': name, **desired}))
-    return True
-
-
-def _update_profile(module: Any, client: IncusClient, project: str, name: str, desired: dict[str, Any]) -> bool:
-    """Update profile configuration and devices."""
-    if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/profiles/{name}?project={project}', desired))
-    return True
-
-
-def _delete_profile(module: Any, client: IncusClient, project: str, name: str) -> bool:
-    """Delete profile."""
-    if not module.check_mode:
-        incus_wait(module, client, client.delete(f'/1.0/profiles/{name}?project={project}'))
-    return True
 
 
 def main() -> None:
@@ -128,24 +94,8 @@ def main() -> None:
         'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
         'config': {'type': 'dict', 'default': {}, 'options': INCUS_INSTANCE_CONFIG_OPTIONS},
     }, require_yaml=True)
-    project = module.params['project']
-    name = module.params['name']
     desired = incus_build_desired(module)
-
-    def _ensure_profile() -> bool:
-        client = incus_create_client(module)
-        current, exists = _get_profile(client, project, name)
-        if module.params['state'] == 'present':
-            if not exists:
-                return _create_profile(module, client, project, name, desired)
-            if (current.get('description', '') == desired['description']
-                    and current.get('config', {}) == desired['config']
-                    and current.get('devices', {}) == desired['devices']):
-                return False
-            return _update_profile(module, client, project, name, desired)
-        return _delete_profile(module, client, project, name) if exists else False
-
-    incus_run_write_module(module, _ensure_profile)
+    incus_run_write_module(module, lambda: incus_ensure_resource(module, 'profiles', desired))
 
 
 if __name__ == '__main__':
