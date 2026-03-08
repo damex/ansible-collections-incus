@@ -19,3 +19,4 @@
     token: "{{ incus_images_image_token }}"
     validate_certs: "{{ incus_images_image_validate_certs }}"
   no_log: "{{ incus_images_client_key is defined or incus_images_token is defined }}"
+  become: true
