@@ -18,6 +18,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_build_query,
     incus_build_source,
     incus_ensure_resource,
+    incus_run_info_module,
     incus_run_write_module,
     incus_stringify_config,
     incus_stringify_instance_config,
@@ -90,6 +91,11 @@ __all__ = [
     'test_ensure_resource_check_mode_update',
     'test_ensure_resource_check_mode_delete',
     'test_ensure_resource_project_and_target',
+    'test_run_info_module_single_resource',
+    'test_run_info_module_not_found',
+    'test_run_info_module_list_all',
+    'test_run_info_module_project_query',
+    'test_run_info_module_client_exception',
 ]
 
 
@@ -767,3 +773,79 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
     assert '?project=myproject&target=node1' in get_path
     post_path = client.post.call_args[0][0]
     assert '?project=myproject&target=node1' in post_path
+
+
+def _info_module(name: str | None = None, project: str | None = None) -> MagicMock:
+    """Build mock info module."""
+    module = MagicMock()
+    module.params = {**CONNECTION_PARAMS, 'name': name, 'project': project}
+    return module
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
+    """Return single resource as list."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'name': 'pool1', 'driver': 'zfs'}}
+    mock_create_client.return_value = client
+
+    module = _info_module(name='pool1')
+    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+
+    module.exit_json.assert_called_once_with(storage_pools=[{'name': 'pool1', 'driver': 'zfs'}])
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
+    """Return empty list when resource not found."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    mock_create_client.return_value = client
+
+    module = _info_module(name='missing')
+    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+
+    module.exit_json.assert_called_once_with(storage_pools=[])
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
+    """Return all resources."""
+    client = MagicMock()
+    items = [{'name': 'a'}, {'name': 'b'}]
+    client.get.return_value = {'metadata': items}
+    mock_create_client.return_value = client
+
+    module = _info_module()
+    incus_run_info_module(module, 'networks', 'networks')
+
+    module.exit_json.assert_called_once_with(networks=items)
+    assert '?recursion=1' in client.get.call_args[0][0]
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
+    """Include project in query."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': []}
+    mock_create_client.return_value = client
+
+    module = _info_module(project='myproject')
+    incus_run_info_module(module, 'networks', 'networks')
+
+    path = client.get.call_args[0][0]
+    assert '?project=myproject' in path
+    assert 'recursion=1' in path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None:
+    """Fail on client exception."""
+    client = MagicMock()
+    client.get.side_effect = IncusClientException('connection refused')
+    mock_create_client.return_value = client
+
+    module = _info_module(name='test')
+    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+
+    module.fail_json.assert_called_once_with(msg='connection refused')
