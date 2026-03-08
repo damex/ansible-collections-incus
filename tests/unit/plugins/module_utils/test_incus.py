@@ -367,8 +367,10 @@ def test_build_source_local_alias() -> None:
 def test_build_source_unknown_remote_fails() -> None:
     """Fail on unknown remote."""
     module = MagicMock()
+    module.fail_json.side_effect = SystemExit(1)
     module.params = {'source': 'unknown:image', 'source_server': None, 'source_protocol': None}
-    incus_build_source(module)
+    with pytest.raises(SystemExit):
+        incus_build_source(module)
     module.fail_json.assert_called_once()
 
 
@@ -687,9 +689,10 @@ def test_ensure_resource_create_only_param_missing_fails(mock_create_client: Mag
     mock_create_client.return_value = client
 
     module = _ensure_module()
+    module.fail_json.side_effect = SystemExit(1)
     desired = {'description': '', 'config': {}}
-    incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
-
+    with pytest.raises(SystemExit):
+        incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
     module.fail_json.assert_called_once()
     assert 'driver' in module.fail_json.call_args[1]['msg']
 
@@ -846,6 +849,7 @@ def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None
     mock_create_client.return_value = client
 
     module = _info_module(name='test')
-    incus_run_info_module(module, 'storage-pools', 'storage_pools')
-
+    module.fail_json.side_effect = SystemExit(1)
+    with pytest.raises(SystemExit):
+        incus_run_info_module(module, 'storage-pools', 'storage_pools')
     module.fail_json.assert_called_once_with(msg='connection refused')
