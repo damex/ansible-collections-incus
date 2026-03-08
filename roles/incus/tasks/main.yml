@@ -11,3 +11,5 @@
       ansible.builtin.import_tasks: package.yml
     - name: Ensure incus systemd
       ansible.builtin.import_tasks: systemd.yml
+    - name: Ensure incus socket symlinks
+      ansible.builtin.import_tasks: socket.yml
