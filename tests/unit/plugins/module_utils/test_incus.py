@@ -14,6 +14,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusClientException,
     IncusNotFoundException,
+    incus_build_query,
     incus_build_source,
     incus_ensure_resource,
     incus_run_write_module,
@@ -77,6 +78,10 @@ __all__ = [
     'test_ensure_resource_target_exists_skips_update',
     'test_ensure_resource_target_pending_posts',
     'test_ensure_resource_pending_finalize',
+    'test_build_query_no_params',
+    'test_build_query_project_only',
+    'test_build_query_target_only',
+    'test_build_query_project_and_target',
 ]
 
 
@@ -638,3 +643,23 @@ def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None
     assert result is True
     client.post.assert_called_once()
     client.put.assert_not_called()
+
+
+def test_build_query_no_params() -> None:
+    """Return empty string without params."""
+    assert incus_build_query(None, None) == ''
+
+
+def test_build_query_project_only() -> None:
+    """Return project query."""
+    assert incus_build_query('myproject', None) == '?project=myproject'
+
+
+def test_build_query_target_only() -> None:
+    """Return target query."""
+    assert incus_build_query(None, 'node1') == '?target=node1'
+
+
+def test_build_query_project_and_target() -> None:
+    """Return combined query."""
+    assert incus_build_query('myproject', 'node1') == '?project=myproject&target=node1'
