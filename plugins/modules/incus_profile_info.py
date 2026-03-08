@@ -26,18 +26,18 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all profiles
+- name: Ensure profile information is gathered
   damex.incus.incus_profile_info:
     project: default
   register: result
 
-- name: Get specific profile
+- name: Ensure specific profile information is gathered
   damex.incus.incus_profile_info:
     name: default
     project: default
   register: result
 
-- name: Get profiles from remote server
+- name: Ensure profile information is gathered from remote server
   damex.incus.incus_profile_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

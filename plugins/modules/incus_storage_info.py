@@ -27,17 +27,17 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all storage pools
+- name: Ensure storage pool information is gathered
   damex.incus.incus_storage_info:
     socket_path: /var/lib/incus/unix.socket
   register: result
 
-- name: Get specific storage pool
+- name: Ensure specific storage pool information is gathered
   damex.incus.incus_storage_info:
     name: default
   register: result
 
-- name: Get storage pools from remote server
+- name: Ensure storage pool information is gathered from remote server
   damex.incus.incus_storage_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

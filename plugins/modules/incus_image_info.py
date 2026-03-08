@@ -27,18 +27,18 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all images
+- name: Ensure image information is gathered
   damex.incus.incus_image_info:
     project: default
   register: result
 
-- name: Get specific image by alias
+- name: Ensure specific image information is gathered
   damex.incus.incus_image_info:
     name: debian/13
     project: default
   register: result
 
-- name: Get images from remote server
+- name: Ensure image information is gathered from remote server
   damex.incus.incus_image_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

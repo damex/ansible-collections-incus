@@ -27,17 +27,17 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all cluster members
+- name: Ensure cluster member information is gathered
   damex.incus.incus_cluster_info:
     socket_path: /var/lib/incus/unix.socket
   register: result
 
-- name: Get specific cluster member
+- name: Ensure specific cluster member information is gathered
   damex.incus.incus_cluster_info:
     name: node1
   register: result
 
-- name: Get cluster member from remote server
+- name: Ensure cluster member information is gathered from remote server
   damex.incus.incus_cluster_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

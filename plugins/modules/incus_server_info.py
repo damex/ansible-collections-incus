@@ -20,12 +20,12 @@ extends_documentation_fragment: [damex.incus.common]
 """
 
 EXAMPLES = r"""
-- name: Get server info
+- name: Ensure server information is gathered
   damex.incus.incus_server_info:
     socket_path: /var/lib/incus/unix.socket
   register: result
 
-- name: Get server info from remote server
+- name: Ensure server information is gathered from remote server
   damex.incus.incus_server_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

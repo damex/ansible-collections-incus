@@ -27,17 +27,17 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all trusted certificates
+- name: Ensure certificate information is gathered
   damex.incus.incus_certificate_info:
     socket_path: /var/lib/incus/unix.socket
   register: result
 
-- name: Get specific certificate by name
+- name: Ensure specific certificate information is gathered
   damex.incus.incus_certificate_info:
     name: ansible
   register: result
 
-- name: Get certificates from remote server
+- name: Ensure certificate information is gathered from remote server
   damex.incus.incus_certificate_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

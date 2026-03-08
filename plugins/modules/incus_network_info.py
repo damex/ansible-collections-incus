@@ -26,18 +26,18 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all networks
+- name: Ensure network information is gathered
   damex.incus.incus_network_info:
     project: default
   register: result
 
-- name: Get specific network
+- name: Ensure specific network information is gathered
   damex.incus.incus_network_info:
     name: incusbr0
     project: default
   register: result
 
-- name: Get networks from remote server
+- name: Ensure network information is gathered from remote server
   damex.incus.incus_network_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

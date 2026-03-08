@@ -26,18 +26,18 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all instances
+- name: Ensure instance information is gathered
   damex.incus.incus_instance_info:
     project: default
   register: result
 
-- name: Get specific instance
+- name: Ensure specific instance information is gathered
   damex.incus.incus_instance_info:
     name: myinstance
     project: default
   register: result
 
-- name: Get instances from remote server
+- name: Ensure instance information is gathered from remote server
   damex.incus.incus_instance_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt

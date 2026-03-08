@@ -27,17 +27,17 @@ options:
 """
 
 EXAMPLES = r"""
-- name: Get all projects
+- name: Ensure project information is gathered
   damex.incus.incus_project_info:
     socket_path: /var/lib/incus/unix.socket
   register: result
 
-- name: Get specific project
+- name: Ensure specific project information is gathered
   damex.incus.incus_project_info:
     name: default
   register: result
 
-- name: Get projects from remote server
+- name: Ensure project information is gathered from remote server
   damex.incus.incus_project_info:
     url: https://incus.example.com:8443
     client_cert: /etc/incus/client.crt
