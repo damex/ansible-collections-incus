@@ -472,6 +472,21 @@ def incus_build_query(project: str | None, target: str | None) -> str:
     return f'?{"&".join(params)}' if params else ''
 
 
+def _build_create_data(
+    module: AnsibleModule, name: str, desired: dict[str, Any],
+    create_only_params: list[str] | None, *, require: bool = True,
+) -> dict[str, Any]:
+    """Build create payload with create-only params."""
+    data: dict[str, Any] = {'name': name, **desired}
+    for param in (create_only_params or []):
+        value = module.params.get(param)
+        if require and not value:
+            module.fail_json(msg=f"'{param}' is required when creating")
+        if value:
+            data[param] = value
+    return data
+
+
 def incus_ensure_resource(
     module: AnsibleModule, resource: str, desired: dict[str, Any],
     create_only_params: list[str] | None = None,
@@ -482,25 +497,20 @@ def incus_ensure_resource(
     project = module.params.get('project')
     target = module.params.get('target')
     base_query = incus_build_query(project, None)
-    create_query = incus_build_query(project, target)
+    target_query = incus_build_query(project, target)
 
     try:
-        current = client.get(f'/1.0/{resource}/{name}{base_query}').get('metadata') or {}
+        current = client.get(f'/1.0/{resource}/{name}{target_query}').get('metadata') or {}
         exists = True
     except IncusNotFoundException:
         current = {}
         exists = False
 
     if module.params['state'] == 'present':
-        if not exists:
-            create_data: dict[str, Any] = {'name': name, **desired}
-            for param in (create_only_params or []):
-                value = module.params.get(param)
-                if not value:
-                    module.fail_json(msg=f"'{param}' is required when creating")
-                create_data[param] = value
+        if not exists or (not target and current.get('status') == 'Pending'):
+            create_data = _build_create_data(module, name, desired, create_only_params, require=not exists)
             if not module.check_mode:
-                incus_wait(module, client, client.post(f'/1.0/{resource}{create_query}', create_data))
+                incus_wait(module, client, client.post(f'/1.0/{resource}{target_query}', create_data))
             return True
         if target:
             return False
