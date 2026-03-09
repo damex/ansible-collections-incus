@@ -1,5 +1,0 @@
----
-- name: Ensure incus profile info
-  block:
-    - name: Ensure incus profile info
-      ansible.builtin.import_tasks: facts.yml
