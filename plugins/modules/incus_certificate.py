@@ -83,9 +83,9 @@ RETURN = r"""
 from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    IncusClientException,
     incus_create_client,
     incus_create_write_module,
+    incus_run_write_module,
     incus_wait,
 )
 
@@ -113,7 +113,6 @@ def _ensure_certificate(module: Any) -> bool:
             cert_pem = module.params.get('certificate')
             if not cert_pem:
                 module.fail_json(msg="'certificate' is required when adding a new trust store entry")
-                return False
             if not module.check_mode:
                 incus_wait(module, client, client.post('/1.0/certificates', {
                     'name': name,
@@ -157,12 +156,7 @@ def main() -> None:
         'restricted': {'type': 'bool', 'default': False},
         'projects': {'type': 'list', 'elements': 'str', 'default': []},
     })
-
-    try:
-        changed = _ensure_certificate(module)
-        module.exit_json(changed=changed)
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+    incus_run_write_module(module, lambda: _ensure_certificate(module))
 
 
 if __name__ == '__main__':
