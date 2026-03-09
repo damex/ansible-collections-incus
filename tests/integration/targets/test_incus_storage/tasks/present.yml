@@ -1,0 +1,50 @@
+---
+- name: Ensure incus storage pool is created
+  damex.incus.incus_storage:
+    name: test-storage-pool
+    driver: dir
+    config:
+      source: /var/lib/incus/storage-pools/test-storage-pool
+    state: present
+  register: incus_storage_present_state
+
+- name: Ensure incus storage pool is created
+  ansible.builtin.assert:
+    that:
+      - incus_storage_present_state is changed
+
+- name: Ensure incus storage pool is idempotent
+  damex.incus.incus_storage:
+    name: test-storage-pool
+    driver: dir
+    config:
+      source: /var/lib/incus/storage-pools/test-storage-pool
+    state: present
+  register: incus_storage_idempotent_state
+
+- name: Ensure incus storage pool is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_storage_idempotent_state is not changed
+
+- name: Ensure incus storage info
+  damex.incus.incus_storage_info: {}
+  register: incus_storage_info_state
+
+- name: Ensure incus storage info
+  ansible.builtin.assert:
+    that:
+      - incus_storage_info_state.storage_pools is defined
+      - "'test-storage-pool' in incus_storage_info_state.storage_pools | map(attribute='name')"
+
+- name: Ensure incus storage info by name
+  damex.incus.incus_storage_info:
+    name: test-storage-pool
+  register: incus_storage_info_named_state
+
+- name: Ensure incus storage info by name
+  ansible.builtin.assert:
+    that:
+      - incus_storage_info_named_state.storage_pools | length == 1
+      - incus_storage_info_named_state.storage_pools[0].name == 'test-storage-pool'
+      - incus_storage_info_named_state.storage_pools[0].driver == 'dir'
