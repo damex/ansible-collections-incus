@@ -6,3 +6,5 @@ collections:
     version: ">=1.3.5"
   - name: damex.systemd
     version: ">=2.0.3"
+  - name: community.crypto
+    version: ">=2.22.0"
