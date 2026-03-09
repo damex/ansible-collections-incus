@@ -578,9 +578,8 @@ def incus_ensure_global_info(resource: str, return_key: str) -> None:
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
     """Create info module."""
-    argument_spec.update(INCUS_COMMON_ARGS)
     return AnsibleModule(
-        argument_spec=argument_spec,
+        argument_spec={**argument_spec, **INCUS_COMMON_ARGS},
         supports_check_mode=True,
         mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
         required_together=INCUS_COMMON_REQUIRED_TOGETHER,
@@ -592,10 +591,8 @@ def incus_create_write_module(
     argument_spec: dict[str, Any], *, require_yaml: bool = False,
 ) -> AnsibleModule:
     """Create write module."""
-    argument_spec.update(INCUS_COMMON_ARGS)
-    argument_spec.update(INCUS_WRITE_ARGS)
     module = AnsibleModule(
-        argument_spec=argument_spec,
+        argument_spec={**argument_spec, **INCUS_COMMON_ARGS, **INCUS_WRITE_ARGS},
         supports_check_mode=True,
         mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
         required_together=INCUS_COMMON_REQUIRED_TOGETHER,
