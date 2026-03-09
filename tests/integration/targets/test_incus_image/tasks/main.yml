@@ -1,0 +1,7 @@
+---
+- name: Ensure incus image
+  block:
+    - name: Ensure incus image present
+      ansible.builtin.import_tasks: present.yml
+    - name: Ensure incus image absent
+      ansible.builtin.import_tasks: absent.yml

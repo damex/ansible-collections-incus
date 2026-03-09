@@ -1,0 +1,22 @@
+---
+- name: Ensure incus image is deleted
+  damex.incus.incus_image:
+    alias: test-alpine
+    state: absent
+  register: incus_image_absent_state
+
+- name: Ensure incus image is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_image_absent_state is changed
+
+- name: Ensure incus image deletion is idempotent
+  damex.incus.incus_image:
+    alias: test-alpine
+    state: absent
+  register: incus_image_absent_idempotent_state
+
+- name: Ensure incus image deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_image_absent_idempotent_state is not changed

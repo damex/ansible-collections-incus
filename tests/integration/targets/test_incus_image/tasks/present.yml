@@ -1,0 +1,34 @@
+---
+- name: Ensure incus image is copied
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    state: present
+  register: incus_image_present_state
+
+- name: Ensure incus image is copied
+  ansible.builtin.assert:
+    that:
+      - incus_image_present_state is changed
+
+- name: Ensure incus image is idempotent
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    state: present
+  register: incus_image_idempotent_state
+
+- name: Ensure incus image is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_image_idempotent_state is not changed
+
+- name: Ensure incus image info
+  damex.incus.incus_image_info: {}
+  register: incus_image_info_state
+
+- name: Ensure incus image info
+  ansible.builtin.assert:
+    that:
+      - incus_image_info_state.images is defined
+      - incus_image_info_state.images | length > 0
