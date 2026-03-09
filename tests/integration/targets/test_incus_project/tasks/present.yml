@@ -1,0 +1,48 @@
+---
+- name: Ensure incus project is created
+  damex.incus.incus_project:
+    name: test-project
+    description: Test project
+    config:
+      features.images: true
+      features.networks: true
+      features.networks.zones: true
+      features.profiles: true
+      features.storage.buckets: true
+      features.storage.volumes: true
+    state: present
+  register: incus_project_present_state
+
+- name: Ensure incus project is created
+  ansible.builtin.assert:
+    that:
+      - incus_project_present_state is changed
+
+- name: Ensure incus project is idempotent
+  damex.incus.incus_project:
+    name: test-project
+    description: Test project
+    config:
+      features.images: true
+      features.networks: true
+      features.networks.zones: true
+      features.profiles: true
+      features.storage.buckets: true
+      features.storage.volumes: true
+    state: present
+  register: incus_project_idempotent_state
+
+- name: Ensure incus project is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_project_idempotent_state is not changed
+
+- name: Ensure incus project info
+  damex.incus.incus_project_info: {}
+  register: incus_project_info_state
+
+- name: Ensure incus project info
+  ansible.builtin.assert:
+    that:
+      - incus_project_info_state.projects is defined
+      - "'test-project' in incus_project_info_state.projects | map(attribute='name')"

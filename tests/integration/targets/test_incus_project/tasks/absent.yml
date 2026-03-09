@@ -1,0 +1,31 @@
+---
+- name: Ensure incus project is deleted
+  damex.incus.incus_project:
+    name: test-project
+    state: absent
+  register: incus_project_absent_state
+
+- name: Ensure incus project is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_project_absent_state is changed
+
+- name: Ensure incus project deletion is idempotent
+  damex.incus.incus_project:
+    name: test-project
+    state: absent
+  register: incus_project_absent_idempotent_state
+
+- name: Ensure incus project deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_project_absent_idempotent_state is not changed
+
+- name: Ensure incus project info after deletion
+  damex.incus.incus_project_info: {}
+  register: incus_project_info_after_state
+
+- name: Ensure incus project info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-project' not in incus_project_info_after_state.projects | map(attribute='name')"
