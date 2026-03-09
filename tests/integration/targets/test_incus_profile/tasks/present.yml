@@ -1,0 +1,52 @@
+---
+- name: Ensure incus profile is created
+  damex.incus.incus_profile:
+    name: test-profile
+    description: Test profile
+    config:
+      limits.cpu: "2"
+      limits.memory: 2GiB
+    state: present
+  register: incus_profile_present_state
+
+- name: Ensure incus profile is created
+  ansible.builtin.assert:
+    that:
+      - incus_profile_present_state is changed
+
+- name: Ensure incus profile is idempotent
+  damex.incus.incus_profile:
+    name: test-profile
+    description: Test profile
+    config:
+      limits.cpu: "2"
+      limits.memory: 2GiB
+    state: present
+  register: incus_profile_idempotent_state
+
+- name: Ensure incus profile is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_profile_idempotent_state is not changed
+
+- name: Ensure incus profile info
+  damex.incus.incus_profile_info: {}
+  register: incus_profile_info_state
+
+- name: Ensure incus profile info
+  ansible.builtin.assert:
+    that:
+      - incus_profile_info_state.profiles is defined
+      - "'test-profile' in incus_profile_info_state.profiles | map(attribute='name')"
+
+- name: Ensure incus profile info by name
+  damex.incus.incus_profile_info:
+    name: test-profile
+  register: incus_profile_info_named_state
+
+- name: Ensure incus profile info by name
+  ansible.builtin.assert:
+    that:
+      - incus_profile_info_named_state.profiles | length == 1
+      - incus_profile_info_named_state.profiles[0].name == 'test-profile'
+      - incus_profile_info_named_state.profiles[0].description == 'Test profile'
