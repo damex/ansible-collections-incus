@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+import collections.abc
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -57,7 +58,7 @@ INCUS_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.incus'
 
 
 def assert_get_found(
-    func: Callable[..., tuple[dict[str, Any], bool]],
+    func: collections.abc.Callable[..., tuple[dict[str, Any], bool]],
     metadata: dict[str, Any],
     *args: Any,
 ) -> dict[str, Any]:
@@ -70,7 +71,7 @@ def assert_get_found(
 
 
 def assert_get_not_found(
-    func: Callable[..., tuple[dict[str, Any], bool]],
+    func: collections.abc.Callable[..., tuple[dict[str, Any], bool]],
     *args: Any,
 ) -> None:
     """Call get helper and assert resource missing."""
@@ -81,7 +82,7 @@ def assert_get_not_found(
     assert meta == {}
 
 
-def assert_crud(func: Callable[..., bool], method: str, *args: Any) -> None:
+def assert_crud(func: collections.abc.Callable[..., bool], method: str, *args: Any) -> None:
     """Call CRUD helper and assert API method called."""
     module = MagicMock()
     module.check_mode = False
@@ -92,7 +93,7 @@ def assert_crud(func: Callable[..., bool], method: str, *args: Any) -> None:
     getattr(client, method).assert_called_once()
 
 
-def assert_crud_skip(func: Callable[..., bool], method: str, *args: Any) -> None:
+def assert_crud_skip(func: collections.abc.Callable[..., bool], method: str, *args: Any) -> None:
     """Call CRUD helper in check mode and assert no API call."""
     module = MagicMock()
     module.check_mode = True
@@ -107,7 +108,7 @@ def run_main(
     mock_create_client: MagicMock,
     module: MagicMock,
     client: MagicMock,
-    main_func: Callable[[], None],
+    main_func: collections.abc.Callable[[], None],
 ) -> None:
     """Wire mock factories and run module main."""
     mock_create_module.return_value = module
@@ -125,7 +126,7 @@ def _info_module(name: str | None, project: str | None) -> MagicMock:
 
 
 def assert_info_by_name(
-    main_func: Callable[[], None], return_key: str,
+    main_func: collections.abc.Callable[[], None], return_key: str,
     metadata: dict[str, Any], *, name: str = 'test',
     project: str | None = 'default',
 ) -> dict[str, Any]:
@@ -142,7 +143,7 @@ def assert_info_by_name(
 
 
 def assert_info_not_found(
-    main_func: Callable[[], None], return_key: str, *,
+    main_func: collections.abc.Callable[[], None], return_key: str, *,
     name: str = 'missing', project: str | None = 'default',
 ) -> None:
     """Call info main and assert empty list for missing name."""
@@ -156,7 +157,7 @@ def assert_info_not_found(
 
 
 def assert_info_all(
-    main_func: Callable[[], None], return_key: str,
+    main_func: collections.abc.Callable[[], None], return_key: str,
     items: list[dict[str, Any]], *, project: str | None = 'default',
 ) -> None:
     """Call info main and assert all resources returned."""
@@ -171,7 +172,7 @@ def assert_info_all(
 
 
 def assert_info_fail(
-    main_func: Callable[[], None], *,
+    main_func: collections.abc.Callable[[], None], *,
     project: str | None = 'default',
 ) -> None:
     """Call info main and assert failure on client exception."""
@@ -185,7 +186,7 @@ def assert_info_fail(
 
 
 def assert_write_create(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> MagicMock:
     """Call write main with not-found resource and assert created."""
     client = MagicMock()
@@ -200,7 +201,7 @@ def assert_write_create(
 
 
 def assert_write_skip(
-    main_func: Callable[[], None], module_path: str,
+    main_func: collections.abc.Callable[[], None], module_path: str,
     module: MagicMock, current: dict[str, Any],
 ) -> None:
     """Call write main with matching resource and assert no change."""
@@ -213,7 +214,7 @@ def assert_write_skip(
 
 
 def assert_write_update(
-    main_func: Callable[[], None], module_path: str,
+    main_func: collections.abc.Callable[[], None], module_path: str,
     module: MagicMock, current: dict[str, Any],
 ) -> None:
     """Call write main with changed resource and assert updated."""
@@ -227,7 +228,7 @@ def assert_write_update(
 
 
 def assert_write_delete(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call write main and assert resource deleted."""
     client = MagicMock()
@@ -241,7 +242,7 @@ def assert_write_delete(
 
 
 def assert_write_delete_missing(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call write main and assert skip for missing resource."""
     client = MagicMock()
@@ -253,7 +254,7 @@ def assert_write_delete_missing(
 
 
 def assert_write_check_mode(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call write main in check mode and assert no API calls."""
     client = MagicMock()
@@ -267,7 +268,7 @@ def assert_write_check_mode(
 
 def run_module_main(
     module_path: str, module: MagicMock, client: MagicMock,
-    main_func: Callable[[], None],
+    main_func: collections.abc.Callable[[], None],
 ) -> None:
     """Patch module-level factories and run main."""
     with patch(f'{module_path}.incus_create_write_module', return_value=module), \
@@ -276,7 +277,7 @@ def run_module_main(
 
 
 def assert_module_create(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> MagicMock:
     """Call module main with not-found resource and assert created."""
     client = MagicMock()
@@ -288,7 +289,7 @@ def assert_module_create(
 
 
 def assert_module_delete(
-    main_func: Callable[[], None], module_path: str,
+    main_func: collections.abc.Callable[[], None], module_path: str,
     module: MagicMock, current: dict[str, Any],
 ) -> None:
     """Call module main and assert resource deleted."""
@@ -301,7 +302,7 @@ def assert_module_delete(
 
 
 def assert_module_delete_missing(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call module main and assert skip for missing resource."""
     client = MagicMock()
@@ -311,7 +312,7 @@ def assert_module_delete_missing(
 
 
 def assert_module_check_mode_create(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call module main in check mode and assert no API calls."""
     client = MagicMock()
@@ -322,7 +323,7 @@ def assert_module_check_mode_create(
 
 
 def assert_module_fail_missing(
-    main_func: Callable[[], None], module_path: str, module: MagicMock,
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> None:
     """Call module main and assert fail_json for missing required param."""
     module.fail_json.side_effect = SystemExit(1)
