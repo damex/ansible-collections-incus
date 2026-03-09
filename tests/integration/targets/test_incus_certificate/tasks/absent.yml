@@ -1,0 +1,22 @@
+---
+- name: Ensure incus certificate is deleted
+  damex.incus.incus_certificate:
+    name: test-certificate
+    state: absent
+  register: incus_certificate_absent_state
+
+- name: Ensure incus certificate is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_absent_state is changed
+
+- name: Ensure incus certificate deletion is idempotent
+  damex.incus.incus_certificate:
+    name: test-certificate
+    state: absent
+  register: incus_certificate_absent_idempotent_state
+
+- name: Ensure incus certificate deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_absent_idempotent_state is not changed

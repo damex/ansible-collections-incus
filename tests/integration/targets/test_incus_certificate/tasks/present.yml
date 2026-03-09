@@ -1,0 +1,52 @@
+---
+- name: Ensure test private key is generated
+  community.crypto.openssl_privatekey:
+    path: /tmp/test-cert.key
+    type: ECC
+    curve: secp256r1
+
+- name: Ensure test certificate is generated
+  community.crypto.x509_certificate:
+    path: /tmp/test-cert.crt
+    privatekey_path: /tmp/test-cert.key
+    provider: selfsigned
+    selfsigned_not_after: +1d
+
+- name: Ensure test certificate is read
+  ansible.builtin.slurp:
+    src: /tmp/test-cert.crt
+  register: incus_test_certificate_state
+
+- name: Ensure incus certificate is added
+  damex.incus.incus_certificate:
+    name: test-certificate
+    certificate: "{{ incus_test_certificate_state.content | b64decode }}"
+    state: present
+  register: incus_certificate_present_state
+
+- name: Ensure incus certificate is added
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_present_state is changed
+
+- name: Ensure incus certificate is idempotent
+  damex.incus.incus_certificate:
+    name: test-certificate
+    certificate: "{{ incus_test_certificate_state.content | b64decode }}"
+    state: present
+  register: incus_certificate_idempotent_state
+
+- name: Ensure incus certificate is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_idempotent_state is not changed
+
+- name: Ensure incus certificate info
+  damex.incus.incus_certificate_info: {}
+  register: incus_certificate_info_state
+
+- name: Ensure incus certificate info
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_info_state.certificates is defined
+      - "'test-certificate' in incus_certificate_info_state.certificates | map(attribute='name')"
