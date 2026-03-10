@@ -46,5 +46,5 @@
   ansible.builtin.assert:
     that:
       - incus_storage_info_named_state.storage_pools | length == 1
-      - incus_storage_info_named_state.storage_pools[0].name == 'test-storage-pool'
-      - incus_storage_info_named_state.storage_pools[0].driver == 'dir'
+      - incus_storage_info_named_state.storage_pools | selectattr('name', 'equalto', 'test-storage-pool') | list | length == 1
+      - incus_storage_info_named_state.storage_pools | selectattr('driver', 'equalto', 'dir') | list | length == 1
