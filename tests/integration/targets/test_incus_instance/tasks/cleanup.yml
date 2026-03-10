@@ -1,0 +1,18 @@
+---
+- name: Ensure test instance is removed
+  damex.incus.incus_instance:
+    name: test-instance
+    state: absent
+  failed_when: false
+
+- name: Ensure test image is removed
+  damex.incus.incus_image:
+    alias: test-alpine
+    state: absent
+  failed_when: false
+
+- name: Ensure test storage pool is removed
+  damex.incus.incus_storage:
+    name: instance-pool
+    state: absent
+  failed_when: false
