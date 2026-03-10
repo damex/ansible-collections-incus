@@ -1,0 +1,63 @@
+---
+- name: Ensure incus instance is created
+  damex.incus.incus_instance:
+    name: test-instance
+    source: test-alpine
+    profiles: []
+    config:
+      security.privileged: true
+    devices:
+      - name: root
+        type: disk
+        path: /
+        pool: instance-pool
+    state: stopped
+  register: incus_instance_present_state
+
+- name: Ensure incus instance is created
+  ansible.builtin.assert:
+    that:
+      - incus_instance_present_state is changed
+
+- name: Ensure incus instance is idempotent
+  damex.incus.incus_instance:
+    name: test-instance
+    source: test-alpine
+    profiles: []
+    config:
+      security.privileged: true
+    devices:
+      - name: root
+        type: disk
+        path: /
+        pool: instance-pool
+    state: stopped
+  register: incus_instance_idempotent_state
+
+- name: Ensure incus instance is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_instance_idempotent_state is not changed
+
+- name: Ensure incus instance info
+  damex.incus.incus_instance_info: {}
+  register: incus_instance_info_state
+
+- name: Ensure incus instance info
+  ansible.builtin.assert:
+    that:
+      - incus_instance_info_state.instances is defined
+      - "'test-instance' in incus_instance_info_state.instances | map(attribute='name')"
+
+- name: Ensure incus instance info by name
+  damex.incus.incus_instance_info:
+    name: test-instance
+  register: incus_instance_info_named_state
+
+- name: Ensure incus instance info by name
+  ansible.builtin.assert:
+    that:
+      - incus_instance_info_named_state.instances | length == 1
+      - incus_instance_info_named_state.instances[0].name == 'test-instance'
+      - incus_instance_info_named_state.instances[0].type == 'container'
+      - incus_instance_info_named_state.instances[0].status == 'Stopped'

@@ -1,0 +1,14 @@
+---
+- name: Ensure incus storage pool for instances
+  damex.incus.incus_storage:
+    name: instance-pool
+    driver: dir
+    config:
+      source: /var/lib/incus/storage-pools/instance-pool
+    state: present
+
+- name: Ensure incus image for instances
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    state: present

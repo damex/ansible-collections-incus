@@ -1,0 +1,14 @@
+---
+- name: Ensure incus instance
+  block:
+    - name: Ensure incus instance setup
+      ansible.builtin.import_tasks: setup.yml
+
+    - name: Ensure incus instance present
+      ansible.builtin.import_tasks: present.yml
+
+    - name: Ensure incus instance absent
+      ansible.builtin.import_tasks: absent.yml
+  always:
+    - name: Ensure incus instance cleanup
+      ansible.builtin.import_tasks: cleanup.yml
