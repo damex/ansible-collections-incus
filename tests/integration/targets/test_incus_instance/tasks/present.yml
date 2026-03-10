@@ -58,6 +58,6 @@
   ansible.builtin.assert:
     that:
       - incus_instance_info_named_state.instances | length == 1
-      - incus_instance_info_named_state.instances | selectattr('name', 'equalto', 'test-instance') | list | length == 1
-      - incus_instance_info_named_state.instances | selectattr('type', 'equalto', 'container') | list | length == 1
-      - incus_instance_info_named_state.instances | selectattr('status', 'equalto', 'Stopped') | list | length == 1
+      - "'test-instance' in incus_instance_info_named_state.instances | map(attribute='name')"
+      - "'container' in incus_instance_info_named_state.instances | map(attribute='type')"
+      - "'Stopped' in incus_instance_info_named_state.instances | map(attribute='status')"

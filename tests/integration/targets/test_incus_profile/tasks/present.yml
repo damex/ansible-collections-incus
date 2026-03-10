@@ -48,5 +48,5 @@
   ansible.builtin.assert:
     that:
       - incus_profile_info_named_state.profiles | length == 1
-      - incus_profile_info_named_state.profiles | selectattr('name', 'equalto', 'test-profile') | list | length == 1
-      - incus_profile_info_named_state.profiles | selectattr('description', 'equalto', 'Test profile') | list | length == 1
+      - "'test-profile' in incus_profile_info_named_state.profiles | map(attribute='name')"
+      - "'Test profile' in incus_profile_info_named_state.profiles | map(attribute='description')"
