@@ -1,0 +1,162 @@
+---
+- name: Ensure incus image is copied (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_present_state
+
+- name: Ensure incus image is copied (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_present_state is changed
+
+- name: Ensure incus image is idempotent (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_idempotent_state
+
+- name: Ensure incus image is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_idempotent_state is not changed
+
+- name: Ensure incus image auto_update is enabled (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_auto_update_state
+
+- name: Ensure incus image auto_update is enabled (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_auto_update_state is changed
+
+- name: Ensure incus image auto_update is idempotent (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_auto_update_idempotent_state
+
+- name: Ensure incus image auto_update is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_auto_update_idempotent_state is not changed
+
+- name: Ensure incus image auto_update info is gathered (tls)
+  damex.incus.incus_image_info:
+    name: tls-test-alpine
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_auto_update_info_state
+
+- name: Ensure incus image auto_update info is verified (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_auto_update_info_state.images | map(attribute='auto_update') | first
+      - not incus_image_tls_auto_update_info_state.images | map(attribute='public') | first
+
+- name: Ensure incus image public is enabled (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    public: true
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_public_state
+
+- name: Ensure incus image public is enabled (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_public_state is changed
+
+- name: Ensure incus image public is idempotent (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    public: true
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_public_idempotent_state
+
+- name: Ensure incus image public is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_public_idempotent_state is not changed
+
+- name: Ensure incus image public info is gathered (tls)
+  damex.incus.incus_image_info:
+    name: tls-test-alpine
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_public_info_state
+
+- name: Ensure incus image public info is verified (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_public_info_state.images | map(attribute='auto_update') | first
+      - incus_image_tls_public_info_state.images | map(attribute='public') | first
+
+- name: Ensure incus image settings are reverted (tls)
+  damex.incus.incus_image:
+    alias: tls-test-alpine
+    source: images:alpine/edge
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_revert_state
+
+- name: Ensure incus image settings are reverted (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_revert_state is changed
+
+- name: Ensure incus image info (tls)
+  damex.incus.incus_image_info:
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_image_tls_info_state
+
+- name: Ensure incus image info (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_image_tls_info_state.images is defined
+      - incus_image_tls_info_state.images | length > 0

@@ -1,0 +1,43 @@
+---
+- name: Ensure incus storage pool is deleted (tls)
+  damex.incus.incus_storage:
+    name: tls-test-storage-pool
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_tls_absent_state
+
+- name: Ensure incus storage pool is deleted (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_tls_absent_state is changed
+
+- name: Ensure incus storage pool deletion is idempotent (tls)
+  damex.incus.incus_storage:
+    name: tls-test-storage-pool
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_tls_absent_idempotent_state
+
+- name: Ensure incus storage pool deletion is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_tls_absent_idempotent_state is not changed
+
+- name: Ensure incus storage info after deletion (tls)
+  damex.incus.incus_storage_info:
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_tls_info_after_state
+
+- name: Ensure incus storage info after deletion (tls)
+  ansible.builtin.assert:
+    that:
+      - "'tls-test-storage-pool' not in incus_storage_tls_info_after_state.storage_pools | map(attribute='name')"

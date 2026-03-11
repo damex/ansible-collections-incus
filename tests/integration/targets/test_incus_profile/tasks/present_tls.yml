@@ -1,0 +1,68 @@
+---
+- name: Ensure incus profile is created (tls)
+  damex.incus.incus_profile:
+    name: tls-test-profile
+    description: Test profile (tls)
+    config:
+      limits.cpu: "2"
+      limits.memory: 2GiB
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_profile_tls_present_state
+
+- name: Ensure incus profile is created (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_profile_tls_present_state is changed
+
+- name: Ensure incus profile is idempotent (tls)
+  damex.incus.incus_profile:
+    name: tls-test-profile
+    description: Test profile (tls)
+    config:
+      limits.cpu: "2"
+      limits.memory: 2GiB
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_profile_tls_idempotent_state
+
+- name: Ensure incus profile is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_profile_tls_idempotent_state is not changed
+
+- name: Ensure incus profile info (tls)
+  damex.incus.incus_profile_info:
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_profile_tls_info_state
+
+- name: Ensure incus profile info (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_profile_tls_info_state.profiles is defined
+      - "'tls-test-profile' in incus_profile_tls_info_state.profiles | map(attribute='name')"
+
+- name: Ensure incus profile info by name (tls)
+  damex.incus.incus_profile_info:
+    name: tls-test-profile
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_profile_tls_info_named_state
+
+- name: Ensure incus profile info by name (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_profile_tls_info_named_state.profiles | length == 1
+      - "'tls-test-profile' in incus_profile_tls_info_named_state.profiles | map(attribute='name')"
+      - "'Test profile (tls)' in incus_profile_tls_info_named_state.profiles | map(attribute='description')"
