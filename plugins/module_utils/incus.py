@@ -448,8 +448,8 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
     def wait(self, response: dict[str, Any]) -> None:
         """Wait for operation."""
         if response.get('type') == 'async':
-            op_id = response['metadata']['id']
-            result = self._request('GET', f'/1.0/operations/{op_id}/wait')
+            encoded_op_id = quote(response['metadata']['id'], safe='')
+            result = self._request('GET', f'/1.0/operations/{encoded_op_id}/wait')
             metadata = result.get('metadata') or {}
             if metadata.get('status') == 'Failure':
                 raise IncusClientException(metadata.get('err', 'operation failed'))

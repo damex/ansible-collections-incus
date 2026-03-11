@@ -105,6 +105,7 @@ RETURN = r"""
 """
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
@@ -127,10 +128,10 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _get_instance(client: IncusClient, query: str, name: str) -> tuple[dict[str, Any], bool]:
+def _get_instance(client: IncusClient, query: str, encoded_name: str) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the instance."""
     try:
-        return client.get(f'/1.0/instances/{name}{query}').get('metadata') or {}, True
+        return client.get(f'/1.0/instances/{encoded_name}{query}').get('metadata') or {}, True
     except IncusNotFoundException:
         return {}, False
 
@@ -145,17 +146,19 @@ def _create_instance(
     return True
 
 
-def _update_instance(module: Any, client: IncusClient, query: str, name: str, desired: dict[str, Any]) -> bool:
+def _update_instance(
+    module: Any, client: IncusClient, query: str, encoded_name: str, desired: dict[str, Any],
+) -> bool:
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/instances/{name}{query}', desired))
+        incus_wait(module, client, client.put(f'/1.0/instances/{encoded_name}{query}', desired))
     return True
 
 
-def _delete_instance(module: Any, client: IncusClient, query: str, name: str) -> bool:
+def _delete_instance(module: Any, client: IncusClient, query: str, encoded_name: str) -> bool:
     """Delete instance."""
     if not module.check_mode:
-        incus_wait(module, client, client.delete(f'/1.0/instances/{name}{query}'))
+        incus_wait(module, client, client.delete(f'/1.0/instances/{encoded_name}{query}'))
     return True
 
 
@@ -230,13 +233,14 @@ def main() -> None:
 
     def _ensure_instance() -> bool:
         client = incus_create_client(module)
-        current, exists = _get_instance(client, query, name)
+        encoded_name = quote(name, safe='')
+        current, exists = _get_instance(client, query, encoded_name)
 
         if state == 'absent':
-            return _delete_instance(module, client, query, name) if exists else False
+            return _delete_instance(module, client, query, encoded_name) if exists else False
 
         status = current.get('status', 'Stopped') if exists else 'Stopped'
-        state_path = f'/1.0/instances/{name}/state{query}'
+        state_path = f'/1.0/instances/{encoded_name}/state{query}'
         changed = False
 
         if not exists:
@@ -258,7 +262,7 @@ def main() -> None:
                     or current.get('devices', {}) != desired['devices']
                     or current.get('profiles', []) != desired['profiles']):
                 update_desired = {'architecture': current['architecture'], **desired}
-                _update_instance(module, client, query, name, update_desired)
+                _update_instance(module, client, query, encoded_name, update_desired)
                 changed = True
 
         return _manage_state(module, client, state_path, state, status) or changed

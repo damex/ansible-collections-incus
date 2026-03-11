@@ -92,6 +92,7 @@ RETURN = r"""
 """
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
@@ -107,15 +108,17 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _update_image(module: Any, client: IncusClient, fingerprint: str, query: str) -> bool:
+def _update_image(
+    module: Any, client: IncusClient, encoded_fingerprint: str, query: str,
+) -> bool:
     """Update image properties if they differ from desired state."""
-    image = client.get(f'/1.0/images/{fingerprint}{query}').get('metadata') or {}
+    image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata') or {}
     desired_auto_update = module.params['auto_update']
     desired_public = module.params['public']
     if image.get('auto_update', False) == desired_auto_update and image.get('public', False) == desired_public:
         return False
     if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/images/{fingerprint}{query}', {
+        incus_wait(module, client, client.put(f'/1.0/images/{encoded_fingerprint}{query}', {
             'auto_update': desired_auto_update,
             'public': desired_public,
             'properties': image.get('properties') or {},
@@ -154,17 +157,20 @@ def main() -> None:
     def _ensure_image() -> bool:
         client = incus_create_client(module)
         alias = module.params['alias']
+        encoded_alias = quote(alias, safe='')
         project = module.params['project']
-        query = f'?project={project}'
+        encoded_project = quote(project, safe='')
+        query = f'?project={encoded_project}'
 
         if module.params['state'] == 'present':
             try:
-                alias_meta = client.get(f'/1.0/images/aliases/{alias}{query}').get('metadata') or {}
+                alias_meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
                 fingerprint = alias_meta.get('target')
             except IncusNotFoundException:
                 fingerprint = None
             if fingerprint:
-                return _update_image(module, client, fingerprint, query)
+                encoded_fingerprint = quote(fingerprint, safe='')
+                return _update_image(module, client, encoded_fingerprint, query)
             if not module.params['source']:
                 module.fail_json(msg="'source' is required when creating an image")
             source = incus_build_source(module)
@@ -182,12 +188,13 @@ def main() -> None:
             return True
 
         try:
-            meta = client.get(f'/1.0/images/aliases/{alias}{query}').get('metadata') or {}
+            meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
             fingerprint = meta.get('target')
         except IncusNotFoundException:
             return False
         if fingerprint and not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/images/{fingerprint}{query}'))
+            encoded_fingerprint = quote(fingerprint, safe='')
+            incus_wait(module, client, client.delete(f'/1.0/images/{encoded_fingerprint}{query}'))
         return bool(fingerprint)
 
     incus_run_write_module(module, _ensure_image)

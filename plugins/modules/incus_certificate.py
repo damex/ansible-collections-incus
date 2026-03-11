@@ -81,6 +81,7 @@ RETURN = r"""
 """
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_client,
@@ -129,8 +130,8 @@ def _ensure_certificate(module: Any) -> bool:
         if current_restricted == desired_restricted and current_projects == desired_projects:
             return False
         if not module.check_mode:
-            fingerprint = current['fingerprint']
-            incus_wait(module, client, client.put(f'/1.0/certificates/{fingerprint}', {
+            encoded_fingerprint = quote(current['fingerprint'], safe='')
+            incus_wait(module, client, client.put(f'/1.0/certificates/{encoded_fingerprint}', {
                 'name': name,
                 'type': current.get('type', 'client'),
                 'restricted': desired_restricted,
@@ -140,8 +141,8 @@ def _ensure_certificate(module: Any) -> bool:
 
     if current is not None:
         if not module.check_mode:
-            fingerprint = current['fingerprint']
-            incus_wait(module, client, client.delete(f'/1.0/certificates/{fingerprint}'))
+            encoded_fingerprint = quote(current['fingerprint'], safe='')
+            incus_wait(module, client, client.delete(f'/1.0/certificates/{encoded_fingerprint}'))
         return True
     return False
 
