@@ -16,6 +16,8 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_build_desired,
     incus_build_query,
     incus_build_source,
+    incus_find_certificate,
+    incus_resolve_image_alias,
     incus_run_info_module,
     incus_run_write_module,
     incus_stringify_config,
@@ -71,6 +73,12 @@ __all__ = [
     'test_run_info_module_client_exception',
     'test_run_info_module_encodes_name',
     'test_run_info_module_encodes_project',
+    'test_find_certificate_found',
+    'test_find_certificate_not_found',
+    'test_find_certificate_empty_list',
+    'test_resolve_image_alias_found',
+    'test_resolve_image_alias_not_found',
+    'test_resolve_image_alias_encodes_name',
 ]
 
 
@@ -468,3 +476,60 @@ def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None
     with pytest.raises(SystemExit):
         incus_run_info_module(module, 'storage-pools', 'storage_pools')
     module.fail_json.assert_called_once_with(msg='connection refused')
+
+
+def test_find_certificate_found() -> None:
+    """Return certificate matching name."""
+    client = MagicMock()
+    client.get.return_value = {
+        'metadata': [
+            {'name': 'other', 'fingerprint': 'aaa'},
+            {'name': 'ansible', 'fingerprint': 'bbb'},
+        ],
+    }
+    result = incus_find_certificate(client, 'ansible')
+    assert result is not None
+    assert result['fingerprint'] == 'bbb'
+
+
+def test_find_certificate_not_found() -> None:
+    """Return None when no certificate matches."""
+    client = MagicMock()
+    client.get.return_value = {
+        'metadata': [{'name': 'other', 'fingerprint': 'aaa'}],
+    }
+    result = incus_find_certificate(client, 'missing')
+    assert result is None
+
+
+def test_find_certificate_empty_list() -> None:
+    """Return None when certificate list is empty."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': []}
+    result = incus_find_certificate(client, 'ansible')
+    assert result is None
+
+
+def test_resolve_image_alias_found() -> None:
+    """Return fingerprint for existing alias."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'target': 'abc123'}}
+    result = incus_resolve_image_alias(client, 'debian/12', '?project=default')
+    assert result == 'abc123'
+
+
+def test_resolve_image_alias_not_found() -> None:
+    """Return None when alias does not exist."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    result = incus_resolve_image_alias(client, 'missing', '?project=default')
+    assert result is None
+
+
+def test_resolve_image_alias_encodes_name() -> None:
+    """Encode special characters in alias name."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'target': 'def456'}}
+    incus_resolve_image_alias(client, 'ubuntu/24.04', '?project=default')
+    path = client.get.call_args[0][0]
+    assert '/1.0/images/aliases/ubuntu%2F24.04?project=default' == path
