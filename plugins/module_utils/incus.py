@@ -551,15 +551,17 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
     return source
 
 
-def incus_build_query(project: str | None, target: str | None) -> str:
+def incus_build_query(
+    project: str | None = None, target: str | None = None, recursion: int | None = None,
+) -> str:
     """Build query string."""
     params = []
     if project:
-        encoded_project = quote(project, safe='')
-        params.append(f'project={encoded_project}')
+        params.append(f'project={quote(project, safe="")}')
     if target:
-        encoded_target = quote(target, safe='')
-        params.append(f'target={encoded_target}')
+        params.append(f'target={quote(target, safe="")}')
+    if recursion is not None:
+        params.append(f'recursion={recursion}')
     return f'?{"&".join(params)}' if params else ''
 
 
@@ -636,11 +638,9 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     try:
         client = incus_create_client(module)
 
-        encoded_project = quote(project, safe='') if project else None
-
         if name:
             encoded_name = quote(name, safe='')
-            query = f'?project={encoded_project}' if encoded_project else ''
+            query = incus_build_query(project=project)
             path = f'/1.0/{resource}/{encoded_name}{query}'
             try:
                 response = client.get(path)
@@ -649,7 +649,7 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
             except IncusNotFoundException:
                 result = []
         else:
-            query = f'?project={encoded_project}&recursion=1' if encoded_project else '?recursion=1'
+            query = incus_build_query(project=project, recursion=1)
             response = client.get(f'/1.0/{resource}{query}')
             result = response.get('metadata') or []
 

@@ -86,6 +86,7 @@ from urllib.parse import quote
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
     IncusNotFoundException,
+    incus_build_query,
     incus_create_client,
     incus_create_info_module,
 )
@@ -101,7 +102,7 @@ def main() -> None:
     })
     name = module.params.get('name')
     project = module.params['project']
-    encoded_project = quote(project, safe='')
+    query = incus_build_query(project=project)
     result: list[Any] = []
 
     try:
@@ -110,19 +111,20 @@ def main() -> None:
             encoded_name = quote(name, safe='')
             try:
                 alias_meta = client.get(
-                    f'/1.0/images/aliases/{encoded_name}?project={encoded_project}',
+                    f'/1.0/images/aliases/{encoded_name}{query}',
                 ).get('metadata') or {}
                 fingerprint = alias_meta.get('target')
                 if fingerprint:
                     encoded_fingerprint = quote(fingerprint, safe='')
                     image = client.get(
-                        f'/1.0/images/{encoded_fingerprint}?project={encoded_project}',
+                        f'/1.0/images/{encoded_fingerprint}{query}',
                     ).get('metadata')
                     result = [image] if image else []
             except IncusNotFoundException:
                 result = []
         else:
-            response = client.get(f'/1.0/images?project={encoded_project}&recursion=1')
+            list_query = incus_build_query(project=project, recursion=1)
+            response = client.get(f'/1.0/images{list_query}')
             result = response.get('metadata') or []
     except IncusClientException as exc:
         module.fail_json(msg=str(exc))

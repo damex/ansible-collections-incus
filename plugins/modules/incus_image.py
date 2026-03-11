@@ -98,6 +98,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
     IncusClient,
     IncusNotFoundException,
+    incus_build_query,
     incus_build_source,
     incus_create_client,
     incus_create_write_module,
@@ -159,8 +160,7 @@ def main() -> None:
         alias = module.params['alias']
         encoded_alias = quote(alias, safe='')
         project = module.params['project']
-        encoded_project = quote(project, safe='')
-        query = f'?project={encoded_project}'
+        query = incus_build_query(project=project)
 
         if module.params['state'] == 'present':
             try:

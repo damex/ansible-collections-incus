@@ -84,6 +84,7 @@ from typing import Any
 from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    incus_build_query,
     incus_create_client,
     incus_create_write_module,
     incus_run_write_module,
@@ -95,7 +96,8 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 def _find_cert_or_none(client: Any, name: str) -> dict[str, Any] | None:
     """Find certificate by name, returning None when absent."""
-    certs = client.get('/1.0/certificates?recursion=1').get('metadata') or []
+    query = incus_build_query(recursion=1)
+    certs = client.get(f'/1.0/certificates{query}').get('metadata') or []
     for cert in certs:
         if cert.get('name') == name:
             result: dict[str, Any] = cert
