@@ -293,61 +293,195 @@ def main() -> None:
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'description': {'type': 'str', 'default': ''},
-        'config': {'type': 'dict', 'default': {}, 'options': {
-            'features.images': {'type': 'bool'},
-            'features.networks': {'type': 'bool'},
-            'features.networks.zones': {'type': 'bool'},
-            'features.profiles': {'type': 'bool'},
-            'features.storage.buckets': {'type': 'bool'},
-            'features.storage.volumes': {'type': 'bool'},
-            'limits.containers': {'type': 'int'},
-            'limits.cpu': {'type': 'int'},
-            'limits.disk': {'type': 'str'},
-            'limits.instances': {'type': 'int'},
-            'limits.memory': {'type': 'str'},
-            'limits.networks': {'type': 'int'},
-            'limits.processes': {'type': 'int'},
-            'limits.virtual-machines': {'type': 'int'},
-            'restricted': {'type': 'bool'},
-            'restricted.backups': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.cluster.groups': {'type': 'str'},
-            'restricted.cluster.target': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.containers.interception': {'type': 'str', 'choices': ['allow', 'block', 'full']},
-            'restricted.containers.lowlevel': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.containers.nesting': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.containers.privilege': {'type': 'str', 'choices': ['unprivileged', 'isolated', 'allow']},
-            'restricted.devices.disk': {'type': 'str', 'choices': ['allow', 'block', 'managed']},
-            'restricted.devices.disk.paths': {'type': 'str'},
-            'restricted.devices.gpu': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.infiniband': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.nic': {'type': 'str', 'choices': ['allow', 'block', 'managed']},
-            'restricted.devices.pci': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.proxy': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.unix-block': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.unix-char': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.unix-hotplug': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.devices.usb': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.idmap.gid': {'type': 'str'},
-            'restricted.idmap.uid': {'type': 'str'},
-            'restricted.networks.access': {'type': 'str'},
-            'restricted.networks.integrations': {'type': 'str'},
-            'restricted.networks.subnets': {'type': 'str'},
-            'restricted.networks.uplinks': {'type': 'str'},
-            'restricted.networks.zones': {'type': 'str'},
-            'restricted.snapshots': {'type': 'str', 'choices': ['allow', 'block']},
-            'restricted.virtual-machines.lowlevel': {'type': 'str', 'choices': ['allow', 'block']},
-            'backups.compression_algorithm': {'type': 'str', 'choices': [
-                'bzip2', 'gzip', 'lz4', 'lzma', 'xz', 'zstd', 'none',
-            ]},
-            'images.auto_update_cached': {'type': 'bool'},
-            'images.auto_update_interval': {'type': 'int'},
-            'images.compression_algorithm': {'type': 'str', 'choices': [
-                'bzip2', 'gzip', 'lz4', 'lzma', 'xz', 'zstd', 'none',
-            ]},
-            'images.default_architecture': {'type': 'str'},
-            'images.remote_cache_expiry': {'type': 'int'},
-            'network.hwaddr_pattern': {'type': 'str'},
-        }},
+        'config': {
+            'type': 'dict',
+            'default': {},
+            'options': {
+                'features.images': {'type': 'bool'},
+                'features.networks': {'type': 'bool'},
+                'features.networks.zones': {'type': 'bool'},
+                'features.profiles': {'type': 'bool'},
+                'features.storage.buckets': {'type': 'bool'},
+                'features.storage.volumes': {'type': 'bool'},
+                'limits.containers': {'type': 'int'},
+                'limits.cpu': {'type': 'int'},
+                'limits.disk': {'type': 'str'},
+                'limits.instances': {'type': 'int'},
+                'limits.memory': {'type': 'str'},
+                'limits.networks': {'type': 'int'},
+                'limits.processes': {'type': 'int'},
+                'limits.virtual-machines': {'type': 'int'},
+                'restricted': {'type': 'bool'},
+                'restricted.backups': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.cluster.groups': {'type': 'str'},
+                'restricted.cluster.target': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.containers.interception': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                        'full',
+                    ],
+                },
+                'restricted.containers.lowlevel': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.containers.nesting': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.containers.privilege': {
+                    'type': 'str',
+                    'choices': [
+                        'unprivileged',
+                        'isolated',
+                        'allow',
+                    ],
+                },
+                'restricted.devices.disk': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                        'managed',
+                    ],
+                },
+                'restricted.devices.disk.paths': {'type': 'str'},
+                'restricted.devices.gpu': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.infiniband': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.nic': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                        'managed',
+                    ],
+                },
+                'restricted.devices.pci': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.proxy': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.unix-block': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.unix-char': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.unix-hotplug': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.devices.usb': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.idmap.gid': {'type': 'str'},
+                'restricted.idmap.uid': {'type': 'str'},
+                'restricted.networks.access': {'type': 'str'},
+                'restricted.networks.integrations': {'type': 'str'},
+                'restricted.networks.subnets': {'type': 'str'},
+                'restricted.networks.uplinks': {'type': 'str'},
+                'restricted.networks.zones': {'type': 'str'},
+                'restricted.snapshots': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'restricted.virtual-machines.lowlevel': {
+                    'type': 'str',
+                    'choices': [
+                        'allow',
+                        'block',
+                    ],
+                },
+                'backups.compression_algorithm': {
+                    'type': 'str',
+                    'choices': [
+                        'bzip2',
+                        'gzip',
+                        'lz4',
+                        'lzma',
+                        'xz',
+                        'zstd',
+                        'none',
+                    ],
+                },
+                'images.auto_update_cached': {'type': 'bool'},
+                'images.auto_update_interval': {'type': 'int'},
+                'images.compression_algorithm': {
+                    'type': 'str',
+                    'choices': [
+                        'bzip2',
+                        'gzip',
+                        'lz4',
+                        'lzma',
+                        'xz',
+                        'zstd',
+                        'none',
+                    ],
+                },
+                'images.default_architecture': {'type': 'str'},
+                'images.remote_cache_expiry': {'type': 'int'},
+                'network.hwaddr_pattern': {'type': 'str'},
+            },
+        },
     })
     desired = incus_build_desired(module)
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'projects', desired))

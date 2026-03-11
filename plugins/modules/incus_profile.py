@@ -91,8 +91,17 @@ def main() -> None:
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
-        'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
-        'config': {'type': 'dict', 'default': {}, 'options': INCUS_INSTANCE_CONFIG_OPTIONS},
+        'devices': {
+            'type': 'list',
+            'elements': 'dict',
+            'default': [],
+            'options': INCUS_DEVICE_OPTIONS,
+        },
+        'config': {
+            'type': 'dict',
+            'default': {},
+            'options': INCUS_INSTANCE_CONFIG_OPTIONS,
+        },
     }, require_yaml=True)
     desired = incus_build_desired(module)
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'profiles', desired))

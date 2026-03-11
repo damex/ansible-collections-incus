@@ -180,17 +180,45 @@ def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         'name': {'type': 'str', 'required': True},
-        'state': {'type': 'str', 'default': 'started',
-                  'choices': ['started', 'stopped', 'restarted', 'absent']},
+        'state': {
+            'type': 'str',
+            'default': 'started',
+            'choices': [
+                'started',
+                'stopped',
+                'restarted',
+                'absent',
+            ],
+        },
         'target': {'type': 'str'},
         'project': {'type': 'str', 'default': 'default'},
         **INCUS_SOURCE_ARGS,
-        'type': {'type': 'str', 'default': 'container', 'choices': ['container', 'virtual-machine']},
+        'type': {
+            'type': 'str',
+            'default': 'container',
+            'choices': [
+                'container',
+                'virtual-machine',
+            ],
+        },
         'ephemeral': {'type': 'bool', 'default': False},
-        'profiles': {'type': 'list', 'elements': 'str', 'default': ['default']},
+        'profiles': {
+            'type': 'list',
+            'elements': 'str',
+            'default': ['default'],
+        },
         'description': {'type': 'str', 'default': ''},
-        'config': {'type': 'dict', 'default': {}, 'options': INCUS_INSTANCE_CONFIG_OPTIONS},
-        'devices': {'type': 'list', 'elements': 'dict', 'default': [], 'options': INCUS_DEVICE_OPTIONS},
+        'config': {
+            'type': 'dict',
+            'default': {},
+            'options': INCUS_INSTANCE_CONFIG_OPTIONS,
+        },
+        'devices': {
+            'type': 'list',
+            'elements': 'dict',
+            'default': [],
+            'options': INCUS_DEVICE_OPTIONS,
+        },
     }, require_yaml=True)
     state = module.params['state']
     project = module.params['project']

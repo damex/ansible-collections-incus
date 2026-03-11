@@ -8,5 +8,8 @@ max-line-length = 120
 # ansible-test sanity wants imports to be after documentation
 disable = ["wrong-import-position"]
 
+[tool.pylint.similarities]
+min-similarity-lines = 12
+
 [tool.pylint.variables]
 allow-global-unused-variables = false

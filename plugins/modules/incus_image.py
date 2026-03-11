@@ -128,10 +128,24 @@ def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         'alias': {'type': 'str', 'required': True},
-        'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+        'state': {
+            'type': 'str',
+            'default': 'present',
+            'choices': [
+                'present',
+                'absent',
+            ],
+        },
         'project': {'type': 'str', 'default': 'default'},
         **INCUS_SOURCE_ARGS,
-        'type': {'type': 'str', 'default': 'container', 'choices': ['container', 'virtual-machine']},
+        'type': {
+            'type': 'str',
+            'default': 'container',
+            'choices': [
+                'container',
+                'virtual-machine',
+            ],
+        },
         'copy_aliases': {'type': 'bool', 'default': False},
         'auto_update': {'type': 'bool', 'default': False},
         'public': {'type': 'bool', 'default': False},

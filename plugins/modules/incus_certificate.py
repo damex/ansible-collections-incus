@@ -83,6 +83,7 @@ RETURN = r"""
 from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGUMENT_SPEC,
     incus_create_client,
     incus_create_write_module,
     incus_run_write_module,
@@ -149,12 +150,22 @@ def _ensure_certificate(module: Any) -> bool:
 def main() -> None:
     """Run module."""
     module = incus_create_write_module({
-        'name': {'type': 'str', 'required': True},
-        'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+        **INCUS_COMMON_ARGUMENT_SPEC,
         'certificate': {'type': 'str'},
-        'type': {'type': 'str', 'default': 'client', 'choices': ['client', 'metrics']},
+        'type': {
+            'type': 'str',
+            'default': 'client',
+            'choices': [
+                'client',
+                'metrics',
+            ],
+        },
         'restricted': {'type': 'bool', 'default': False},
-        'projects': {'type': 'list', 'elements': 'str', 'default': []},
+        'projects': {
+            'type': 'list',
+            'elements': 'str',
+            'default': [],
+        },
     })
     incus_run_write_module(module, lambda: _ensure_certificate(module))
 

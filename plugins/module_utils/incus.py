@@ -66,10 +66,14 @@ def _cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
         'name': {'type': 'str', 'required': True},
         'dhcp4': {'type': 'bool'},
         'addresses': {'type': 'list', 'elements': 'str'},
-        'routes': {'type': 'list', 'elements': 'dict', 'options': {
-            'to': {'type': 'str'},
-            'via': {'type': 'str'},
-        }},
+        'routes': {
+            'type': 'list',
+            'elements': 'dict',
+            'options': {
+                'to': {'type': 'str'},
+                'via': {'type': 'str'},
+            },
+        },
         'nameservers': {'type': 'dict', 'options': {
             'addresses': {'type': 'list', 'elements': 'str'},
         }},
@@ -83,20 +87,35 @@ _CLOUD_INIT_DATA_OPTIONS = {
     'user': {'type': 'str'},
     'password': {'type': 'str', 'no_log': True},
     'ssh_pwauth': {'type': 'bool'},
-    'chpasswd': {'type': 'dict', 'no_log': False, 'options': {
-        'expire': {'type': 'bool'},
-    }},
+    'chpasswd': {
+        'type': 'dict',
+        'no_log': False,
+        'options': {
+            'expire': {'type': 'bool'},
+        },
+    },
     'package_upgrade': {'type': 'bool'},
     'packages': {'type': 'list', 'elements': 'str'},
     'power_state': {'type': 'dict', 'options': {
-        'mode': {'type': 'str', 'choices': ['reboot', 'poweroff', 'halt']},
+        'mode': {
+            'type': 'str',
+            'choices': [
+                'reboot',
+                'poweroff',
+                'halt',
+            ],
+        },
     }},
-    'write_files': {'type': 'list', 'elements': 'dict', 'options': {
-        'path': {'type': 'str', 'required': True},
-        'content': {'type': 'str'},
-        'owner': {'type': 'str'},
-        'permissions': {'type': 'str'},
-    }},
+    'write_files': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'path': {'type': 'str', 'required': True},
+            'content': {'type': 'str'},
+            'owner': {'type': 'str'},
+            'permissions': {'type': 'str'},
+        },
+    },
     'runcmd': {'type': 'list', 'elements': 'raw'},
 }
 
@@ -194,38 +213,70 @@ INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
     'oci.entrypoint': {'type': 'str'},
     'oci.gid': {'type': 'str'},
     'oci.uid': {'type': 'str'},
-    'cloud-init.network-config': {'type': 'dict', 'options': {
-        'version': {'type': 'int'},
-        'renderer': {'type': 'str'},
-        'ethernets': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
-            match={'type': 'dict', 'options': {'driver': {'type': 'str'}}},
-        )},
-        'bonds': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
-            interfaces={'type': 'list', 'elements': 'str'},
-            parameters={'type': 'dict', 'options': {
-                'mode': {'type': 'str'},
-                'mii-monitor-interval': {'type': 'int'},
-            }},
-        )},
-        'bridges': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
-            interfaces={'type': 'list', 'elements': 'str'},
-            parameters={'type': 'dict', 'options': {
-                'stp': {'type': 'bool'},
-                'forward-delay': {'type': 'int'},
-            }},
-        )},
-        'vlans': {'type': 'list', 'elements': 'dict', 'options': _cloud_init_interface_options(
-            id={'type': 'int', 'required': True},
-            link={'type': 'str', 'required': True},
-        )},
-    }},
+    'cloud-init.network-config': {
+        'type': 'dict',
+        'options': {
+            'version': {'type': 'int'},
+            'renderer': {'type': 'str'},
+            'ethernets': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': _cloud_init_interface_options(
+                    match={'type': 'dict', 'options': {'driver': {'type': 'str'}}},
+                ),
+            },
+            'bonds': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': _cloud_init_interface_options(
+                    interfaces={'type': 'list', 'elements': 'str'},
+                    parameters={
+                        'type': 'dict',
+                        'options': {
+                            'mode': {'type': 'str'},
+                            'mii-monitor-interval': {'type': 'int'},
+                        },
+                    },
+                ),
+            },
+            'bridges': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': _cloud_init_interface_options(
+                    interfaces={'type': 'list', 'elements': 'str'},
+                    parameters={
+                        'type': 'dict',
+                        'options': {
+                            'stp': {'type': 'bool'},
+                            'forward-delay': {'type': 'int'},
+                        },
+                    },
+                ),
+            },
+            'vlans': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': _cloud_init_interface_options(
+                    id={'type': 'int', 'required': True},
+                    link={'type': 'str', 'required': True},
+                ),
+            },
+        },
+    },
     'cloud-init.user-data': {'type': 'dict', 'options': _CLOUD_INIT_DATA_OPTIONS},
     'cloud-init.vendor-data': {'type': 'dict', 'options': _CLOUD_INIT_DATA_OPTIONS},
 }
 
 INCUS_COMMON_ARGUMENT_SPEC = {
     'name': {'type': 'str', 'required': True},
-    'state': {'type': 'str', 'default': 'present', 'choices': ['present', 'absent']},
+    'state': {
+        'type': 'str',
+        'default': 'present',
+        'choices': [
+            'present',
+            'absent',
+        ],
+    },
 }
 
 INCUS_COMMON_ARGS = {
@@ -438,7 +489,14 @@ INCUS_KNOWN_REMOTES = {
 INCUS_SOURCE_ARGS = {
     'source': {'type': 'str'},
     'source_server': {'type': 'str'},
-    'source_protocol': {'type': 'str', 'default': 'simplestreams', 'choices': ['simplestreams', 'incus']},
+    'source_protocol': {
+        'type': 'str',
+        'default': 'simplestreams',
+        'choices': [
+            'simplestreams',
+            'incus',
+        ],
+    },
 }
 
 

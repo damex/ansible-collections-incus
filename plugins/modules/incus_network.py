@@ -321,12 +321,25 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 INCUS_NETWORK_CONFIG_OPTIONS = {
-    'bridge.driver': {'type': 'str', 'choices': ['native', 'openvswitch']},
+    'bridge.driver': {
+        'type': 'str',
+        'choices': [
+            'native',
+            'openvswitch',
+        ],
+    },
     'bridge.external_interfaces': {'type': 'str'},
     'bridge.hwaddr': {'type': 'str'},
     'bridge.mtu': {'type': 'str'},
     'dns.domain': {'type': 'str'},
-    'dns.mode': {'type': 'str', 'choices': ['managed', 'dynamic', 'none']},
+    'dns.mode': {
+        'type': 'str',
+        'choices': [
+            'managed',
+            'dynamic',
+            'none',
+        ],
+    },
     'dns.nameservers': {'type': 'str'},
     'dns.search': {'type': 'str'},
     'dns.zone.forward': {'type': 'str'},
@@ -343,7 +356,13 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
     'ipv4.gateway.hwaddr': {'type': 'str'},
     'ipv4.nat': {'type': 'bool'},
     'ipv4.nat.address': {'type': 'str'},
-    'ipv4.nat.order': {'type': 'str', 'choices': ['before', 'after']},
+    'ipv4.nat.order': {
+        'type': 'str',
+        'choices': [
+            'before',
+            'after',
+        ],
+    },
     'ipv4.routes': {'type': 'str'},
     'ipv4.routes.anycast': {'type': 'bool'},
     'ipv4.routing': {'type': 'bool'},
@@ -357,15 +376,35 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
     'ipv6.gateway.hwaddr': {'type': 'str'},
     'ipv6.nat': {'type': 'bool'},
     'ipv6.nat.address': {'type': 'str'},
-    'ipv6.nat.order': {'type': 'str', 'choices': ['before', 'after']},
+    'ipv6.nat.order': {
+        'type': 'str',
+        'choices': [
+            'before',
+            'after',
+        ],
+    },
     'ipv6.routes': {'type': 'str'},
     'ipv6.routes.anycast': {'type': 'bool'},
     'ipv6.routing': {'type': 'bool'},
     'raw.dnsmasq': {'type': 'str'},
     'security.acls': {'type': 'str'},
-    'security.acls.default.egress.action': {'type': 'str', 'choices': ['allow', 'reject', 'drop']},
+    'security.acls.default.egress.action': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'reject',
+            'drop',
+        ],
+    },
     'security.acls.default.egress.logged': {'type': 'bool'},
-    'security.acls.default.ingress.action': {'type': 'str', 'choices': ['allow', 'reject', 'drop']},
+    'security.acls.default.ingress.action': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'reject',
+            'drop',
+        ],
+    },
     'security.acls.default.ingress.logged': {'type': 'bool'},
     'bgp.ipv4.nexthop': {'type': 'str'},
     'bgp.ipv6.nexthop': {'type': 'str'},
@@ -383,8 +422,21 @@ def main() -> None:
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
         'target': {'type': 'str'},
-        'type': {'type': 'str', 'choices': ['bridge', 'macvlan', 'ovn', 'physical', 'sriov']},
-        'config': {'type': 'dict', 'default': {}, 'options': INCUS_NETWORK_CONFIG_OPTIONS},
+        'type': {
+            'type': 'str',
+            'choices': [
+                'bridge',
+                'macvlan',
+                'ovn',
+                'physical',
+                'sriov',
+            ],
+        },
+        'config': {
+            'type': 'dict',
+            'default': {},
+            'options': INCUS_NETWORK_CONFIG_OPTIONS,
+        },
         'description': {'type': 'str', 'default': ''},
     })
     desired = incus_build_desired(module)
