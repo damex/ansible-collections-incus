@@ -41,6 +41,7 @@ __all__ = [
     'assert_module_delete_missing',
     'assert_module_check_mode_create',
     'assert_module_fail_missing',
+    'assert_module_update',
 ]
 
 CONNECTION_PARAMS: dict[str, Any] = {
@@ -332,3 +333,18 @@ def assert_module_fail_missing(
     with pytest.raises(SystemExit):
         run_module_main(module_path, module, client, main_func)
     module.fail_json.assert_called_once()
+
+
+def assert_module_update(
+    main_func: collections.abc.Callable[[], None], module_path: str,
+    module: MagicMock, get_responses: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Call module main with existing resource and assert PUT update."""
+    client = MagicMock()
+    client.get.side_effect = get_responses
+    client.put.return_value = {'type': 'sync'}
+    run_module_main(module_path, module, client, main_func)
+    module.exit_json.assert_called_once_with(changed=True)
+    client.put.assert_called_once()
+    put_data: dict[str, Any] = client.put.call_args[0][1]
+    return put_data

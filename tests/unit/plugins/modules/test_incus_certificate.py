@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from ansible_collections.damex.incus.plugins.modules.incus_certificate import main
-from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS, run_module_main
+from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS, run_module_main, assert_module_update
 
 __all__ = [
     'test_create_certificate',
@@ -91,13 +91,7 @@ def test_update_restricted() -> None:
     module = _mock_module()
     module.params['restricted'] = True
     module.params['projects'] = ['default']
-    client = MagicMock()
-    client.get.return_value = {'metadata': [EXISTING_CERT]}
-    client.put.return_value = {'type': 'sync'}
-    run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
-    client.put.assert_called_once()
-    put_data = client.put.call_args[0][1]
+    put_data = assert_module_update(main, MODULE, module, [{'metadata': [EXISTING_CERT]}])
     assert put_data['restricted'] is True
     assert put_data['projects'] == ['default']
 
@@ -107,11 +101,7 @@ def test_update_projects() -> None:
     module = _mock_module()
     module.params['projects'] = ['staging']
     current = {**EXISTING_CERT, 'projects': ['default']}
-    client = MagicMock()
-    client.get.return_value = {'metadata': [current]}
-    client.put.return_value = {'type': 'sync'}
-    run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_module_update(main, MODULE, module, [{'metadata': [current]}])
 
 
 def test_delete_existing_certificate() -> None:

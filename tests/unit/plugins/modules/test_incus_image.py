@@ -16,10 +16,14 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_module_delete_missing,
     assert_module_check_mode_create,
     assert_module_fail_missing,
+    assert_module_update,
 )
 
 __all__ = [
-    'test_present_alias_exists',
+    'test_present_alias_exists_no_change',
+    'test_present_alias_exists_update_auto_update',
+    'test_present_alias_exists_update_public',
+    'test_present_alias_exists_update_check_mode',
     'test_present_copy_image',
     'test_present_copy_aliases',
     'test_present_missing_source',
@@ -53,14 +57,62 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
     return module
 
 
-def test_present_alias_exists() -> None:
-    """Skip existing alias."""
+def test_present_alias_exists_no_change() -> None:
+    """Skip existing image with matching settings."""
     module = _mock_module()
     client = MagicMock()
-    client.get.return_value = {'metadata': {'name': 'debian/13', 'target': 'abc123'}}
+    client.get.side_effect = [
+        {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
+        {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
+    ]
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=False)
     client.post.assert_not_called()
+    client.put.assert_not_called()
+
+
+def test_present_alias_exists_update_auto_update() -> None:
+    """Update auto_update on existing image."""
+    module = _mock_module()
+    module.params['auto_update'] = True
+    image_metadata = {
+        'auto_update': False, 'public': False,
+        'properties': {'os': 'debian'}, 'expires_at': '2030-01-01T00:00:00Z',
+    }
+    put_data = assert_module_update(main, MODULE, module, [
+        {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
+        {'metadata': image_metadata},
+    ])
+    assert put_data['auto_update'] is True
+    assert put_data['public'] is False
+    assert put_data['properties'] == {'os': 'debian'}
+    assert put_data['expires_at'] == '2030-01-01T00:00:00Z'
+
+
+def test_present_alias_exists_update_public() -> None:
+    """Update public on existing image."""
+    module = _mock_module()
+    module.params['public'] = True
+    put_data = assert_module_update(main, MODULE, module, [
+        {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
+        {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
+    ])
+    assert put_data['public'] is True
+    assert put_data['expires_at'] == ''
+
+
+def test_present_alias_exists_update_check_mode() -> None:
+    """Skip PUT in check mode when update needed."""
+    module = _mock_module(check_mode=True)
+    module.params['auto_update'] = True
+    client = MagicMock()
+    client.get.side_effect = [
+        {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
+        {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
+    ]
+    run_module_main(MODULE, module, client, main)
+    module.exit_json.assert_called_once_with(changed=True)
+    client.put.assert_not_called()
 
 
 def test_present_copy_image() -> None:

@@ -14,7 +14,7 @@ module: incus_image
 short_description: Ensure Incus image
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
-  - Copy and delete Incus images via the Incus REST API.
+  - Copy, update, and delete Incus images via the Incus REST API.
   - Images are project-scoped resources identified by alias.
   - Copying from remote servers uses the C(remote:alias) format (e.g. C(images:debian/13)).
 extends_documentation_fragment:
@@ -76,6 +76,12 @@ EXAMPLES = r"""
     source: images:debian/13
     auto_update: true
 
+- name: Ensure image is public
+  damex.incus.incus_image:
+    alias: debian/13
+    source: images:debian/13
+    public: true
+
 - name: Ensure image is absent
   damex.incus.incus_image:
     alias: debian/13
@@ -89,6 +95,7 @@ from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
+    IncusClient,
     IncusNotFoundException,
     incus_build_source,
     incus_create_client,
@@ -98,6 +105,23 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
+
+
+def _update_image(module: Any, client: IncusClient, fingerprint: str, query: str) -> bool:
+    """Update image properties if they differ from desired state."""
+    image = client.get(f'/1.0/images/{fingerprint}{query}').get('metadata') or {}
+    desired_auto_update = module.params['auto_update']
+    desired_public = module.params['public']
+    if image.get('auto_update', False) == desired_auto_update and image.get('public', False) == desired_public:
+        return False
+    if not module.check_mode:
+        incus_wait(module, client, client.put(f'/1.0/images/{fingerprint}{query}', {
+            'auto_update': desired_auto_update,
+            'public': desired_public,
+            'properties': image.get('properties') or {},
+            'expires_at': image.get('expires_at', ''),
+        }))
+    return True
 
 
 def main() -> None:
@@ -121,10 +145,12 @@ def main() -> None:
 
         if module.params['state'] == 'present':
             try:
-                client.get(f'/1.0/images/aliases/{alias}{query}')
-                return False
+                alias_meta = client.get(f'/1.0/images/aliases/{alias}{query}').get('metadata') or {}
+                fingerprint = alias_meta.get('target')
             except IncusNotFoundException:
-                pass
+                fingerprint = None
+            if fingerprint:
+                return _update_image(module, client, fingerprint, query)
             if not module.params['source']:
                 module.fail_json(msg="'source' is required when creating an image")
             source = incus_build_source(module)

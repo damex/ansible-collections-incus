@@ -23,6 +23,94 @@
     that:
       - incus_image_idempotent_state is not changed
 
+- name: Ensure incus image auto_update is enabled
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    state: present
+  register: incus_image_auto_update_state
+
+- name: Ensure incus image auto_update is enabled
+  ansible.builtin.assert:
+    that:
+      - incus_image_auto_update_state is changed
+
+- name: Ensure incus image auto_update is idempotent
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    state: present
+  register: incus_image_auto_update_idempotent_state
+
+- name: Ensure incus image auto_update is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_image_auto_update_idempotent_state is not changed
+
+- name: Ensure incus image auto_update info is gathered
+  damex.incus.incus_image_info:
+    name: test-alpine
+  register: incus_image_auto_update_info_state
+
+- name: Ensure incus image auto_update info is verified
+  ansible.builtin.assert:
+    that:
+      - incus_image_auto_update_info_state.images | map(attribute='auto_update') | first
+      - not incus_image_auto_update_info_state.images | map(attribute='public') | first
+
+- name: Ensure incus image public is enabled
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    public: true
+    state: present
+  register: incus_image_public_state
+
+- name: Ensure incus image public is enabled
+  ansible.builtin.assert:
+    that:
+      - incus_image_public_state is changed
+
+- name: Ensure incus image public is idempotent
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    auto_update: true
+    public: true
+    state: present
+  register: incus_image_public_idempotent_state
+
+- name: Ensure incus image public is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_image_public_idempotent_state is not changed
+
+- name: Ensure incus image public info is gathered
+  damex.incus.incus_image_info:
+    name: test-alpine
+  register: incus_image_public_info_state
+
+- name: Ensure incus image public info is verified
+  ansible.builtin.assert:
+    that:
+      - incus_image_public_info_state.images | map(attribute='auto_update') | first
+      - incus_image_public_info_state.images | map(attribute='public') | first
+
+- name: Ensure incus image settings are reverted
+  damex.incus.incus_image:
+    alias: test-alpine
+    source: images:alpine/edge
+    state: present
+  register: incus_image_revert_state
+
+- name: Ensure incus image settings are reverted
+  ansible.builtin.assert:
+    that:
+      - incus_image_revert_state is changed
+
 - name: Ensure incus image info
   damex.incus.incus_image_info: {}
   register: incus_image_info_state
