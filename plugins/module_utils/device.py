@@ -15,7 +15,7 @@ __all__ = [
 
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
-    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic', 'none']},
+    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic', 'none', 'tpm']},
     # disk
     'ceph.cluster_name': {'type': 'str'},
     'ceph.user_name': {'type': 'str'},
@@ -23,6 +23,7 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'limits.read': {'type': 'str'},
     'limits.write': {'type': 'str'},
     'path': {'type': 'str'},
+    'pathrm': {'type': 'str'},
     'pool': {'type': 'str'},
     'propagation': {'type': 'str'},
     'raw.mount.options': {'type': 'str'},

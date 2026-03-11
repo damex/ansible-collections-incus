@@ -659,6 +659,7 @@ argument_specs:
                   - disk
                   - nic
                   - none
+                  - tpm
               ceph.cluster_name:
                 description: Ceph cluster name.
                 type: str
@@ -675,7 +676,10 @@ argument_specs:
                 description: I/O limit in byte/s or IOPS for write operations.
                 type: str
               path:
-                description: Path inside the instance where the disk will be mounted.
+                description: Path inside the instance (disk mount point or TPM device path).
+                type: str
+              pathrm:
+                description: Resource manager path inside the instance.
                 type: str
               pool:
                 description: Storage pool for the disk device.

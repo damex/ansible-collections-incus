@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic, none]
+        choices: [disk, nic, none, tpm]
         required: true
       ceph.cluster_name:
         description: Ceph cluster name (disk only).
@@ -48,7 +48,10 @@ options:
         description: I/O limit in byte/s or IOPS for write operations (disk only).
         type: str
       path:
-        description: Path inside the instance where the disk will be mounted (disk only).
+        description: Path inside the instance (disk mount point or TPM device path).
+        type: str
+      pathrm:
+        description: Resource manager path inside the instance, e.g. C(/dev/tpmrm0) (tpm, containers only).
         type: str
       pool:
         description: Incus storage pool backing the disk device (disk only).
