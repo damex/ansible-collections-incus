@@ -16,7 +16,7 @@ __all__ = [
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
     'type': {'type': 'str', 'required': True, 'choices': [
-        'disk', 'nic', 'none', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug', 'usb',
+        'disk', 'nic', 'none', 'pci', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug', 'usb',
     ]},
     # shared
     'attached': {'type': 'bool'},
@@ -99,6 +99,9 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     # unix-char, unix-block
     'major': {'type': 'int'},
     'minor': {'type': 'int'},
+    # pci
+    'address': {'type': 'str'},
+    'firmware': {'type': 'bool'},
     # usb
     'busnum': {'type': 'int'},
     'devnum': {'type': 'int'},

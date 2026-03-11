@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic, none, tpm, unix-block, unix-char, unix-hotplug, usb]
+        choices: [disk, nic, none, pci, tpm, unix-block, unix-char, unix-hotplug, usb]
         required: true
       # shared
       attached:
@@ -265,6 +265,13 @@ options:
       minor:
         description: Device minor number (unix-char, unix-block).
         type: int
+      # pci
+      address:
+        description: PCI address of the device (pci only, VMs only).
+        type: str
+      firmware:
+        description: Whether to expose the device's option ROM to the VM (pci only).
+        type: bool
       # usb
       busnum:
         description: Bus number the USB device is connected to (usb only).
