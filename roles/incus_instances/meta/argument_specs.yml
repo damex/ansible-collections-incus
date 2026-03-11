@@ -696,6 +696,26 @@ argument_specs:
                   - nic
                   - none
                   - tpm
+              # shared (disk, nic)
+              attached:
+                description: Whether the device is attached or ejected.
+                type: bool
+              boot.priority:
+                description: Boot priority for VMs.
+                type: int
+              io.bus:
+                description: Override bus for the device.
+                type: str
+              limits.max:
+                description: I/O limit in byte/s or IOPS (disk), or combined traffic limit in bit/s (nic).
+                type: str
+              path:
+                description: Path inside the instance (disk mount point or TPM device path).
+                type: str
+              source:
+                description: Source of a file system or block device.
+                type: str
+              # disk
               ceph.cluster_name:
                 description: Ceph cluster name.
                 type: str
@@ -710,12 +730,6 @@ argument_specs:
                 type: str
               limits.write:
                 description: I/O limit in byte/s or IOPS for write operations.
-                type: str
-              path:
-                description: Path inside the instance (disk mount point or TPM device path).
-                type: str
-              pathrm:
-                description: Resource manager path inside the instance.
                 type: str
               pool:
                 description: Storage pool for the disk device.
@@ -744,21 +758,13 @@ argument_specs:
               size.state:
                 description: Size for the VM runtime state file system.
                 type: str
-              source:
-                description: Source of a file system or block device.
-                type: str
               wwn:
                 description: Whether to set a World Wide Name for the disk.
                 type: bool
+              # nic
               acceleration:
                 description: Enable hardware offloading (none/sriov/vdpa).
                 type: str
-              attached:
-                description: Whether the device is attached or ejected.
-                type: bool
-              boot.priority:
-                description: Boot priority for VMs.
-                type: int
               connected:
                 description: Whether the NIC is connected to the host network.
                 type: bool
@@ -770,9 +776,6 @@ argument_specs:
                 type: str
               hwaddr:
                 description: MAC address of the new interface.
-                type: str
-              io.bus:
-                description: Override bus for the device.
                 type: str
               ipv4.address:
                 description: IPv4 address to assign via DHCP or static allocation.
@@ -833,9 +836,6 @@ argument_specs:
                 type: str
               limits.ingress:
                 description: Incoming traffic I/O limit in bit/s.
-                type: str
-              limits.max:
-                description: Combined egress and ingress traffic I/O limit in bit/s.
                 type: str
               limits.priority:
                 description: Outgoing traffic priority for queuing.
@@ -911,6 +911,10 @@ argument_specs:
                 type: str
               vrf:
                 description: VRF name on the host for the host-side interface and routes.
+                type: str
+              # tpm
+              pathrm:
+                description: Resource manager path inside the instance.
                 type: str
           target:
             description: Cluster member to place the instance on.

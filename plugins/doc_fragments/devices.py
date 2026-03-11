@@ -32,6 +32,26 @@ options:
         type: str
         choices: [disk, nic, none, tpm]
         required: true
+      # shared (disk, nic)
+      attached:
+        description: Whether the device is attached or ejected (disk, nic).
+        type: bool
+      boot.priority:
+        description: Boot priority for VMs (disk, nic).
+        type: int
+      io.bus:
+        description: Override bus for the device, e.g. C(virtio) or C(usb) (disk, nic, VMs only).
+        type: str
+      limits.max:
+        description: I/O limit in byte/s or IOPS for both read and write (disk), or combined traffic limit in bit/s (nic).
+        type: str
+      path:
+        description: Path inside the instance (disk mount point or TPM device path).
+        type: str
+      source:
+        description: Source of a file system or block device (disk only).
+        type: str
+      # disk
       ceph.cluster_name:
         description: Ceph cluster name (disk only).
         type: str
@@ -46,12 +66,6 @@ options:
         type: str
       limits.write:
         description: I/O limit in byte/s or IOPS for write operations (disk only).
-        type: str
-      path:
-        description: Path inside the instance (disk mount point or TPM device path).
-        type: str
-      pathrm:
-        description: Resource manager path inside the instance, e.g. C(/dev/tpmrm0) (tpm, containers only).
         type: str
       pool:
         description: Incus storage pool backing the disk device (disk only).
@@ -80,21 +94,13 @@ options:
       size.state:
         description: Size for the VM runtime state file system (disk, VMs only).
         type: str
-      source:
-        description: Source of a file system or block device (disk only).
-        type: str
       wwn:
         description: Whether to set a World Wide Name for the disk (disk, VMs only).
         type: bool
+      # nic
       acceleration:
         description: Enable hardware offloading (none/sriov/vdpa) (nic, OVN only).
         type: str
-      attached:
-        description: Whether the device is attached or ejected (disk, nic).
-        type: bool
-      boot.priority:
-        description: Boot priority for VMs (disk, nic).
-        type: int
       connected:
         description: Whether the NIC is connected to the host network (nic only).
         type: bool
@@ -106,9 +112,6 @@ options:
         type: str
       hwaddr:
         description: MAC address of the new interface (nic only).
-        type: str
-      io.bus:
-        description: Override bus for the device, e.g. C(virtio) or C(usb) (disk, nic, VMs only).
         type: str
       ipv4.address:
         description: IPv4 address to assign via DHCP or static allocation (nic only).
@@ -169,9 +172,6 @@ options:
         type: str
       limits.ingress:
         description: Incoming traffic I/O limit in bit/s (nic only).
-        type: str
-      limits.max:
-        description: I/O limit in byte/s or IOPS for both read and write (disk), or combined traffic limit in bit/s (nic).
         type: str
       limits.priority:
         description: Outgoing traffic priority for queuing (nic only).
@@ -247,5 +247,9 @@ options:
         type: str
       vrf:
         description: VRF name on the host for the host-side interface and routes (nic, routed only).
+        type: str
+      # tpm
+      pathrm:
+        description: Resource manager path inside the instance, e.g. C(/dev/tpmrm0) (tpm, containers only).
         type: str
 """

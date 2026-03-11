@@ -16,14 +16,19 @@ __all__ = [
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
     'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic', 'none', 'tpm']},
+    # shared (disk, nic)
+    'attached': {'type': 'bool'},
+    'boot.priority': {'type': 'int'},
+    'io.bus': {'type': 'str'},
+    'limits.max': {'type': 'str'},
+    'path': {'type': 'str'},
+    'source': {'type': 'str'},
     # disk
     'ceph.cluster_name': {'type': 'str'},
     'ceph.user_name': {'type': 'str'},
     'io.cache': {'type': 'str'},
     'limits.read': {'type': 'str'},
     'limits.write': {'type': 'str'},
-    'path': {'type': 'str'},
-    'pathrm': {'type': 'str'},
     'pool': {'type': 'str'},
     'propagation': {'type': 'str'},
     'raw.mount.options': {'type': 'str'},
@@ -33,18 +38,13 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'shift': {'type': 'bool'},
     'size': {'type': 'str'},
     'size.state': {'type': 'str'},
-    'source': {'type': 'str'},
     'wwn': {'type': 'bool'},
     # nic
     'acceleration': {'type': 'str'},
-    # disk, nic
-    'attached': {'type': 'bool'},
-    'boot.priority': {'type': 'int'},
     'connected': {'type': 'bool'},
     'gvrp': {'type': 'bool'},
     'host_name': {'type': 'str'},
     'hwaddr': {'type': 'str'},
-    'io.bus': {'type': 'str'},
     'ipv4.address': {'type': 'str'},
     'ipv4.address.external': {'type': 'str'},
     'ipv4.gateway': {'type': 'str'},
@@ -65,7 +65,6 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'ipv6.routes.external': {'type': 'str'},
     'limits.egress': {'type': 'str'},
     'limits.ingress': {'type': 'str'},
-    'limits.max': {'type': 'str'},
     'limits.priority': {'type': 'int'},
     'mode': {'type': 'str'},
     'mtu': {'type': 'str'},
@@ -91,6 +90,8 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'vlan': {'type': 'int'},
     'vlan.tagged': {'type': 'str'},
     'vrf': {'type': 'str'},
+    # tpm
+    'pathrm': {'type': 'str'},
 }
 
 
