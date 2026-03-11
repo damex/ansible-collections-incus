@@ -346,14 +346,15 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
         self.validate_certs = validate_certs
         self.host: str | None = None
         self.port: int = 8443
+        self._conn: http.client.HTTPConnection | None = None
 
         if url:
             parsed = urlparse(url)
             self.host = parsed.hostname
             self.port = parsed.port or 8443
 
-    def _connection(self) -> http.client.HTTPConnection:
-        """Get connection."""
+    def _connect(self) -> http.client.HTTPConnection:
+        """Create connection."""
         if self.url:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
             if not self.validate_certs:
@@ -368,6 +369,18 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             return http.client.HTTPSConnection(self.host, self.port, context=context)
         return _UnixSocketHTTPConnection(self.socket_path)
 
+    def _connection(self) -> http.client.HTTPConnection:
+        """Get connection."""
+        if self._conn is None:
+            self._conn = self._connect()
+        return self._conn
+
+    def _close(self) -> None:
+        """Close connection."""
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+
     def _headers(self) -> dict[str, str]:
         """Build headers."""
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -375,18 +388,35 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
             headers['Authorization'] = f'Bearer {self.token}'
         return headers
 
+    def _send(self, method: str, path: str, body: str | None) -> dict[str, Any]:
+        """Execute request."""
+        conn = self._connection()
+        conn.request(method, path, body=body, headers=self._headers())
+        response = conn.getresponse()
+        result: dict[str, Any] = json.loads(response.read().decode('utf-8'))
+        return result
+
     def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
         """Send request."""
-        conn = self._connection()
+        body = json.dumps(data) if data is not None else None
         try:
-            body = json.dumps(data) if data is not None else None
-            conn.request(method, path, body=body, headers=self._headers())
-            response = conn.getresponse()
-            content: dict[str, Any] = json.loads(response.read().decode('utf-8'))
+            content = self._send(method, path, body)
+        except IncusClientException:
+            self._close()
+            raise
+        except (OSError, http.client.HTTPException):
+            self._close()
+            try:
+                content = self._send(method, path, body)
+            except IncusClientException:
+                self._close()
+                raise
+            except Exception as e:
+                self._close()
+                raise IncusClientException(str(e)) from e
         except Exception as e:
+            self._close()
             raise IncusClientException(str(e)) from e
-        finally:
-            conn.close()
 
         if content.get('type') == 'error':
             if content.get('error_code') == 404:
