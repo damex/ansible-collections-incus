@@ -74,10 +74,10 @@ from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
-    IncusNotFoundException,
     incus_build_query,
     incus_create_client,
     incus_create_info_module,
+    incus_find_certificate,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -92,15 +92,13 @@ def main() -> None:
     try:
         client = incus_create_client(module)
 
-        query = incus_build_query(recursion=1)
         if name:
-            certs = client.get(f'/1.0/certificates{query}').get('metadata') or []
-            result = [c for c in certs if c.get('name') == name]
+            certificate = incus_find_certificate(client, name)
+            result = [certificate] if certificate else []
         else:
+            query = incus_build_query(recursion=1)
             result = client.get(f'/1.0/certificates{query}').get('metadata') or []
 
-    except IncusNotFoundException:
-        result = []
     except IncusClientException as e:
         module.fail_json(msg=str(e))
         return

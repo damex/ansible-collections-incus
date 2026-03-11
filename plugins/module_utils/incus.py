@@ -45,6 +45,8 @@ __all__ = [
     'incus_ensure_global_info',
     'incus_ensure_project_info',
     'incus_ensure_resource',
+    'incus_find_certificate',
+    'incus_resolve_image_alias',
     'incus_run_info_module',
     'incus_run_write_module',
     'incus_stringify_config',
@@ -621,6 +623,28 @@ def incus_ensure_resource(
             incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{base_query}'))
         return True
     return False
+
+
+def incus_find_certificate(client: IncusClient, name: str) -> dict[str, Any] | None:
+    """Find certificate by name."""
+    query = incus_build_query(recursion=1)
+    certificates = client.get(f'/1.0/certificates{query}').get('metadata') or []
+    for certificate in certificates:
+        if certificate.get('name') == name:
+            result: dict[str, Any] = certificate
+            return result
+    return None
+
+
+def incus_resolve_image_alias(client: IncusClient, alias: str, query: str) -> str | None:
+    """Resolve image alias to fingerprint."""
+    encoded_alias = quote(alias, safe='')
+    try:
+        alias_meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
+        fingerprint: str | None = alias_meta.get('target')
+        return fingerprint
+    except IncusNotFoundException:
+        return None
 
 
 def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:

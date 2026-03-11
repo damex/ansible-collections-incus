@@ -85,10 +85,10 @@ from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
-    IncusNotFoundException,
     incus_build_query,
     incus_create_client,
     incus_create_info_module,
+    incus_resolve_image_alias,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -108,20 +108,11 @@ def main() -> None:
     try:
         client = incus_create_client(module)
         if name:
-            encoded_name = quote(name, safe='')
-            try:
-                alias_meta = client.get(
-                    f'/1.0/images/aliases/{encoded_name}{query}',
-                ).get('metadata') or {}
-                fingerprint = alias_meta.get('target')
-                if fingerprint:
-                    encoded_fingerprint = quote(fingerprint, safe='')
-                    image = client.get(
-                        f'/1.0/images/{encoded_fingerprint}{query}',
-                    ).get('metadata')
-                    result = [image] if image else []
-            except IncusNotFoundException:
-                result = []
+            fingerprint = incus_resolve_image_alias(client, name, query)
+            if fingerprint:
+                encoded_fingerprint = quote(fingerprint, safe='')
+                image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata')
+                result = [image] if image else []
         else:
             list_query = incus_build_query(project=project, recursion=1)
             response = client.get(f'/1.0/images{list_query}')

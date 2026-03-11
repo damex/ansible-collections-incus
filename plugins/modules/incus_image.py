@@ -97,10 +97,10 @@ from urllib.parse import quote
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
     IncusClient,
-    IncusNotFoundException,
     incus_build_query,
     incus_build_source,
     incus_create_client,
+    incus_resolve_image_alias,
     incus_create_write_module,
     incus_run_write_module,
     incus_wait,
@@ -158,16 +158,11 @@ def main() -> None:
     def _ensure_image() -> bool:
         client = incus_create_client(module)
         alias = module.params['alias']
-        encoded_alias = quote(alias, safe='')
         project = module.params['project']
         query = incus_build_query(project=project)
 
         if module.params['state'] == 'present':
-            try:
-                alias_meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
-                fingerprint = alias_meta.get('target')
-            except IncusNotFoundException:
-                fingerprint = None
+            fingerprint = incus_resolve_image_alias(client, alias, query)
             if fingerprint:
                 encoded_fingerprint = quote(fingerprint, safe='')
                 return _update_image(module, client, encoded_fingerprint, query)
@@ -187,15 +182,13 @@ def main() -> None:
                 incus_wait(module, client, client.post(f'/1.0/images{query}', data))
             return True
 
-        try:
-            meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
-            fingerprint = meta.get('target')
-        except IncusNotFoundException:
+        fingerprint = incus_resolve_image_alias(client, alias, query)
+        if not fingerprint:
             return False
-        if fingerprint and not module.check_mode:
+        if not module.check_mode:
             encoded_fingerprint = quote(fingerprint, safe='')
             incus_wait(module, client, client.delete(f'/1.0/images/{encoded_fingerprint}{query}'))
-        return bool(fingerprint)
+        return True
 
     incus_run_write_module(module, _ensure_image)
 
