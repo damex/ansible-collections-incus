@@ -32,29 +32,65 @@ options:
         type: str
         choices: [disk, nic]
         required: true
+      ceph.cluster_name:
+        description: Ceph cluster name (disk only).
+        type: str
+      ceph.user_name:
+        description: Ceph user name (disk only).
+        type: str
+      io.cache:
+        description: Caching mode for the disk device (disk only).
+        type: str
+      limits.read:
+        description: I/O limit in byte/s or IOPS for read operations (disk only).
+        type: str
+      limits.write:
+        description: I/O limit in byte/s or IOPS for write operations (disk only).
+        type: str
       path:
-        description: Filesystem mount path inside the instance (disk only).
+        description: Path inside the instance where the disk will be mounted (disk only).
         type: str
       pool:
         description: Incus storage pool backing the disk device (disk only).
         type: str
-      source:
-        description: Host path or device to pass through (disk only).
+      propagation:
+        description: Controls how a bind-mount is shared between instance and host (disk only).
         type: str
-      size:
-        description: Maximum size of the disk device, e.g. C(20GiB) (disk only).
+      raw.mount.options:
+        description: File system specific mount options (disk only).
         type: str
       readonly:
-        description: Expose the disk as read-only inside the instance (disk only).
+        description: Whether to make the mount read-only (disk only).
+        type: bool
+      recursive:
+        description: Whether to recursively mount the source path (disk only).
+        type: bool
+      required:
+        description: Whether to fail if the source path does not exist (disk only).
+        type: bool
+      shift:
+        description: Whether to set up a shifting overlay to translate the source UID/GID (disk, containers only).
+        type: bool
+      size:
+        description: Disk size limit, e.g. C(20GiB) (disk only).
+        type: str
+      size.state:
+        description: Size for the VM runtime state file system (disk, VMs only).
+        type: str
+      source:
+        description: Source of a file system or block device (disk only).
+        type: str
+      wwn:
+        description: Whether to set a World Wide Name for the disk (disk, VMs only).
         type: bool
       acceleration:
         description: Enable hardware offloading (none/sriov/vdpa) (nic, OVN only).
         type: str
       attached:
-        description: Whether the NIC is plugged in (nic only).
+        description: Whether the device is attached or ejected (disk, nic).
         type: bool
       boot.priority:
-        description: Boot priority for VMs (nic only).
+        description: Boot priority for VMs (disk, nic).
         type: int
       connected:
         description: Whether the NIC is connected to the host network (nic only).
@@ -69,7 +105,7 @@ options:
         description: MAC address of the new interface (nic only).
         type: str
       io.bus:
-        description: Override bus for the device, e.g. C(virtio) or C(usb) (nic, VMs only).
+        description: Override bus for the device, e.g. C(virtio) or C(usb) (disk, nic, VMs only).
         type: str
       ipv4.address:
         description: IPv4 address to assign via DHCP or static allocation (nic only).
@@ -132,7 +168,7 @@ options:
         description: Incoming traffic I/O limit in bit/s (nic only).
         type: str
       limits.max:
-        description: Combined egress and ingress traffic I/O limit in bit/s (nic only).
+        description: I/O limit in byte/s or IOPS for both read and write (disk), or combined traffic limit in bit/s (nic).
         type: str
       limits.priority:
         description: Outgoing traffic priority for queuing (nic only).

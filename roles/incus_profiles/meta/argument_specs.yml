@@ -658,26 +658,62 @@ argument_specs:
                 choices:
                   - disk
                   - nic
+              ceph.cluster_name:
+                description: Ceph cluster name.
+                type: str
+              ceph.user_name:
+                description: Ceph user name.
+                type: str
+              io.cache:
+                description: Caching mode for the disk device.
+                type: str
+              limits.read:
+                description: I/O limit in byte/s or IOPS for read operations.
+                type: str
+              limits.write:
+                description: I/O limit in byte/s or IOPS for write operations.
+                type: str
               path:
-                description: Filesystem mount path inside the instance.
+                description: Path inside the instance where the disk will be mounted.
                 type: str
               pool:
                 description: Storage pool for the disk device.
                 type: str
-              source:
-                description: Host path or device to pass through.
+              propagation:
+                description: Controls how a bind-mount is shared between instance and host.
                 type: str
-              size:
-                description: Maximum size of the disk device.
+              raw.mount.options:
+                description: File system specific mount options.
                 type: str
               readonly:
-                description: Whether the disk is read-only.
+                description: Whether to make the mount read-only.
+                type: bool
+              recursive:
+                description: Whether to recursively mount the source path.
+                type: bool
+              required:
+                description: Whether to fail if the source path does not exist.
+                type: bool
+              shift:
+                description: Whether to set up a shifting overlay to translate UID/GID.
+                type: bool
+              size:
+                description: Disk size limit.
+                type: str
+              size.state:
+                description: Size for the VM runtime state file system.
+                type: str
+              source:
+                description: Source of a file system or block device.
+                type: str
+              wwn:
+                description: Whether to set a World Wide Name for the disk.
                 type: bool
               acceleration:
                 description: Enable hardware offloading (none/sriov/vdpa).
                 type: str
               attached:
-                description: Whether the NIC is plugged in.
+                description: Whether the device is attached or ejected.
                 type: bool
               boot.priority:
                 description: Boot priority for VMs.
