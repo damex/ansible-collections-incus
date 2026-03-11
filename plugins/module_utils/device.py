@@ -15,7 +15,7 @@ __all__ = [
 
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
-    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic']},
+    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic', 'none']},
     # disk
     'ceph.cluster_name': {'type': 'str'},
     'ceph.user_name': {'type': 'str'},

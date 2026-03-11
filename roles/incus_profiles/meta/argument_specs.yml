@@ -658,6 +658,7 @@ argument_specs:
                 choices:
                   - disk
                   - nic
+                  - none
               ceph.cluster_name:
                 description: Ceph cluster name.
                 type: str

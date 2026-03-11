@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic]
+        choices: [disk, nic, none]
         required: true
       ceph.cluster_name:
         description: Ceph cluster name (disk only).
