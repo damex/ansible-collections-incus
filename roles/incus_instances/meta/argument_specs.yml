@@ -699,6 +699,7 @@ argument_specs:
                   - unix-block
                   - unix-char
                   - unix-hotplug
+                  - usb
               # shared
               attached:
                 description: Whether the device is attached or ejected.
@@ -932,6 +933,16 @@ argument_specs:
               minor:
                 description: Device minor number.
                 type: int
+              # usb
+              busnum:
+                description: Bus number the USB device is connected to.
+                type: int
+              devnum:
+                description: Device number of the USB device.
+                type: int
+              serial:
+                description: Serial number of the USB device.
+                type: str
           target:
             description: Cluster member to place the instance on.
             type: str

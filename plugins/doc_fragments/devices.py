@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic, none, tpm, unix-block, unix-char, unix-hotplug]
+        choices: [disk, nic, none, tpm, unix-block, unix-char, unix-hotplug, usb]
         required: true
       # shared
       attached:
@@ -265,4 +265,14 @@ options:
       minor:
         description: Device minor number (unix-char, unix-block).
         type: int
+      # usb
+      busnum:
+        description: Bus number the USB device is connected to (usb only).
+        type: int
+      devnum:
+        description: Device number of the USB device (usb only).
+        type: int
+      serial:
+        description: Serial number of the USB device (usb only).
+        type: str
 """
