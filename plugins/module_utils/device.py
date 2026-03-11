@@ -15,14 +15,23 @@ __all__ = [
 
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
-    'type': {'type': 'str', 'required': True, 'choices': ['disk', 'nic', 'none', 'tpm']},
-    # shared (disk, nic)
+    'type': {'type': 'str', 'required': True, 'choices': [
+        'disk', 'nic', 'none', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug',
+    ]},
+    # shared
     'attached': {'type': 'bool'},
     'boot.priority': {'type': 'int'},
+    'gid': {'type': 'int'},
     'io.bus': {'type': 'str'},
     'limits.max': {'type': 'str'},
+    'mode': {'type': 'str'},
     'path': {'type': 'str'},
+    'pci': {'type': 'str'},
+    'productid': {'type': 'str'},
+    'required': {'type': 'bool'},
     'source': {'type': 'str'},
+    'uid': {'type': 'int'},
+    'vendorid': {'type': 'str'},
     # disk
     'ceph.cluster_name': {'type': 'str'},
     'ceph.user_name': {'type': 'str'},
@@ -34,7 +43,6 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'raw.mount.options': {'type': 'str'},
     'readonly': {'type': 'bool'},
     'recursive': {'type': 'bool'},
-    'required': {'type': 'bool'},
     'shift': {'type': 'bool'},
     'size': {'type': 'str'},
     'size.state': {'type': 'str'},
@@ -66,14 +74,11 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'limits.egress': {'type': 'str'},
     'limits.ingress': {'type': 'str'},
     'limits.priority': {'type': 'int'},
-    'mode': {'type': 'str'},
     'mtu': {'type': 'str'},
     'nested': {'type': 'str'},
     'network': {'type': 'str'},
     'nictype': {'type': 'str'},
     'parent': {'type': 'str'},
-    'pci': {'type': 'str'},
-    'productid': {'type': 'str'},
     'queue.tx.length': {'type': 'int'},
     'security.acls': {'type': 'str'},
     'security.acls.default.egress.action': {'type': 'str'},
@@ -86,12 +91,14 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'security.port_isolation': {'type': 'bool'},
     'security.promiscuous': {'type': 'bool'},
     'security.trusted': {'type': 'bool'},
-    'vendorid': {'type': 'str'},
     'vlan': {'type': 'int'},
     'vlan.tagged': {'type': 'str'},
     'vrf': {'type': 'str'},
     # tpm
     'pathrm': {'type': 'str'},
+    # unix-char, unix-block
+    'major': {'type': 'int'},
+    'minor': {'type': 'int'},
 }
 
 

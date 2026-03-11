@@ -30,14 +30,17 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic, none, tpm]
+        choices: [disk, nic, none, tpm, unix-block, unix-char, unix-hotplug]
         required: true
-      # shared (disk, nic)
+      # shared
       attached:
         description: Whether the device is attached or ejected (disk, nic).
         type: bool
       boot.priority:
         description: Boot priority for VMs (disk, nic).
+        type: int
+      gid:
+        description: GID of the device owner in the instance (unix-char, unix-block, unix-hotplug).
         type: int
       io.bus:
         description: Override bus for the device, e.g. C(virtio) or C(usb) (disk, nic, VMs only).
@@ -45,11 +48,29 @@ options:
       limits.max:
         description: I/O limit in byte/s or IOPS for both read and write (disk), or combined traffic limit in bit/s (nic).
         type: str
-      path:
-        description: Path inside the instance (disk mount point or TPM device path).
+      mode:
+        description: NIC mode, e.g. C(bridge) for macvlan (nic), or device permission mode, e.g. C(0660) (unix-char, unix-block, unix-hotplug).
         type: str
+      path:
+        description: Path inside the instance (disk, tpm, unix-char, unix-block).
+        type: str
+      pci:
+        description: PCI address of the parent host device (nic SR-IOV, unix-hotplug).
+        type: str
+      productid:
+        description: Product ID of the parent host device (nic SR-IOV, unix-hotplug).
+        type: str
+      required:
+        description: Whether to fail if the source does not exist (disk, unix-char, unix-block, unix-hotplug).
+        type: bool
       source:
-        description: Source of a file system or block device (disk only).
+        description: Source of a file system, block device, or host device path (disk, unix-char, unix-block).
+        type: str
+      uid:
+        description: UID of the device owner in the instance (unix-char, unix-block, unix-hotplug).
+        type: int
+      vendorid:
+        description: Vendor ID of the parent host device (nic SR-IOV, unix-hotplug).
         type: str
       # disk
       ceph.cluster_name:
@@ -81,9 +102,6 @@ options:
         type: bool
       recursive:
         description: Whether to recursively mount the source path (disk only).
-        type: bool
-      required:
-        description: Whether to fail if the source path does not exist (disk only).
         type: bool
       shift:
         description: Whether to set up a shifting overlay to translate the source UID/GID (disk, containers only).
@@ -176,9 +194,6 @@ options:
       limits.priority:
         description: Outgoing traffic priority for queuing (nic only).
         type: int
-      mode:
-        description: NIC mode, e.g. C(bridge) for macvlan or C(l3s) for ipvlan (nic only).
-        type: str
       mtu:
         description: Maximum transmission unit of the new interface (nic only).
         type: str
@@ -193,12 +208,6 @@ options:
         type: str
       parent:
         description: Parent host device name (nic only).
-        type: str
-      pci:
-        description: PCI address of the parent host device (nic, SR-IOV only).
-        type: str
-      productid:
-        description: Product ID of the parent host device (nic, SR-IOV only).
         type: str
       queue.tx.length:
         description: Transmit queue length for the NIC (nic only).
@@ -236,9 +245,6 @@ options:
       security.trusted:
         description: Whether to allow the instance to configure the NIC in potentially unsafe ways (nic, SR-IOV only).
         type: bool
-      vendorid:
-        description: Vendor ID of the parent host device (nic, SR-IOV only).
-        type: str
       vlan:
         description: VLAN ID to attach to (nic only).
         type: int
@@ -252,4 +258,11 @@ options:
       pathrm:
         description: Resource manager path inside the instance, e.g. C(/dev/tpmrm0) (tpm, containers only).
         type: str
+      # unix-char, unix-block
+      major:
+        description: Device major number (unix-char, unix-block).
+        type: int
+      minor:
+        description: Device minor number (unix-char, unix-block).
+        type: int
 """
