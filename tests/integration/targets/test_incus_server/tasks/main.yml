@@ -3,5 +3,7 @@
   block:
     - name: Ensure incus server role
       ansible.builtin.import_tasks: role.yml
-    - name: Ensure incus server facts
-      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus server facts (socket)
+      ansible.builtin.import_tasks: facts_socket.yml
+    - name: Ensure incus server facts (tls)
+      ansible.builtin.import_tasks: facts_tls.yml

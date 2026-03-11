@@ -1,7 +1,11 @@
 ---
 - name: Ensure incus profile
   block:
-    - name: Ensure incus profile present
-      ansible.builtin.import_tasks: present.yml
-    - name: Ensure incus profile absent
-      ansible.builtin.import_tasks: absent.yml
+    - name: Ensure incus profile present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus profile absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+    - name: Ensure incus profile present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus profile absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

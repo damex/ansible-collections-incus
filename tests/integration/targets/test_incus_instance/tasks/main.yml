@@ -4,11 +4,15 @@
     - name: Ensure incus instance setup
       ansible.builtin.import_tasks: setup.yml
 
-    - name: Ensure incus instance present
-      ansible.builtin.import_tasks: present.yml
+    - name: Ensure incus instance present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus instance absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
 
-    - name: Ensure incus instance absent
-      ansible.builtin.import_tasks: absent.yml
+    - name: Ensure incus instance present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus instance absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml
   always:
     - name: Ensure incus instance cleanup
       ansible.builtin.import_tasks: cleanup.yml

@@ -1,7 +1,11 @@
 ---
 - name: Ensure incus certificate
   block:
-    - name: Ensure incus certificate present
-      ansible.builtin.import_tasks: present.yml
-    - name: Ensure incus certificate absent
-      ansible.builtin.import_tasks: absent.yml
+    - name: Ensure incus certificate present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus certificate absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+    - name: Ensure incus certificate present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus certificate absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

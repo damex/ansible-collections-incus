@@ -1,7 +1,11 @@
 ---
 - name: Ensure incus project
   block:
-    - name: Ensure incus project present
-      ansible.builtin.import_tasks: present.yml
-    - name: Ensure incus project absent
-      ansible.builtin.import_tasks: absent.yml
+    - name: Ensure incus project present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus project absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+    - name: Ensure incus project present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus project absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

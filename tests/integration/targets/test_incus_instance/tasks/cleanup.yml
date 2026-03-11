@@ -1,4 +1,10 @@
 ---
+- name: Ensure tls test instance is removed
+  damex.incus.incus_instance:
+    name: tls-test-instance
+    state: absent
+  failed_when: false
+
 - name: Ensure test instance is removed
   damex.incus.incus_instance:
     name: test-instance

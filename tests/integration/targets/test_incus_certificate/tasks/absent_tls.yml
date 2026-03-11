@@ -1,0 +1,30 @@
+---
+- name: Ensure incus certificate is deleted (tls)
+  damex.incus.incus_certificate:
+    name: tls-test-certificate
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_certificate_tls_absent_state
+
+- name: Ensure incus certificate is deleted (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_tls_absent_state is changed
+
+- name: Ensure incus certificate deletion is idempotent (tls)
+  damex.incus.incus_certificate:
+    name: tls-test-certificate
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_certificate_tls_absent_idempotent_state
+
+- name: Ensure incus certificate deletion is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_certificate_tls_absent_idempotent_state is not changed
