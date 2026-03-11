@@ -66,12 +66,17 @@ __all__ = [
     'test_build_query_project_only',
     'test_build_query_target_only',
     'test_build_query_project_and_target',
+    'test_build_query_encodes_project',
+    'test_build_query_encodes_target',
+    'test_build_query_recursion_only',
+    'test_build_query_project_and_recursion',
     'test_build_desired_without_devices',
     'test_build_desired_with_devices',
     'test_build_desired_devices_none',
     'test_wait_true',
     'test_wait_false',
     'test_wait_default',
+    'test_client_wait_async_encodes_operation_id',
     'test_run_write_module_success_changed',
     'test_run_write_module_success_unchanged',
     'test_run_write_module_client_exception',
@@ -80,6 +85,8 @@ __all__ = [
     'test_run_info_module_list_all',
     'test_run_info_module_project_query',
     'test_run_info_module_client_exception',
+    'test_run_info_module_encodes_name',
+    'test_run_info_module_encodes_project',
     'test_ensure_resource_create',
     'test_ensure_resource_no_change',
     'test_ensure_resource_update',
@@ -96,6 +103,9 @@ __all__ = [
     'test_ensure_resource_target_exists_skips_update',
     'test_ensure_resource_target_pending_posts',
     'test_ensure_resource_pending_finalize',
+    'test_ensure_resource_encodes_name',
+    'test_ensure_resource_encodes_name_on_update',
+    'test_ensure_resource_encodes_name_on_delete',
 ]
 
 
@@ -282,6 +292,14 @@ def test_client_wait_async() -> None:
     with patch.object(client, '_request') as mock_req:
         client.wait({'type': 'async', 'metadata': {'id': 'op-123'}})
         mock_req.assert_called_once_with('GET', '/1.0/operations/op-123/wait')
+
+
+def test_client_wait_async_encodes_operation_id() -> None:
+    """Encode special characters in operation id."""
+    client = IncusClient()
+    with patch.object(client, '_request') as mock_req:
+        client.wait({'type': 'async', 'metadata': {'id': 'op/special&id'}})
+        mock_req.assert_called_once_with('GET', '/1.0/operations/op%2Fspecial%26id/wait')
 
 
 def test_client_request_error_response() -> None:
@@ -681,6 +699,26 @@ def test_build_query_project_and_target() -> None:
     assert incus_build_query('myproject', 'node1') == '?project=myproject&target=node1'
 
 
+def test_build_query_encodes_project() -> None:
+    """Encode special characters in project name."""
+    assert incus_build_query(project='my project&x') == '?project=my%20project%26x'
+
+
+def test_build_query_encodes_target() -> None:
+    """Encode special characters in target name."""
+    assert incus_build_query(target='node/1') == '?target=node%2F1'
+
+
+def test_build_query_recursion_only() -> None:
+    """Return recursion query."""
+    assert incus_build_query(recursion=1) == '?recursion=1'
+
+
+def test_build_query_project_and_recursion() -> None:
+    """Return project and recursion query."""
+    assert incus_build_query(project='default', recursion=1) == '?project=default&recursion=1'
+
+
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_create_only_param_missing_fails(mock_create_client: MagicMock) -> None:
     """Fail when required create-only param is missing."""
@@ -778,6 +816,54 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
     assert '?project=myproject&target=node1' in post_path
 
 
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_encodes_name(mock_create_client: MagicMock) -> None:
+    """Encode special characters in resource name on GET."""
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(name='my pool/test')
+    desired = {'description': '', 'config': {}}
+    incus_ensure_resource(module, 'storage-pools', desired)
+
+    get_path = client.get.call_args[0][0]
+    assert '/1.0/storage-pools/my%20pool%2Ftest' in get_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_encodes_name_on_update(mock_create_client: MagicMock) -> None:
+    """Encode special characters in resource name on PUT."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
+    client.put.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(name='net&work')
+    desired = {'description': 'new', 'config': {}}
+    incus_ensure_resource(module, 'networks', desired)
+
+    put_path = client.put.call_args[0][0]
+    assert '/1.0/networks/net%26work' in put_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_encodes_name_on_delete(mock_create_client: MagicMock) -> None:
+    """Encode special characters in resource name on DELETE."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': '', 'config': {}}}
+    client.delete.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module(name='pool #1', state='absent')
+    desired = {'description': '', 'config': {}}
+    incus_ensure_resource(module, 'storage-pools', desired)
+
+    delete_path = client.delete.call_args[0][0]
+    assert '/1.0/storage-pools/pool%20%231' in delete_path
+
+
 def _info_module(name: str | None = None, project: str | None = None) -> MagicMock:
     """Build mock info module."""
     module = MagicMock()
@@ -839,6 +925,34 @@ def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
     path = client.get.call_args[0][0]
     assert '?project=myproject' in path
     assert 'recursion=1' in path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
+    """Encode special characters in resource name."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'name': 'pool/special'}}
+    mock_create_client.return_value = client
+
+    module = _info_module(name='pool/special')
+    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+
+    path = client.get.call_args[0][0]
+    assert '/1.0/storage-pools/pool%2Fspecial' in path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
+    """Encode special characters in project query param."""
+    client = MagicMock()
+    client.get.return_value = {'metadata': []}
+    mock_create_client.return_value = client
+
+    module = _info_module(project='my project')
+    incus_run_info_module(module, 'networks', 'networks')
+
+    path = client.get.call_args[0][0]
+    assert 'project=my%20project' in path
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
