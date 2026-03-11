@@ -16,7 +16,7 @@ __all__ = [
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
     'type': {'type': 'str', 'required': True, 'choices': [
-        'disk', 'nic', 'none', 'pci', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug', 'usb',
+        'disk', 'gpu', 'nic', 'none', 'pci', 'proxy', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug', 'usb',
     ]},
     # shared
     'attached': {'type': 'bool'},
@@ -94,11 +94,25 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'vlan': {'type': 'int'},
     'vlan.tagged': {'type': 'str'},
     'vrf': {'type': 'str'},
+    # proxy
+    'bind': {'type': 'str'},
+    'connect': {'type': 'str'},
+    'listen': {'type': 'str'},
+    'nat': {'type': 'bool'},
+    'proxy_protocol': {'type': 'bool'},
+    'security.gid': {'type': 'int'},
+    'security.uid': {'type': 'int'},
     # tpm
     'pathrm': {'type': 'str'},
     # unix-char, unix-block
     'major': {'type': 'int'},
     'minor': {'type': 'int'},
+    # gpu
+    'id': {'type': 'str'},
+    'mdev': {'type': 'str'},
+    'mig.ci': {'type': 'int'},
+    'mig.gi': {'type': 'int'},
+    'mig.uuid': {'type': 'str'},
     # pci
     'address': {'type': 'str'},
     'firmware': {'type': 'bool'},

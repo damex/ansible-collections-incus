@@ -664,7 +664,9 @@ argument_specs:
                   - unix-char
                   - unix-hotplug
                   - usb
+                  - gpu
                   - pci
+                  - proxy
               # shared
               attached:
                 description: Whether the device is attached or ejected.
@@ -887,6 +889,28 @@ argument_specs:
               vrf:
                 description: VRF name on the host for the host-side interface and routes.
                 type: str
+              # proxy
+              bind:
+                description: Which side to bind on, host or instance.
+                type: str
+              connect:
+                description: Address and port to connect to.
+                type: str
+              listen:
+                description: Address and port to bind and listen on.
+                type: str
+              nat:
+                description: Whether to use NAT-based proxying.
+                type: bool
+              proxy_protocol:
+                description: Whether to use the HAProxy PROXY protocol to transmit sender information.
+                type: bool
+              security.gid:
+                description: GID to drop privilege to.
+                type: int
+              security.uid:
+                description: UID to drop privilege to.
+                type: int
               # tpm
               pathrm:
                 description: Resource manager path inside the instance.
@@ -898,6 +922,22 @@ argument_specs:
               minor:
                 description: Device minor number.
                 type: int
+              # gpu
+              id:
+                description: DRM card ID of the GPU device.
+                type: str
+              mdev:
+                description: Mediated device profile to use.
+                type: str
+              mig.ci:
+                description: Existing MIG compute instance ID.
+                type: int
+              mig.gi:
+                description: Existing MIG GPU instance ID.
+                type: int
+              mig.uuid:
+                description: Existing MIG device UUID.
+                type: str
               # pci
               address:
                 description: PCI address of the device.

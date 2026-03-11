@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, nic, none, pci, tpm, unix-block, unix-char, unix-hotplug, usb]
+        choices: [disk, gpu, nic, none, pci, proxy, tpm, unix-block, unix-char, unix-hotplug, usb]
         required: true
       # shared
       attached:
@@ -254,6 +254,28 @@ options:
       vrf:
         description: VRF name on the host for the host-side interface and routes (nic, routed only).
         type: str
+      # proxy
+      bind:
+        description: Which side to bind on, C(host) or C(instance) (proxy only).
+        type: str
+      connect:
+        description: Address and port to connect to (proxy only).
+        type: str
+      listen:
+        description: Address and port to bind and listen on (proxy only).
+        type: str
+      nat:
+        description: Whether to use NAT-based proxying (proxy only).
+        type: bool
+      proxy_protocol:
+        description: Whether to use the HAProxy PROXY protocol to transmit sender information (proxy only).
+        type: bool
+      security.gid:
+        description: GID to drop privilege to (proxy only).
+        type: int
+      security.uid:
+        description: UID to drop privilege to (proxy only).
+        type: int
       # tpm
       pathrm:
         description: Resource manager path inside the instance, e.g. C(/dev/tpmrm0) (tpm, containers only).
@@ -265,6 +287,22 @@ options:
       minor:
         description: Device minor number (unix-char, unix-block).
         type: int
+      # gpu
+      id:
+        description: DRM card ID of the GPU device (gpu only).
+        type: str
+      mdev:
+        description: Mediated device profile to use (gpu mdev only, VMs only).
+        type: str
+      mig.ci:
+        description: Existing MIG compute instance ID (gpu mig only, containers only).
+        type: int
+      mig.gi:
+        description: Existing MIG GPU instance ID (gpu mig only, containers only).
+        type: int
+      mig.uuid:
+        description: Existing MIG device UUID (gpu mig only, containers only).
+        type: str
       # pci
       address:
         description: PCI address of the device (pci only, VMs only).
