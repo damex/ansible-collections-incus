@@ -30,7 +30,7 @@ options:
       type:
         description: Device type.
         type: str
-        choices: [disk, gpu, nic, none, pci, proxy, tpm, unix-block, unix-char, unix-hotplug, usb]
+        choices: [disk, gpu, infiniband, nic, none, pci, proxy, tpm, unix-block, unix-char, unix-hotplug, usb]
         required: true
       # shared
       attached:
@@ -69,6 +69,18 @@ options:
       uid:
         description: UID of the device owner in the instance (unix-char, unix-block, unix-hotplug).
         type: int
+      hwaddr:
+        description: MAC address of the new interface (nic, infiniband).
+        type: str
+      mtu:
+        description: Maximum transmission unit of the new interface (nic, infiniband).
+        type: str
+      nictype:
+        description: NIC type when not using a managed network (nic, infiniband).
+        type: str
+      parent:
+        description: Parent host device name (nic, infiniband).
+        type: str
       vendorid:
         description: Vendor ID of the parent host device (nic SR-IOV, unix-hotplug).
         type: str
@@ -127,9 +139,6 @@ options:
         type: bool
       host_name:
         description: Name of the interface on the host (nic only).
-        type: str
-      hwaddr:
-        description: MAC address of the new interface (nic only).
         type: str
       ipv4.address:
         description: IPv4 address to assign via DHCP or static allocation (nic only).
@@ -194,20 +203,11 @@ options:
       limits.priority:
         description: Outgoing traffic priority for queuing (nic only).
         type: int
-      mtu:
-        description: Maximum transmission unit of the new interface (nic only).
-        type: str
       nested:
         description: Parent NIC name to nest this OVN NIC under (nic, OVN only).
         type: str
       network:
         description: Managed Incus network to attach the NIC to (nic only).
-        type: str
-      nictype:
-        description: NIC type when not using a managed network, e.g. C(bridged) or C(macvlan) (nic only).
-        type: str
-      parent:
-        description: Parent host device name (nic only).
         type: str
       queue.tx.length:
         description: Transmit queue length for the NIC (nic only).

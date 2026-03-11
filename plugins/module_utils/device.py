@@ -15,9 +15,24 @@ __all__ = [
 
 INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'name': {'type': 'str', 'required': True},
-    'type': {'type': 'str', 'required': True, 'choices': [
-        'disk', 'gpu', 'nic', 'none', 'pci', 'proxy', 'tpm', 'unix-block', 'unix-char', 'unix-hotplug', 'usb',
-    ]},
+    'type': {
+        'type': 'str',
+        'required': True,
+        'choices': [
+            'disk',
+            'gpu',
+            'infiniband',
+            'nic',
+            'none',
+            'pci',
+            'proxy',
+            'tpm',
+            'unix-block',
+            'unix-char',
+            'unix-hotplug',
+            'usb',
+        ],
+    },
     # shared
     'attached': {'type': 'bool'},
     'boot.priority': {'type': 'int'},
@@ -31,6 +46,10 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'required': {'type': 'bool'},
     'source': {'type': 'str'},
     'uid': {'type': 'int'},
+    'hwaddr': {'type': 'str'},
+    'mtu': {'type': 'str'},
+    'nictype': {'type': 'str'},
+    'parent': {'type': 'str'},
     'vendorid': {'type': 'str'},
     # disk
     'ceph.cluster_name': {'type': 'str'},
@@ -52,7 +71,6 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'connected': {'type': 'bool'},
     'gvrp': {'type': 'bool'},
     'host_name': {'type': 'str'},
-    'hwaddr': {'type': 'str'},
     'ipv4.address': {'type': 'str'},
     'ipv4.address.external': {'type': 'str'},
     'ipv4.gateway': {'type': 'str'},
@@ -74,11 +92,8 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'limits.egress': {'type': 'str'},
     'limits.ingress': {'type': 'str'},
     'limits.priority': {'type': 'int'},
-    'mtu': {'type': 'str'},
     'nested': {'type': 'str'},
     'network': {'type': 'str'},
-    'nictype': {'type': 'str'},
-    'parent': {'type': 'str'},
     'queue.tx.length': {'type': 'int'},
     'security.acls': {'type': 'str'},
     'security.acls.default.egress.action': {'type': 'str'},

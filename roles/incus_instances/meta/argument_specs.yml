@@ -701,6 +701,7 @@ argument_specs:
                   - unix-hotplug
                   - usb
                   - gpu
+                  - infiniband
                   - pci
                   - proxy
               # shared
@@ -740,6 +741,18 @@ argument_specs:
               uid:
                 description: UID of the device owner in the instance.
                 type: int
+              hwaddr:
+                description: MAC address of the new interface.
+                type: str
+              mtu:
+                description: Maximum transmission unit of the new interface.
+                type: str
+              nictype:
+                description: NIC type when not using a managed network.
+                type: str
+              parent:
+                description: Parent host device name.
+                type: str
               vendorid:
                 description: Vendor ID of the parent host device.
                 type: str
@@ -798,9 +811,6 @@ argument_specs:
                 type: bool
               host_name:
                 description: Name of the interface on the host.
-                type: str
-              hwaddr:
-                description: MAC address of the new interface.
                 type: str
               ipv4.address:
                 description: IPv4 address to assign via DHCP or static allocation.
@@ -865,20 +875,11 @@ argument_specs:
               limits.priority:
                 description: Outgoing traffic priority for queuing.
                 type: int
-              mtu:
-                description: Maximum transmission unit of the new interface.
-                type: str
               nested:
                 description: Parent NIC name to nest this OVN NIC under.
                 type: str
               network:
                 description: Managed network to attach the NIC to.
-                type: str
-              nictype:
-                description: NIC type when not using a managed network.
-                type: str
-              parent:
-                description: Parent host device name.
                 type: str
               queue.tx.length:
                 description: Transmit queue length for the NIC.
