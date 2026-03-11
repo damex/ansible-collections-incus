@@ -20,3 +20,12 @@
   ansible.builtin.assert:
     that:
       - incus_instance_absent_idempotent_state is not changed
+
+- name: Ensure incus instance info after deletion
+  damex.incus.incus_instance_info: {}
+  register: incus_instance_info_after_state
+
+- name: Ensure incus instance info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-instance' not in incus_instance_info_after_state.instances | map(attribute='name')"

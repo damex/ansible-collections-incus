@@ -20,3 +20,12 @@
   ansible.builtin.assert:
     that:
       - incus_certificate_absent_idempotent_state is not changed
+
+- name: Ensure incus certificate info after deletion
+  damex.incus.incus_certificate_info: {}
+  register: incus_certificate_info_after_state
+
+- name: Ensure incus certificate info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-certificate' not in incus_certificate_info_after_state.certificates | map(attribute='name')"

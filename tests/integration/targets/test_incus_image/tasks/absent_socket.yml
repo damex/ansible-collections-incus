@@ -20,3 +20,12 @@
   ansible.builtin.assert:
     that:
       - incus_image_absent_idempotent_state is not changed
+
+- name: Ensure incus image info after deletion
+  damex.incus.incus_image_info: {}
+  register: incus_image_info_after_state
+
+- name: Ensure incus image info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-alpine' not in incus_image_info_after_state.images | map(attribute='aliases') | flatten | map(attribute='name')"
