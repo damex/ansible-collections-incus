@@ -19,6 +19,18 @@ argument_specs:
                     ipv4.address: 10.0.0.1/24
                     ipv4.nat: "true"
                     ipv6.address: none
+                - name: incusbr1
+                  type: bridge
+                  config:
+                    ipv4.address: none
+                    ipv6.address: none
+                  targets:
+                    - name: node1.example.com
+                      config:
+                        bridge.external_interfaces: enp3s0f0
+                    - name: node2.example.com
+                      config:
+                        bridge.external_interfaces: enp4s0f0
     options:
       incus_networks:
         description: List of networks to ensure.
@@ -45,7 +57,28 @@ argument_specs:
           targets:
             description: List of cluster members to create the network on.
             type: list
-            elements: str
+            elements: dict
+            options:
+              name:
+                description: Name of the cluster member.
+                required: true
+                type: str
+              config:
+                description: Per-member network configuration options.
+                type: dict
+                options:
+                  bridge.external_interfaces:
+                    description: Comma-separated list of unconfigured NICs to bridge.
+                    type: str
+                  parent:
+                    description: Parent interface to use for the network.
+                    type: str
+                  bgp.ipv4.nexthop:
+                    description: Override the next-hop for advertised IPv4 prefixes.
+                    type: str
+                  bgp.ipv6.nexthop:
+                    description: Override the next-hop for advertised IPv6 prefixes.
+                    type: str
           project:
             description: Incus project to scope the network to.
             type: str

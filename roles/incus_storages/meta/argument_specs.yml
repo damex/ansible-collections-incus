@@ -19,6 +19,13 @@ argument_specs:
                   driver: zfs
                   config:
                     source: tank/incus
+                - name: cluster-data
+                  driver: dir
+                  targets:
+                    - name: node1.example.com
+                    - name: node2.example.com
+                      config:
+                        source: /mnt/data
     options:
       incus_storages:
         description: List of storage pools to ensure.
@@ -49,7 +56,31 @@ argument_specs:
           targets:
             description: List of cluster members to create the storage pool on.
             type: list
-            elements: str
+            elements: dict
+            options:
+              name:
+                description: Name of the cluster member.
+                required: true
+                type: str
+              config:
+                description: Per-member storage pool configuration options.
+                type: dict
+                options:
+                  source:
+                    description: Path or device to use as storage source.
+                    type: str
+                  size:
+                    description: Size of the storage pool.
+                    type: str
+                  zfs.pool_name:
+                    description: Name of the ZFS pool.
+                    type: str
+                  lvm.thinpool_name:
+                    description: Name of the LVM thin pool.
+                    type: str
+                  lvm.vg_name:
+                    description: Name of the LVM volume group.
+                    type: str
           project:
             description: Project to scope the storage pool to.
             type: str

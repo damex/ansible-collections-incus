@@ -8,8 +8,8 @@
         state: "{{ incus_storages_storage_state }}"
         driver: "{{ incus_storages_storage.driver }}"
         description: "{{ incus_storages_storage_description }}"
-        config: "{{ incus_storages_storage.config | default(omit) }}"
-        target: "{{ incus_storages_target }}"
+        config: "{{ incus_storages_storage.config | combine(incus_storages_target.config) if (incus_storages_storage.config is defined and incus_storages_target.config is defined) else incus_storages_target.config if incus_storages_target.config is defined else incus_storages_storage.config | default(omit) }}"
+        target: "{{ incus_storages_target.name }}"
         socket_path: "{{ incus_storages_storage_socket_path }}"
         url: "{{ incus_storages_storage_url }}"
         client_cert: "{{ incus_storages_storage_client_cert }}"
@@ -21,7 +21,7 @@
       become: true
       loop: "{{ incus_storages_storage.targets }}"
       loop_control:
-        label: "{{ incus_storages_target }}"
+        label: "{{ incus_storages_target.name }}"
         loop_var: incus_storages_target
     - name: Ensure incus cluster storage finalized {{ incus_storages_storage_name }}
       damex.incus.incus_storage:

@@ -9,8 +9,8 @@
         type: "{{ incus_networks_network.type }}"
         description: "{{ incus_networks_network_description }}"
         project: "{{ incus_networks_network_project }}"
-        config: "{{ incus_networks_network.config | default(omit) }}"
-        target: "{{ incus_networks_target }}"
+        config: "{{ incus_networks_network.config | combine(incus_networks_target.config) if (incus_networks_network.config is defined and incus_networks_target.config is defined) else incus_networks_target.config if incus_networks_target.config is defined else incus_networks_network.config | default(omit) }}"
+        target: "{{ incus_networks_target.name }}"
         socket_path: "{{ incus_networks_network_socket_path }}"
         url: "{{ incus_networks_network_url }}"
         client_cert: "{{ incus_networks_network_client_cert }}"
@@ -22,7 +22,7 @@
       become: true
       loop: "{{ incus_networks_network.targets }}"
       loop_control:
-        label: "{{ incus_networks_target }}"
+        label: "{{ incus_networks_target.name }}"
         loop_var: incus_networks_target
     - name: Ensure incus cluster network finalized {{ incus_networks_network_name }}
       damex.incus.incus_network:
