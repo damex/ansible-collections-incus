@@ -10,7 +10,7 @@ import http.client
 import json
 import socket
 import ssl
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 try:
     import yaml
@@ -555,9 +555,11 @@ def incus_build_query(project: str | None, target: str | None) -> str:
     """Build query string."""
     params = []
     if project:
-        params.append(f'project={project}')
+        encoded_project = quote(project, safe='')
+        params.append(f'project={encoded_project}')
     if target:
-        params.append(f'target={target}')
+        encoded_target = quote(target, safe='')
+        params.append(f'target={encoded_target}')
     return f'?{"&".join(params)}' if params else ''
 
 
@@ -583,13 +585,14 @@ def incus_ensure_resource(
     """Ensure resource."""
     client = incus_create_client(module)
     name = module.params['name']
+    encoded_name = quote(name, safe='')
     project = module.params.get('project')
     target = module.params.get('target')
     base_query = incus_build_query(project, None)
     target_query = incus_build_query(project, target)
 
     try:
-        current = client.get(f'/1.0/{resource}/{name}{target_query}').get('metadata') or {}
+        current = client.get(f'/1.0/{resource}/{encoded_name}{target_query}').get('metadata') or {}
         exists = True
     except IncusNotFoundException:
         current = {}
@@ -606,12 +609,12 @@ def incus_ensure_resource(
         if all(current.get(k, type(v)()) == v for k, v in desired.items()):
             return False
         if not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{name}{base_query}', desired))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{base_query}', desired))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{name}{base_query}'))
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{base_query}'))
         return True
     return False
 
@@ -633,8 +636,12 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     try:
         client = incus_create_client(module)
 
+        encoded_project = quote(project, safe='') if project else None
+
         if name:
-            path = f'/1.0/{resource}/{name}' + (f'?project={project}' if project else '')
+            encoded_name = quote(name, safe='')
+            query = f'?project={encoded_project}' if encoded_project else ''
+            path = f'/1.0/{resource}/{encoded_name}{query}'
             try:
                 response = client.get(path)
                 metadata = response.get('metadata')
@@ -642,7 +649,7 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
             except IncusNotFoundException:
                 result = []
         else:
-            query = f'?project={project}&recursion=1' if project else '?recursion=1'
+            query = f'?project={encoded_project}&recursion=1' if encoded_project else '?recursion=1'
             response = client.get(f'/1.0/{resource}{query}')
             result = response.get('metadata') or []
 
