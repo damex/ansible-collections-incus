@@ -241,7 +241,7 @@ def test_build_source_unknown_remote_fails() -> None:
 
 def test_build_query_no_params() -> None:
     """Return empty string without params."""
-    assert incus_build_query(None, None) == ''
+    assert not incus_build_query(None, None)
 
 
 def test_build_query_project_only() -> None:

@@ -98,7 +98,7 @@ def test_present_alias_exists_update_public() -> None:
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
     ])
     assert put_data['public'] is True
-    assert put_data['expires_at'] == ''
+    assert not put_data['expires_at']
 
 
 def test_present_alias_exists_update_check_mode() -> None:
