@@ -695,46 +695,181 @@ argument_specs:
                   - disk
                   - nic
               path:
-                description: Mount path inside the instance.
+                description: Filesystem mount path inside the instance.
                 type: str
               pool:
                 description: Storage pool for the disk device.
                 type: str
               source:
-                description: Source path or volume for the disk device.
+                description: Host path or device to pass through.
                 type: str
               size:
-                description: Size of the disk device.
+                description: Maximum size of the disk device.
                 type: str
               readonly:
                 description: Whether the disk is read-only.
                 type: bool
+              acceleration:
+                description: Enable hardware offloading (none/sriov/vdpa).
+                type: str
+              attached:
+                description: Whether the NIC is plugged in.
+                type: bool
+              boot.priority:
+                description: Boot priority for VMs.
+                type: int
+              connected:
+                description: Whether the NIC is connected to the host network.
+                type: bool
+              gvrp:
+                description: Register VLAN using GARP VLAN Registration Protocol.
+                type: bool
+              host_name:
+                description: Name of the interface on the host.
+                type: str
+              hwaddr:
+                description: MAC address of the new interface.
+                type: str
+              io.bus:
+                description: Override bus for the device.
+                type: str
+              ipv4.address:
+                description: IPv4 address to assign via DHCP or static allocation.
+                type: str
+              ipv4.address.external:
+                description: Select specific external IPv4 address.
+                type: str
+              ipv4.gateway:
+                description: Default IPv4 gateway.
+                type: str
+              ipv4.host_address:
+                description: IPv4 address on the host-side veth interface.
+                type: str
+              ipv4.host_table:
+                description: Custom policy routing table ID for IPv4 (deprecated).
+                type: int
+              ipv4.host_tables:
+                description: Comma-separated routing table IDs for IPv4 routes.
+                type: str
+              ipv4.neighbor_probe:
+                description: Whether to probe the parent network for IP availability.
+                type: bool
+              ipv4.routes:
+                description: Comma-delimited IPv4 static routes to add on the host.
+                type: str
+              ipv4.routes.external:
+                description: Comma-delimited IPv4 routes to publish via BGP.
+                type: str
+              ipv6.address:
+                description: IPv6 address to assign via DHCP or static allocation.
+                type: str
+              ipv6.address.external:
+                description: Select specific external IPv6 address.
+                type: str
+              ipv6.gateway:
+                description: Default IPv6 gateway.
+                type: str
+              ipv6.host_address:
+                description: IPv6 address on the host-side veth interface.
+                type: str
+              ipv6.host_table:
+                description: Custom policy routing table ID for IPv6 (deprecated).
+                type: int
+              ipv6.host_tables:
+                description: Comma-separated routing table IDs for IPv6 routes.
+                type: str
+              ipv6.neighbor_probe:
+                description: Whether to probe the parent network for IP availability.
+                type: bool
+              ipv6.routes:
+                description: Comma-delimited IPv6 static routes to add on the host.
+                type: str
+              ipv6.routes.external:
+                description: Comma-delimited IPv6 routes to publish via BGP.
+                type: str
+              limits.egress:
+                description: Outgoing traffic I/O limit in bit/s.
+                type: str
+              limits.ingress:
+                description: Incoming traffic I/O limit in bit/s.
+                type: str
+              limits.max:
+                description: Combined egress and ingress traffic I/O limit in bit/s.
+                type: str
+              limits.priority:
+                description: Outgoing traffic priority for queuing.
+                type: int
+              mode:
+                description: NIC mode, e.g. bridge for macvlan or l3s for ipvlan.
+                type: str
+              mtu:
+                description: Maximum transmission unit of the new interface.
+                type: str
+              nested:
+                description: Parent NIC name to nest this OVN NIC under.
+                type: str
               network:
                 description: Managed network to attach the NIC to.
                 type: str
               nictype:
-                description: NIC type.
+                description: NIC type when not using a managed network.
                 type: str
               parent:
-                description: Parent network device on the host.
+                description: Parent host device name.
                 type: str
-              hwaddr:
-                description: MAC address for the NIC.
+              pci:
+                description: PCI address of the parent host device.
                 type: str
-              mtu:
-                description: MTU of the NIC.
+              productid:
+                description: Product ID of the parent host device.
                 type: str
-              ipv4.address:
-                description: IPv4 address for the NIC.
+              queue.tx.length:
+                description: Transmit queue length for the NIC.
+                type: int
+              security.acls:
+                description: Comma-separated list of network ACLs to apply.
                 type: str
-              ipv4.routes:
-                description: IPv4 routes to add for the NIC.
+              security.acls.default.egress.action:
+                description: Default action for egress traffic not matching any ACL rule.
                 type: str
-              ipv6.address:
-                description: IPv6 address for the NIC.
+              security.acls.default.egress.logged:
+                description: Whether to log egress traffic not matching any ACL rule.
+                type: bool
+              security.acls.default.ingress.action:
+                description: Default action for ingress traffic not matching any ACL rule.
                 type: str
-              ipv6.routes:
-                description: IPv6 routes to add for the NIC.
+              security.acls.default.ingress.logged:
+                description: Whether to log ingress traffic not matching any ACL rule.
+                type: bool
+              security.ipv4_filtering:
+                description: Whether to prevent IPv4 address spoofing.
+                type: bool
+              security.ipv6_filtering:
+                description: Whether to prevent IPv6 address spoofing.
+                type: bool
+              security.mac_filtering:
+                description: Whether to prevent MAC address spoofing.
+                type: bool
+              security.port_isolation:
+                description: Whether to prevent communication with other isolated NICs.
+                type: bool
+              security.promiscuous:
+                description: Whether to send unknown traffic to this interface.
+                type: bool
+              security.trusted:
+                description: Whether to allow the instance to configure the NIC unsafely.
+                type: bool
+              vendorid:
+                description: Vendor ID of the parent host device.
+                type: str
+              vlan:
+                description: VLAN ID to attach to.
+                type: int
+              vlan.tagged:
+                description: Comma-separated VLAN IDs or ranges for tagged traffic.
+                type: str
+              vrf:
+                description: VRF name on the host for the host-side interface and routes.
                 type: str
           target:
             description: Cluster member to place the instance on.
