@@ -606,7 +606,7 @@ def incus_ensure_resource(
             return True
         if target:
             return False
-        if all(current.get(k, type(v)()) == v for k, v in desired.items()):
+        if all(k in current and current[k] == v for k, v in desired.items()):
             return False
         if not module.check_mode:
             incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{base_query}', desired))
