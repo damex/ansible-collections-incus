@@ -14,6 +14,7 @@ import pytest
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClient,
     IncusClientException,
+    IncusConnectionParameters,
     IncusNotFoundException,
 )
 
@@ -42,26 +43,26 @@ __all__ = [
 def test_client_default_socket_path() -> None:
     """Set default socket path."""
     client = IncusClient()
-    assert client.socket_path == '/var/lib/incus/unix.socket'
-    assert client.url is None
+    assert client.parameters.socket_path == '/var/lib/incus/unix.socket'
+    assert client.parameters.url is None
 
 
 def test_client_custom_socket_path() -> None:
     """Set custom socket path."""
-    client = IncusClient(socket_path='/tmp/test.sock')
-    assert client.socket_path == '/tmp/test.sock'
+    client = IncusClient(IncusConnectionParameters(socket_path='/tmp/test.sock'))
+    assert client.parameters.socket_path == '/tmp/test.sock'
 
 
 def test_client_url_parsing() -> None:
     """Parse URL host and port."""
-    client = IncusClient(url='https://incus.example.com:9443')
+    client = IncusClient(IncusConnectionParameters(url='https://incus.example.com:9443'))
     assert client.host == 'incus.example.com'
     assert client.port == 9443
 
 
 def test_client_url_default_port() -> None:
     """Default to port 8443."""
-    client = IncusClient(url='https://incus.example.com')
+    client = IncusClient(IncusConnectionParameters(url='https://incus.example.com'))
     assert client.port == 8443
 
 
@@ -82,7 +83,7 @@ def test_client_headers_without_token() -> None:
 
 def test_client_headers_with_token() -> None:
     """Include Bearer token."""
-    client = IncusClient(token='secret')
+    client = IncusClient(IncusConnectionParameters(token='secret'))
     mock_conn = MagicMock()
     mock_response = MagicMock()
     mock_response.read.return_value = b'{"type":"sync","metadata":{}}'

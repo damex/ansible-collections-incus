@@ -19,7 +19,7 @@ except ImportError:
     HAS_YAML = False
 
 import collections.abc
-from typing import Any
+from typing import Any, NamedTuple
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
@@ -34,6 +34,7 @@ __all__ = [
     'INCUS_SOURCE_ARGS',
     'IncusClient',
     'IncusClientException',
+    'IncusConnectionParameters',
     'IncusNotFoundException',
     'incus_build_desired',
     'incus_build_query',
@@ -327,47 +328,48 @@ class _UnixSocketHTTPConnection(http.client.HTTPConnection):
         self.sock.connect(self.socket_path)
 
 
-class IncusClient:  # pylint: disable=too-many-instance-attributes
+class IncusConnectionParameters(NamedTuple):
+    """Connection parameters for Incus API."""
+
+    socket_path: str = INCUS_SOCKET_PATH
+    url: str | None = None
+    client_cert: str | None = None
+    client_key: str | None = None
+    server_cert: str | None = None
+    token: str | None = None
+    validate_certs: bool = True
+
+
+class IncusClient:
     """Incus API client."""
 
-    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-        self, socket_path: str | None = None, url: str | None = None,
-        client_cert: str | None = None, client_key: str | None = None,
-        server_cert: str | None = None, token: str | None = None,
-        validate_certs: bool = True,
-    ) -> None:
-        """Set connection params."""
-        self.socket_path = socket_path or INCUS_SOCKET_PATH
-        self.url = url
-        self.client_cert = client_cert
-        self.client_key = client_key
-        self.server_cert = server_cert
-        self.token = token
-        self.validate_certs = validate_certs
+    def __init__(self, parameters: IncusConnectionParameters | None = None) -> None:
+        """Set connection parameters."""
+        self.parameters = parameters or IncusConnectionParameters()
         self.host: str | None = None
         self.port: int = 8443
         self._conn: http.client.HTTPConnection | None = None
 
-        if url:
-            parsed = urlparse(url)
+        if self.parameters.url:
+            parsed = urlparse(self.parameters.url)
             self.host = parsed.hostname
             self.port = parsed.port or 8443
 
     def _connect(self) -> http.client.HTTPConnection:
         """Create connection."""
-        if self.url:
+        if self.parameters.url:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-            if not self.validate_certs:
+            if not self.parameters.validate_certs:
                 context.check_hostname = False
                 context.verify_mode = ssl.CERT_NONE
-            if self.server_cert:
-                context.load_verify_locations(self.server_cert)
-            if self.client_cert and self.client_key:
-                context.load_cert_chain(self.client_cert, self.client_key)
+            if self.parameters.server_cert:
+                context.load_verify_locations(self.parameters.server_cert)
+            if self.parameters.client_cert and self.parameters.client_key:
+                context.load_cert_chain(self.parameters.client_cert, self.parameters.client_key)
             if self.host is None:
                 raise IncusClientException('URL provided but hostname could not be parsed')
             return http.client.HTTPSConnection(self.host, self.port, context=context)
-        return _UnixSocketHTTPConnection(self.socket_path)
+        return _UnixSocketHTTPConnection(self.parameters.socket_path)
 
     def _connection(self) -> http.client.HTTPConnection:
         """Get connection."""
@@ -384,8 +386,8 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
     def _headers(self) -> dict[str, str]:
         """Build headers."""
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        if self.token:
-            headers['Authorization'] = f'Bearer {self.token}'
+        if self.parameters.token:
+            headers['Authorization'] = f'Bearer {self.parameters.token}'
         return headers
 
     def _send(self, method: str, path: str, body: str | None) -> dict[str, Any]:
@@ -457,15 +459,15 @@ class IncusClient:  # pylint: disable=too-many-instance-attributes
 
 def incus_create_client(module: AnsibleModule) -> IncusClient:
     """Create client."""
-    return IncusClient(
-        socket_path=module.params.get('socket_path'),
+    return IncusClient(IncusConnectionParameters(
+        socket_path=module.params.get('socket_path') or INCUS_SOCKET_PATH,
         url=module.params.get('url'),
         client_cert=module.params.get('client_cert'),
         client_key=module.params.get('client_key'),
         server_cert=module.params.get('server_cert'),
         token=module.params.get('token'),
         validate_certs=module.params.get('validate_certs', True),
-    )
+    ))
 
 
 def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
