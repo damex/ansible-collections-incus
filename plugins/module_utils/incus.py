@@ -489,19 +489,52 @@ def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     return result
 
 
+def _strip_none(data: Any) -> Any:
+    """Strip None values recursively."""
+    if isinstance(data, dict):
+        return {key: _strip_none(value) for key, value in data.items() if value is not None}
+    if isinstance(data, list):
+        return [_strip_none(item) for item in data if item is not None]
+    return data
+
+
+_CLOUD_INIT_NETWORK_INTERFACE_KEYS = frozenset({'ethernets', 'bonds', 'bridges', 'vlans'})
+
+
+def _cloud_init_network_config_to_netplan(config: dict[str, Any]) -> dict[str, Any]:
+    """Transform cloud-init network config from list to netplan dict format."""
+    result: dict[str, Any] = {}
+    for key, value in config.items():
+        if key in _CLOUD_INIT_NETWORK_INTERFACE_KEYS and isinstance(value, list):
+            result[key] = {
+                interface['name']: {
+                    option: option_value
+                    for option, option_value in interface.items()
+                    if option != 'name'
+                }
+                for interface in value
+            }
+        else:
+            result[key] = value
+    return result
+
+
 def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Stringify config with cloud-init YAML."""
     result = {}
-    for k, v in (config or {}).items():
-        if v is None:
+    for key, value in (config or {}).items():
+        if value is None:
             continue
-        if isinstance(v, (dict, list)):
-            prefix = '#cloud-config\n' if k in _CLOUD_INIT_USER_KEYS else ''
-            result[k] = prefix + yaml.dump(v, default_flow_style=False)
-        elif isinstance(v, bool):
-            result[k] = str(v).lower()
+        if isinstance(value, (dict, list)):
+            cleaned = _strip_none(value)
+            if key == 'cloud-init.network-config' and isinstance(cleaned, dict):
+                cleaned = _cloud_init_network_config_to_netplan(cleaned)
+            prefix = '#cloud-config\n' if key in _CLOUD_INIT_USER_KEYS else ''
+            result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)
+        elif isinstance(value, bool):
+            result[key] = str(value).lower()
         else:
-            result[k] = str(v)
+            result[key] = str(value)
     return result
 
 
