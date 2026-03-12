@@ -8,9 +8,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-from urllib.parse import quote
-
 DOCUMENTATION = r"""
 ---
 module: incus_storage_volume_info
@@ -75,6 +72,9 @@ storage_volumes:
       description: Storage volume configuration.
       type: dict
 """
+
+from typing import Any
+from urllib.parse import quote
 
 from ansible.module_utils.basic import AnsibleModule
 
