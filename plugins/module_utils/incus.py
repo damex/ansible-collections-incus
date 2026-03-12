@@ -225,7 +225,11 @@ INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
                 'type': 'list',
                 'elements': 'dict',
                 'options': _cloud_init_interface_options(
-                    match={'type': 'dict', 'options': {'driver': {'type': 'str'}}},
+                    match={'type': 'dict', 'options': {
+                        'name': {'type': 'str'},
+                        'macaddress': {'type': 'str'},
+                        'driver': {'type': 'str'},
+                    }},
                 ),
             },
             'bonds': {

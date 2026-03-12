@@ -398,6 +398,12 @@ argument_specs:
                         description: Match rules for the interface.
                         type: dict
                         options:
+                          name:
+                            description: Interface name glob pattern to match.
+                            type: str
+                          macaddress:
+                            description: MAC address to match.
+                            type: str
                           driver:
                             description: Kernel driver name to match.
                             type: str
