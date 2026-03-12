@@ -47,6 +47,10 @@ options:
       - Storage volume description.
     type: str
     default: ''
+  target:
+    description:
+      - Cluster member to create the storage volume on.
+    type: str
   state:
     description:
       - Desired state of the storage volume.
@@ -132,6 +136,12 @@ EXAMPLES = r"""
     name: data
     project: myproject
 
+- name: Ensure storage volume on cluster member
+  damex.incus.incus_storage_volume:
+    pool: local
+    name: data
+    target: node1
+
 - name: Ensure storage volume is absent
   damex.incus.incus_storage_volume:
     pool: default
@@ -184,6 +194,7 @@ def main() -> None:
             ],
         },
         'project': {'type': 'str', 'default': 'default'},
+        'target': {'type': 'str'},
         'content_type': {
             'type': 'str',
             'default': 'filesystem',
@@ -201,9 +212,11 @@ def main() -> None:
         pool = module.params['pool']
         name = module.params['name']
         project = module.params['project']
+        target = module.params.get('target')
         encoded_pool = quote(pool, safe='')
         encoded_name = quote(name, safe='')
-        query = incus_build_query(project=project)
+        base_query = incus_build_query(project=project)
+        target_query = incus_build_query(project=project, target=target)
         base_path = f'/1.0/storage-pools/{encoded_pool}/volumes/custom'
 
         desired = {
@@ -212,7 +225,7 @@ def main() -> None:
         }
 
         try:
-            current = client.get(f'{base_path}/{encoded_name}{query}').get('metadata') or {}
+            current = client.get(f'{base_path}/{encoded_name}{target_query}').get('metadata') or {}
             exists = True
         except IncusNotFoundException:
             current = {}
@@ -226,17 +239,19 @@ def main() -> None:
                     **desired,
                 }
                 if not module.check_mode:
-                    incus_wait(module, client, client.post(f'{base_path}{query}', data))
+                    incus_wait(module, client, client.post(f'{base_path}{target_query}', data))
                 return True
+            if target:
+                return False
             if all(key in current and current[key] == value for key, value in desired.items()):
                 return False
             if not module.check_mode:
-                incus_wait(module, client, client.put(f'{base_path}/{encoded_name}{query}', desired))
+                incus_wait(module, client, client.put(f'{base_path}/{encoded_name}{base_query}', desired))
             return True
 
         if exists:
             if not module.check_mode:
-                incus_wait(module, client, client.delete(f'{base_path}/{encoded_name}{query}'))
+                incus_wait(module, client, client.delete(f'{base_path}/{encoded_name}{base_query}'))
             return True
         return False
 
