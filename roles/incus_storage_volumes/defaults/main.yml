@@ -1,0 +1,6 @@
+---
+incus_storage_volumes: [] # noqa: var-naming[no-role-prefix]
+incus_storage_volumes_socket_path: /var/lib/incus/unix.socket
+incus_storage_volumes_validate_certs: true
+incus_storage_volumes_project: default
+incus_storage_volumes_state: present

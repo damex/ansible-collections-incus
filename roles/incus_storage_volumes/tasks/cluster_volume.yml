@@ -1,0 +1,25 @@
+---
+- name: Ensure incus cluster storage volume {{ incus_storage_volumes_volume_name }}
+  when: incus_storage_volumes_cluster_info_state.cluster_members | length == 0 or 'database' in incus_storage_volumes_cluster_info_state.cluster_members | map(attribute='roles') | first
+  damex.incus.incus_storage_volume:
+    name: "{{ incus_storage_volumes_volume_name }}"
+    pool: "{{ incus_storage_volumes_volume_pool }}"
+    state: "{{ incus_storage_volumes_volume_state }}"
+    content_type: "{{ incus_storage_volumes_volume_content_type }}"
+    description: "{{ incus_storage_volumes_volume_description }}"
+    project: "{{ incus_storage_volumes_volume_project }}"
+    config: "{{ incus_storage_volumes_volume_config }}"
+    target: "{{ incus_storage_volumes_target.name }}"
+    socket_path: "{{ incus_storage_volumes_volume_socket_path }}"
+    url: "{{ incus_storage_volumes_volume_url }}"
+    client_cert: "{{ incus_storage_volumes_volume_client_cert }}"
+    client_key: "{{ incus_storage_volumes_volume_client_key }}"
+    server_cert: "{{ incus_storage_volumes_volume_server_cert }}"
+    token: "{{ incus_storage_volumes_volume_token }}"
+    validate_certs: "{{ incus_storage_volumes_volume_validate_certs }}"
+  no_log: "{{ incus_storage_volumes_client_key is defined or incus_storage_volumes_token is defined }}"
+  become: true
+  loop: "{{ incus_storage_volumes_volume.targets }}"
+  loop_control:
+    label: "{{ incus_storage_volumes_target.name }}"
+    loop_var: incus_storage_volumes_target

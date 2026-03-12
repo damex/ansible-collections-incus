@@ -1,0 +1,23 @@
+---
+- name: Ensure incus storage volumes
+  ansible.builtin.include_tasks: "{{ 'cluster_volume.yml' if incus_storage_volumes_volume.targets is defined else 'volume.yml' }}"
+  vars:
+    incus_storage_volumes_volume_name: "{{ incus_storage_volumes_volume.name }}"
+    incus_storage_volumes_volume_pool: "{{ incus_storage_volumes_volume.pool }}"
+    incus_storage_volumes_volume_content_type: "{{ incus_storage_volumes_volume.content_type | default(omit) }}"
+    incus_storage_volumes_volume_description: "{{ incus_storage_volumes_volume.description | default(omit) }}"
+    incus_storage_volumes_volume_project: "{{ incus_storage_volumes_volume.project | default(incus_storage_volumes_project) }}"
+    incus_storage_volumes_volume_config: "{{ incus_storage_volumes_volume.config | default(omit) }}"
+    incus_storage_volumes_volume_state: "{{ incus_storage_volumes_volume.state | default(incus_storage_volumes_state) }}"
+    incus_storage_volumes_volume_socket_path: "{{ incus_storage_volumes_socket_path }}"
+    incus_storage_volumes_volume_url: "{{ incus_storage_volumes_url | default(omit) }}"
+    incus_storage_volumes_volume_client_cert: "{{ incus_storage_volumes_client_cert | default(omit) }}"
+    incus_storage_volumes_volume_client_key: "{{ incus_storage_volumes_client_key | default(omit) }}"
+    incus_storage_volumes_volume_server_cert: "{{ incus_storage_volumes_server_cert | default(omit) }}"
+    incus_storage_volumes_volume_token: "{{ incus_storage_volumes_token | default(omit) }}"
+    incus_storage_volumes_volume_validate_certs: "{{ incus_storage_volumes_validate_certs }}"
+  no_log: "{{ incus_storage_volumes_client_key is defined or incus_storage_volumes_token is defined }}"
+  loop: "{{ incus_storage_volumes }}"
+  loop_control:
+    label: "{{ incus_storage_volumes_volume_name }}"
+    loop_var: incus_storage_volumes_volume

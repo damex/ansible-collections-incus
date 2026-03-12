@@ -1,0 +1,137 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus storage volumes.
+    description:
+      - Ensure Incus storage volumes.
+    examples: |
+      - name: Ensure incus storage volumes
+        hosts: incus
+        tasks:
+          - name: Ensure incus storage volumes
+            ansible.builtin.import_role:
+              name: damex.incus.incus_storage_volumes
+            vars:
+              incus_storage_volumes:
+                - name: data
+                  pool: default
+                - name: media
+                  pool: zfs
+                  content_type: block
+                  config:
+                    size: "50GiB"
+                - name: backups
+                  pool: default
+                  config:
+                    snapshots.schedule: "@daily"
+                    snapshots.expiry: "7d"
+                - name: plexmediaserver
+                  pool: local
+                  targets:
+                    - name: node1.example.com
+                    - name: node2.example.com
+    options:
+      incus_storage_volumes:
+        description: List of storage volumes to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the storage volume.
+            required: true
+            type: str
+          pool:
+            description: Name of the storage pool containing the volume.
+            required: true
+            type: str
+          content_type:
+            description: Content type of the storage volume.
+            type: str
+            choices:
+              - filesystem
+              - block
+          description:
+            description: Storage volume description.
+            type: str
+          project:
+            description: Project to scope the storage volume to.
+            type: str
+          config:
+            description: Storage volume configuration options.
+            type: dict
+            options:
+              size:
+                description: Size of the storage volume.
+                type: str
+              snapshots.expiry:
+                description: Automatic expiry time for snapshots.
+                type: str
+              snapshots.pattern:
+                description: Pongo2 template for snapshot names.
+                type: str
+              snapshots.schedule:
+                description: Cron expression for automatic snapshots.
+                type: str
+              block.filesystem:
+                description: Filesystem type for block volumes.
+                type: str
+              block.mount_options:
+                description: Mount options for block volumes.
+                type: str
+              zfs.blocksize:
+                description: Block size for the ZFS volume.
+                type: str
+              zfs.block_mode:
+                description: Whether to use a ZFS volume as a block device.
+                type: bool
+              zfs.delegate:
+                description: Whether to delegate ZFS dataset to the instance.
+                type: bool
+              zfs.remove_snapshots:
+                description: Whether to remove snapshots on volume removal.
+                type: bool
+          targets:
+            description: List of cluster members to create the storage volume on.
+            type: list
+            elements: dict
+            options:
+              name:
+                description: Name of the cluster member.
+                required: true
+                type: str
+          state:
+            description: Desired state of the storage volume.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_storage_volumes_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_storage_volumes_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_storage_volumes_client_cert:
+        description: Path to the TLS client certificate.
+        type: path
+      incus_storage_volumes_client_key:
+        description: Path to the TLS client key.
+        type: path
+      incus_storage_volumes_server_cert:
+        description: Path to the TLS server certificate.
+        type: path
+      incus_storage_volumes_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_storage_volumes_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_storage_volumes_project:
+        description: Incus project to scope storage volumes to.
+        type: str
+      incus_storage_volumes_state:
+        description: Desired state of the storage volumes.
+        type: str
+        choices:
+          - present
+          - absent

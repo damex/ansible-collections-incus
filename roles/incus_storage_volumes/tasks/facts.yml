@@ -1,0 +1,14 @@
+---
+- name: Ensure incus storage volumes cluster facts
+  damex.incus.incus_cluster_info:
+    name: "{{ inventory_hostname }}"
+    socket_path: "{{ incus_storage_volumes_socket_path }}"
+    url: "{{ incus_storage_volumes_url | default(omit) }}"
+    client_cert: "{{ incus_storage_volumes_client_cert | default(omit) }}"
+    client_key: "{{ incus_storage_volumes_client_key | default(omit) }}"
+    server_cert: "{{ incus_storage_volumes_server_cert | default(omit) }}"
+    token: "{{ incus_storage_volumes_token | default(omit) }}"
+    validate_certs: "{{ incus_storage_volumes_validate_certs }}"
+  no_log: "{{ incus_storage_volumes_client_key is defined or incus_storage_volumes_token is defined }}"
+  register: incus_storage_volumes_cluster_info_state
+  become: true

@@ -1,0 +1,10 @@
+---
+- name: Ensure incus storage volumes
+  tags:
+    - incus
+    - incus_storage_volumes
+  block:
+    - name: Ensure incus storage volumes facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus storage volumes
+      ansible.builtin.import_tasks: volumes.yml
