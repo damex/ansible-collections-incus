@@ -29,7 +29,7 @@
         state: "{{ incus_storages_storage_state }}"
         driver: "{{ incus_storages_storage.driver }}"
         description: "{{ incus_storages_storage_description }}"
-        config: "{{ incus_storages_storage.config | default(omit) }}"
+        config: "{{ incus_storages_storage.config | dict2items | rejectattr('key', 'in', incus_storages_storage_member_config_keys) | items2dict if incus_storages_storage.config is defined else omit }}"
         socket_path: "{{ incus_storages_storage_socket_path }}"
         url: "{{ incus_storages_storage_url }}"
         client_cert: "{{ incus_storages_storage_client_cert }}"
@@ -37,5 +37,12 @@
         server_cert: "{{ incus_storages_storage_server_cert }}"
         token: "{{ incus_storages_storage_token }}"
         validate_certs: "{{ incus_storages_storage_validate_certs }}"
+      vars:
+        incus_storages_storage_member_config_keys:
+          - source
+          - size
+          - zfs.pool_name
+          - lvm.thinpool_name
+          - lvm.vg_name
       no_log: "{{ incus_storages_client_key is defined or incus_storages_token is defined or (incus_storages_storage.config is defined and 'truenas.api_key' in incus_storages_storage.config) }}"
       become: true
