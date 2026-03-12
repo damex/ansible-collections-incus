@@ -76,6 +76,8 @@ storage_volumes:
       type: dict
 """
 
+from ansible.module_utils.basic import AnsibleModule
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGS,
     INCUS_COMMON_MUTUALLY_EXCLUSIVE,
@@ -86,8 +88,6 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_build_query,
     incus_create_client,
 )
-
-from ansible.module_utils.basic import AnsibleModule
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
