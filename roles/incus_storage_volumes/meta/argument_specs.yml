@@ -29,6 +29,8 @@ argument_specs:
                   pool: local
                   targets:
                     - name: node1.example.com
+                      config:
+                        size: "100GiB"
                     - name: node2.example.com
     options:
       incus_storage_volumes:
@@ -99,6 +101,13 @@ argument_specs:
                 description: Name of the cluster member.
                 required: true
                 type: str
+              config:
+                description: Per-member storage volume configuration options.
+                type: dict
+                options:
+                  size:
+                    description: Size of the storage volume.
+                    type: str
           state:
             description: Desired state of the storage volume.
             type: str

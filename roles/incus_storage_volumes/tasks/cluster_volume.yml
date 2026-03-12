@@ -8,7 +8,7 @@
     content_type: "{{ incus_storage_volumes_volume_content_type }}"
     description: "{{ incus_storage_volumes_volume_description }}"
     project: "{{ incus_storage_volumes_volume_project }}"
-    config: "{{ incus_storage_volumes_volume_config }}"
+    config: "{{ incus_storage_volumes_volume.config | combine(incus_storage_volumes_target.config) if (incus_storage_volumes_volume.config is defined and incus_storage_volumes_target.config is defined) else incus_storage_volumes_target.config if incus_storage_volumes_target.config is defined else incus_storage_volumes_volume.config | default(omit) }}"
     target: "{{ incus_storage_volumes_target.name }}"
     socket_path: "{{ incus_storage_volumes_volume_socket_path }}"
     url: "{{ incus_storage_volumes_volume_url }}"
