@@ -25,6 +25,8 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_server_info` | Ensure Incus server information is gathered |
 | `incus_storage` | Ensure Incus storage |
 | `incus_storage_info` | Ensure Incus storage information is gathered |
+| `incus_storage_volume` | Ensure Incus storage volume |
+| `incus_storage_volume_info` | Ensure Incus storage volume information is gathered |
 
 ## Roles
 
@@ -41,6 +43,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_projects` | Ensure Incus projects |
 | `incus_repository` | Ensure Incus repository |
 | `incus_server` | Ensure Incus server |
+| `incus_storage_volumes` | Ensure Incus storage volumes |
 | `incus_storages` | Ensure Incus storages |
 
 ## Requirements
