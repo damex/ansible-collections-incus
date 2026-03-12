@@ -493,6 +493,14 @@ options:
                   - Match rules for the interface.
                 type: dict
                 suboptions:
+                  name:
+                    description:
+                      - Interface name to match.
+                    type: str
+                  macaddress:
+                    description:
+                      - MAC address to match.
+                    type: str
                   driver:
                     description:
                       - Kernel driver name to match.
