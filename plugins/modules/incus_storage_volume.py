@@ -35,7 +35,7 @@ options:
   content_type:
     description:
       - Content type of the storage volume.
-      - Required when creating a new volume.
+      - Only used when creating a new volume.
       - Ignored on update — content type cannot be changed after creation.
     type: str
     choices:
