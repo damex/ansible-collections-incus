@@ -123,6 +123,15 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'major': {'type': 'int'},
     'minor': {'type': 'int'},
     # gpu
+    'gputype': {
+        'type': 'str',
+        'choices': [
+            'mdev',
+            'mig',
+            'physical',
+            'sriov',
+        ],
+    },
     'id': {'type': 'str'},
     'mdev': {'type': 'str'},
     'mig.ci': {'type': 'int'},

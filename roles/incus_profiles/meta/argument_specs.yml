@@ -930,6 +930,14 @@ argument_specs:
                 description: Device minor number.
                 type: int
               # gpu
+              gputype:
+                description: GPU type.
+                type: str
+                choices:
+                  - mdev
+                  - mig
+                  - physical
+                  - sriov
               id:
                 description: DRM card ID of the GPU device.
                 type: str

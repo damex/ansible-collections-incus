@@ -288,6 +288,10 @@ options:
         description: Device minor number (unix-char, unix-block).
         type: int
       # gpu
+      gputype:
+        description: GPU type (gpu only).
+        type: str
+        choices: [mdev, mig, physical, sriov]
       id:
         description: DRM card ID of the GPU device (gpu only).
         type: str
