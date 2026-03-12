@@ -261,7 +261,10 @@ def main() -> None:
                     or current_config != desired['config']
                     or current.get('devices', {}) != desired['devices']
                     or current.get('profiles', []) != desired['profiles']):
+                preserved_config = {k: v for k, v in current.get('config', {}).items()
+                                    if k.startswith(('volatile.', 'image.'))}
                 update_desired = {'architecture': current['architecture'], **desired}
+                update_desired['config'] = {**preserved_config, **desired['config']}
                 _update_instance(module, client, query, encoded_name, update_desired)
                 changed = True
 
