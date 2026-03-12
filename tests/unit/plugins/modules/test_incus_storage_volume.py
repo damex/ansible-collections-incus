@@ -26,6 +26,8 @@ __all__ = [
     'test_delete_nonexistent_volume',
     'test_volume_check_mode',
     'test_create_volume_block_type',
+    'test_create_volume_with_target',
+    'test_skip_update_with_target',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage_volume'
@@ -102,3 +104,23 @@ def test_create_volume_block_type() -> None:
     client = assert_module_create(main, MODULE, module)
     post_data = client.post.call_args[0][1]
     assert post_data['content_type'] == 'block'
+
+
+def test_create_volume_with_target() -> None:
+    """Create volume with target in API path."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    client = assert_module_create(main, MODULE, module)
+    post_url = client.post.call_args[0][0]
+    assert 'target=node1' in post_url
+
+
+def test_skip_update_with_target() -> None:
+    """Skip update when target is set on existing volume."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    client = MagicMock()
+    client.get.return_value = {'metadata': {'description': '', 'config': {}}}
+    run_module_main(MODULE, module, client, main)
+    module.exit_json.assert_called_once_with(changed=False)
+    client.put.assert_not_called()
