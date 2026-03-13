@@ -54,6 +54,12 @@ __all__ = [
     'test_stringify_instance_config_network_routes_metric',
     'test_stringify_instance_config_network_nameservers_search',
     'test_stringify_instance_config_network_set_name',
+    'test_stringify_instance_config_cloud_init_ssh_publish_hostkeys',
+    'test_stringify_instance_config_cloud_init_resolv_conf_options_dict',
+    'test_stringify_instance_config_cloud_init_ntp_peers_allow',
+    'test_stringify_instance_config_cloud_init_users_extended',
+    'test_stringify_instance_config_cloud_init_write_files_source',
+    'test_stringify_instance_config_cloud_init_mount_default_fields',
     'test_build_source_known_remote',
     'test_build_source_ubuntu_remote',
     'test_build_source_explicit_server',
@@ -332,6 +338,82 @@ def test_stringify_instance_config_network_set_name() -> None:
     }}
     result = incus_stringify_instance_config(config)
     assert 'set-name: lan0' in result['cloud-init.network-config']
+
+
+def test_stringify_instance_config_cloud_init_ssh_publish_hostkeys() -> None:
+    """Serialize ssh_publish_hostkeys dict."""
+    config = {'cloud-init.user-data': {
+        'ssh_publish_hostkeys': {'enabled': True, 'blacklist': ['dsa']},
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'enabled: true' in result['cloud-init.user-data']
+    assert '- dsa' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_resolv_conf_options_dict() -> None:
+    """Serialize resolv_conf with options as dict."""
+    config = {'cloud-init.user-data': {
+        'resolv_conf': {
+            'nameservers': ['8.8.8.8'],
+            'options': {'ndots': 5, 'rotate': True},
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'ndots: 5' in result['cloud-init.user-data']
+    assert 'rotate: true' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_ntp_peers_allow() -> None:
+    """Serialize ntp with peers and allow."""
+    config = {'cloud-init.user-data': {
+        'ntp': {
+            'enabled': True,
+            'peers': ['peer1.example.com'],
+            'allow': ['10.0.0.0/8'],
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'peer1.example.com' in result['cloud-init.user-data']
+    assert '10.0.0.0/8' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_users_extended() -> None:
+    """Serialize users with extended upstream properties."""
+    config = {'cloud-init.user-data': {
+        'users': [{
+            'name': 'admin',
+            'doas': ['permit nopass admin'],
+            'ssh_import_id': ['gh:user'],
+            'create_groups': True,
+            'selinux_user': 'staff_u',
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'permit nopass admin' in result['cloud-init.user-data']
+    assert 'gh:user' in result['cloud-init.user-data']
+    assert 'create_groups: true' in result['cloud-init.user-data']
+    assert 'selinux_user: staff_u' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_write_files_source() -> None:
+    """Serialize write_files with source URL."""
+    config = {'cloud-init.user-data': {
+        'write_files': [{
+            'path': '/etc/config.yml',
+            'source': {'uri': 'https://example.com/config.yml'},
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'https://example.com/config.yml' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_mount_default_fields() -> None:
+    """Serialize mount_default_fields list."""
+    config = {'cloud-init.user-data': {
+        'mount_default_fields': [None, None, 'auto', 'defaults,nofail', '0', '2'],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'defaults,nofail' in result['cloud-init.user-data']
 
 
 def test_build_source_known_remote() -> None:

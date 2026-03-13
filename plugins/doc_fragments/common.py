@@ -910,8 +910,8 @@ options:
                 required: true
               groups:
                 description:
-                  - Comma-separated list of groups to add the user to.
-                type: str
+                  - Groups to add the user to.
+                type: raw
               shell:
                 description:
                   - Login shell for the user.
@@ -925,6 +925,15 @@ options:
                   - SSH public keys to add to the user.
                 type: list
                 elements: str
+              ssh_import_id:
+                description:
+                  - SSH IDs to import public keys from.
+                type: list
+                elements: str
+              ssh_redirect_user:
+                description:
+                  - Whether to disable SSH login and redirect to default user.
+                type: bool
               lock_passwd:
                 description:
                   - Whether to lock the user password.
@@ -932,6 +941,14 @@ options:
               passwd:
                 description:
                   - Hashed password for the user.
+                type: str
+              plain_text_passwd:
+                description:
+                  - Plain text password for the user.
+                type: str
+              hashed_passwd:
+                description:
+                  - Pre-hashed password for the user.
                 type: str
               gecos:
                 description:
@@ -957,6 +974,10 @@ options:
                 description:
                   - Whether to skip logging of user initialization.
                 type: bool
+              create_groups:
+                description:
+                  - Whether to create specified groups for the user.
+                type: bool
               expiredate:
                 description:
                   - Account expiration date in YYYY-MM-DD format.
@@ -973,6 +994,19 @@ options:
                 description:
                   - Numeric user ID.
                 type: int
+              snapuser:
+                description:
+                  - Email for Snappy user creation.
+                type: str
+              doas:
+                description:
+                  - List of doas rules for the user.
+                type: list
+                elements: str
+              selinux_user:
+                description:
+                  - SELinux user for login mapping.
+                type: str
           groups:
             description:
               - List of groups to create.
@@ -1045,10 +1079,36 @@ options:
                 description:
                   - ECDSA host certificate.
                 type: str
+          ssh_publish_hostkeys:
+            description:
+              - SSH host key publishing configuration.
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Whether to publish host keys.
+                type: bool
+              blacklist:
+                description:
+                  - Key types to exclude from publishing.
+                type: list
+                elements: str
+          ssh_quiet_keygen:
+            description:
+              - Whether to suppress SSH key generation output.
+            type: bool
+          allow_public_ssh_keys:
+            description:
+              - Whether to allow public SSH keys.
+            type: bool
           disable_root:
             description:
               - Whether to disable root login.
             type: bool
+          disable_root_opts:
+            description:
+              - SSH options applied when root login is disabled.
+            type: str
           chpasswd:
             description:
               - Password change settings.
@@ -1073,7 +1133,6 @@ options:
                     description:
                       - Password for the user.
                     type: str
-                    required: true
                   type:
                     description:
                       - Password type.
@@ -1086,6 +1145,10 @@ options:
           locale:
             description:
               - System locale.
+            type: str
+          locale_configfile:
+            description:
+              - Path to the locale configuration file.
             type: str
           hostname:
             description:
@@ -1133,6 +1196,11 @@ options:
                 description:
                   - Whether to preserve the existing sources.list.
                 type: bool
+              disable_suites:
+                description:
+                  - APT suites to disable.
+                type: list
+                elements: str
               primary:
                 description:
                   - Primary mirror configuration.
@@ -1159,10 +1227,22 @@ options:
                 description:
                   - HTTP proxy URL for APT.
                 type: str
+              ftp_proxy:
+                description:
+                  - FTP proxy URL for APT.
+                type: str
               https_proxy:
                 description:
                   - HTTPS proxy URL for APT.
                 type: str
+              add_apt_repo_match:
+                description:
+                  - Regex for matching add-apt-repository entries.
+                type: str
+              debconf_selections:
+                description:
+                  - Debconf preseed selections.
+                type: dict
           snap:
             description:
               - Snap package manager configuration.
@@ -1222,6 +1302,10 @@ options:
                 description:
                   - Whether to overwrite existing filesystem.
                 type: bool
+              replace_fs:
+                description:
+                  - Whether to replace existing filesystem.
+                type: bool
               extra_opts:
                 description:
                   - Extra options for mkfs.
@@ -1234,6 +1318,11 @@ options:
           mounts:
             description:
               - Mount point definitions.
+            type: list
+            elements: raw
+          mount_default_fields:
+            description:
+              - Default values for mount entries with fewer than six fields.
             type: list
             elements: raw
           swap:
@@ -1252,7 +1341,7 @@ options:
               maxsize:
                 description:
                   - Maximum swap size in bytes.
-                type: int
+                type: raw
           ntp:
             description:
               - NTP client configuration.
@@ -1272,10 +1361,24 @@ options:
                   - List of NTP pools.
                 type: list
                 elements: str
+              peers:
+                description:
+                  - List of NTP peer nodes.
+                type: list
+                elements: str
+              allow:
+                description:
+                  - List of network ranges to allow NTP access.
+                type: list
+                elements: str
               ntp_client:
                 description:
                   - NTP client to use.
                 type: str
+              config:
+                description:
+                  - NTP client-specific configuration.
+                type: dict
           ca_certs:
             description:
               - CA certificate configuration.
@@ -1317,8 +1420,7 @@ options:
               options:
                 description:
                   - Additional resolver options.
-                type: list
-                elements: str
+                type: dict
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
@@ -1360,6 +1462,20 @@ options:
                 description:
                   - Content to write to the file.
                 type: str
+              source:
+                description:
+                  - URL source for file content.
+                type: dict
+                suboptions:
+                  uri:
+                    description:
+                      - URL to fetch content from.
+                    type: str
+                    required: true
+                  headers:
+                    description:
+                      - HTTP headers for the request.
+                    type: dict
               owner:
                 description:
                   - Owner and group of the file.
@@ -1372,7 +1488,7 @@ options:
                 description:
                   - Content encoding.
                 type: str
-                choices: [b64, gzip, gz+b64, text]
+                choices: [b64, base64, gz, gzip, gz+b64, gzip+b64, gz+base64, gzip+base64, text/plain]
               append:
                 description:
                   - Whether to append to the file instead of overwriting.
@@ -1432,8 +1548,8 @@ options:
                 required: true
               groups:
                 description:
-                  - Comma-separated list of groups to add the user to.
-                type: str
+                  - Groups to add the user to.
+                type: raw
               shell:
                 description:
                   - Login shell for the user.
@@ -1447,6 +1563,15 @@ options:
                   - SSH public keys to add to the user.
                 type: list
                 elements: str
+              ssh_import_id:
+                description:
+                  - SSH IDs to import public keys from.
+                type: list
+                elements: str
+              ssh_redirect_user:
+                description:
+                  - Whether to disable SSH login and redirect to default user.
+                type: bool
               lock_passwd:
                 description:
                   - Whether to lock the user password.
@@ -1454,6 +1579,14 @@ options:
               passwd:
                 description:
                   - Hashed password for the user.
+                type: str
+              plain_text_passwd:
+                description:
+                  - Plain text password for the user.
+                type: str
+              hashed_passwd:
+                description:
+                  - Pre-hashed password for the user.
                 type: str
               gecos:
                 description:
@@ -1479,6 +1612,10 @@ options:
                 description:
                   - Whether to skip logging of user initialization.
                 type: bool
+              create_groups:
+                description:
+                  - Whether to create specified groups for the user.
+                type: bool
               expiredate:
                 description:
                   - Account expiration date in YYYY-MM-DD format.
@@ -1495,6 +1632,19 @@ options:
                 description:
                   - Numeric user ID.
                 type: int
+              snapuser:
+                description:
+                  - Email for Snappy user creation.
+                type: str
+              doas:
+                description:
+                  - List of doas rules for the user.
+                type: list
+                elements: str
+              selinux_user:
+                description:
+                  - SELinux user for login mapping.
+                type: str
           groups:
             description:
               - List of groups to create.
@@ -1567,10 +1717,36 @@ options:
                 description:
                   - ECDSA host certificate.
                 type: str
+          ssh_publish_hostkeys:
+            description:
+              - SSH host key publishing configuration.
+            type: dict
+            suboptions:
+              enabled:
+                description:
+                  - Whether to publish host keys.
+                type: bool
+              blacklist:
+                description:
+                  - Key types to exclude from publishing.
+                type: list
+                elements: str
+          ssh_quiet_keygen:
+            description:
+              - Whether to suppress SSH key generation output.
+            type: bool
+          allow_public_ssh_keys:
+            description:
+              - Whether to allow public SSH keys.
+            type: bool
           disable_root:
             description:
               - Whether to disable root login.
             type: bool
+          disable_root_opts:
+            description:
+              - SSH options applied when root login is disabled.
+            type: str
           chpasswd:
             description:
               - Password change settings.
@@ -1595,7 +1771,6 @@ options:
                     description:
                       - Password for the user.
                     type: str
-                    required: true
                   type:
                     description:
                       - Password type.
@@ -1608,6 +1783,10 @@ options:
           locale:
             description:
               - System locale.
+            type: str
+          locale_configfile:
+            description:
+              - Path to the locale configuration file.
             type: str
           hostname:
             description:
@@ -1655,6 +1834,11 @@ options:
                 description:
                   - Whether to preserve the existing sources.list.
                 type: bool
+              disable_suites:
+                description:
+                  - APT suites to disable.
+                type: list
+                elements: str
               primary:
                 description:
                   - Primary mirror configuration.
@@ -1681,10 +1865,22 @@ options:
                 description:
                   - HTTP proxy URL for APT.
                 type: str
+              ftp_proxy:
+                description:
+                  - FTP proxy URL for APT.
+                type: str
               https_proxy:
                 description:
                   - HTTPS proxy URL for APT.
                 type: str
+              add_apt_repo_match:
+                description:
+                  - Regex for matching add-apt-repository entries.
+                type: str
+              debconf_selections:
+                description:
+                  - Debconf preseed selections.
+                type: dict
           snap:
             description:
               - Snap package manager configuration.
@@ -1744,6 +1940,10 @@ options:
                 description:
                   - Whether to overwrite existing filesystem.
                 type: bool
+              replace_fs:
+                description:
+                  - Whether to replace existing filesystem.
+                type: bool
               extra_opts:
                 description:
                   - Extra options for mkfs.
@@ -1756,6 +1956,11 @@ options:
           mounts:
             description:
               - Mount point definitions.
+            type: list
+            elements: raw
+          mount_default_fields:
+            description:
+              - Default values for mount entries with fewer than six fields.
             type: list
             elements: raw
           swap:
@@ -1774,7 +1979,7 @@ options:
               maxsize:
                 description:
                   - Maximum swap size in bytes.
-                type: int
+                type: raw
           ntp:
             description:
               - NTP client configuration.
@@ -1794,10 +1999,24 @@ options:
                   - List of NTP pools.
                 type: list
                 elements: str
+              peers:
+                description:
+                  - List of NTP peer nodes.
+                type: list
+                elements: str
+              allow:
+                description:
+                  - List of network ranges to allow NTP access.
+                type: list
+                elements: str
               ntp_client:
                 description:
                   - NTP client to use.
                 type: str
+              config:
+                description:
+                  - NTP client-specific configuration.
+                type: dict
           ca_certs:
             description:
               - CA certificate configuration.
@@ -1839,8 +2058,7 @@ options:
               options:
                 description:
                   - Additional resolver options.
-                type: list
-                elements: str
+                type: dict
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
@@ -1882,6 +2100,20 @@ options:
                 description:
                   - Content to write to the file.
                 type: str
+              source:
+                description:
+                  - URL source for file content.
+                type: dict
+                suboptions:
+                  uri:
+                    description:
+                      - URL to fetch content from.
+                    type: str
+                    required: true
+                  headers:
+                    description:
+                      - HTTP headers for the request.
+                    type: dict
               owner:
                 description:
                   - Owner and group of the file.
@@ -1894,7 +2126,7 @@ options:
                 description:
                   - Content encoding.
                 type: str
-                choices: [b64, gzip, gz+b64, text]
+                choices: [b64, base64, gz, gzip, gz+b64, gzip+b64, gz+base64, gzip+base64, text/plain]
               append:
                 description:
                   - Whether to append to the file instead of overwriting.
