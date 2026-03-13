@@ -60,6 +60,9 @@ __all__ = [
     'test_stringify_instance_config_cloud_init_users_extended',
     'test_stringify_instance_config_cloud_init_write_files_source',
     'test_stringify_instance_config_cloud_init_mount_default_fields',
+    'test_stringify_instance_config_cloud_init_apt_sources_list_to_dict',
+    'test_stringify_instance_config_cloud_init_debconf_list_to_dict',
+    'test_stringify_instance_config_cloud_init_headers_list_to_dict',
     'test_build_source_known_remote',
     'test_build_source_ubuntu_remote',
     'test_build_source_explicit_server',
@@ -252,9 +255,9 @@ def test_stringify_instance_config_cloud_init_nested_dicts() -> None:
 
 
 def test_stringify_instance_config_cloud_init_freeform_dict() -> None:
-    """Serialize free-form disk_setup dict to YAML."""
+    """Serialize disk_setup list to named dict YAML."""
     config = {'cloud-init.user-data': {
-        'disk_setup': {'/dev/vdb': {'table_type': 'gpt', 'layout': True}},
+        'disk_setup': [{'name': '/dev/vdb', 'table_type': 'gpt', 'layout': True}],
     }}
     result = incus_stringify_instance_config(config)
     assert '/dev/vdb' in result['cloud-init.user-data']
@@ -351,7 +354,7 @@ def test_stringify_instance_config_cloud_init_ssh_publish_hostkeys() -> None:
 
 
 def test_stringify_instance_config_cloud_init_resolv_conf_options_dict() -> None:
-    """Serialize resolv_conf with options as dict."""
+    """Serialize resolv_conf with validated options dict."""
     config = {'cloud-init.user-data': {
         'resolv_conf': {
             'nameservers': ['8.8.8.8'],
@@ -414,6 +417,56 @@ def test_stringify_instance_config_cloud_init_mount_default_fields() -> None:
     }}
     result = incus_stringify_instance_config(config)
     assert 'defaults,nofail' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_apt_sources_list_to_dict() -> None:
+    """Serialize apt sources list to named dict."""
+    config = {'cloud-init.user-data': {
+        'apt': {
+            'sources': [{
+                'name': 'my-repo',
+                'source': 'deb http://example.com/repo stable main',
+                'keyid': 'ABCD1234',
+            }],
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'my-repo' in result['cloud-init.user-data']
+    assert 'deb http://example.com/repo stable main' in result['cloud-init.user-data']
+    assert 'ABCD1234' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_debconf_list_to_dict() -> None:
+    """Serialize debconf_selections list to named scalar dict."""
+    config = {'cloud-init.user-data': {
+        'apt': {
+            'debconf_selections': [{
+                'name': 'my_selection',
+                'selection': 'mysql mysql-server/root_password password s3cr3t',
+            }],
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'my_selection' in result['cloud-init.user-data']
+    assert 'mysql mysql-server/root_password password s3cr3t' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_headers_list_to_dict() -> None:
+    """Serialize write_files source headers list to dict."""
+    config = {'cloud-init.user-data': {
+        'write_files': [{
+            'path': '/etc/config.yml',
+            'source': {
+                'uri': 'https://example.com/config.yml',
+                'headers': [
+                    {'name': 'Authorization', 'value': 'Bearer token123'},
+                ],
+            },
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'Authorization' in result['cloud-init.user-data']
+    assert 'Bearer token123' in result['cloud-init.user-data']
 
 
 def test_build_source_known_remote() -> None:

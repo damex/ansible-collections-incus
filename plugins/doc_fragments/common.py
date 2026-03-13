@@ -1214,7 +1214,38 @@ options:
               sources:
                 description:
                   - Additional APT source definitions.
-                type: dict
+                type: list
+                elements: dict
+                suboptions:
+                  name:
+                    description:
+                      - Source entry identifier and filename.
+                    type: str
+                    required: true
+                  source:
+                    description:
+                      - Sources.list entry.
+                    type: str
+                  keyid:
+                    description:
+                      - GPG key ID to import.
+                    type: str
+                  key:
+                    description:
+                      - Raw GPG key.
+                    type: str
+                  keyserver:
+                    description:
+                      - Alternate keyserver to pull key from.
+                    type: str
+                  filename:
+                    description:
+                      - Name of the source list file.
+                    type: str
+                  append:
+                    description:
+                      - Whether to append to the source file.
+                    type: bool
               conf:
                 description:
                   - APT configuration to write.
@@ -1242,7 +1273,19 @@ options:
               debconf_selections:
                 description:
                   - Debconf preseed selections.
-                type: dict
+                type: list
+                elements: dict
+                suboptions:
+                  name:
+                    description:
+                      - Selection set identifier.
+                    type: str
+                    required: true
+                  selection:
+                    description:
+                      - Debconf selection lines.
+                    type: str
+                    required: true
           snap:
             description:
               - Snap package manager configuration.
@@ -1275,7 +1318,27 @@ options:
           disk_setup:
             description:
               - Disk partitioning configuration.
-            type: dict
+            type: list
+            elements: dict
+            suboptions:
+              name:
+                description:
+                  - Device path.
+                type: str
+                required: true
+              table_type:
+                description:
+                  - Partition table type.
+                type: str
+                choices: [mbr, gpt]
+              layout:
+                description:
+                  - Partition layout specification.
+                type: raw
+              overwrite:
+                description:
+                  - Whether to overwrite existing partition table.
+                type: bool
           fs_setup:
             description:
               - Filesystem creation configuration.
@@ -1379,6 +1442,28 @@ options:
                 description:
                   - NTP client-specific configuration.
                 type: dict
+                suboptions:
+                  confpath:
+                    description:
+                      - Path to the NTP client configuration file.
+                    type: str
+                  check_exe:
+                    description:
+                      - Executable name for the NTP client.
+                    type: str
+                  packages:
+                    description:
+                      - Packages needed for the NTP client.
+                    type: list
+                    elements: str
+                  service_name:
+                    description:
+                      - Service name for the NTP client.
+                    type: str
+                  template:
+                    description:
+                      - Jinja template for NTP client configuration.
+                    type: str
           ca_certs:
             description:
               - CA certificate configuration.
@@ -1419,8 +1504,61 @@ options:
                 elements: str
               options:
                 description:
-                  - Additional resolver options.
+                  - Resolver options for /etc/resolv.conf.
                 type: dict
+                suboptions:
+                  ndots:
+                    description:
+                      - Minimum dots in a name before absolute query.
+                    type: int
+                  timeout:
+                    description:
+                      - Resolver query timeout in seconds.
+                    type: int
+                  attempts:
+                    description:
+                      - Number of resolver query attempts.
+                    type: int
+                  rotate:
+                    description:
+                      - Whether to rotate among nameservers.
+                    type: bool
+                  no-check-names:
+                    description:
+                      - Whether to disable name checking.
+                    type: bool
+                  inet6:
+                    description:
+                      - Whether to prefer IPv6 addresses.
+                    type: bool
+                  edns0:
+                    description:
+                      - Whether to enable EDNS0 extensions.
+                    type: bool
+                  single-request:
+                    description:
+                      - Whether to send A and AAAA queries sequentially.
+                    type: bool
+                  single-request-reopen:
+                    description:
+                      - Whether to reopen socket for sequential queries.
+                    type: bool
+                  no-tld-query:
+                    description:
+                      - Whether to disable top-level domain queries.
+                    type: bool
+                  use-vc:
+                    description:
+                      - Whether to use TCP for DNS queries.
+                    type: bool
+                  trust-ad:
+                    description:
+                      - Whether to trust the AD flag from resolvers.
+                    type: bool
+                  no-reload:
+                    description:
+                      - Whether to disable automatic config reload.
+                    type: bool
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
@@ -1475,7 +1613,19 @@ options:
                   headers:
                     description:
                       - HTTP headers for the request.
-                    type: dict
+                    type: list
+                    elements: dict
+                    suboptions:
+                      name:
+                        description:
+                          - Header name.
+                        type: str
+                        required: true
+                      value:
+                        description:
+                          - Header value.
+                        type: str
+                        required: true
               owner:
                 description:
                   - Owner and group of the file.
@@ -1852,7 +2002,38 @@ options:
               sources:
                 description:
                   - Additional APT source definitions.
-                type: dict
+                type: list
+                elements: dict
+                suboptions:
+                  name:
+                    description:
+                      - Source entry identifier and filename.
+                    type: str
+                    required: true
+                  source:
+                    description:
+                      - Sources.list entry.
+                    type: str
+                  keyid:
+                    description:
+                      - GPG key ID to import.
+                    type: str
+                  key:
+                    description:
+                      - Raw GPG key.
+                    type: str
+                  keyserver:
+                    description:
+                      - Alternate keyserver to pull key from.
+                    type: str
+                  filename:
+                    description:
+                      - Name of the source list file.
+                    type: str
+                  append:
+                    description:
+                      - Whether to append to the source file.
+                    type: bool
               conf:
                 description:
                   - APT configuration to write.
@@ -1880,7 +2061,19 @@ options:
               debconf_selections:
                 description:
                   - Debconf preseed selections.
-                type: dict
+                type: list
+                elements: dict
+                suboptions:
+                  name:
+                    description:
+                      - Selection set identifier.
+                    type: str
+                    required: true
+                  selection:
+                    description:
+                      - Debconf selection lines.
+                    type: str
+                    required: true
           snap:
             description:
               - Snap package manager configuration.
@@ -1913,7 +2106,27 @@ options:
           disk_setup:
             description:
               - Disk partitioning configuration.
-            type: dict
+            type: list
+            elements: dict
+            suboptions:
+              name:
+                description:
+                  - Device path.
+                type: str
+                required: true
+              table_type:
+                description:
+                  - Partition table type.
+                type: str
+                choices: [mbr, gpt]
+              layout:
+                description:
+                  - Partition layout specification.
+                type: raw
+              overwrite:
+                description:
+                  - Whether to overwrite existing partition table.
+                type: bool
           fs_setup:
             description:
               - Filesystem creation configuration.
@@ -2017,6 +2230,28 @@ options:
                 description:
                   - NTP client-specific configuration.
                 type: dict
+                suboptions:
+                  confpath:
+                    description:
+                      - Path to the NTP client configuration file.
+                    type: str
+                  check_exe:
+                    description:
+                      - Executable name for the NTP client.
+                    type: str
+                  packages:
+                    description:
+                      - Packages needed for the NTP client.
+                    type: list
+                    elements: str
+                  service_name:
+                    description:
+                      - Service name for the NTP client.
+                    type: str
+                  template:
+                    description:
+                      - Jinja template for NTP client configuration.
+                    type: str
           ca_certs:
             description:
               - CA certificate configuration.
@@ -2057,8 +2292,61 @@ options:
                 elements: str
               options:
                 description:
-                  - Additional resolver options.
+                  - Resolver options for /etc/resolv.conf.
                 type: dict
+                suboptions:
+                  ndots:
+                    description:
+                      - Minimum dots in a name before absolute query.
+                    type: int
+                  timeout:
+                    description:
+                      - Resolver query timeout in seconds.
+                    type: int
+                  attempts:
+                    description:
+                      - Number of resolver query attempts.
+                    type: int
+                  rotate:
+                    description:
+                      - Whether to rotate among nameservers.
+                    type: bool
+                  no-check-names:
+                    description:
+                      - Whether to disable name checking.
+                    type: bool
+                  inet6:
+                    description:
+                      - Whether to prefer IPv6 addresses.
+                    type: bool
+                  edns0:
+                    description:
+                      - Whether to enable EDNS0 extensions.
+                    type: bool
+                  single-request:
+                    description:
+                      - Whether to send A and AAAA queries sequentially.
+                    type: bool
+                  single-request-reopen:
+                    description:
+                      - Whether to reopen socket for sequential queries.
+                    type: bool
+                  no-tld-query:
+                    description:
+                      - Whether to disable top-level domain queries.
+                    type: bool
+                  use-vc:
+                    description:
+                      - Whether to use TCP for DNS queries.
+                    type: bool
+                  trust-ad:
+                    description:
+                      - Whether to trust the AD flag from resolvers.
+                    type: bool
+                  no-reload:
+                    description:
+                      - Whether to disable automatic config reload.
+                    type: bool
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
@@ -2113,7 +2401,19 @@ options:
                   headers:
                     description:
                       - HTTP headers for the request.
-                    type: dict
+                    type: list
+                    elements: dict
+                    suboptions:
+                      name:
+                        description:
+                          - Header name.
+                        type: str
+                        required: true
+                      value:
+                        description:
+                          - Header value.
+                        type: str
+                        required: true
               owner:
                 description:
                   - Owner and group of the file.

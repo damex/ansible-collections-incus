@@ -205,14 +205,33 @@ _CLOUD_INIT_DATA_OPTIONS = {
             'disable_suites': {'type': 'list', 'elements': 'str'},
             'primary': {'type': 'list', 'elements': 'raw'},
             'security': {'type': 'list', 'elements': 'raw'},
-            'sources': {'type': 'dict'},
+            'sources': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': {
+                    'name': {'type': 'str', 'required': True},
+                    'source': {'type': 'str'},
+                    'keyid': {'type': 'str', 'no_log': False},
+                    'key': {'type': 'str', 'no_log': False},
+                    'keyserver': {'type': 'str'},
+                    'filename': {'type': 'str'},
+                    'append': {'type': 'bool'},
+                },
+            },
             'conf': {'type': 'str'},
             'proxy': {'type': 'str'},
             'http_proxy': {'type': 'str'},
             'ftp_proxy': {'type': 'str'},
             'https_proxy': {'type': 'str'},
             'add_apt_repo_match': {'type': 'str'},
-            'debconf_selections': {'type': 'dict'},
+            'debconf_selections': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': {
+                    'name': {'type': 'str', 'required': True},
+                    'selection': {'type': 'str', 'required': True},
+                },
+            },
         },
     },
     'snap': {'type': 'dict', 'options': {
@@ -234,7 +253,22 @@ _CLOUD_INIT_DATA_OPTIONS = {
             'ignore_growroot_disabled': {'type': 'bool'},
         },
     },
-    'disk_setup': {'type': 'dict'},
+    'disk_setup': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {'type': 'str', 'required': True},
+            'table_type': {
+                'type': 'str',
+                'choices': [
+                    'mbr',
+                    'gpt',
+                ],
+            },
+            'layout': {'type': 'raw'},
+            'overwrite': {'type': 'bool'},
+        },
+    },
     'fs_setup': {
         'type': 'list',
         'elements': 'dict',
@@ -268,7 +302,16 @@ _CLOUD_INIT_DATA_OPTIONS = {
             'peers': {'type': 'list', 'elements': 'str'},
             'allow': {'type': 'list', 'elements': 'str'},
             'ntp_client': {'type': 'str'},
-            'config': {'type': 'dict'},
+            'config': {
+                'type': 'dict',
+                'options': {
+                    'confpath': {'type': 'str'},
+                    'check_exe': {'type': 'str'},
+                    'packages': {'type': 'list', 'elements': 'str'},
+                    'service_name': {'type': 'str'},
+                    'template': {'type': 'str'},
+                },
+            },
         },
     },
     'ca_certs': {
@@ -285,7 +328,24 @@ _CLOUD_INIT_DATA_OPTIONS = {
             'searchdomains': {'type': 'list', 'elements': 'str'},
             'domain': {'type': 'str'},
             'sortlist': {'type': 'list', 'elements': 'str'},
-            'options': {'type': 'dict'},
+            'options': {
+                'type': 'dict',
+                'options': {
+                    'ndots': {'type': 'int'},
+                    'timeout': {'type': 'int'},
+                    'attempts': {'type': 'int'},
+                    'rotate': {'type': 'bool'},
+                    'no-check-names': {'type': 'bool'},
+                    'inet6': {'type': 'bool'},
+                    'edns0': {'type': 'bool'},
+                    'single-request': {'type': 'bool'},
+                    'single-request-reopen': {'type': 'bool'},
+                    'no-tld-query': {'type': 'bool'},
+                    'use-vc': {'type': 'bool'},
+                    'trust-ad': {'type': 'bool'},
+                    'no-reload': {'type': 'bool'},
+                },
+            },
         },
     },
     'manage_resolv_conf': {'type': 'bool'},
@@ -315,7 +375,14 @@ _CLOUD_INIT_DATA_OPTIONS = {
                 'type': 'dict',
                 'options': {
                     'uri': {'type': 'str', 'required': True},
-                    'headers': {'type': 'dict'},
+                    'headers': {
+                        'type': 'list',
+                        'elements': 'dict',
+                        'options': {
+                            'name': {'type': 'str', 'required': True},
+                            'value': {'type': 'str', 'required': True},
+                        },
+                    },
                 },
             },
             'owner': {'type': 'str'},
@@ -728,6 +795,50 @@ def _strip_none(data: Any) -> Any:
 
 _CLOUD_INIT_NETWORK_INTERFACE_KEYS = frozenset({'ethernets', 'bonds', 'bridges', 'vlans'})
 
+_CLOUD_INIT_NAMED_DICT_KEYS = frozenset({
+    'disk_setup',
+    'sources',
+})
+
+_CLOUD_INIT_NAMED_SCALAR_DICT_KEYS = frozenset({
+    'debconf_selections',
+    'headers',
+})
+
+
+def _cloud_init_named_list_to_dict(items: list[dict[str, Any]]) -> dict[str, Any]:
+    """Transform list of named dicts to dict keyed by name."""
+    return {
+        item['name']: {
+            key: value
+            for key, value in item.items()
+            if key != 'name'
+        }
+        for item in items
+    }
+
+
+def _cloud_init_named_list_to_scalar_dict(items: list[dict[str, Any]]) -> dict[str, Any]:
+    """Transform list of name/value pairs to dict."""
+    return {item['name']: item.get('value', item.get('selection', '')) for item in items}
+
+
+def _cloud_init_data_lists_to_dicts(data: Any) -> Any:
+    """Transform cloud-init named lists to dict format."""
+    if isinstance(data, dict):
+        result: dict[str, Any] = {}
+        for key, value in data.items():
+            if key in _CLOUD_INIT_NAMED_DICT_KEYS and isinstance(value, list):
+                result[key] = _cloud_init_named_list_to_dict(value)
+            elif key in _CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(value, list):
+                result[key] = _cloud_init_named_list_to_scalar_dict(value)
+            else:
+                result[key] = _cloud_init_data_lists_to_dicts(value)
+        return result
+    if isinstance(data, list):
+        return [_cloud_init_data_lists_to_dicts(item) for item in data]
+    return data
+
 
 def _cloud_init_network_config_to_netplan(config: dict[str, Any]) -> dict[str, Any]:
     """Transform cloud-init network config from list to netplan dict format."""
@@ -757,6 +868,8 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
             cleaned = _strip_none(value)
             if key == 'cloud-init.network-config' and isinstance(cleaned, dict):
                 cleaned = _cloud_init_network_config_to_netplan(cleaned)
+            if key in _CLOUD_INIT_USER_KEYS and isinstance(cleaned, dict):
+                cleaned = _cloud_init_data_lists_to_dicts(cleaned)
             prefix = '#cloud-config\n' if key in _CLOUD_INIT_USER_KEYS else ''
             result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)
         elif isinstance(value, bool):
