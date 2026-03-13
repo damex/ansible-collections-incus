@@ -20,6 +20,7 @@ antsibull-docs = "==2.24.0"
 Sphinx = "==9.1.0"
 sphinx-ansible-theme = "==0.10.4"
 ansible-pygments = "==0.1.2"
+websockets = "==16.0"
 
 [scripts]
 lint = "ansible-lint"
