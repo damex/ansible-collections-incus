@@ -1,7 +1,7 @@
 ---
 namespace: damex
 name: incus
-version: 1.8.7
+version: 1.8.8
 readme: README.md
 authors:
   - Roman Kuzmitskii <ansible@damex.org>
