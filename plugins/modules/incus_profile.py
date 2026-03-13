@@ -18,7 +18,7 @@ description:
   - Profiles are project-scoped resources.
 extends_documentation_fragment:
   - damex.incus.common
-  - damex.incus.common.instance_config
+  - damex.incus.instance_config
   - damex.incus.common.write
   - damex.incus.common.project
   - damex.incus.devices

@@ -19,7 +19,7 @@ description:
   - The instance type and source are set on creation and cannot be changed afterwards.
 extends_documentation_fragment:
   - damex.incus.common
-  - damex.incus.common.instance_config
+  - damex.incus.instance_config
   - damex.incus.common.project
   - damex.incus.common.write
   - damex.incus.common.source
