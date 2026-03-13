@@ -48,8 +48,7 @@ __all__ = [
     'incus_create_client',
     'incus_create_info_module',
     'incus_create_write_module',
-    'incus_ensure_global_info',
-    'incus_ensure_project_info',
+    'incus_ensure_info',
     'incus_ensure_resource',
     'incus_find_certificate',
     'incus_resolve_image_alias',
@@ -591,15 +590,12 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     module.exit_json(**{return_key: result})
 
 
-def incus_ensure_project_info(resource: str, return_key: str) -> None:
-    """Execute project-scoped info."""
-    module = incus_create_info_module({'name': {'type': 'str'}, 'project': {'type': 'str', 'default': 'default'}})
-    incus_run_info_module(module, resource, return_key)
-
-
-def incus_ensure_global_info(resource: str, return_key: str) -> None:
-    """Execute global info."""
-    module = incus_create_info_module({'name': {'type': 'str'}})
+def incus_ensure_info(resource: str, return_key: str, *, project_scoped: bool = False) -> None:
+    """Execute info module."""
+    args: dict[str, Any] = {'name': {'type': 'str'}}
+    if project_scoped:
+        args['project'] = {'type': 'str', 'default': 'default'}
+    module = incus_create_info_module(args)
     incus_run_info_module(module, resource, return_key)
 
 
