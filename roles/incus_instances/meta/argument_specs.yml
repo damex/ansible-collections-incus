@@ -1130,6 +1130,23 @@ argument_specs:
                       config:
                         description: NTP client-specific configuration.
                         type: dict
+                        options:
+                          confpath:
+                            description: Path to the NTP client configuration file.
+                            type: str
+                          check_exe:
+                            description: Executable name for the NTP client.
+                            type: str
+                          packages:
+                            description: Packages needed for the NTP client.
+                            type: list
+                            elements: str
+                          service_name:
+                            description: Service name for the NTP client.
+                            type: str
+                          template:
+                            description: Jinja template for NTP client configuration.
+                            type: str
                   ca_certs:
                     description: CA certificate configuration.
                     type: dict
@@ -1744,6 +1761,23 @@ argument_specs:
                       config:
                         description: NTP client-specific configuration.
                         type: dict
+                        options:
+                          confpath:
+                            description: Path to the NTP client configuration file.
+                            type: str
+                          check_exe:
+                            description: Executable name for the NTP client.
+                            type: str
+                          packages:
+                            description: Packages needed for the NTP client.
+                            type: list
+                            elements: str
+                          service_name:
+                            description: Service name for the NTP client.
+                            type: str
+                          template:
+                            description: Jinja template for NTP client configuration.
+                            type: str
                   ca_certs:
                     description: CA certificate configuration.
                     type: dict
