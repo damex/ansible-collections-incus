@@ -44,6 +44,16 @@ __all__ = [
     'test_stringify_instance_config_cloud_init_vendor_data_dict',
     'test_stringify_instance_config_non_cloud_init_dict',
     'test_stringify_instance_config_list_value',
+    'test_stringify_instance_config_cloud_init_users_list',
+    'test_stringify_instance_config_cloud_init_ssh_keys',
+    'test_stringify_instance_config_cloud_init_nested_dicts',
+    'test_stringify_instance_config_cloud_init_freeform_dict',
+    'test_stringify_instance_config_cloud_init_mounts',
+    'test_stringify_instance_config_network_dhcp6',
+    'test_stringify_instance_config_network_gateway_mtu',
+    'test_stringify_instance_config_network_routes_metric',
+    'test_stringify_instance_config_network_nameservers_search',
+    'test_stringify_instance_config_network_set_name',
     'test_build_source_known_remote',
     'test_build_source_ubuntu_remote',
     'test_build_source_explicit_server',
@@ -194,6 +204,134 @@ def test_stringify_instance_config_list_value() -> None:
     config = {'cloud-init.user-data': ['item1', 'item2']}
     result = incus_stringify_instance_config(config)
     assert result['cloud-init.user-data'].startswith('#cloud-config\n')
+
+
+def test_stringify_instance_config_cloud_init_users_list() -> None:
+    """Serialize users list to YAML."""
+    config = {'cloud-init.user-data': {
+        'users': [
+            {'name': 'deploy', 'groups': 'sudo', 'shell': '/bin/bash'},
+        ],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'users:' in result['cloud-init.user-data']
+    assert 'deploy' in result['cloud-init.user-data']
+    assert 'sudo' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_ssh_keys() -> None:
+    """Serialize ssh_keys dict to YAML."""
+    config = {'cloud-init.user-data': {
+        'ssh_keys': {
+            'ed25519_private': 'PRIVATE_KEY',
+            'ed25519_public': 'PUBLIC_KEY',
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'PRIVATE_KEY' in result['cloud-init.user-data']
+    assert 'PUBLIC_KEY' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_nested_dicts() -> None:
+    """Serialize nested cloud-init dicts to YAML."""
+    config = {'cloud-init.user-data': {
+        'apt': {'proxy': 'http://proxy:3128'},
+        'ntp': {'enabled': True, 'servers': ['ntp.example.com']},
+        'growpart': {'mode': 'auto', 'devices': ['/']},
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'proxy: http://proxy:3128' in result['cloud-init.user-data']
+    assert 'ntp.example.com' in result['cloud-init.user-data']
+    assert "mode: auto" in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_freeform_dict() -> None:
+    """Serialize free-form disk_setup dict to YAML."""
+    config = {'cloud-init.user-data': {
+        'disk_setup': {'/dev/vdb': {'table_type': 'gpt', 'layout': True}},
+    }}
+    result = incus_stringify_instance_config(config)
+    assert '/dev/vdb' in result['cloud-init.user-data']
+    assert 'table_type: gpt' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_mounts() -> None:
+    """Serialize mounts as list of lists."""
+    config = {'cloud-init.user-data': {
+        'mounts': [['/dev/vdb1', '/data', 'ext4', 'defaults', '0', '2']],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert '/dev/vdb1' in result['cloud-init.user-data']
+    assert '/data' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_network_dhcp6() -> None:
+    """Serialize network config with DHCPv6."""
+    config = {'cloud-init.network-config': {
+        'version': 2,
+        'ethernets': [{'name': 'eth0', 'dhcp4': True, 'dhcp6': True}],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'dhcp6: true' in result['cloud-init.network-config']
+
+
+def test_stringify_instance_config_network_gateway_mtu() -> None:
+    """Serialize network config with gateway and MTU."""
+    config = {'cloud-init.network-config': {
+        'version': 2,
+        'ethernets': [{
+            'name': 'eth0',
+            'addresses': ['10.0.0.2/24'],
+            'gateway4': '10.0.0.1',
+            'mtu': 9000,
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'gateway4: 10.0.0.1' in result['cloud-init.network-config']
+    assert 'mtu: 9000' in result['cloud-init.network-config']
+
+
+def test_stringify_instance_config_network_routes_metric() -> None:
+    """Serialize network routes with metric."""
+    config = {'cloud-init.network-config': {
+        'version': 2,
+        'ethernets': [{
+            'name': 'eth0',
+            'routes': [{'to': '0.0.0.0/0', 'via': '10.0.0.1', 'metric': 100}],
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'metric: 100' in result['cloud-init.network-config']
+
+
+def test_stringify_instance_config_network_nameservers_search() -> None:
+    """Serialize nameservers with search domains."""
+    config = {'cloud-init.network-config': {
+        'version': 2,
+        'ethernets': [{
+            'name': 'eth0',
+            'nameservers': {
+                'addresses': ['8.8.8.8'],
+                'search': ['example.com'],
+            },
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'example.com' in result['cloud-init.network-config']
+
+
+def test_stringify_instance_config_network_set_name() -> None:
+    """Serialize set-name on ethernet interfaces."""
+    config = {'cloud-init.network-config': {
+        'version': 2,
+        'ethernets': [{
+            'name': 'id0',
+            'match': {'macaddress': '00:11:22:33:44:55'},
+            'set-name': 'lan0',
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'set-name: lan0' in result['cloud-init.network-config']
 
 
 def test_build_source_known_remote() -> None:

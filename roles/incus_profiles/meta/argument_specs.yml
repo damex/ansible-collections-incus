@@ -343,6 +343,27 @@ argument_specs:
                       dhcp4:
                         description: Whether to enable DHCPv4.
                         type: bool
+                      dhcp6:
+                        description: Whether to enable DHCPv6.
+                        type: bool
+                      gateway4:
+                        description: Default IPv4 gateway address.
+                        type: str
+                      gateway6:
+                        description: Default IPv6 gateway address.
+                        type: str
+                      mtu:
+                        description: Maximum transmission unit for the device.
+                        type: int
+                      optional:
+                        description: Whether the device is optional for boot.
+                        type: bool
+                      set-name:
+                        description: Rename the device to this name.
+                        type: str
+                      accept-ra:
+                        description: Whether to accept IPv6 router advertisements.
+                        type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
                         type: list
@@ -357,6 +378,15 @@ argument_specs:
                             type: str
                           via:
                             description: Gateway address for the route.
+                            type: str
+                          metric:
+                            description: Route metric value.
+                            type: int
+                          table:
+                            description: Routing table ID for the route.
+                            type: int
+                          scope:
+                            description: Scope of the route.
                             type: str
                       match:
                         description: Device match criteria.
@@ -379,6 +409,10 @@ argument_specs:
                             description: List of DNS server addresses.
                             type: list
                             elements: str
+                          search:
+                            description: List of DNS search domains.
+                            type: list
+                            elements: str
                   bonds:
                     description: Bond device configurations.
                     type: list
@@ -390,6 +424,27 @@ argument_specs:
                         type: str
                       dhcp4:
                         description: Whether to enable DHCPv4.
+                        type: bool
+                      dhcp6:
+                        description: Whether to enable DHCPv6.
+                        type: bool
+                      gateway4:
+                        description: Default IPv4 gateway address.
+                        type: str
+                      gateway6:
+                        description: Default IPv6 gateway address.
+                        type: str
+                      mtu:
+                        description: Maximum transmission unit for the device.
+                        type: int
+                      optional:
+                        description: Whether the device is optional for boot.
+                        type: bool
+                      set-name:
+                        description: Rename the device to this name.
+                        type: str
+                      accept-ra:
+                        description: Whether to accept IPv6 router advertisements.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -420,12 +475,25 @@ argument_specs:
                           via:
                             description: Gateway address for the route.
                             type: str
+                          metric:
+                            description: Route metric value.
+                            type: int
+                          table:
+                            description: Routing table ID for the route.
+                            type: int
+                          scope:
+                            description: Scope of the route.
+                            type: str
                       nameservers:
                         description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
                             description: List of DNS server addresses.
+                            type: list
+                            elements: str
+                          search:
+                            description: List of DNS search domains.
                             type: list
                             elements: str
                   bridges:
@@ -439,6 +507,27 @@ argument_specs:
                         type: str
                       dhcp4:
                         description: Whether to enable DHCPv4.
+                        type: bool
+                      dhcp6:
+                        description: Whether to enable DHCPv6.
+                        type: bool
+                      gateway4:
+                        description: Default IPv4 gateway address.
+                        type: str
+                      gateway6:
+                        description: Default IPv6 gateway address.
+                        type: str
+                      mtu:
+                        description: Maximum transmission unit for the device.
+                        type: int
+                      optional:
+                        description: Whether the device is optional for boot.
+                        type: bool
+                      set-name:
+                        description: Rename the device to this name.
+                        type: str
+                      accept-ra:
+                        description: Whether to accept IPv6 router advertisements.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -469,12 +558,25 @@ argument_specs:
                           via:
                             description: Gateway address for the route.
                             type: str
+                          metric:
+                            description: Route metric value.
+                            type: int
+                          table:
+                            description: Routing table ID for the route.
+                            type: int
+                          scope:
+                            description: Scope of the route.
+                            type: str
                       nameservers:
                         description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
                             description: List of DNS server addresses.
+                            type: list
+                            elements: str
+                          search:
+                            description: List of DNS search domains.
                             type: list
                             elements: str
                   vlans:
@@ -497,6 +599,27 @@ argument_specs:
                       dhcp4:
                         description: Whether to enable DHCPv4.
                         type: bool
+                      dhcp6:
+                        description: Whether to enable DHCPv6.
+                        type: bool
+                      gateway4:
+                        description: Default IPv4 gateway address.
+                        type: str
+                      gateway6:
+                        description: Default IPv6 gateway address.
+                        type: str
+                      mtu:
+                        description: Maximum transmission unit for the device.
+                        type: int
+                      optional:
+                        description: Whether the device is optional for boot.
+                        type: bool
+                      set-name:
+                        description: Rename the device to this name.
+                        type: str
+                      accept-ra:
+                        description: Whether to accept IPv6 router advertisements.
+                        type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
                         type: list
@@ -512,12 +635,25 @@ argument_specs:
                           via:
                             description: Gateway address for the route.
                             type: str
+                          metric:
+                            description: Route metric value.
+                            type: int
+                          table:
+                            description: Routing table ID for the route.
+                            type: int
+                          scope:
+                            description: Scope of the route.
+                            type: str
                       nameservers:
                         description: DNS resolver configuration.
                         type: dict
                         options:
                           addresses:
                             description: List of DNS server addresses.
+                            type: list
+                            elements: str
+                          search:
+                            description: List of DNS search domains.
                             type: list
                             elements: str
               cloud-init.user-data:
@@ -528,6 +664,68 @@ argument_specs:
                     description: Commands to run early in the boot process.
                     type: list
                     elements: raw
+                  users:
+                    description: List of users to create.
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        description: User login name.
+                        required: true
+                        type: str
+                      groups:
+                        description: Comma-separated list of groups for the user.
+                        type: str
+                      shell:
+                        description: Login shell for the user.
+                        type: str
+                      sudo:
+                        description: Sudo rule for the user.
+                        type: raw
+                      ssh_authorized_keys:
+                        description: SSH public keys to add to the user.
+                        type: list
+                        elements: str
+                      lock_passwd:
+                        description: Whether to lock the user password.
+                        type: bool
+                      passwd:
+                        description: Hashed password for the user.
+                        type: str
+                      gecos:
+                        description: GECOS field for the user.
+                        type: str
+                      home:
+                        description: Home directory for the user.
+                        type: str
+                      primary_group:
+                        description: Primary group for the user.
+                        type: str
+                      no_create_home:
+                        description: Whether to skip home directory creation.
+                        type: bool
+                      no_user_group:
+                        description: Whether to skip user group creation.
+                        type: bool
+                      no_log_init:
+                        description: Whether to skip logging of user initialization.
+                        type: bool
+                      expiredate:
+                        description: Account expiration date.
+                        type: str
+                      inactive:
+                        description: Days after password expiry before account is disabled.
+                        type: str
+                      system:
+                        description: Whether to create a system user.
+                        type: bool
+                      uid:
+                        description: Numeric user ID.
+                        type: int
+                  groups:
+                    description: List of groups to create.
+                    type: list
+                    elements: raw
                   user:
                     description: Default user name to create.
                     type: str
@@ -541,6 +739,38 @@ argument_specs:
                     description: SSH public keys to add to the default user.
                     type: list
                     elements: str
+                  ssh_deletekeys:
+                    description: Whether to delete default SSH host keys.
+                    type: bool
+                  ssh_genkeytypes:
+                    description: SSH key types to generate.
+                    type: list
+                    elements: str
+                  ssh_keys:
+                    description: SSH host key pairs to install.
+                    type: dict
+                    options:
+                      ed25519_private:
+                        description: Ed25519 private host key.
+                        type: str
+                      ed25519_public:
+                        description: Ed25519 public host key.
+                        type: str
+                      rsa_private:
+                        description: RSA private host key.
+                        type: str
+                      rsa_public:
+                        description: RSA public host key.
+                        type: str
+                      ecdsa_private:
+                        description: ECDSA private host key.
+                        type: str
+                      ecdsa_public:
+                        description: ECDSA public host key.
+                        type: str
+                  disable_root:
+                    description: Whether to disable root login.
+                    type: bool
                   chpasswd:
                     description: Password change settings.
                     type: dict
@@ -548,13 +778,218 @@ argument_specs:
                       expire:
                         description: Whether to expire the password after first login.
                         type: bool
+                      users:
+                        description: List of users with password settings.
+                        type: list
+                        elements: dict
+                        options:
+                          name:
+                            description: User login name.
+                            required: true
+                            type: str
+                          password:
+                            description: Password for the user.
+                            required: true
+                            type: str
+                          type:
+                            description: Password encoding type.
+                            type: str
+                            choices:
+                              - text
+                              - hash
+                              - RANDOM
+                  timezone:
+                    description: System timezone.
+                    type: str
+                  locale:
+                    description: System locale.
+                    type: str
+                  hostname:
+                    description: System hostname.
+                    type: str
+                  fqdn:
+                    description: Fully qualified domain name.
+                    type: str
+                  prefer_fqdn_over_hostname:
+                    description: Whether to prefer FQDN over short hostname.
+                    type: bool
+                  manage_etc_hosts:
+                    description: Whether to manage /etc/hosts.
+                    type: bool
+                  package_update:
+                    description: Whether to update package lists on first boot.
+                    type: bool
                   package_upgrade:
                     description: Whether to upgrade packages on first boot.
+                    type: bool
+                  package_reboot_if_required:
+                    description: Whether to reboot after package upgrade if required.
                     type: bool
                   packages:
                     description: Packages to install on first boot.
                     type: list
                     elements: str
+                  apt:
+                    description: APT package manager configuration.
+                    type: dict
+                    options:
+                      sources_list:
+                        description: Custom sources.list content.
+                        type: str
+                      preserve_sources_list:
+                        description: Whether to preserve existing sources.list.
+                        type: bool
+                      primary:
+                        description: Primary APT mirror configuration.
+                        type: list
+                        elements: raw
+                      security:
+                        description: Security APT mirror configuration.
+                        type: list
+                        elements: raw
+                      sources:
+                        description: Additional APT sources to configure.
+                        type: dict
+                      conf:
+                        description: APT configuration to write.
+                        type: str
+                      proxy:
+                        description: APT proxy URL.
+                        type: str
+                      http_proxy:
+                        description: HTTP proxy for APT.
+                        type: str
+                      https_proxy:
+                        description: HTTPS proxy for APT.
+                        type: str
+                  snap:
+                    description: Snap package manager configuration.
+                    type: dict
+                    options:
+                      commands:
+                        description: List of snap commands to run.
+                        type: list
+                        elements: raw
+                  growpart:
+                    description: Partition growing configuration.
+                    type: dict
+                    options:
+                      mode:
+                        description: Growpart mode.
+                        type: str
+                        choices:
+                          - auto
+                          - growpart
+                          - gpart
+                          - "off"
+                      devices:
+                        description: Devices to grow.
+                        type: list
+                        elements: str
+                      ignore_growroot_disabled:
+                        description: Whether to ignore growroot disabled marker.
+                        type: bool
+                  disk_setup:
+                    description: Disk partitioning configuration.
+                    type: dict
+                  fs_setup:
+                    description: Filesystem creation configuration.
+                    type: list
+                    elements: dict
+                    options:
+                      label:
+                        description: Filesystem label.
+                        type: str
+                      filesystem:
+                        description: Filesystem type.
+                        type: str
+                      device:
+                        description: Device to create the filesystem on.
+                        type: str
+                      partition:
+                        description: Partition specification.
+                        type: raw
+                      overwrite:
+                        description: Whether to overwrite existing filesystem.
+                        type: bool
+                      extra_opts:
+                        description: Extra options to pass to mkfs.
+                        type: list
+                        elements: str
+                      cmd:
+                        description: Custom command to create the filesystem.
+                        type: raw
+                  mounts:
+                    description: Mount point definitions.
+                    type: list
+                    elements: raw
+                  swap:
+                    description: Swap configuration.
+                    type: dict
+                    options:
+                      filename:
+                        description: Path to the swap file.
+                        type: str
+                      size:
+                        description: Size of the swap file.
+                        type: raw
+                      maxsize:
+                        description: Maximum size of the swap file in bytes.
+                        type: int
+                  ntp:
+                    description: NTP time synchronization configuration.
+                    type: dict
+                    options:
+                      enabled:
+                        description: Whether to enable NTP.
+                        type: bool
+                      servers:
+                        description: List of NTP servers.
+                        type: list
+                        elements: str
+                      pools:
+                        description: List of NTP pools.
+                        type: list
+                        elements: str
+                      ntp_client:
+                        description: NTP client to use.
+                        type: str
+                  ca_certs:
+                    description: CA certificate configuration.
+                    type: dict
+                    options:
+                      trusted:
+                        description: List of trusted CA certificates to add.
+                        type: list
+                        elements: str
+                      remove_defaults:
+                        description: Whether to remove default CA certificates.
+                        type: bool
+                  resolv_conf:
+                    description: DNS resolver configuration.
+                    type: dict
+                    options:
+                      nameservers:
+                        description: List of DNS server addresses.
+                        type: list
+                        elements: str
+                      searchdomains:
+                        description: List of DNS search domains.
+                        type: list
+                        elements: str
+                      domain:
+                        description: DNS domain name.
+                        type: str
+                      sortlist:
+                        description: DNS sort list entries.
+                        type: list
+                        elements: str
+                      options:
+                        description: DNS resolver options.
+                        type: dict
+                  manage_resolv_conf:
+                    description: Whether to manage /etc/resolv.conf.
+                    type: bool
                   power_state:
                     description: Power state change after cloud-init completes.
                     type: dict
@@ -566,6 +1001,15 @@ argument_specs:
                           - reboot
                           - poweroff
                           - halt
+                      delay:
+                        description: Delay before power state change.
+                        type: str
+                      timeout:
+                        description: Seconds to wait for cloud-init to complete.
+                        type: int
+                      condition:
+                        description: Condition to evaluate before power state change.
+                        type: raw
                   write_files:
                     description: Files to write on first boot.
                     type: list
@@ -584,10 +1028,42 @@ argument_specs:
                       permissions:
                         description: File permissions in octal notation.
                         type: str
+                      encoding:
+                        description: Encoding of the content.
+                        type: str
+                        choices:
+                          - b64
+                          - gzip
+                          - gz+b64
+                          - text
+                      append:
+                        description: Whether to append to existing file.
+                        type: bool
+                      defer:
+                        description: Whether to defer writing until final stage.
+                        type: bool
                   runcmd:
                     description: Commands to run after cloud-init completes.
                     type: list
                     elements: raw
+                  final_message:
+                    description: Message to display when cloud-init completes.
+                    type: str
+                  phone_home:
+                    description: Phone home configuration.
+                    type: dict
+                    options:
+                      url:
+                        description: URL to send phone home data to.
+                        required: true
+                        type: str
+                      post:
+                        description: List of data keys to post.
+                        type: list
+                        elements: str
+                      tries:
+                        description: Number of phone home attempts.
+                        type: int
               cloud-init.vendor-data:
                 description: Cloud-init vendor data configuration.
                 type: dict
@@ -596,6 +1072,68 @@ argument_specs:
                     description: Commands to run early in the boot process.
                     type: list
                     elements: raw
+                  users:
+                    description: List of users to create.
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        description: User login name.
+                        required: true
+                        type: str
+                      groups:
+                        description: Comma-separated list of groups for the user.
+                        type: str
+                      shell:
+                        description: Login shell for the user.
+                        type: str
+                      sudo:
+                        description: Sudo rule for the user.
+                        type: raw
+                      ssh_authorized_keys:
+                        description: SSH public keys to add to the user.
+                        type: list
+                        elements: str
+                      lock_passwd:
+                        description: Whether to lock the user password.
+                        type: bool
+                      passwd:
+                        description: Hashed password for the user.
+                        type: str
+                      gecos:
+                        description: GECOS field for the user.
+                        type: str
+                      home:
+                        description: Home directory for the user.
+                        type: str
+                      primary_group:
+                        description: Primary group for the user.
+                        type: str
+                      no_create_home:
+                        description: Whether to skip home directory creation.
+                        type: bool
+                      no_user_group:
+                        description: Whether to skip user group creation.
+                        type: bool
+                      no_log_init:
+                        description: Whether to skip logging of user initialization.
+                        type: bool
+                      expiredate:
+                        description: Account expiration date.
+                        type: str
+                      inactive:
+                        description: Days after password expiry before account is disabled.
+                        type: str
+                      system:
+                        description: Whether to create a system user.
+                        type: bool
+                      uid:
+                        description: Numeric user ID.
+                        type: int
+                  groups:
+                    description: List of groups to create.
+                    type: list
+                    elements: raw
                   user:
                     description: Default user name to create.
                     type: str
@@ -609,6 +1147,38 @@ argument_specs:
                     description: SSH public keys to add to the default user.
                     type: list
                     elements: str
+                  ssh_deletekeys:
+                    description: Whether to delete default SSH host keys.
+                    type: bool
+                  ssh_genkeytypes:
+                    description: SSH key types to generate.
+                    type: list
+                    elements: str
+                  ssh_keys:
+                    description: SSH host key pairs to install.
+                    type: dict
+                    options:
+                      ed25519_private:
+                        description: Ed25519 private host key.
+                        type: str
+                      ed25519_public:
+                        description: Ed25519 public host key.
+                        type: str
+                      rsa_private:
+                        description: RSA private host key.
+                        type: str
+                      rsa_public:
+                        description: RSA public host key.
+                        type: str
+                      ecdsa_private:
+                        description: ECDSA private host key.
+                        type: str
+                      ecdsa_public:
+                        description: ECDSA public host key.
+                        type: str
+                  disable_root:
+                    description: Whether to disable root login.
+                    type: bool
                   chpasswd:
                     description: Password change settings.
                     type: dict
@@ -616,13 +1186,218 @@ argument_specs:
                       expire:
                         description: Whether to expire the password after first login.
                         type: bool
+                      users:
+                        description: List of users with password settings.
+                        type: list
+                        elements: dict
+                        options:
+                          name:
+                            description: User login name.
+                            required: true
+                            type: str
+                          password:
+                            description: Password for the user.
+                            required: true
+                            type: str
+                          type:
+                            description: Password encoding type.
+                            type: str
+                            choices:
+                              - text
+                              - hash
+                              - RANDOM
+                  timezone:
+                    description: System timezone.
+                    type: str
+                  locale:
+                    description: System locale.
+                    type: str
+                  hostname:
+                    description: System hostname.
+                    type: str
+                  fqdn:
+                    description: Fully qualified domain name.
+                    type: str
+                  prefer_fqdn_over_hostname:
+                    description: Whether to prefer FQDN over short hostname.
+                    type: bool
+                  manage_etc_hosts:
+                    description: Whether to manage /etc/hosts.
+                    type: bool
+                  package_update:
+                    description: Whether to update package lists on first boot.
+                    type: bool
                   package_upgrade:
                     description: Whether to upgrade packages on first boot.
+                    type: bool
+                  package_reboot_if_required:
+                    description: Whether to reboot after package upgrade if required.
                     type: bool
                   packages:
                     description: Packages to install on first boot.
                     type: list
                     elements: str
+                  apt:
+                    description: APT package manager configuration.
+                    type: dict
+                    options:
+                      sources_list:
+                        description: Custom sources.list content.
+                        type: str
+                      preserve_sources_list:
+                        description: Whether to preserve existing sources.list.
+                        type: bool
+                      primary:
+                        description: Primary APT mirror configuration.
+                        type: list
+                        elements: raw
+                      security:
+                        description: Security APT mirror configuration.
+                        type: list
+                        elements: raw
+                      sources:
+                        description: Additional APT sources to configure.
+                        type: dict
+                      conf:
+                        description: APT configuration to write.
+                        type: str
+                      proxy:
+                        description: APT proxy URL.
+                        type: str
+                      http_proxy:
+                        description: HTTP proxy for APT.
+                        type: str
+                      https_proxy:
+                        description: HTTPS proxy for APT.
+                        type: str
+                  snap:
+                    description: Snap package manager configuration.
+                    type: dict
+                    options:
+                      commands:
+                        description: List of snap commands to run.
+                        type: list
+                        elements: raw
+                  growpart:
+                    description: Partition growing configuration.
+                    type: dict
+                    options:
+                      mode:
+                        description: Growpart mode.
+                        type: str
+                        choices:
+                          - auto
+                          - growpart
+                          - gpart
+                          - "off"
+                      devices:
+                        description: Devices to grow.
+                        type: list
+                        elements: str
+                      ignore_growroot_disabled:
+                        description: Whether to ignore growroot disabled marker.
+                        type: bool
+                  disk_setup:
+                    description: Disk partitioning configuration.
+                    type: dict
+                  fs_setup:
+                    description: Filesystem creation configuration.
+                    type: list
+                    elements: dict
+                    options:
+                      label:
+                        description: Filesystem label.
+                        type: str
+                      filesystem:
+                        description: Filesystem type.
+                        type: str
+                      device:
+                        description: Device to create the filesystem on.
+                        type: str
+                      partition:
+                        description: Partition specification.
+                        type: raw
+                      overwrite:
+                        description: Whether to overwrite existing filesystem.
+                        type: bool
+                      extra_opts:
+                        description: Extra options to pass to mkfs.
+                        type: list
+                        elements: str
+                      cmd:
+                        description: Custom command to create the filesystem.
+                        type: raw
+                  mounts:
+                    description: Mount point definitions.
+                    type: list
+                    elements: raw
+                  swap:
+                    description: Swap configuration.
+                    type: dict
+                    options:
+                      filename:
+                        description: Path to the swap file.
+                        type: str
+                      size:
+                        description: Size of the swap file.
+                        type: raw
+                      maxsize:
+                        description: Maximum size of the swap file in bytes.
+                        type: int
+                  ntp:
+                    description: NTP time synchronization configuration.
+                    type: dict
+                    options:
+                      enabled:
+                        description: Whether to enable NTP.
+                        type: bool
+                      servers:
+                        description: List of NTP servers.
+                        type: list
+                        elements: str
+                      pools:
+                        description: List of NTP pools.
+                        type: list
+                        elements: str
+                      ntp_client:
+                        description: NTP client to use.
+                        type: str
+                  ca_certs:
+                    description: CA certificate configuration.
+                    type: dict
+                    options:
+                      trusted:
+                        description: List of trusted CA certificates to add.
+                        type: list
+                        elements: str
+                      remove_defaults:
+                        description: Whether to remove default CA certificates.
+                        type: bool
+                  resolv_conf:
+                    description: DNS resolver configuration.
+                    type: dict
+                    options:
+                      nameservers:
+                        description: List of DNS server addresses.
+                        type: list
+                        elements: str
+                      searchdomains:
+                        description: List of DNS search domains.
+                        type: list
+                        elements: str
+                      domain:
+                        description: DNS domain name.
+                        type: str
+                      sortlist:
+                        description: DNS sort list entries.
+                        type: list
+                        elements: str
+                      options:
+                        description: DNS resolver options.
+                        type: dict
+                  manage_resolv_conf:
+                    description: Whether to manage /etc/resolv.conf.
+                    type: bool
                   power_state:
                     description: Power state change after cloud-init completes.
                     type: dict
@@ -634,6 +1409,15 @@ argument_specs:
                           - reboot
                           - poweroff
                           - halt
+                      delay:
+                        description: Delay before power state change.
+                        type: str
+                      timeout:
+                        description: Seconds to wait for cloud-init to complete.
+                        type: int
+                      condition:
+                        description: Condition to evaluate before power state change.
+                        type: raw
                   write_files:
                     description: Files to write on first boot.
                     type: list
@@ -652,10 +1436,42 @@ argument_specs:
                       permissions:
                         description: File permissions in octal notation.
                         type: str
+                      encoding:
+                        description: Encoding of the content.
+                        type: str
+                        choices:
+                          - b64
+                          - gzip
+                          - gz+b64
+                          - text
+                      append:
+                        description: Whether to append to existing file.
+                        type: bool
+                      defer:
+                        description: Whether to defer writing until final stage.
+                        type: bool
                   runcmd:
                     description: Commands to run after cloud-init completes.
                     type: list
                     elements: raw
+                  final_message:
+                    description: Message to display when cloud-init completes.
+                    type: str
+                  phone_home:
+                    description: Phone home configuration.
+                    type: dict
+                    options:
+                      url:
+                        description: URL to send phone home data to.
+                        required: true
+                        type: str
+                      post:
+                        description: List of data keys to post.
+                        type: list
+                        elements: str
+                      tries:
+                        description: Number of phone home attempts.
+                        type: int
           devices:
             description: List of devices to attach to the profile.
             type: list

@@ -68,17 +68,28 @@ def _cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
     opts: dict[str, Any] = {
         'name': {'type': 'str', 'required': True},
         'dhcp4': {'type': 'bool'},
+        'dhcp6': {'type': 'bool'},
         'addresses': {'type': 'list', 'elements': 'str'},
+        'gateway4': {'type': 'str'},
+        'gateway6': {'type': 'str'},
+        'mtu': {'type': 'int'},
+        'optional': {'type': 'bool'},
+        'set-name': {'type': 'str'},
+        'accept-ra': {'type': 'bool'},
         'routes': {
             'type': 'list',
             'elements': 'dict',
             'options': {
                 'to': {'type': 'str'},
                 'via': {'type': 'str'},
+                'metric': {'type': 'int'},
+                'table': {'type': 'int'},
+                'scope': {'type': 'str'},
             },
         },
         'nameservers': {'type': 'dict', 'options': {
             'addresses': {'type': 'list', 'elements': 'str'},
+            'search': {'type': 'list', 'elements': 'str'},
         }},
     }
     opts.update(extra)
@@ -87,29 +98,181 @@ def _cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
 
 _CLOUD_INIT_DATA_OPTIONS = {
     'bootcmd': {'type': 'list', 'elements': 'raw'},
+    'users': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {'type': 'str', 'required': True},
+            'groups': {'type': 'str'},
+            'shell': {'type': 'str'},
+            'sudo': {'type': 'raw'},
+            'ssh_authorized_keys': {'type': 'list', 'elements': 'str', 'no_log': False},
+            'lock_passwd': {'type': 'bool'},
+            'passwd': {'type': 'str', 'no_log': True},
+            'gecos': {'type': 'str'},
+            'home': {'type': 'str'},
+            'primary_group': {'type': 'str'},
+            'no_create_home': {'type': 'bool'},
+            'no_user_group': {'type': 'bool'},
+            'no_log_init': {'type': 'bool'},
+            'expiredate': {'type': 'str'},
+            'inactive': {'type': 'str'},
+            'system': {'type': 'bool'},
+            'uid': {'type': 'int'},
+        },
+    },
+    'groups': {'type': 'list', 'elements': 'raw'},
     'user': {'type': 'str'},
     'password': {'type': 'str', 'no_log': True},
     'ssh_pwauth': {'type': 'bool'},
-    'ssh_authorized_keys': {'type': 'list', 'elements': 'str'},
+    'ssh_authorized_keys': {'type': 'list', 'elements': 'str', 'no_log': False},
+    'ssh_deletekeys': {'type': 'bool'},
+    'ssh_genkeytypes': {'type': 'list', 'elements': 'str', 'no_log': False},
+    'ssh_keys': {
+        'type': 'dict',
+        'no_log': False,
+        'options': {
+            'ed25519_private': {'type': 'str', 'no_log': True},
+            'ed25519_public': {'type': 'str'},
+            'rsa_private': {'type': 'str', 'no_log': True},
+            'rsa_public': {'type': 'str'},
+            'ecdsa_private': {'type': 'str', 'no_log': True},
+            'ecdsa_public': {'type': 'str'},
+        },
+    },
+    'disable_root': {'type': 'bool'},
     'chpasswd': {
         'type': 'dict',
         'no_log': False,
         'options': {
             'expire': {'type': 'bool'},
+            'users': {
+                'type': 'list',
+                'elements': 'dict',
+                'options': {
+                    'name': {'type': 'str', 'required': True},
+                    'password': {'type': 'str', 'no_log': True, 'required': True},
+                    'type': {
+                        'type': 'str',
+                        'choices': [
+                            'text',
+                            'hash',
+                            'RANDOM',
+                        ],
+                    },
+                },
+            },
         },
     },
+    'timezone': {'type': 'str'},
+    'locale': {'type': 'str'},
+    'hostname': {'type': 'str'},
+    'fqdn': {'type': 'str'},
+    'prefer_fqdn_over_hostname': {'type': 'bool'},
+    'manage_etc_hosts': {'type': 'bool'},
+    'package_update': {'type': 'bool'},
     'package_upgrade': {'type': 'bool'},
+    'package_reboot_if_required': {'type': 'bool'},
     'packages': {'type': 'list', 'elements': 'str'},
-    'power_state': {'type': 'dict', 'options': {
-        'mode': {
-            'type': 'str',
-            'choices': [
-                'reboot',
-                'poweroff',
-                'halt',
-            ],
+    'apt': {
+        'type': 'dict',
+        'options': {
+            'sources_list': {'type': 'str'},
+            'preserve_sources_list': {'type': 'bool'},
+            'primary': {'type': 'list', 'elements': 'raw'},
+            'security': {'type': 'list', 'elements': 'raw'},
+            'sources': {'type': 'dict'},
+            'conf': {'type': 'str'},
+            'proxy': {'type': 'str'},
+            'http_proxy': {'type': 'str'},
+            'https_proxy': {'type': 'str'},
         },
+    },
+    'snap': {'type': 'dict', 'options': {
+        'commands': {'type': 'list', 'elements': 'raw'},
     }},
+    'growpart': {
+        'type': 'dict',
+        'options': {
+            'mode': {
+                'type': 'str',
+                'choices': [
+                    'auto',
+                    'growpart',
+                    'gpart',
+                    'off',
+                ],
+            },
+            'devices': {'type': 'list', 'elements': 'str'},
+            'ignore_growroot_disabled': {'type': 'bool'},
+        },
+    },
+    'disk_setup': {'type': 'dict'},
+    'fs_setup': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'label': {'type': 'str'},
+            'filesystem': {'type': 'str'},
+            'device': {'type': 'str'},
+            'partition': {'type': 'raw'},
+            'overwrite': {'type': 'bool'},
+            'extra_opts': {'type': 'list', 'elements': 'str'},
+            'cmd': {'type': 'raw'},
+        },
+    },
+    'mounts': {'type': 'list', 'elements': 'raw'},
+    'swap': {
+        'type': 'dict',
+        'options': {
+            'filename': {'type': 'str'},
+            'size': {'type': 'raw'},
+            'maxsize': {'type': 'int'},
+        },
+    },
+    'ntp': {
+        'type': 'dict',
+        'options': {
+            'enabled': {'type': 'bool'},
+            'servers': {'type': 'list', 'elements': 'str'},
+            'pools': {'type': 'list', 'elements': 'str'},
+            'ntp_client': {'type': 'str'},
+        },
+    },
+    'ca_certs': {
+        'type': 'dict',
+        'options': {
+            'trusted': {'type': 'list', 'elements': 'str'},
+            'remove_defaults': {'type': 'bool'},
+        },
+    },
+    'resolv_conf': {
+        'type': 'dict',
+        'options': {
+            'nameservers': {'type': 'list', 'elements': 'str'},
+            'searchdomains': {'type': 'list', 'elements': 'str'},
+            'domain': {'type': 'str'},
+            'sortlist': {'type': 'list', 'elements': 'str'},
+            'options': {'type': 'dict'},
+        },
+    },
+    'manage_resolv_conf': {'type': 'bool'},
+    'power_state': {
+        'type': 'dict',
+        'options': {
+            'mode': {
+                'type': 'str',
+                'choices': [
+                    'reboot',
+                    'poweroff',
+                    'halt',
+                ],
+            },
+            'delay': {'type': 'str'},
+            'timeout': {'type': 'int'},
+            'condition': {'type': 'raw'},
+        },
+    },
     'write_files': {
         'type': 'list',
         'elements': 'dict',
@@ -118,9 +281,29 @@ _CLOUD_INIT_DATA_OPTIONS = {
             'content': {'type': 'str'},
             'owner': {'type': 'str'},
             'permissions': {'type': 'str'},
+            'encoding': {
+                'type': 'str',
+                'choices': [
+                    'b64',
+                    'gzip',
+                    'gz+b64',
+                    'text',
+                ],
+            },
+            'append': {'type': 'bool'},
+            'defer': {'type': 'bool'},
         },
     },
     'runcmd': {'type': 'list', 'elements': 'raw'},
+    'final_message': {'type': 'str'},
+    'phone_home': {
+        'type': 'dict',
+        'options': {
+            'url': {'type': 'str', 'required': True},
+            'post': {'type': 'list', 'elements': 'str'},
+            'tries': {'type': 'int'},
+        },
+    },
 }
 
 INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
