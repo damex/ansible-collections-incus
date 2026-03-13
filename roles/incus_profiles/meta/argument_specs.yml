@@ -695,7 +695,7 @@ argument_specs:
                       gecos:
                         description: GECOS field for the user.
                         type: str
-                      home:
+                      homedir:
                         description: Home directory for the user.
                         type: str
                       primary_group:
@@ -756,17 +756,26 @@ argument_specs:
                       ed25519_public:
                         description: Ed25519 public host key.
                         type: str
+                      ed25519_certificate:
+                        description: Ed25519 host certificate.
+                        type: str
                       rsa_private:
                         description: RSA private host key.
                         type: str
                       rsa_public:
                         description: RSA public host key.
                         type: str
+                      rsa_certificate:
+                        description: RSA host certificate.
+                        type: str
                       ecdsa_private:
                         description: ECDSA private host key.
                         type: str
                       ecdsa_public:
                         description: ECDSA public host key.
+                        type: str
+                      ecdsa_certificate:
+                        description: ECDSA host certificate.
                         type: str
                   disable_root:
                     description: Whether to disable root login.
@@ -986,7 +995,8 @@ argument_specs:
                         elements: str
                       options:
                         description: DNS resolver options.
-                        type: dict
+                        type: list
+                        elements: str
                   manage_resolv_conf:
                     description: Whether to manage /etc/resolv.conf.
                     type: bool
@@ -1103,7 +1113,7 @@ argument_specs:
                       gecos:
                         description: GECOS field for the user.
                         type: str
-                      home:
+                      homedir:
                         description: Home directory for the user.
                         type: str
                       primary_group:
@@ -1164,17 +1174,26 @@ argument_specs:
                       ed25519_public:
                         description: Ed25519 public host key.
                         type: str
+                      ed25519_certificate:
+                        description: Ed25519 host certificate.
+                        type: str
                       rsa_private:
                         description: RSA private host key.
                         type: str
                       rsa_public:
                         description: RSA public host key.
                         type: str
+                      rsa_certificate:
+                        description: RSA host certificate.
+                        type: str
                       ecdsa_private:
                         description: ECDSA private host key.
                         type: str
                       ecdsa_public:
                         description: ECDSA public host key.
+                        type: str
+                      ecdsa_certificate:
+                        description: ECDSA host certificate.
                         type: str
                   disable_root:
                     description: Whether to disable root login.
@@ -1394,7 +1413,8 @@ argument_specs:
                         elements: str
                       options:
                         description: DNS resolver options.
-                        type: dict
+                        type: list
+                        elements: str
                   manage_resolv_conf:
                     description: Whether to manage /etc/resolv.conf.
                     type: bool

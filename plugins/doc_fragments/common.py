@@ -937,7 +937,7 @@ options:
                 description:
                   - GECOS field for the user.
                 type: str
-              home:
+              homedir:
                 description:
                   - Home directory path.
                 type: str
@@ -1017,6 +1017,10 @@ options:
                 description:
                   - Ed25519 public host key.
                 type: str
+              ed25519_certificate:
+                description:
+                  - Ed25519 host certificate.
+                type: str
               rsa_private:
                 description:
                   - RSA private host key.
@@ -1025,6 +1029,10 @@ options:
                 description:
                   - RSA public host key.
                 type: str
+              rsa_certificate:
+                description:
+                  - RSA host certificate.
+                type: str
               ecdsa_private:
                 description:
                   - ECDSA private host key.
@@ -1032,6 +1040,10 @@ options:
               ecdsa_public:
                 description:
                   - ECDSA public host key.
+                type: str
+              ecdsa_certificate:
+                description:
+                  - ECDSA host certificate.
                 type: str
           disable_root:
             description:
@@ -1305,7 +1317,8 @@ options:
               options:
                 description:
                   - Additional resolver options.
-                type: dict
+                type: list
+                elements: str
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
@@ -1446,7 +1459,7 @@ options:
                 description:
                   - GECOS field for the user.
                 type: str
-              home:
+              homedir:
                 description:
                   - Home directory path.
                 type: str
@@ -1526,6 +1539,10 @@ options:
                 description:
                   - Ed25519 public host key.
                 type: str
+              ed25519_certificate:
+                description:
+                  - Ed25519 host certificate.
+                type: str
               rsa_private:
                 description:
                   - RSA private host key.
@@ -1534,6 +1551,10 @@ options:
                 description:
                   - RSA public host key.
                 type: str
+              rsa_certificate:
+                description:
+                  - RSA host certificate.
+                type: str
               ecdsa_private:
                 description:
                   - ECDSA private host key.
@@ -1541,6 +1562,10 @@ options:
               ecdsa_public:
                 description:
                   - ECDSA public host key.
+                type: str
+              ecdsa_certificate:
+                description:
+                  - ECDSA host certificate.
                 type: str
           disable_root:
             description:
@@ -1814,7 +1839,8 @@ options:
               options:
                 description:
                   - Additional resolver options.
-                type: dict
+                type: list
+                elements: str
           manage_resolv_conf:
             description:
               - Whether to manage /etc/resolv.conf.
