@@ -12,8 +12,6 @@ __all__ = [
     'CLOUD_INIT_ALL_KEYS',
     'CLOUD_INIT_CONFIG_OPTIONS',
     'CLOUD_INIT_DATA_OPTIONS',
-    'CLOUD_INIT_NAMED_DICT_KEYS',
-    'CLOUD_INIT_NAMED_SCALAR_DICT_KEYS',
     'CLOUD_INIT_USER_KEYS',
     'cloud_init_data_lists_to_dicts',
     'cloud_init_interface_options',
