@@ -729,6 +729,11 @@ options:
             description:
               - Whether to enable SSH password authentication.
             type: bool
+          ssh_authorized_keys:
+            description:
+              - SSH public keys to add to the default user.
+            type: list
+            elements: str
           chpasswd:
             description:
               - Password change settings.
@@ -807,6 +812,11 @@ options:
             description:
               - Whether to enable SSH password authentication.
             type: bool
+          ssh_authorized_keys:
+            description:
+              - SSH public keys to add to the default user.
+            type: list
+            elements: str
           chpasswd:
             description:
               - Password change settings.

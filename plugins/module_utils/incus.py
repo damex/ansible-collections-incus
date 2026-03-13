@@ -90,6 +90,7 @@ _CLOUD_INIT_DATA_OPTIONS = {
     'user': {'type': 'str'},
     'password': {'type': 'str', 'no_log': True},
     'ssh_pwauth': {'type': 'bool'},
+    'ssh_authorized_keys': {'type': 'list', 'elements': 'str'},
     'chpasswd': {
         'type': 'dict',
         'no_log': False,
