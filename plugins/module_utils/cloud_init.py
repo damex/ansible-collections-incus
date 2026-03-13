@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 __all__ = [
+    'CLOUD_INIT_ALL_KEYS',
     'CLOUD_INIT_CONFIG_OPTIONS',
     'CLOUD_INIT_DATA_OPTIONS',
     'CLOUD_INIT_NAMED_DICT_KEYS',
@@ -21,6 +22,12 @@ __all__ = [
 ]
 
 CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
+
+CLOUD_INIT_ALL_KEYS = frozenset({
+    'cloud-init.network-config',
+    'cloud-init.user-data',
+    'cloud-init.vendor-data',
+})
 
 CLOUD_INIT_NAMED_DICT_KEYS = frozenset({
     'bonds',

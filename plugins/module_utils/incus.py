@@ -23,6 +23,7 @@ from typing import Any, NamedTuple
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
+    CLOUD_INIT_ALL_KEYS,
     CLOUD_INIT_CONFIG_OPTIONS,
     CLOUD_INIT_USER_KEYS,
     cloud_init_data_lists_to_dicts,
@@ -395,7 +396,7 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
             continue
         if isinstance(value, (dict, list)):
             cleaned = _strip_none(value)
-            if isinstance(cleaned, dict) and (key in CLOUD_INIT_USER_KEYS or key == 'cloud-init.network-config'):
+            if isinstance(cleaned, dict) and key in CLOUD_INIT_ALL_KEYS:
                 cleaned = cloud_init_data_lists_to_dicts(cleaned)
             prefix = '#cloud-config\n' if key in CLOUD_INIT_USER_KEYS else ''
             result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)
