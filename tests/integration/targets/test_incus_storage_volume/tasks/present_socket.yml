@@ -1,0 +1,84 @@
+---
+- name: Ensure incus storage pool for volume tests
+  damex.incus.incus_storage:
+    name: test-volume-pool
+    driver: dir
+    config:
+      source: /var/lib/incus/storage-pools/test-volume-pool
+    state: present
+
+- name: Ensure incus storage volume is created
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    description: Test volume
+    state: present
+  register: incus_storage_volume_present_state
+
+- name: Ensure incus storage volume is created
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_present_state is changed
+
+- name: Ensure incus storage volume is idempotent
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    description: Test volume
+    state: present
+  register: incus_storage_volume_idempotent_state
+
+- name: Ensure incus storage volume is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_idempotent_state is not changed
+
+- name: Ensure incus storage volume is updated
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    description: Updated volume
+    state: present
+  register: incus_storage_volume_updated_state
+
+- name: Ensure incus storage volume is updated
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_updated_state is changed
+
+- name: Ensure incus storage volume update is idempotent
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    description: Updated volume
+    state: present
+  register: incus_storage_volume_update_idempotent_state
+
+- name: Ensure incus storage volume update is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_update_idempotent_state is not changed
+
+- name: Ensure incus storage volume info
+  damex.incus.incus_storage_volume_info:
+    pool: test-volume-pool
+  register: incus_storage_volume_info_state
+
+- name: Ensure incus storage volume info
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_info_state.storage_volumes is defined
+      - "'test-volume' in incus_storage_volume_info_state.storage_volumes | map(attribute='name')"
+
+- name: Ensure incus storage volume info by name
+  damex.incus.incus_storage_volume_info:
+    pool: test-volume-pool
+    name: test-volume
+  register: incus_storage_volume_info_named_state
+
+- name: Ensure incus storage volume info by name
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_info_named_state.storage_volumes | length == 1
+      - "'test-volume' in incus_storage_volume_info_named_state.storage_volumes | map(attribute='name')"
+      - "'Updated volume' in incus_storage_volume_info_named_state.storage_volumes | map(attribute='description')"

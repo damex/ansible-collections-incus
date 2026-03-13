@@ -1,0 +1,77 @@
+---
+- name: Ensure incus storage pool for volume tests (tls)
+  damex.incus.incus_storage:
+    name: tls-test-volume-pool
+    driver: dir
+    config:
+      source: /var/lib/incus/storage-pools/tls-test-volume-pool
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+
+- name: Ensure incus storage volume is created (tls)
+  damex.incus.incus_storage_volume:
+    pool: tls-test-volume-pool
+    name: tls-test-volume
+    description: TLS test volume
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_volume_tls_present_state
+
+- name: Ensure incus storage volume is created (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_tls_present_state is changed
+
+- name: Ensure incus storage volume is idempotent (tls)
+  damex.incus.incus_storage_volume:
+    pool: tls-test-volume-pool
+    name: tls-test-volume
+    description: TLS test volume
+    state: present
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_volume_tls_idempotent_state
+
+- name: Ensure incus storage volume is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_tls_idempotent_state is not changed
+
+- name: Ensure incus storage volume info (tls)
+  damex.incus.incus_storage_volume_info:
+    pool: tls-test-volume-pool
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_volume_tls_info_state
+
+- name: Ensure incus storage volume info (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_tls_info_state.storage_volumes is defined
+      - "'tls-test-volume' in incus_storage_volume_tls_info_state.storage_volumes | map(attribute='name')"
+
+- name: Ensure incus storage volume info by name (tls)
+  damex.incus.incus_storage_volume_info:
+    pool: tls-test-volume-pool
+    name: tls-test-volume
+    url: https://127.0.0.1:8443
+    client_cert: /tmp/tls-client.crt
+    client_key: /tmp/tls-client.key
+    server_cert: /var/lib/incus/server.crt
+  register: incus_storage_volume_tls_info_named_state
+
+- name: Ensure incus storage volume info by name (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_tls_info_named_state.storage_volumes | length == 1
+      - "'tls-test-volume' in incus_storage_volume_tls_info_named_state.storage_volumes | map(attribute='name')"

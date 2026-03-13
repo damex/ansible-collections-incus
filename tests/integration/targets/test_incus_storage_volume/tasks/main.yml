@@ -1,0 +1,11 @@
+---
+- name: Ensure incus storage volume
+  block:
+    - name: Ensure incus storage volume present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus storage volume absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+    - name: Ensure incus storage volume present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus storage volume absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

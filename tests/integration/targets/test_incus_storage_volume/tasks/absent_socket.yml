@@ -1,0 +1,39 @@
+---
+- name: Ensure incus storage volume is deleted
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    state: absent
+  register: incus_storage_volume_absent_state
+
+- name: Ensure incus storage volume is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_absent_state is changed
+
+- name: Ensure incus storage volume deletion is idempotent
+  damex.incus.incus_storage_volume:
+    pool: test-volume-pool
+    name: test-volume
+    state: absent
+  register: incus_storage_volume_absent_idempotent_state
+
+- name: Ensure incus storage volume deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_storage_volume_absent_idempotent_state is not changed
+
+- name: Ensure incus storage volume info after deletion
+  damex.incus.incus_storage_volume_info:
+    pool: test-volume-pool
+  register: incus_storage_volume_info_after_state
+
+- name: Ensure incus storage volume info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-volume' not in incus_storage_volume_info_after_state.storage_volumes | map(attribute='name')"
+
+- name: Ensure incus storage pool cleanup
+  damex.incus.incus_storage:
+    name: test-volume-pool
+    state: absent
