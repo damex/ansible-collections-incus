@@ -63,6 +63,11 @@ __all__ = [
     'test_stringify_instance_config_cloud_init_apt_sources_list_to_dict',
     'test_stringify_instance_config_cloud_init_debconf_list_to_dict',
     'test_stringify_instance_config_cloud_init_headers_list_to_dict',
+    'test_stringify_instance_config_cloud_init_ntp_config',
+    'test_stringify_instance_config_cloud_init_chpasswd',
+    'test_stringify_instance_config_cloud_init_fs_setup_replace_fs',
+    'test_stringify_instance_config_cloud_init_swap_maxsize_string',
+    'test_stringify_instance_config_cloud_init_multiple_list_to_dict',
     'test_build_source_known_remote',
     'test_build_source_ubuntu_remote',
     'test_build_source_explicit_server',
@@ -467,6 +472,87 @@ def test_stringify_instance_config_cloud_init_headers_list_to_dict() -> None:
     result = incus_stringify_instance_config(config)
     assert 'Authorization' in result['cloud-init.user-data']
     assert 'Bearer token123' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_ntp_config() -> None:
+    """Serialize ntp with config sub-options."""
+    config = {'cloud-init.user-data': {
+        'ntp': {
+            'enabled': True,
+            'ntp_client': 'chrony',
+            'config': {
+                'confpath': '/etc/chrony.conf',
+                'service_name': 'chronyd',
+            },
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'confpath: /etc/chrony.conf' in result['cloud-init.user-data']
+    assert 'service_name: chronyd' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_chpasswd() -> None:
+    """Serialize chpasswd with users list."""
+    config = {'cloud-init.user-data': {
+        'chpasswd': {
+            'expire': False,
+            'users': [
+                {'name': 'admin', 'password': 's3cr3t', 'type': 'text'},
+            ],
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'expire: false' in result['cloud-init.user-data']
+    assert 'name: admin' in result['cloud-init.user-data']
+    assert 'type: text' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_fs_setup_replace_fs() -> None:
+    """Serialize fs_setup with replace_fs option."""
+    config = {'cloud-init.user-data': {
+        'fs_setup': [{
+            'label': 'data',
+            'filesystem': 'ext4',
+            'device': '/dev/vdb1',
+            'replace_fs': True,
+        }],
+    }}
+    result = incus_stringify_instance_config(config)
+    assert 'replace_fs: true' in result['cloud-init.user-data']
+    assert 'label: data' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_swap_maxsize_string() -> None:
+    """Serialize swap with maxsize as human-readable string."""
+    config = {'cloud-init.user-data': {
+        'swap': {
+            'filename': '/swap.img',
+            'size': 'auto',
+            'maxsize': '4G',
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    assert "maxsize: '4G'" in result['cloud-init.user-data'] or 'maxsize: 4G' in result['cloud-init.user-data']
+    assert "size: 'auto'" in result['cloud-init.user-data'] or 'size: auto' in result['cloud-init.user-data']
+
+
+def test_stringify_instance_config_cloud_init_multiple_list_to_dict() -> None:
+    """Serialize multiple list-to-dict transforms in one block."""
+    config = {'cloud-init.user-data': {
+        'disk_setup': [{'name': '/dev/vdb', 'table_type': 'gpt', 'layout': True}],
+        'apt': {
+            'sources': [{'name': 'custom', 'source': 'deb http://example.com stable main'}],
+            'debconf_selections': [{'name': 'sel1', 'selection': 'pkg pkg/q string val'}],
+        },
+    }}
+    result = incus_stringify_instance_config(config)
+    output = result['cloud-init.user-data']
+    assert '/dev/vdb' in output
+    assert 'table_type: gpt' in output
+    assert 'custom' in output
+    assert 'deb http://example.com stable main' in output
+    assert 'sel1' in output
+    assert 'pkg pkg/q string val' in output
 
 
 def test_build_source_known_remote() -> None:
