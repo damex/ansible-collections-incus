@@ -26,7 +26,6 @@ from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     CLOUD_INIT_CONFIG_OPTIONS,
     CLOUD_INIT_USER_KEYS,
     cloud_init_data_lists_to_dicts,
-    cloud_init_network_config_to_netplan,
 )
 from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
 
@@ -396,9 +395,7 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
             continue
         if isinstance(value, (dict, list)):
             cleaned = _strip_none(value)
-            if key == 'cloud-init.network-config' and isinstance(cleaned, dict):
-                cleaned = cloud_init_network_config_to_netplan(cleaned)
-            if key in CLOUD_INIT_USER_KEYS and isinstance(cleaned, dict):
+            if isinstance(cleaned, dict) and (key in CLOUD_INIT_USER_KEYS or key == 'cloud-init.network-config'):
                 cleaned = cloud_init_data_lists_to_dicts(cleaned)
             prefix = '#cloud-config\n' if key in CLOUD_INIT_USER_KEYS else ''
             result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)

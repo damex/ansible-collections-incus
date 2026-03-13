@@ -13,22 +13,22 @@ __all__ = [
     'CLOUD_INIT_DATA_OPTIONS',
     'CLOUD_INIT_NAMED_DICT_KEYS',
     'CLOUD_INIT_NAMED_SCALAR_DICT_KEYS',
-    'CLOUD_INIT_NETWORK_INTERFACE_KEYS',
     'CLOUD_INIT_USER_KEYS',
     'cloud_init_data_lists_to_dicts',
     'cloud_init_interface_options',
     'cloud_init_named_list_to_dict',
     'cloud_init_named_list_to_scalar_dict',
-    'cloud_init_network_config_to_netplan',
 ]
 
 CLOUD_INIT_USER_KEYS = frozenset({'cloud-init.user-data', 'cloud-init.vendor-data'})
 
-CLOUD_INIT_NETWORK_INTERFACE_KEYS = frozenset({'ethernets', 'bonds', 'bridges', 'vlans'})
-
 CLOUD_INIT_NAMED_DICT_KEYS = frozenset({
+    'bonds',
+    'bridges',
     'disk_setup',
+    'ethernets',
     'sources',
+    'vlans',
 })
 
 CLOUD_INIT_NAMED_SCALAR_DICT_KEYS = frozenset({
@@ -484,21 +484,3 @@ def cloud_init_data_lists_to_dicts(data: Any) -> Any:
     if isinstance(data, list):
         return [cloud_init_data_lists_to_dicts(item) for item in data]
     return data
-
-
-def cloud_init_network_config_to_netplan(config: dict[str, Any]) -> dict[str, Any]:
-    """Transform cloud-init network config from list to netplan dict format."""
-    result: dict[str, Any] = {}
-    for key, value in config.items():
-        if key in CLOUD_INIT_NETWORK_INTERFACE_KEYS and isinstance(value, list):
-            result[key] = {
-                interface['name']: {
-                    option: option_value
-                    for option, option_value in interface.items()
-                    if option != 'name'
-                }
-                for interface in value
-            }
-        else:
-            result[key] = value
-    return result
