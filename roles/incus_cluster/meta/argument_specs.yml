@@ -46,14 +46,23 @@ argument_specs:
         type: str
         description: URL of the Incus REST API endpoint.
       incus_cluster_client_cert:
+        type: str
+        description: Client certificate content for API authentication.
+      incus_cluster_client_key:
+        type: str
+        description: Client key content for API authentication.
+      incus_cluster_server_cert:
+        type: str
+        description: Server certificate content for API verification.
+      incus_cluster_client_cert_path:
         type: path
         description: Path to the TLS client certificate for API authentication.
-      incus_cluster_client_key:
+      incus_cluster_client_key_path:
         type: path
         description: Path to the TLS client key for API authentication.
-      incus_cluster_server_cert:
+      incus_cluster_server_cert_path:
         type: path
-        description: Path to the trusted server certificate.
+        description: Path to the TLS server certificate for API verification.
       incus_cluster_token:
         type: str
         description: Authentication token for the Incus API.

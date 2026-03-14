@@ -73,14 +73,23 @@ argument_specs:
         type: str
         description: URL of the Incus server API.
       incus_images_client_cert:
-        type: path
-        description: Path to the TLS client certificate.
+        type: str
+        description: Client certificate content for API authentication.
       incus_images_client_key:
-        type: path
-        description: Path to the TLS client key.
+        type: str
+        description: Client key content for API authentication.
       incus_images_server_cert:
+        type: str
+        description: Server certificate content for API verification.
+      incus_images_client_cert_path:
         type: path
-        description: Path to the TLS server certificate.
+        description: Path to the TLS client certificate for API authentication.
+      incus_images_client_key_path:
+        type: path
+        description: Path to the TLS client key for API authentication.
+      incus_images_server_cert_path:
+        type: path
+        description: Path to the TLS server certificate for API verification.
       incus_images_token:
         type: str
         description: Authentication token for the Incus API.
