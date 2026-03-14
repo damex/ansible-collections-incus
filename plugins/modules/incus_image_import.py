@@ -128,7 +128,7 @@ EXAMPLES = r"""
   damex.incus.incus_image_import:
     alias: chr/7.22
     source: https://download.mikrotik.com/routeros/7.22/chr-7.22.img.zip
-    checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     checksum_algorithm: sha256
     properties:
       os: RouterOS
