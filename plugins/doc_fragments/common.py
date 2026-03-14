@@ -79,8 +79,8 @@ options:
 options:
   source:
     description:
-      - Image reference to copy from, e.g. C(images:debian/13) or C(ubuntu/24.04).
-      - The C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily)).
+      - Image reference to copy from, e.g. C(images:debian/13), C(ubuntu/24.04), or C(docker:library/nginx).
+      - The C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily), C(docker)).
     type: str
   source_server:
     description:
@@ -91,7 +91,7 @@ options:
     description:
       - Protocol used to communicate with O(source_server).
     type: str
-    choices: [simplestreams, incus]
+    choices: [simplestreams, incus, oci]
     default: simplestreams
 """
 
