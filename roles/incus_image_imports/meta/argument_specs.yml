@@ -1,0 +1,157 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus image imports.
+    description:
+      - Ensure Incus image imports.
+    examples: |
+      - name: Ensure incus image imports
+        hosts: incus
+        tasks:
+          - name: Ensure incus image imports
+            ansible.builtin.import_role:
+              name: damex.incus.incus_image_imports
+            vars:
+              incus_image_imports:
+                - alias: chr/7.22
+                  source: https://download.mikrotik.com/routeros/7.22/chr-7.22.img.zip
+                  properties:
+                    os: RouterOS
+                    release: "7.22"
+                    description: MikroTik CHR 7.22
+                - alias: custom/1.0
+                  source: /tmp/custom-image.qcow2
+                  properties:
+                    os: CustomOS
+                    release: "1.0"
+                    description: Custom OS Image
+    options:
+      incus_image_imports:
+        description: List of image imports to ensure.
+        type: list
+        elements: dict
+        options:
+          alias:
+            description: Primary alias for the image.
+            required: true
+            type: str
+          aliases:
+            description: Additional aliases to assign to the image.
+            type: list
+            elements: str
+          source:
+            description: Path to a local image file or URL to download from.
+            type: str
+          architecture:
+            description: Image architecture identifier.
+            type: str
+          properties:
+            description: Image properties included in the metadata.
+            type: dict
+            options:
+              os:
+                description: Operating system name.
+                type: str
+              release:
+                description: Operating system release or version.
+                type: str
+              description:
+                description: Human-readable image description.
+                type: str
+              variant:
+                description: Image variant.
+                type: str
+              serial:
+                description: Image serial or build identifier.
+                type: str
+              name:
+                description: Image name.
+                type: str
+          checksum:
+            description: Expected checksum of the source file for verification.
+            type: str
+          checksum_algorithm:
+            description: Hash algorithm used for checksum verification.
+            type: str
+            choices:
+              - sha256
+              - sha512
+              - sha384
+              - md5
+          public:
+            description: Whether to make the image available to unauthenticated users.
+            type: bool
+          force:
+            description: Whether to delete and re-import the image even when the alias already exists.
+            type: bool
+          timeout:
+            description: Timeout in seconds for downloading the source file from a URL.
+            type: int
+          project:
+            description: Incus project to scope the image to.
+            type: str
+          state:
+            description: Desired state of the image.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_image_imports_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_image_imports_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_image_imports_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_image_imports_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_image_imports_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_image_imports_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_image_imports_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_image_imports_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_image_imports_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_image_imports_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_image_imports_architecture:
+        description: Image architecture identifier.
+        type: str
+      incus_image_imports_checksum_algorithm:
+        description: Hash algorithm used for checksum verification.
+        type: str
+        choices:
+          - sha256
+          - sha512
+          - sha384
+          - md5
+      incus_image_imports_public:
+        description: Whether to make images available to unauthenticated users.
+        type: bool
+      incus_image_imports_force:
+        description: Whether to delete and re-import images even when the alias already exists.
+        type: bool
+      incus_image_imports_timeout:
+        description: Timeout in seconds for downloading the source file from a URL.
+        type: int
+      incus_image_imports_project:
+        description: Incus project to scope images to.
+        type: str
+      incus_image_imports_state:
+        description: Desired state of the images.
+        type: str
+        choices:
+          - present
+          - absent

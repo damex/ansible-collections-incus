@@ -37,6 +37,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_certificates` | Ensure Incus certificates |
 | `incus_client` | Ensure Incus client |
 | `incus_cluster` | Ensure Incus cluster |
+| `incus_image_imports` | Ensure Incus image imports |
 | `incus_images` | Ensure Incus images |
 | `incus_instances` | Ensure Incus instances |
 | `incus_networks` | Ensure Incus networks |

@@ -1,0 +1,10 @@
+---
+- name: Ensure incus image imports
+  tags:
+    - incus
+    - incus_image_imports
+  block:
+    - name: Ensure incus image imports facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus image imports
+      ansible.builtin.import_tasks: image_imports.yml

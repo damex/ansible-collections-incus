@@ -1,0 +1,31 @@
+---
+- name: Ensure incus image imports
+  ansible.builtin.include_tasks: image_import.yml
+  vars:
+    incus_image_imports_image_import_alias: "{{ incus_image_imports_image_import.alias }}"
+    incus_image_imports_image_import_aliases: "{{ incus_image_imports_image_import.aliases | default(omit) }}"
+    incus_image_imports_image_import_source: "{{ incus_image_imports_image_import.source | default(omit) }}"
+    incus_image_imports_image_import_architecture: "{{ incus_image_imports_image_import.architecture | default(incus_image_imports_architecture) | default(omit) }}"
+    incus_image_imports_image_import_properties: "{{ incus_image_imports_image_import.properties | default(omit) }}"
+    incus_image_imports_image_import_checksum: "{{ incus_image_imports_image_import.checksum | default(omit) }}"
+    incus_image_imports_image_import_checksum_algorithm: "{{ incus_image_imports_image_import.checksum_algorithm | default(incus_image_imports_checksum_algorithm) | default(omit) }}"
+    incus_image_imports_image_import_public: "{{ incus_image_imports_image_import.public | default(incus_image_imports_public) | default(omit) }}"
+    incus_image_imports_image_import_force: "{{ incus_image_imports_image_import.force | default(incus_image_imports_force) | default(omit) }}"
+    incus_image_imports_image_import_timeout: "{{ incus_image_imports_image_import.timeout | default(incus_image_imports_timeout) | default(omit) }}"
+    incus_image_imports_image_import_project: "{{ incus_image_imports_image_import.project | default(incus_image_imports_project) }}"
+    incus_image_imports_image_import_state: "{{ incus_image_imports_image_import.state | default(incus_image_imports_state) }}"
+    incus_image_imports_image_import_socket_path: "{{ incus_image_imports_socket_path }}"
+    incus_image_imports_image_import_url: "{{ incus_image_imports_url | default(omit) }}"
+    incus_image_imports_image_import_client_cert: "{{ incus_image_imports_client_cert | default(omit) }}"
+    incus_image_imports_image_import_client_key: "{{ incus_image_imports_client_key | default(omit) }}"
+    incus_image_imports_image_import_server_cert: "{{ incus_image_imports_server_cert | default(omit) }}"
+    incus_image_imports_image_import_client_cert_path: "{{ incus_image_imports_client_cert_path | default(omit) }}"
+    incus_image_imports_image_import_client_key_path: "{{ incus_image_imports_client_key_path | default(omit) }}"
+    incus_image_imports_image_import_server_cert_path: "{{ incus_image_imports_server_cert_path | default(omit) }}"
+    incus_image_imports_image_import_token: "{{ incus_image_imports_token | default(omit) }}"
+    incus_image_imports_image_import_validate_certs: "{{ incus_image_imports_validate_certs }}"
+  no_log: "{{ incus_image_imports_client_key is defined or incus_image_imports_token is defined }}"
+  loop: "{{ incus_image_imports }}"
+  loop_control:
+    label: "{{ incus_image_imports_image_import_alias }}"
+    loop_var: incus_image_imports_image_import

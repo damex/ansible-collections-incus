@@ -1,0 +1,6 @@
+---
+incus_image_imports: [] # noqa: var-naming[no-role-prefix]
+incus_image_imports_socket_path: /var/lib/incus/unix.socket
+incus_image_imports_validate_certs: true
+incus_image_imports_project: default
+incus_image_imports_state: present
