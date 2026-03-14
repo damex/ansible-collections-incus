@@ -3,5 +3,8 @@ strict = true
 explicit_package_bases = true
 
 [[tool.mypy.overrides]]
-module = "ansible.module_utils.basic"
+module = [
+    "ansible.module_utils.basic",
+    "ansible.module_utils.urls",
+]
 ignore_missing_imports = true

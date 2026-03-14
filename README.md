@@ -13,6 +13,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_certificate_info` | Ensure Incus certificate information is gathered |
 | `incus_cluster_info` | Ensure Incus cluster information is gathered |
 | `incus_image` | Ensure Incus image |
+| `incus_image_import` | Ensure Incus image from file or URL |
 | `incus_image_info` | Ensure Incus image information is gathered |
 | `incus_instance` | Ensure Incus instance |
 | `incus_instance_info` | Ensure Incus instance information is gathered |

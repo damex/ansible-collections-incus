@@ -334,26 +334,25 @@ class IncusClient:
             headers['Authorization'] = f'Bearer {self.parameters.token}'
         return headers
 
-    def _send(self, method: str, path: str, body: str | None) -> dict[str, Any]:
+    def _send(self, method: str, path: str, body: str | bytes | None, headers: dict[str, str]) -> dict[str, Any]:
         """Execute request."""
         conn = self._connection()
-        conn.request(method, path, body=body, headers=self._headers())
+        conn.request(method, path, body=body, headers=headers)
         response = conn.getresponse()
         result: dict[str, Any] = json.loads(response.read().decode('utf-8'))
         return result
 
-    def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
-        """Send request."""
-        body = json.dumps(data) if data is not None else None
+    def _execute(self, method: str, path: str, body: str | bytes | None, headers: dict[str, str]) -> dict[str, Any]:
+        """Execute request with retry."""
         try:
-            content = self._send(method, path, body)
+            content = self._send(method, path, body, headers)
         except IncusClientException:
             self._close()
             raise
         except (OSError, http.client.HTTPException):
             self._close()
             try:
-                content = self._send(method, path, body)
+                content = self._send(method, path, body, headers)
             except IncusClientException:
                 self._close()
                 raise
@@ -370,6 +369,11 @@ class IncusClient:
             raise IncusClientException(content.get('error', 'unknown error'))
 
         return content
+
+    def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Send JSON request."""
+        body = json.dumps(data) if data is not None else None
+        return self._execute(method, path, body, self._headers())
 
     def get(self, path: str) -> dict[str, Any]:
         """GET request."""
@@ -391,7 +395,22 @@ class IncusClient:
         """DELETE request."""
         return self._request('DELETE', path)
 
-    def wait(self, response: dict[str, Any]) -> None:
+    def post_file(self, path: str, file_path: str, public: bool = False) -> dict[str, Any]:
+        """POST file."""
+        with open(file_path, 'rb') as fh:
+            body = fh.read()
+        headers = {
+            'Content-Type': 'application/octet-stream',
+            'Accept': 'application/json',
+            'X-Incus-filename': os.path.basename(file_path),
+        }
+        if public:
+            headers['X-Incus-public'] = '1'
+        if self.parameters.token:
+            headers['Authorization'] = f'Bearer {self.parameters.token}'
+        return self._execute('POST', path, body, headers)
+
+    def wait(self, response: dict[str, Any]) -> dict[str, Any] | None:
         """Wait for operation."""
         if response.get('type') == 'async':
             encoded_op_id = quote(response['metadata']['id'], safe='')
@@ -399,6 +418,8 @@ class IncusClient:
             metadata = result.get('metadata') or {}
             if metadata.get('status') == 'Failure':
                 raise IncusClientException(metadata.get('err', 'operation failed'))
+            return metadata
+        return None
 
 
 def incus_create_client(module: AnsibleModule) -> IncusClient:
@@ -678,7 +699,8 @@ def incus_create_write_module(
     return module
 
 
-def incus_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> None:
+def incus_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> dict[str, Any] | None:
     """Wait for operation."""
     if module.params.get('wait', True):
-        client.wait(response)
+        return client.wait(response)
+    return None
