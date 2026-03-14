@@ -36,6 +36,9 @@ def _mock_module(name: str | None = None) -> MagicMock:
         'client_cert': None,
         'client_key': None,
         'server_cert': None,
+        'client_cert_path': None,
+        'client_key_path': None,
+        'server_cert_path': None,
         'token': None,
         'validate_certs': True,
     }

@@ -41,8 +41,8 @@ EXAMPLES = r"""
 - name: Ensure image information is gathered from remote server
   damex.incus.incus_image_info:
     url: https://incus.example.com:8443
-    client_cert: /etc/incus/client.crt
-    client_key: /etc/incus/client.key
+    client_cert_path: /etc/incus/client.crt
+    client_key_path: /etc/incus/client.key
   register: result
 """
 

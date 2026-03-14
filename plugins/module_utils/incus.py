@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import http.client
 import json
+import os
 import socket
 import ssl
+import tempfile
 from urllib.parse import quote, urlparse
 
 try:
@@ -178,25 +180,36 @@ INCUS_COMMON_ARGUMENT_SPEC = {
 INCUS_COMMON_ARGS = {
     'socket_path': {'type': 'str', 'default': INCUS_SOCKET_PATH},
     'url': {'type': 'str'},
-    'client_cert': {'type': 'path'},
-    'client_key': {'type': 'path', 'no_log': True},
-    'server_cert': {'type': 'path'},
+    'client_cert': {'type': 'str'},
+    'client_key': {'type': 'str', 'no_log': True},
+    'server_cert': {'type': 'str'},
+    'client_cert_path': {'type': 'str'},
+    'client_key_path': {'type': 'str', 'no_log': True},
+    'server_cert_path': {'type': 'str'},
     'token': {'type': 'str', 'no_log': True},
     'validate_certs': {'type': 'bool', 'default': True},
 }
 
 INCUS_COMMON_MUTUALLY_EXCLUSIVE = [
     ['token', 'client_cert'],
+    ['token', 'client_cert_path'],
+    ['client_cert', 'client_cert_path'],
+    ['client_key', 'client_key_path'],
+    ['server_cert', 'server_cert_path'],
 ]
 
 INCUS_COMMON_REQUIRED_TOGETHER = [
     ['client_cert', 'client_key'],
+    ['client_cert_path', 'client_key_path'],
 ]
 
 INCUS_COMMON_REQUIRED_BY = {
     'client_cert': 'url',
     'client_key': 'url',
     'server_cert': 'url',
+    'client_cert_path': 'url',
+    'client_key_path': 'url',
+    'server_cert_path': 'url',
     'token': 'url',
 }
 
@@ -231,6 +244,9 @@ class IncusConnectionParameters(NamedTuple):
     client_cert: str | None = None
     client_key: str | None = None
     server_cert: str | None = None
+    client_cert_path: str | None = None
+    client_key_path: str | None = None
+    server_cert_path: str | None = None
     token: str | None = None
     validate_certs: bool = True
 
@@ -244,23 +260,46 @@ class IncusClient:
         self.host: str | None = None
         self.port: int = 8443
         self._conn: http.client.HTTPConnection | None = None
+        self._temp_files: list[str] = []
 
         if self.parameters.url:
             parsed = urlparse(self.parameters.url)
             self.host = parsed.hostname
             self.port = parsed.port or 8443
 
+    def _write_temp_file(self, content: str) -> str:
+        """Write content to temporary file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as temp_file:
+            temp_file.write(content)
+            self._temp_files.append(temp_file.name)
+            return temp_file.name
+
+    def _build_ssl_context(self) -> ssl.SSLContext:
+        """Build SSL context."""
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        if not self.parameters.validate_certs:
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+        if self.parameters.server_cert:
+            context.load_verify_locations(cadata=self.parameters.server_cert)
+        elif self.parameters.server_cert_path:
+            context.load_verify_locations(self.parameters.server_cert_path)
+        if self.parameters.client_cert and self.parameters.client_key:
+            context.load_cert_chain(
+                self._write_temp_file(self.parameters.client_cert),
+                self._write_temp_file(self.parameters.client_key),
+            )
+        elif self.parameters.client_cert_path and self.parameters.client_key_path:
+            context.load_cert_chain(
+                self.parameters.client_cert_path,
+                self.parameters.client_key_path,
+            )
+        return context
+
     def _connect(self) -> http.client.HTTPConnection:
         """Create connection."""
         if self.parameters.url:
-            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-            if not self.parameters.validate_certs:
-                context.check_hostname = False
-                context.verify_mode = ssl.CERT_NONE
-            if self.parameters.server_cert:
-                context.load_verify_locations(self.parameters.server_cert)
-            if self.parameters.client_cert and self.parameters.client_key:
-                context.load_cert_chain(self.parameters.client_cert, self.parameters.client_key)
+            context = self._build_ssl_context()
             if self.host is None:
                 raise IncusClientException('URL provided but hostname could not be parsed')
             return http.client.HTTPSConnection(self.host, self.port, context=context)
@@ -277,6 +316,16 @@ class IncusClient:
         if self._conn is not None:
             self._conn.close()
             self._conn = None
+
+    def close(self) -> None:
+        """Close connection and clean up temporary files."""
+        self._close()
+        for temp_path in self._temp_files:
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+        self._temp_files.clear()
 
     def _headers(self) -> dict[str, str]:
         """Build headers."""
@@ -360,6 +409,9 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
         client_cert=module.params.get('client_cert'),
         client_key=module.params.get('client_key'),
         server_cert=module.params.get('server_cert'),
+        client_cert_path=module.params.get('client_cert_path'),
+        client_key_path=module.params.get('client_key_path'),
+        server_cert_path=module.params.get('server_cert_path'),
         token=module.params.get('token'),
         validate_certs=module.params.get('validate_certs', True),
     ))

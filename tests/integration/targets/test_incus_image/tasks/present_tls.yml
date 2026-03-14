@@ -5,9 +5,9 @@
     source: images:alpine/edge
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_present_state
 
 - name: Ensure incus image is copied (tls)
@@ -21,9 +21,9 @@
     source: images:alpine/edge
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_idempotent_state
 
 - name: Ensure incus image is idempotent (tls)
@@ -38,9 +38,9 @@
     auto_update: true
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_auto_update_state
 
 - name: Ensure incus image auto_update is enabled (tls)
@@ -55,9 +55,9 @@
     auto_update: true
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_auto_update_idempotent_state
 
 - name: Ensure incus image auto_update is idempotent (tls)
@@ -69,9 +69,9 @@
   damex.incus.incus_image_info:
     name: tls-test-alpine
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_auto_update_info_state
 
 - name: Ensure incus image auto_update info is verified (tls)
@@ -88,9 +88,9 @@
     public: true
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_public_state
 
 - name: Ensure incus image public is enabled (tls)
@@ -106,9 +106,9 @@
     public: true
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_public_idempotent_state
 
 - name: Ensure incus image public is idempotent (tls)
@@ -120,9 +120,9 @@
   damex.incus.incus_image_info:
     name: tls-test-alpine
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_public_info_state
 
 - name: Ensure incus image public info is verified (tls)
@@ -137,9 +137,9 @@
     source: images:alpine/edge
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_revert_state
 
 - name: Ensure incus image settings are reverted (tls)
@@ -150,9 +150,9 @@
 - name: Ensure incus image info (tls)
   damex.incus.incus_image_info:
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_image_tls_info_state
 
 - name: Ensure incus image info (tls)

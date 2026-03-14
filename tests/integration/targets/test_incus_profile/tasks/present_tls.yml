@@ -8,9 +8,9 @@
       limits.memory: 2GiB
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_profile_tls_present_state
 
 - name: Ensure incus profile is created (tls)
@@ -27,9 +27,9 @@
       limits.memory: 2GiB
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_profile_tls_idempotent_state
 
 - name: Ensure incus profile is idempotent (tls)
@@ -40,9 +40,9 @@
 - name: Ensure incus profile info (tls)
   damex.incus.incus_profile_info:
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_profile_tls_info_state
 
 - name: Ensure incus profile info (tls)
@@ -55,9 +55,9 @@
   damex.incus.incus_profile_info:
     name: tls-test-profile
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_profile_tls_info_named_state
 
 - name: Ensure incus profile info by name (tls)

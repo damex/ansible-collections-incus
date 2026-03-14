@@ -7,9 +7,9 @@
       source: /var/lib/incus/storage-pools/tls-test-volume-pool
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
 
 - name: Ensure incus storage volume is created (tls)
   damex.incus.incus_storage_volume:
@@ -18,9 +18,9 @@
     description: TLS test volume
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_storage_volume_tls_present_state
 
 - name: Ensure incus storage volume is created (tls)
@@ -35,9 +35,9 @@
     description: TLS test volume
     state: present
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_storage_volume_tls_idempotent_state
 
 - name: Ensure incus storage volume is idempotent (tls)
@@ -49,9 +49,9 @@
   damex.incus.incus_storage_volume_info:
     pool: tls-test-volume-pool
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_storage_volume_tls_info_state
 
 - name: Ensure incus storage volume info (tls)
@@ -65,9 +65,9 @@
     pool: tls-test-volume-pool
     name: tls-test-volume
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_storage_volume_tls_info_named_state
 
 - name: Ensure incus storage volume info by name (tls)

@@ -4,9 +4,9 @@
     name: tls-test-instance
     state: absent
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_instance_tls_absent_state
 
 - name: Ensure incus instance is deleted (tls)
@@ -19,9 +19,9 @@
     name: tls-test-instance
     state: absent
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_instance_tls_absent_idempotent_state
 
 - name: Ensure incus instance deletion is idempotent (tls)
@@ -32,9 +32,9 @@
 - name: Ensure incus instance info after deletion (tls)
   damex.incus.incus_instance_info:
     url: https://127.0.0.1:8443
-    client_cert: /tmp/tls-client.crt
-    client_key: /tmp/tls-client.key
-    server_cert: /var/lib/incus/server.crt
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/server.crt
   register: incus_instance_tls_info_after_state
 
 - name: Ensure incus instance info after deletion (tls)

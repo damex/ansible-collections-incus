@@ -40,8 +40,8 @@ EXAMPLES = r"""
 - name: Ensure cluster member information is gathered from remote server
   damex.incus.incus_cluster_info:
     url: https://incus.example.com:8443
-    client_cert: /etc/incus/client.crt
-    client_key: /etc/incus/client.key
+    client_cert_path: /etc/incus/client.crt
+    client_key_path: /etc/incus/client.key
     name: node1
   register: result
 """

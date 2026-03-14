@@ -26,19 +26,34 @@ options:
     type: str
   client_cert:
     description:
-      - Path to the client certificate for remote authentication.
-      - Requires O(url) and O(client_key). Mutually exclusive with O(token).
-    type: path
+      - Client certificate content for remote authentication.
+      - Requires O(url) and O(client_key). Mutually exclusive with O(token) and O(client_cert_path).
+    type: str
   client_key:
     description:
-      - Path to the client key for remote authentication.
-      - Requires O(url) and O(client_cert).
-    type: path
+      - Client key content for remote authentication.
+      - Requires O(url) and O(client_cert). Mutually exclusive with O(client_key_path).
+    type: str
   server_cert:
     description:
+      - Server certificate content for remote verification.
+      - Requires O(url). Mutually exclusive with O(server_cert_path).
+    type: str
+  client_cert_path:
+    description:
+      - Path to the client certificate for remote authentication.
+      - Requires O(url) and O(client_key_path). Mutually exclusive with O(token) and O(client_cert).
+    type: str
+  client_key_path:
+    description:
+      - Path to the client key for remote authentication.
+      - Requires O(url) and O(client_cert_path). Mutually exclusive with O(client_key).
+    type: str
+  server_cert_path:
+    description:
       - Path to the server certificate for remote verification.
-      - Requires O(url).
-    type: path
+      - Requires O(url). Mutually exclusive with O(server_cert).
+    type: str
   token:
     description:
       - Token for remote authentication.
