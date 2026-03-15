@@ -1,0 +1,92 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus network address sets.
+    description:
+      - Ensure Incus network address sets.
+    examples: |
+      - name: Ensure incus network address sets
+        hosts: incus
+        tasks:
+          - name: Ensure incus network address sets
+            ansible.builtin.import_role:
+              name: damex.incus.incus_network_address_sets
+            vars:
+              incus_network_address_sets:
+                - name: web_servers
+                  description: Web server addresses
+                  addresses:
+                    - 10.0.0.5
+                    - 10.0.0.6
+                - name: dns_servers
+                  addresses:
+                    - 10.0.0.10
+                    - 2001:db8::1
+    options:
+      incus_network_address_sets:
+        description: List of Incus network address sets to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the network address set.
+            required: true
+            type: str
+          description:
+            description: Description of the network address set.
+            type: str
+          config:
+            description: Network address set configuration key-value pairs.
+            type: dict
+          addresses:
+            description: List of IPv4 or IPv6 addresses, with or without CIDR suffix.
+            type: list
+            elements: str
+          project:
+            description: Incus project for the network address set.
+            type: str
+          state:
+            description: Desired state of the network address set.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_network_address_sets_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_network_address_sets_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_network_address_sets_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_network_address_sets_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_network_address_sets_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_network_address_sets_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_network_address_sets_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_network_address_sets_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_network_address_sets_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_network_address_sets_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_network_address_sets_project:
+        description: Default Incus project for network address sets.
+        type: str
+      incus_network_address_sets_state:
+        description: Default desired state of the network address sets.
+        type: str
+        choices:
+          - present
+          - absent

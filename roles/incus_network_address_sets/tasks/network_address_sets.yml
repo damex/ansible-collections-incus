@@ -1,0 +1,22 @@
+---
+- name: Ensure incus network address sets
+  ansible.builtin.include_tasks: network_address_set.yml
+  vars:
+    incus_network_address_sets_network_address_set_name: "{{ incus_network_address_sets_network_address_set.name }}"
+    incus_network_address_sets_network_address_set_state: "{{ incus_network_address_sets_network_address_set.state | default(incus_network_address_sets_state) }}"
+    incus_network_address_sets_network_address_set_project: "{{ incus_network_address_sets_network_address_set.project | default(incus_network_address_sets_project) }}"
+    incus_network_address_sets_network_address_set_socket_path: "{{ incus_network_address_sets_socket_path }}"
+    incus_network_address_sets_network_address_set_url: "{{ incus_network_address_sets_url | default(omit) }}"
+    incus_network_address_sets_network_address_set_client_cert: "{{ incus_network_address_sets_client_cert | default(omit) }}"
+    incus_network_address_sets_network_address_set_client_key: "{{ incus_network_address_sets_client_key | default(omit) }}"
+    incus_network_address_sets_network_address_set_server_cert: "{{ incus_network_address_sets_server_cert | default(omit) }}"
+    incus_network_address_sets_network_address_set_client_cert_path: "{{ incus_network_address_sets_client_cert_path | default(omit) }}"
+    incus_network_address_sets_network_address_set_client_key_path: "{{ incus_network_address_sets_client_key_path | default(omit) }}"
+    incus_network_address_sets_network_address_set_server_cert_path: "{{ incus_network_address_sets_server_cert_path | default(omit) }}"
+    incus_network_address_sets_network_address_set_token: "{{ incus_network_address_sets_token | default(omit) }}"
+    incus_network_address_sets_network_address_set_validate_certs: "{{ incus_network_address_sets_validate_certs }}"
+  no_log: "{{ incus_network_address_sets_client_key is defined or incus_network_address_sets_token is defined }}"
+  loop: "{{ incus_network_address_sets }}"
+  loop_control:
+    label: "{{ incus_network_address_sets_network_address_set_name }}"
+    loop_var: incus_network_address_sets_network_address_set

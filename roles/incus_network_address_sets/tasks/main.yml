@@ -1,0 +1,10 @@
+---
+- name: Ensure incus network address sets
+  tags:
+    - incus
+    - incus_network_address_sets
+  block:
+    - name: Ensure incus network address sets facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus network address sets
+      ansible.builtin.import_tasks: network_address_sets.yml

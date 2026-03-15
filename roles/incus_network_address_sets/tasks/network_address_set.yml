@@ -1,0 +1,22 @@
+---
+- name: Ensure incus network address set {{ incus_network_address_sets_network_address_set_name }}
+  damex.incus.incus_network_address_set:
+    name: "{{ incus_network_address_sets_network_address_set_name }}"
+    state: "{{ incus_network_address_sets_network_address_set_state }}"
+    project: "{{ incus_network_address_sets_network_address_set_project }}"
+    description: "{{ incus_network_address_sets_network_address_set.description | default(omit) }}"
+    config: "{{ incus_network_address_sets_network_address_set.config | default(omit) }}"
+    addresses: "{{ incus_network_address_sets_network_address_set.addresses | default(omit) }}"
+    socket_path: "{{ incus_network_address_sets_network_address_set_socket_path }}"
+    url: "{{ incus_network_address_sets_network_address_set_url }}"
+    client_cert: "{{ incus_network_address_sets_network_address_set_client_cert }}"
+    client_key: "{{ incus_network_address_sets_network_address_set_client_key }}"
+    server_cert: "{{ incus_network_address_sets_network_address_set_server_cert }}"
+    client_cert_path: "{{ incus_network_address_sets_network_address_set_client_cert_path }}"
+    client_key_path: "{{ incus_network_address_sets_network_address_set_client_key_path }}"
+    server_cert_path: "{{ incus_network_address_sets_network_address_set_server_cert_path }}"
+    token: "{{ incus_network_address_sets_network_address_set_token }}"
+    validate_certs: "{{ incus_network_address_sets_network_address_set_validate_certs }}"
+  no_log: "{{ incus_network_address_sets_client_key is defined or incus_network_address_sets_token is defined }}"
+  become: true
+  when: incus_network_address_sets_cluster_info_state.cluster_members | length == 0 or 'database' in incus_network_address_sets_cluster_info_state.cluster_members | map(attribute='roles') | first
