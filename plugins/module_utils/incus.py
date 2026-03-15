@@ -27,6 +27,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
+    incus_common_stringify_value,
 )
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     CLOUD_INIT_ALL_KEYS,
@@ -58,6 +59,7 @@ __all__ = [
     'incus_ensure_resource',
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
+    'incus_common_stringify_value',
     'incus_find_certificate',
     'incus_resolve_image_alias',
     'incus_run_info_module',
@@ -446,15 +448,7 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
 
 def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Stringify config."""
-    result = {}
-    for k, v in (config or {}).items():
-        if v is None:
-            continue
-        if isinstance(v, bool):
-            result[k] = str(v).lower()
-        else:
-            result[k] = str(v)
-    return result
+    return {k: incus_common_stringify_value(v) for k, v in (config or {}).items() if v is not None}
 
 
 def _strip_none(data: Any) -> Any:
@@ -478,10 +472,8 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
                 cleaned = cloud_init_data_lists_to_dicts(cleaned)
             prefix = '#cloud-config\n' if key in CLOUD_INIT_USER_KEYS else ''
             result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)
-        elif isinstance(value, bool):
-            result[key] = str(value).lower()
         else:
-            result[key] = str(value)
+            result[key] = incus_common_stringify_value(value)
     return result
 
 

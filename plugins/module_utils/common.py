@@ -11,7 +11,15 @@ from typing import Any
 __all__ = [
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
+    'incus_common_stringify_value',
 ]
+
+
+def incus_common_stringify_value(value: Any) -> str:
+    """Stringify a value, converting bool to lowercase."""
+    if isinstance(value, bool):
+        return str(value).lower()
+    return str(value)
 
 
 def incus_common_named_list_to_dict(items: list[dict[str, Any]] | None) -> dict[str, Any]:
@@ -31,8 +39,5 @@ def incus_common_flatten_to_config(prefix: str, data: dict[str, dict[str, Any]])
     config: dict[str, str] = {}
     for name, properties in data.items():
         for key, value in properties.items():
-            if isinstance(value, bool):
-                config[f'{prefix}.{name}.{key}'] = str(value).lower()
-            else:
-                config[f'{prefix}.{name}.{key}'] = str(value)
+            config[f'{prefix}.{name}.{key}'] = incus_common_stringify_value(value)
     return config

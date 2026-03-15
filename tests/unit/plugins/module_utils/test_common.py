@@ -9,6 +9,7 @@ from __future__ import annotations
 from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
+    incus_common_stringify_value,
 )
 
 __all__ = [
@@ -22,6 +23,10 @@ __all__ = [
     'test_flatten_to_config_optional_fields',
     'test_flatten_to_config_bool_values',
     'test_flatten_to_config_empty_dict',
+    'test_stringify_value_bool_true',
+    'test_stringify_value_bool_false',
+    'test_stringify_value_string',
+    'test_stringify_value_int',
 ]
 
 
@@ -104,3 +109,23 @@ def test_flatten_to_config_bool_values() -> None:
 def test_flatten_to_config_empty_dict() -> None:
     """Return empty dict for empty input."""
     assert not incus_common_flatten_to_config('bgp.peers', {})
+
+
+def test_stringify_value_bool_true() -> None:
+    """Stringify True as lowercase."""
+    assert incus_common_stringify_value(True) == 'true'
+
+
+def test_stringify_value_bool_false() -> None:
+    """Stringify False as lowercase."""
+    assert incus_common_stringify_value(False) == 'false'
+
+
+def test_stringify_value_string() -> None:
+    """Preserve string values."""
+    assert incus_common_stringify_value('hello') == 'hello'
+
+
+def test_stringify_value_int() -> None:
+    """Stringify int values."""
+    assert incus_common_stringify_value(64601) == '64601'
