@@ -496,6 +496,7 @@ INCUS_KNOWN_REMOTES = {
     'images': ('https://images.linuxcontainers.org', 'simplestreams'),
     'ubuntu': ('https://cloud-images.ubuntu.com/releases', 'simplestreams'),
     'ubuntu-daily': ('https://cloud-images.ubuntu.com/daily', 'simplestreams'),
+    'docker': ('https://docker.io', 'oci'),
 }
 
 INCUS_SOURCE_ARGS = {
@@ -507,6 +508,7 @@ INCUS_SOURCE_ARGS = {
         'choices': [
             'simplestreams',
             'incus',
+            'oci',
         ],
     },
 }

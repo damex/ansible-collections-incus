@@ -50,6 +50,7 @@ __all__ = [
     'test_stringify_instance_config_cloud_init_mounts',
     'test_build_source_known_remote',
     'test_build_source_ubuntu_remote',
+    'test_build_source_docker_remote',
     'test_build_source_explicit_server',
     'test_build_source_local_alias',
     'test_build_source_unknown_remote_fails',
@@ -266,6 +267,16 @@ def test_build_source_ubuntu_remote() -> None:
     result = incus_build_source(module)
     assert result['alias'] == '24.04'
     assert result['server'] == 'https://cloud-images.ubuntu.com/releases'
+
+
+def test_build_source_docker_remote() -> None:
+    """Resolve docker remote with OCI protocol."""
+    module = MagicMock()
+    module.params = {'source': 'docker:library/nginx', 'source_server': None, 'source_protocol': None}
+    result = incus_build_source(module)
+    assert result['alias'] == 'library/nginx'
+    assert result['server'] == 'https://docker.io'
+    assert result['protocol'] == 'oci'
 
 
 def test_build_source_explicit_server() -> None:

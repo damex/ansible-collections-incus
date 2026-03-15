@@ -19,6 +19,8 @@ argument_specs:
                   alias: ubuntu2404
                   type: virtual-machine
                   auto_update: true
+                - source: docker:library/nginx
+                  alias: nginx
     options:
       incus_images:
         type: list
@@ -57,6 +59,7 @@ argument_specs:
             choices:
               - simplestreams
               - incus
+              - oci
           project:
             type: str
             description: Incus project to scope the image to.

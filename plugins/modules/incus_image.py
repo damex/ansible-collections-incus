@@ -17,6 +17,7 @@ description:
   - Copy, update, and delete Incus images via the Incus REST API.
   - Images are project-scoped resources identified by alias.
   - Copying from remote servers uses the C(remote:alias) format (e.g. C(images:debian/13)).
+  - Supports OCI registries such as Docker Hub using the C(docker:image) format.
 extends_documentation_fragment:
   - damex.incus.common
   - damex.incus.common.source
@@ -81,6 +82,18 @@ EXAMPLES = r"""
     alias: debian/13
     source: images:debian/13
     public: true
+
+- name: Ensure nginx OCI image from Docker Hub
+  damex.incus.incus_image:
+    alias: nginx
+    source: docker:library/nginx
+
+- name: Ensure image from custom OCI registry
+  damex.incus.incus_image:
+    alias: myapp
+    source: myapp/backend
+    source_server: https://ghcr.io
+    source_protocol: oci
 
 - name: Ensure image is absent
   damex.incus.incus_image:
