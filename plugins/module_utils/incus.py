@@ -568,6 +568,7 @@ def _build_create_data(
 def incus_ensure_resource(
     module: AnsibleModule, resource: str, desired: dict[str, Any],
     create_only_params: list[str] | None = None,
+    name_key: str = 'name',
 ) -> bool:
     """Ensure resource."""
     client = incus_create_client(module)
@@ -588,6 +589,8 @@ def incus_ensure_resource(
     if module.params['state'] == 'present':
         if not exists or (not target and current.get('status') == 'Pending'):
             create_data = _build_create_data(module, name, desired, create_only_params, require=not exists)
+            if name_key != 'name':
+                create_data[name_key] = create_data.pop('name')
             if not module.check_mode:
                 incus_wait(module, client, client.post(f'/1.0/{resource}{target_query}', create_data))
             return True
