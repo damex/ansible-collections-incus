@@ -276,6 +276,83 @@ options:
         description:
           - Comma-separated list of VLAN IDs to join for tagged traffic.
         type: str
+      bgp_peers:
+        description:
+          - List of BGP peers for OVN downstream networks.
+          - Each peer is converted to C(bgp.peers.<name>.<key>) config keys internally.
+          - Supported on bridge and physical network types used as OVN uplinks.
+        type: list
+        elements: dict
+        suboptions:
+          name:
+            description:
+              - Name identifier for the BGP peer.
+            type: str
+            required: true
+          address:
+            description:
+              - Peer address (IPv4 or IPv6).
+            type: str
+            required: true
+          asn:
+            description:
+              - Peer AS number.
+            type: int
+            required: true
+          holdtime:
+            description:
+              - Hold time in seconds for the BGP session.
+            type: int
+          password:
+            description:
+              - Password for the BGP session.
+            type: str
+      tunnels:
+        description:
+          - List of tunnels for bridge networks.
+          - Each tunnel is converted to C(tunnel.<name>.<key>) config keys internally.
+        type: list
+        elements: dict
+        suboptions:
+          name:
+            description:
+              - Name identifier for the tunnel.
+            type: str
+            required: true
+          protocol:
+            description:
+              - Tunneling protocol.
+            type: str
+            required: true
+            choices: [vxlan, gre]
+          local:
+            description:
+              - Local address for the tunnel.
+            type: str
+          remote:
+            description:
+              - Remote address for the tunnel.
+            type: str
+          group:
+            description:
+              - Multicast address for VXLAN tunnels.
+            type: str
+          id:
+            description:
+              - Tunnel ID for VXLAN tunnels.
+            type: int
+          port:
+            description:
+              - Destination UDP port for VXLAN tunnels.
+            type: int
+          interface:
+            description:
+              - Host interface to use for the tunnel.
+            type: str
+          ttl:
+            description:
+              - TTL for multicast routing topologies.
+            type: int
 """
 
 EXAMPLES = r"""
@@ -301,6 +378,35 @@ EXAMPLES = r"""
       ipv4.address: 10.0.0.1/24
       ipv4.nat: true
 
+- name: Ensure bridge network with BGP peers
+  damex.incus.incus_network:
+    name: bgpbr0
+    type: bridge
+    config:
+      ipv4.address: 10.12.102.1/24
+      ipv4.nat: false
+      bgp_peers:
+        - name: router
+          address: 10.12.101.1
+          asn: 64601
+        - name: backup
+          address: 10.12.101.2
+          asn: 64602
+          holdtime: 300
+
+- name: Ensure bridge network with VXLAN tunnel
+  damex.incus.incus_network:
+    name: multibr0
+    type: bridge
+    config:
+      ipv4.address: 10.0.0.1/24
+      tunnels:
+        - name: site2
+          protocol: vxlan
+          local: 192.168.1.1
+          remote: 192.168.1.2
+          id: 100
+
 - name: Ensure network is absent
   damex.incus.incus_network:
     name: incusbr0
@@ -310,11 +416,15 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
-    incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
+    incus_common_flatten_to_config,
+    incus_common_named_list_to_dict,
+    incus_common_stringify_dict,
     incus_run_write_module,
 )
 
@@ -413,6 +523,54 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
     'parent': {'type': 'str'},
     'vlan': {'type': 'int'},
     'vlan.tagged': {'type': 'str'},
+    'bgp_peers': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {
+                'type': 'str',
+                'required': True,
+            },
+            'address': {
+                'type': 'str',
+                'required': True,
+            },
+            'asn': {
+                'type': 'int',
+                'required': True,
+            },
+            'holdtime': {'type': 'int'},
+            'password': {
+                'type': 'str',
+                'no_log': True,
+            },
+        },
+    },
+    'tunnels': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {
+                'type': 'str',
+                'required': True,
+            },
+            'protocol': {
+                'type': 'str',
+                'required': True,
+                'choices': [
+                    'vxlan',
+                    'gre',
+                ],
+            },
+            'local': {'type': 'str'},
+            'remote': {'type': 'str'},
+            'group': {'type': 'str'},
+            'id': {'type': 'int'},
+            'port': {'type': 'int'},
+            'interface': {'type': 'str'},
+            'ttl': {'type': 'int'},
+        },
+    },
 }
 
 
@@ -439,7 +597,22 @@ def main() -> None:
         },
         'description': {'type': 'str', 'default': ''},
     })
-    desired = incus_build_desired(module)
+    config = module.params['config'] or {}
+    bgp_peers = config.get('bgp_peers')
+    tunnels = config.get('tunnels')
+    plain_config = {key: value for key, value in config.items() if key not in ('bgp_peers', 'tunnels')}
+    desired: dict[str, Any] = {
+        'description': module.params['description'],
+        'config': incus_common_stringify_dict(plain_config),
+    }
+    if bgp_peers:
+        desired['config'].update(
+            incus_common_flatten_to_config('bgp.peers', incus_common_named_list_to_dict(bgp_peers)),
+        )
+    if tunnels:
+        desired['config'].update(
+            incus_common_flatten_to_config('tunnel', incus_common_named_list_to_dict(tunnels)),
+        )
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'networks', desired, ['type']))
 
 

@@ -77,6 +77,7 @@ __all__ = [
     'test_resolve_image_alias_encodes_name',
 ]
 
+
 def test_stringify_instance_config_empty() -> None:
     """Return empty dict for empty input."""
     assert not incus_stringify_instance_config({})

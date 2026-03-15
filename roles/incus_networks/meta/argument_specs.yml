@@ -31,6 +31,25 @@ argument_specs:
                     - name: node2.example.com
                       config:
                         bridge.external_interfaces: enp4s0f0
+                - name: bgpbr0
+                  type: bridge
+                  config:
+                    ipv4.address: 10.12.102.1/24
+                    ipv4.nat: "false"
+                  bgp_peers:
+                    - name: router
+                      address: 10.12.101.1
+                      asn: 64601
+                - name: multibr0
+                  type: bridge
+                  config:
+                    ipv4.address: 10.0.0.1/24
+                    tunnels:
+                      - name: site2
+                        protocol: vxlan
+                        local: 192.168.1.1
+                        remote: 192.168.1.2
+                        id: 100
     options:
       incus_networks:
         description: List of networks to ensure.
@@ -266,6 +285,66 @@ argument_specs:
               vlan.tagged:
                 description: Comma-separated list of VLAN IDs to join for tagged traffic.
                 type: str
+              bgp_peers:
+                description: List of BGP peers for OVN downstream networks.
+                type: list
+                elements: dict
+                options:
+                  name:
+                    description: Name identifier for the BGP peer.
+                    required: true
+                    type: str
+                  address:
+                    description: IP address of the BGP peer.
+                    required: true
+                    type: str
+                  asn:
+                    description: Autonomous System Number of the BGP peer.
+                    required: true
+                    type: int
+                  holdtime:
+                    description: Hold time in seconds for the BGP session.
+                    type: int
+                  password:
+                    description: Password for the BGP session.
+                    type: str
+              tunnels:
+                description: List of tunnels for bridge networks.
+                type: list
+                elements: dict
+                options:
+                  name:
+                    description: Name identifier for the tunnel.
+                    required: true
+                    type: str
+                  protocol:
+                    description: Tunneling protocol.
+                    required: true
+                    type: str
+                    choices:
+                      - vxlan
+                      - gre
+                  local:
+                    description: Local address for the tunnel.
+                    type: str
+                  remote:
+                    description: Remote address for the tunnel.
+                    type: str
+                  group:
+                    description: Multicast address for VXLAN tunnels.
+                    type: str
+                  id:
+                    description: Tunnel ID for VXLAN tunnels.
+                    type: int
+                  port:
+                    description: Destination UDP port for VXLAN tunnels.
+                    type: int
+                  interface:
+                    description: Host interface to use for the tunnel.
+                    type: str
+                  ttl:
+                    description: TTL for multicast routing topologies.
+                    type: int
           state:
             description: Desired state of the network.
             type: str
