@@ -1,0 +1,198 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus network ACLs.
+    description:
+      - Ensure Incus network ACLs.
+    examples: |
+      - name: Ensure incus network acls
+        hosts: incus
+        tasks:
+          - name: Ensure incus network acls
+            ansible.builtin.import_role:
+              name: damex.incus.incus_network_acls
+            vars:
+              incus_network_acls:
+                - name: web
+                  description: Web server ACL
+                  ingress:
+                    - action: allow
+                      source: "@internal"
+                      protocol: tcp
+                      destination_port: "80,443"
+                      description: Allow HTTP and HTTPS
+                  egress:
+                    - action: allow
+                      destination: 8.8.8.8/32,8.8.4.4/32
+                      protocol: udp
+                      destination_port: "53"
+                      description: Allow DNS queries
+                - name: deny-all
+                  ingress:
+                    - action: drop
+                  egress:
+                    - action: drop
+    options:
+      incus_network_acls:
+        description: List of Incus network ACLs to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the network ACL.
+            required: true
+            type: str
+          description:
+            description: Description of the network ACL.
+            type: str
+          config:
+            description: ACL configuration key-value pairs (user.* keys only).
+            type: dict
+          ingress:
+            description: List of ingress (inbound) traffic rules.
+            type: list
+            elements: dict
+            options:
+              action:
+                description: Action to perform on rule match.
+                required: true
+                type: str
+                choices:
+                  - allow
+                  - allow-stateless
+                  - reject
+                  - drop
+              state:
+                description: State of the rule.
+                type: str
+                choices:
+                  - enabled
+                  - disabled
+                  - logged
+              description:
+                description: Description of the rule.
+                type: str
+              source:
+                description: Source address (CIDR, IP range, or selector).
+                type: str
+              destination:
+                description: Destination address (CIDR, IP range, or selector).
+                type: str
+              protocol:
+                description: Network protocol to match.
+                type: str
+                choices:
+                  - icmp4
+                  - icmp6
+                  - tcp
+                  - udp
+              source_port:
+                description: Source port or port range for TCP/UDP.
+                type: str
+              destination_port:
+                description: Destination port or port range for TCP/UDP.
+                type: str
+              icmp_type:
+                description: ICMP type number.
+                type: str
+              icmp_code:
+                description: ICMP code number.
+                type: str
+          egress:
+            description: List of egress (outbound) traffic rules.
+            type: list
+            elements: dict
+            options:
+              action:
+                description: Action to perform on rule match.
+                required: true
+                type: str
+                choices:
+                  - allow
+                  - allow-stateless
+                  - reject
+                  - drop
+              state:
+                description: State of the rule.
+                type: str
+                choices:
+                  - enabled
+                  - disabled
+                  - logged
+              description:
+                description: Description of the rule.
+                type: str
+              source:
+                description: Source address (CIDR, IP range, or selector).
+                type: str
+              destination:
+                description: Destination address (CIDR, IP range, or selector).
+                type: str
+              protocol:
+                description: Network protocol to match.
+                type: str
+                choices:
+                  - icmp4
+                  - icmp6
+                  - tcp
+                  - udp
+              source_port:
+                description: Source port or port range for TCP/UDP.
+                type: str
+              destination_port:
+                description: Destination port or port range for TCP/UDP.
+                type: str
+              icmp_type:
+                description: ICMP type number.
+                type: str
+              icmp_code:
+                description: ICMP code number.
+                type: str
+          project:
+            description: Incus project for the network ACL.
+            type: str
+          state:
+            description: Desired state of the network ACL.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_network_acls_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_network_acls_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_network_acls_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_network_acls_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_network_acls_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_network_acls_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_network_acls_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_network_acls_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_network_acls_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_network_acls_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_network_acls_project:
+        description: Default Incus project for network ACLs.
+        type: str
+      incus_network_acls_state:
+        description: Default desired state of the network ACLs.
+        type: str
+        choices:
+          - present
+          - absent

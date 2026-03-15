@@ -1,0 +1,6 @@
+---
+incus_network_acls: [] # noqa: var-naming[no-role-prefix]
+incus_network_acls_socket_path: /var/lib/incus/unix.socket
+incus_network_acls_validate_certs: true
+incus_network_acls_project: default
+incus_network_acls_state: present

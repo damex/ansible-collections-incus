@@ -1,0 +1,10 @@
+---
+- name: Ensure incus network acls
+  tags:
+    - incus
+    - incus_network_acls
+  block:
+    - name: Ensure incus network acls facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus network acls
+      ansible.builtin.import_tasks: network_acls.yml

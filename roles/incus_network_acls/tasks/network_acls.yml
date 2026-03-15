@@ -1,0 +1,22 @@
+---
+- name: Ensure incus network acls
+  ansible.builtin.include_tasks: network_acl.yml
+  vars:
+    incus_network_acls_network_acl_name: "{{ incus_network_acls_network_acl.name }}"
+    incus_network_acls_network_acl_state: "{{ incus_network_acls_network_acl.state | default(incus_network_acls_state) }}"
+    incus_network_acls_network_acl_project: "{{ incus_network_acls_network_acl.project | default(incus_network_acls_project) }}"
+    incus_network_acls_network_acl_socket_path: "{{ incus_network_acls_socket_path }}"
+    incus_network_acls_network_acl_url: "{{ incus_network_acls_url | default(omit) }}"
+    incus_network_acls_network_acl_client_cert: "{{ incus_network_acls_client_cert | default(omit) }}"
+    incus_network_acls_network_acl_client_key: "{{ incus_network_acls_client_key | default(omit) }}"
+    incus_network_acls_network_acl_server_cert: "{{ incus_network_acls_server_cert | default(omit) }}"
+    incus_network_acls_network_acl_client_cert_path: "{{ incus_network_acls_client_cert_path | default(omit) }}"
+    incus_network_acls_network_acl_client_key_path: "{{ incus_network_acls_client_key_path | default(omit) }}"
+    incus_network_acls_network_acl_server_cert_path: "{{ incus_network_acls_server_cert_path | default(omit) }}"
+    incus_network_acls_network_acl_token: "{{ incus_network_acls_token | default(omit) }}"
+    incus_network_acls_network_acl_validate_certs: "{{ incus_network_acls_validate_certs }}"
+  no_log: "{{ incus_network_acls_client_key is defined or incus_network_acls_token is defined }}"
+  loop: "{{ incus_network_acls }}"
+  loop_control:
+    label: "{{ incus_network_acls_network_acl_name }}"
+    loop_var: incus_network_acls_network_acl
