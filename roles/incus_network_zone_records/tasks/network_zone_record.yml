@@ -1,0 +1,23 @@
+---
+- name: Ensure incus network zone record {{ incus_network_zone_records_network_zone_record_name }}
+  damex.incus.incus_network_zone_record:
+    name: "{{ incus_network_zone_records_network_zone_record_name }}"
+    zone: "{{ incus_network_zone_records_network_zone_record_zone }}"
+    state: "{{ incus_network_zone_records_network_zone_record_state }}"
+    project: "{{ incus_network_zone_records_network_zone_record_project }}"
+    description: "{{ incus_network_zone_records_network_zone_record.description | default(omit) }}"
+    config: "{{ incus_network_zone_records_network_zone_record.config | default(omit) }}"
+    entries: "{{ incus_network_zone_records_network_zone_record.entries | default(omit) }}"
+    socket_path: "{{ incus_network_zone_records_network_zone_record_socket_path }}"
+    url: "{{ incus_network_zone_records_network_zone_record_url }}"
+    client_cert: "{{ incus_network_zone_records_network_zone_record_client_cert }}"
+    client_key: "{{ incus_network_zone_records_network_zone_record_client_key }}"
+    server_cert: "{{ incus_network_zone_records_network_zone_record_server_cert }}"
+    client_cert_path: "{{ incus_network_zone_records_network_zone_record_client_cert_path }}"
+    client_key_path: "{{ incus_network_zone_records_network_zone_record_client_key_path }}"
+    server_cert_path: "{{ incus_network_zone_records_network_zone_record_server_cert_path }}"
+    token: "{{ incus_network_zone_records_network_zone_record_token }}"
+    validate_certs: "{{ incus_network_zone_records_network_zone_record_validate_certs }}"
+  no_log: "{{ incus_network_zone_records_client_key is defined or incus_network_zone_records_token is defined }}"
+  become: true
+  when: incus_network_zone_records_cluster_info_state.cluster_members | length == 0 or 'database' in incus_network_zone_records_cluster_info_state.cluster_members | map(attribute='roles') | first

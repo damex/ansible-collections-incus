@@ -1,0 +1,21 @@
+---
+- name: Ensure incus network zone {{ incus_network_zones_network_zone_name }}
+  damex.incus.incus_network_zone:
+    name: "{{ incus_network_zones_network_zone_name }}"
+    state: "{{ incus_network_zones_network_zone_state }}"
+    project: "{{ incus_network_zones_network_zone_project }}"
+    description: "{{ incus_network_zones_network_zone.description | default(omit) }}"
+    config: "{{ incus_network_zones_network_zone.config | default(omit) }}"
+    socket_path: "{{ incus_network_zones_network_zone_socket_path }}"
+    url: "{{ incus_network_zones_network_zone_url }}"
+    client_cert: "{{ incus_network_zones_network_zone_client_cert }}"
+    client_key: "{{ incus_network_zones_network_zone_client_key }}"
+    server_cert: "{{ incus_network_zones_network_zone_server_cert }}"
+    client_cert_path: "{{ incus_network_zones_network_zone_client_cert_path }}"
+    client_key_path: "{{ incus_network_zones_network_zone_client_key_path }}"
+    server_cert_path: "{{ incus_network_zones_network_zone_server_cert_path }}"
+    token: "{{ incus_network_zones_network_zone_token }}"
+    validate_certs: "{{ incus_network_zones_network_zone_validate_certs }}"
+  no_log: "{{ incus_network_zones_client_key is defined or incus_network_zones_token is defined }}"
+  become: true
+  when: incus_network_zones_cluster_info_state.cluster_members | length == 0 or 'database' in incus_network_zones_cluster_info_state.cluster_members | map(attribute='roles') | first

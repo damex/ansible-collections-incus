@@ -1,0 +1,10 @@
+---
+- name: Ensure incus network zone records
+  tags:
+    - incus
+    - incus_network_zone_records
+  block:
+    - name: Ensure incus network zone records facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus network zone records
+      ansible.builtin.import_tasks: network_zone_records.yml

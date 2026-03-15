@@ -1,0 +1,113 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus network zone records.
+    description:
+      - Ensure Incus network zone records.
+    examples: |
+      - name: Ensure incus network zone records
+        hosts: incus
+        tasks:
+          - name: Ensure incus network zone records
+            ansible.builtin.import_role:
+              name: damex.incus.incus_network_zone_records
+            vars:
+              incus_network_zone_records_zone: example.com
+              incus_network_zone_records:
+                - name: web
+                  description: Web server records
+                  entries:
+                    - type: A
+                      value: 10.0.0.5
+                    - type: AAAA
+                      value: fd42::5
+                - name: mail
+                  entries:
+                    - type: A
+                      value: 10.0.0.10
+    options:
+      incus_network_zone_records:
+        description: List of Incus network zone records to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the network zone record.
+            required: true
+            type: str
+          zone:
+            description: Name of the network zone containing the record.
+            type: str
+          description:
+            description: Description of the network zone record.
+            type: str
+          config:
+            description: Network zone record configuration key-value pairs.
+            type: dict
+          entries:
+            description: List of DNS entries for the record.
+            type: list
+            elements: dict
+            options:
+              type:
+                description: DNS record type (A, AAAA, CNAME, etc.).
+                required: true
+                type: str
+              value:
+                description: DNS record value.
+                required: true
+                type: str
+              ttl:
+                description: Time to live in seconds.
+                type: int
+          project:
+            description: Incus project for the network zone record.
+            type: str
+          state:
+            description: Desired state of the network zone record.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_network_zone_records_zone:
+        description: Default network zone for network zone records.
+        type: str
+      incus_network_zone_records_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_network_zone_records_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_network_zone_records_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_network_zone_records_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_network_zone_records_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_network_zone_records_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_network_zone_records_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_network_zone_records_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_network_zone_records_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_network_zone_records_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_network_zone_records_project:
+        description: Default Incus project for network zone records.
+        type: str
+      incus_network_zone_records_state:
+        description: Default desired state of the network zone records.
+        type: str
+        choices:
+          - present
+          - absent

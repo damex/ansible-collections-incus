@@ -1,0 +1,23 @@
+---
+- name: Ensure incus network zone records
+  ansible.builtin.include_tasks: network_zone_record.yml
+  vars:
+    incus_network_zone_records_network_zone_record_name: "{{ incus_network_zone_records_network_zone_record.name }}"
+    incus_network_zone_records_network_zone_record_state: "{{ incus_network_zone_records_network_zone_record.state | default(incus_network_zone_records_state) }}"
+    incus_network_zone_records_network_zone_record_project: "{{ incus_network_zone_records_network_zone_record.project | default(incus_network_zone_records_project) }}"
+    incus_network_zone_records_network_zone_record_zone: "{{ incus_network_zone_records_network_zone_record.zone | default(incus_network_zone_records_zone) }}"
+    incus_network_zone_records_network_zone_record_socket_path: "{{ incus_network_zone_records_socket_path }}"
+    incus_network_zone_records_network_zone_record_url: "{{ incus_network_zone_records_url | default(omit) }}"
+    incus_network_zone_records_network_zone_record_client_cert: "{{ incus_network_zone_records_client_cert | default(omit) }}"
+    incus_network_zone_records_network_zone_record_client_key: "{{ incus_network_zone_records_client_key | default(omit) }}"
+    incus_network_zone_records_network_zone_record_server_cert: "{{ incus_network_zone_records_server_cert | default(omit) }}"
+    incus_network_zone_records_network_zone_record_client_cert_path: "{{ incus_network_zone_records_client_cert_path | default(omit) }}"
+    incus_network_zone_records_network_zone_record_client_key_path: "{{ incus_network_zone_records_client_key_path | default(omit) }}"
+    incus_network_zone_records_network_zone_record_server_cert_path: "{{ incus_network_zone_records_server_cert_path | default(omit) }}"
+    incus_network_zone_records_network_zone_record_token: "{{ incus_network_zone_records_token | default(omit) }}"
+    incus_network_zone_records_network_zone_record_validate_certs: "{{ incus_network_zone_records_validate_certs }}"
+  no_log: "{{ incus_network_zone_records_client_key is defined or incus_network_zone_records_token is defined }}"
+  loop: "{{ incus_network_zone_records }}"
+  loop_control:
+    label: "{{ incus_network_zone_records_network_zone_record_name }}"
+    loop_var: incus_network_zone_records_network_zone_record

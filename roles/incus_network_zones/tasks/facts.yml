@@ -1,0 +1,17 @@
+---
+- name: Ensure incus network zones cluster facts
+  damex.incus.incus_cluster_info:
+    name: "{{ inventory_hostname }}"
+    socket_path: "{{ incus_network_zones_socket_path }}"
+    url: "{{ incus_network_zones_url | default(omit) }}"
+    client_cert: "{{ incus_network_zones_client_cert | default(omit) }}"
+    client_key: "{{ incus_network_zones_client_key | default(omit) }}"
+    server_cert: "{{ incus_network_zones_server_cert | default(omit) }}"
+    client_cert_path: "{{ incus_network_zones_client_cert_path | default(omit) }}"
+    client_key_path: "{{ incus_network_zones_client_key_path | default(omit) }}"
+    server_cert_path: "{{ incus_network_zones_server_cert_path | default(omit) }}"
+    token: "{{ incus_network_zones_token | default(omit) }}"
+    validate_certs: "{{ incus_network_zones_validate_certs }}"
+  no_log: "{{ incus_network_zones_client_key is defined or incus_network_zones_token is defined }}"
+  register: incus_network_zones_cluster_info_state
+  become: true

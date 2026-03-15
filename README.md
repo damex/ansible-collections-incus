@@ -25,6 +25,10 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_network_forward` | Ensure Incus network forward |
 | `incus_network_forward_info` | Ensure Incus network forward information is gathered |
 | `incus_network_info` | Ensure Incus network information is gathered |
+| `incus_network_zone` | Ensure Incus network zone |
+| `incus_network_zone_info` | Ensure Incus network zone information is gathered |
+| `incus_network_zone_record` | Ensure Incus network zone record |
+| `incus_network_zone_record_info` | Ensure Incus network zone record information is gathered |
 | `incus_profile` | Ensure Incus profile |
 | `incus_profile_info` | Ensure Incus profile information is gathered |
 | `incus_project` | Ensure Incus project |
@@ -49,6 +53,8 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_network_acls` | Ensure Incus network ACLs |
 | `incus_network_address_sets` | Ensure Incus network address sets |
 | `incus_network_forwards` | Ensure Incus network forwards |
+| `incus_network_zone_records` | Ensure Incus network zone records |
+| `incus_network_zones` | Ensure Incus network zones |
 | `incus_networks` | Ensure Incus networks |
 | `incus_profiles` | Ensure Incus profiles |
 | `incus_projects` | Ensure Incus projects |

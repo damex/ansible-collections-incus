@@ -1,0 +1,84 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus network zones.
+    description:
+      - Ensure Incus network zones.
+    examples: |
+      - name: Ensure incus network zones
+        hosts: incus
+        tasks:
+          - name: Ensure incus network zones
+            ansible.builtin.import_role:
+              name: damex.incus.incus_network_zones
+            vars:
+              incus_network_zones:
+                - name: example.com
+                  description: Forward DNS zone
+                - name: internal.lan
+                  config:
+                    user.note: Internal zone
+    options:
+      incus_network_zones:
+        description: List of Incus network zones to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the network zone.
+            required: true
+            type: str
+          description:
+            description: Description of the network zone.
+            type: str
+          config:
+            description: Zone configuration key-value pairs (user.* keys only).
+            type: dict
+          project:
+            description: Incus project for the network zone.
+            type: str
+          state:
+            description: Desired state of the network zone.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_network_zones_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_network_zones_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_network_zones_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_network_zones_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_network_zones_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_network_zones_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_network_zones_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_network_zones_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_network_zones_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_network_zones_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_network_zones_project:
+        description: Default Incus project for network zones.
+        type: str
+      incus_network_zones_state:
+        description: Default desired state of the network zones.
+        type: str
+        choices:
+          - present
+          - absent

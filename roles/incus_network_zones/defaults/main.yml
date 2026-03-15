@@ -1,0 +1,6 @@
+---
+incus_network_zones: [] # noqa: var-naming[no-role-prefix]
+incus_network_zones_socket_path: /var/lib/incus/unix.socket
+incus_network_zones_validate_certs: true
+incus_network_zones_project: default
+incus_network_zones_state: present
