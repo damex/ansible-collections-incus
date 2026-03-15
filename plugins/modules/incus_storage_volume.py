@@ -155,13 +155,11 @@ RETURN = r"""
 from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    IncusNotFoundException,
-    incus_build_query,
-    incus_create_client,
+    INCUS_COMMON_ARGUMENT_SPEC,
+    incus_build_desired,
     incus_create_write_module,
+    incus_ensure_resource,
     incus_run_write_module,
-    incus_common_stringify_dict,
-    incus_wait,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -183,16 +181,8 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
 def main() -> None:
     """Run module."""
     module = incus_create_write_module({
+        **INCUS_COMMON_ARGUMENT_SPEC,
         'pool': {'type': 'str', 'required': True},
-        'name': {'type': 'str', 'required': True},
-        'state': {
-            'type': 'str',
-            'default': 'present',
-            'choices': [
-                'present',
-                'absent',
-            ],
-        },
         'project': {'type': 'str', 'default': 'default'},
         'target': {'type': 'str'},
         'content_type': {
@@ -206,56 +196,10 @@ def main() -> None:
         'description': {'type': 'str', 'default': ''},
         'config': {'type': 'dict', 'default': {}, 'options': INCUS_STORAGE_VOLUME_CONFIG_OPTIONS},
     })
-
-    def _ensure_volume() -> bool:
-        client = incus_create_client(module)
-        pool = module.params['pool']
-        name = module.params['name']
-        project = module.params['project']
-        target = module.params.get('target')
-        encoded_pool = quote(pool, safe='')
-        encoded_name = quote(name, safe='')
-        base_query = incus_build_query(project=project)
-        target_query = incus_build_query(project=project, target=target)
-        base_path = f'/1.0/storage-pools/{encoded_pool}/volumes/custom'
-
-        desired = {
-            'description': module.params['description'],
-            'config': incus_common_stringify_dict(module.params['config']),
-        }
-
-        try:
-            current = client.get(f'{base_path}/{encoded_name}{target_query}').get('metadata') or {}
-            exists = True
-        except IncusNotFoundException:
-            current = {}
-            exists = False
-
-        if module.params['state'] == 'present':
-            if not exists:
-                data = {
-                    'name': name,
-                    'content_type': module.params['content_type'],
-                    **desired,
-                }
-                if not module.check_mode:
-                    incus_wait(module, client, client.post(f'{base_path}{target_query}', data))
-                return True
-            if target:
-                return False
-            if all(key in current and current[key] == value for key, value in desired.items()):
-                return False
-            if not module.check_mode:
-                incus_wait(module, client, client.put(f'{base_path}/{encoded_name}{base_query}', desired))
-            return True
-
-        if exists:
-            if not module.check_mode:
-                incus_wait(module, client, client.delete(f'{base_path}/{encoded_name}{base_query}'))
-            return True
-        return False
-
-    incus_run_write_module(module, _ensure_volume)
+    encoded_pool = quote(module.params['pool'], safe='')
+    resource = f'storage-pools/{encoded_pool}/volumes/custom'
+    desired = incus_build_desired(module)
+    incus_run_write_module(module, lambda: incus_ensure_resource(module, resource, desired, ['content_type']))
 
 
 if __name__ == '__main__':
