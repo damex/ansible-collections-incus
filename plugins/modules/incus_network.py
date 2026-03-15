@@ -416,15 +416,13 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from typing import Any
-
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
-    incus_common_stringify_dict,
     incus_run_write_module,
 )
 
@@ -600,11 +598,8 @@ def main() -> None:
     config = module.params['config'] or {}
     bgp_peers = config.get('bgp_peers')
     tunnels = config.get('tunnels')
-    plain_config = {key: value for key, value in config.items() if key not in ('bgp_peers', 'tunnels')}
-    desired: dict[str, Any] = {
-        'description': module.params['description'],
-        'config': incus_common_stringify_dict(plain_config),
-    }
+    module.params['config'] = {key: value for key, value in config.items() if key not in ('bgp_peers', 'tunnels')}
+    desired = incus_build_desired(module)
     if bgp_peers:
         desired['config'].update(
             incus_common_flatten_to_config('bgp.peers', incus_common_named_list_to_dict(bgp_peers)),
