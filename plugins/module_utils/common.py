@@ -12,6 +12,7 @@ __all__ = [
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
     'incus_common_stringify_value',
+    'incus_common_stringify_dict',
     'incus_common_strip_none',
 ]
 
@@ -21,6 +22,11 @@ def incus_common_stringify_value(value: Any) -> str:
     if isinstance(value, bool):
         return str(value).lower()
     return str(value)
+
+
+def incus_common_stringify_dict(data: dict[str, Any] | None) -> dict[str, str]:
+    """Stringify dict values, converting bools to lowercase and skipping None."""
+    return {key: incus_common_stringify_value(value) for key, value in (data or {}).items() if value is not None}
 
 
 def incus_common_named_list_to_dict(items: list[dict[str, Any]] | None) -> dict[str, Any]:

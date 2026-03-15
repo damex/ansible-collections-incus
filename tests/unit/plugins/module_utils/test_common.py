@@ -9,6 +9,7 @@ from __future__ import annotations
 from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
+    incus_common_stringify_dict,
     incus_common_stringify_value,
     incus_common_strip_none,
 )
@@ -28,6 +29,14 @@ __all__ = [
     'test_stringify_value_bool_false',
     'test_stringify_value_string',
     'test_stringify_value_int',
+    'test_stringify_dict_empty',
+    'test_stringify_dict_none',
+    'test_stringify_dict_string_values',
+    'test_stringify_dict_int_values',
+    'test_stringify_dict_bool_true',
+    'test_stringify_dict_bool_false',
+    'test_stringify_dict_mixed',
+    'test_stringify_dict_skips_none_values',
     'test_strip_none_dict',
     'test_strip_none_list',
     'test_strip_none_nested',
@@ -134,6 +143,60 @@ def test_stringify_value_string() -> None:
 def test_stringify_value_int() -> None:
     """Stringify int values."""
     assert incus_common_stringify_value(64601) == '64601'
+
+
+def test_stringify_dict_empty() -> None:
+    """Return empty dict for empty input."""
+    assert not incus_common_stringify_dict({})
+
+
+def test_stringify_dict_none() -> None:
+    """Return empty dict for None."""
+    assert not incus_common_stringify_dict(None)
+
+
+def test_stringify_dict_string_values() -> None:
+    """Preserve string values."""
+    assert incus_common_stringify_dict({'limits.cpu': '2'}) == {'limits.cpu': '2'}
+
+
+def test_stringify_dict_int_values() -> None:
+    """Stringify int values."""
+    assert incus_common_stringify_dict({'limits.cpu': 4}) == {'limits.cpu': '4'}
+
+
+def test_stringify_dict_bool_true() -> None:
+    """Stringify True to 'true'."""
+    assert incus_common_stringify_dict({'boot.autostart': True}) == {'boot.autostart': 'true'}
+
+
+def test_stringify_dict_bool_false() -> None:
+    """Stringify False to 'false'."""
+    assert incus_common_stringify_dict({'boot.autostart': False}) == {'boot.autostart': 'false'}
+
+
+def test_stringify_dict_mixed() -> None:
+    """Stringify mixed types."""
+    result = incus_common_stringify_dict({
+        'limits.cpu': 2,
+        'limits.memory': '4GiB',
+        'boot.autostart': True,
+    })
+    assert result == {
+        'limits.cpu': '2',
+        'limits.memory': '4GiB',
+        'boot.autostart': 'true',
+    }
+
+
+def test_stringify_dict_skips_none_values() -> None:
+    """Skip None values from unset options."""
+    result = incus_common_stringify_dict({
+        'limits.cpu': '2',
+        'boot.autostart': None,
+        'limits.memory': None,
+    })
+    assert result == {'limits.cpu': '2'}
 
 
 def test_strip_none_dict() -> None:

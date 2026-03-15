@@ -160,7 +160,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_client,
     incus_create_write_module,
     incus_run_write_module,
-    incus_stringify_config,
+    incus_common_stringify_dict,
     incus_wait,
 )
 
@@ -221,7 +221,7 @@ def main() -> None:
 
         desired = {
             'description': module.params['description'],
-            'config': incus_stringify_config(module.params['config']),
+            'config': incus_common_stringify_dict(module.params['config']),
         }
 
         try:

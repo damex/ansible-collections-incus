@@ -27,6 +27,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
+    incus_common_stringify_dict,
     incus_common_stringify_value,
     incus_common_strip_none,
 )
@@ -60,13 +61,13 @@ __all__ = [
     'incus_ensure_resource',
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
+    'incus_common_stringify_dict',
     'incus_common_stringify_value',
     'incus_common_strip_none',
     'incus_find_certificate',
     'incus_resolve_image_alias',
     'incus_run_info_module',
     'incus_run_write_module',
-    'incus_stringify_config',
     'incus_stringify_instance_config',
     'incus_wait',
 ]
@@ -448,11 +449,6 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
     ))
 
 
-def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
-    """Stringify config."""
-    return {k: incus_common_stringify_value(v) for k, v in (config or {}).items() if v is not None}
-
-
 def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Stringify config with cloud-init YAML."""
     result = {}
@@ -476,7 +472,7 @@ def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
     desired: dict[str, Any] = {
         'description': module.params['description'],
         'config': incus_stringify_instance_config(module.params['config']) if has_devices
-        else incus_stringify_config(module.params['config']),
+        else incus_common_stringify_dict(module.params['config']),
     }
     if has_devices:
         desired['devices'] = devices_to_api(module.params['devices'])

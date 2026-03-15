@@ -20,21 +20,12 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_resolve_image_alias,
     incus_run_info_module,
     incus_run_write_module,
-    incus_stringify_config,
     incus_stringify_instance_config,
     incus_wait,
 )
 from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS
 
 __all__ = [
-    'test_stringify_config_empty',
-    'test_stringify_config_none',
-    'test_stringify_config_string_values',
-    'test_stringify_config_int_values',
-    'test_stringify_config_bool_true',
-    'test_stringify_config_bool_false',
-    'test_stringify_config_mixed',
-    'test_stringify_config_skips_none_values',
     'test_stringify_instance_config_empty',
     'test_stringify_instance_config_none',
     'test_stringify_instance_config_string_values',
@@ -85,61 +76,6 @@ __all__ = [
     'test_resolve_image_alias_not_found',
     'test_resolve_image_alias_encodes_name',
 ]
-
-
-def test_stringify_config_empty() -> None:
-    """Return empty dict for empty input."""
-    assert not incus_stringify_config({})
-
-
-def test_stringify_config_none() -> None:
-    """Return empty dict for None."""
-    assert not incus_stringify_config(None)
-
-
-def test_stringify_config_string_values() -> None:
-    """Preserve string values."""
-    assert incus_stringify_config({'limits.cpu': '2'}) == {'limits.cpu': '2'}
-
-
-def test_stringify_config_int_values() -> None:
-    """Stringify int values."""
-    assert incus_stringify_config({'limits.cpu': 4}) == {'limits.cpu': '4'}
-
-
-def test_stringify_config_bool_true() -> None:
-    """Stringify True to 'true'."""
-    assert incus_stringify_config({'boot.autostart': True}) == {'boot.autostart': 'true'}
-
-
-def test_stringify_config_bool_false() -> None:
-    """Stringify False to 'false'."""
-    assert incus_stringify_config({'boot.autostart': False}) == {'boot.autostart': 'false'}
-
-
-def test_stringify_config_mixed() -> None:
-    """Stringify mixed types."""
-    result = incus_stringify_config({
-        'limits.cpu': 2,
-        'limits.memory': '4GiB',
-        'boot.autostart': True,
-    })
-    assert result == {
-        'limits.cpu': '2',
-        'limits.memory': '4GiB',
-        'boot.autostart': 'true',
-    }
-
-
-def test_stringify_config_skips_none_values() -> None:
-    """Skip None values from unset options."""
-    result = incus_stringify_config({
-        'limits.cpu': '2',
-        'boot.autostart': None,
-        'limits.memory': None,
-    })
-    assert result == {'limits.cpu': '2'}
-
 
 def test_stringify_instance_config_empty() -> None:
     """Return empty dict for empty input."""
