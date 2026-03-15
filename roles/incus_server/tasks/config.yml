@@ -1,8 +1,16 @@
 ---
 - name: Ensure incus server config
-  ansible.builtin.command:
-    cmd: incus config edit
-    stdin: "{{ {'config': incus_server_preseed.config} | to_nice_yaml }}"
+  damex.incus.incus_server:
+    config: "{{ incus_server_config }}"
+    socket_path: "{{ incus_server_socket_path }}"
+    url: "{{ incus_server_url | default(omit) }}"
+    client_cert: "{{ incus_server_client_cert | default(omit) }}"
+    client_key: "{{ incus_server_client_key | default(omit) }}"
+    server_cert: "{{ incus_server_server_cert | default(omit) }}"
+    client_cert_path: "{{ incus_server_client_cert_path | default(omit) }}"
+    client_key_path: "{{ incus_server_client_key_path | default(omit) }}"
+    server_cert_path: "{{ incus_server_server_cert_path | default(omit) }}"
+    token: "{{ incus_server_token | default(omit) }}"
+    validate_certs: "{{ incus_server_validate_certs }}"
+  no_log: "{{ incus_server_client_key is defined or incus_server_token is defined or 'openfga.api.token' in incus_server_config }}"
   become: true
-  changed_when: false
-  no_log: "{{ 'openfga.api.token' in incus_server_preseed.config }}"
