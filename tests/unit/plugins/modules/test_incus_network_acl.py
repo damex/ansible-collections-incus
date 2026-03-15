@@ -133,14 +133,6 @@ def test_skip_matching_network_acl_with_rules() -> None:
             {
                 'action': 'drop',
                 'state': 'enabled',
-                'description': '',
-                'source': '',
-                'destination': '',
-                'protocol': '',
-                'source_port': '',
-                'destination_port': '',
-                'icmp_type': '',
-                'icmp_code': '',
             },
         ],
         'egress': [],
@@ -263,6 +255,6 @@ def test_rules_normalized_with_defaults() -> None:
     post_data = client.post.call_args[0][1]
     rule = post_data['egress'][0]
     assert rule['state'] == 'enabled'
-    assert not rule['description']
-    assert not rule['source']
-    assert not rule['protocol']
+    assert 'description' not in rule
+    assert 'source' not in rule
+    assert 'protocol' not in rule

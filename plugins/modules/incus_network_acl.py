@@ -286,17 +286,17 @@ def _normalize_rules(rules: list[dict[str, Any]] | None) -> list[dict[str, Any]]
     for rule in (rules or []):
         entry: dict[str, Any] = {'action': rule['action']}
         for field in _RULE_FIELDS:
-            entry[field] = rule.get(field) or (
-                'enabled' if field == 'state' else ''
-            )
+            value = rule.get(field) or ('enabled' if field == 'state' else '')
+            if value:
+                entry[field] = value
         normalized.append(entry)
     normalized.sort(key=lambda r: (
         _ACTION_ORDER.get(r['action'], 99),
-        r['source'],
-        r['destination'],
-        r['protocol'],
-        r['source_port'],
-        r['destination_port'],
+        r.get('source', ''),
+        r.get('destination', ''),
+        r.get('protocol', ''),
+        r.get('source_port', ''),
+        r.get('destination_port', ''),
     ))
     return normalized
 
