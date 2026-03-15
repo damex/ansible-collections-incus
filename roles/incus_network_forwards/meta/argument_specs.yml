@@ -1,0 +1,130 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus network forwards.
+    description:
+      - Ensure Incus network forwards.
+    examples: |
+      - name: Ensure incus network forwards
+        hosts: incus
+        tasks:
+          - name: Ensure incus network forwards
+            ansible.builtin.import_role:
+              name: damex.incus.incus_network_forwards
+            vars:
+              incus_network_forwards_network: incusbr0
+              incus_network_forwards:
+                - name: 192.168.1.100
+                  description: Web server forward
+                  config:
+                    target_address: 10.0.0.5
+                  ports:
+                    - protocol: tcp
+                      listen_port: 80,443
+                      target_address: 10.0.0.5
+                - name: 192.168.1.101
+                  config:
+                    target_address: 10.0.0.10
+    options:
+      incus_network_forwards:
+        description: List of Incus network forwards to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Listen address of the network forward.
+            required: true
+            type: str
+          network:
+            description: Name of the network containing the forward.
+            type: str
+          description:
+            description: Description of the network forward.
+            type: str
+          config:
+            description: Network forward configuration key-value pairs.
+            type: dict
+            options:
+              target_address:
+                description: Default target address for traffic not matching any port rule.
+                type: str
+          ports:
+            description: List of port forwarding rules.
+            type: list
+            elements: dict
+            options:
+              protocol:
+                description: Network protocol to forward.
+                required: true
+                type: str
+                choices:
+                  - tcp
+                  - udp
+              listen_port:
+                description: Port or port range to listen on.
+                required: true
+                type: str
+              target_address:
+                description: Target address to forward traffic to.
+                required: true
+                type: str
+              target_port:
+                description: Target port or port range.
+                type: str
+              description:
+                description: Description of the port rule.
+                type: str
+              snat:
+                description: Whether to rewrite traffic source address.
+                type: bool
+          project:
+            description: Incus project for the network forward.
+            type: str
+          state:
+            description: Desired state of the network forward.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_network_forwards_network:
+        description: Default network for network forwards.
+        type: str
+      incus_network_forwards_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_network_forwards_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_network_forwards_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_network_forwards_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_network_forwards_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_network_forwards_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_network_forwards_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_network_forwards_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_network_forwards_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_network_forwards_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_network_forwards_project:
+        description: Default Incus project for network forwards.
+        type: str
+      incus_network_forwards_state:
+        description: Default desired state of the network forwards.
+        type: str
+        choices:
+          - present
+          - absent

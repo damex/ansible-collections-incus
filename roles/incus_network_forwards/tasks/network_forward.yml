@@ -1,0 +1,23 @@
+---
+- name: Ensure incus network forward {{ incus_network_forwards_network_forward_name }}
+  damex.incus.incus_network_forward:
+    name: "{{ incus_network_forwards_network_forward_name }}"
+    network: "{{ incus_network_forwards_network_forward_network }}"
+    state: "{{ incus_network_forwards_network_forward_state }}"
+    project: "{{ incus_network_forwards_network_forward_project }}"
+    description: "{{ incus_network_forwards_network_forward.description | default(omit) }}"
+    config: "{{ incus_network_forwards_network_forward.config | default(omit) }}"
+    ports: "{{ incus_network_forwards_network_forward.ports | default(omit) }}"
+    socket_path: "{{ incus_network_forwards_network_forward_socket_path }}"
+    url: "{{ incus_network_forwards_network_forward_url }}"
+    client_cert: "{{ incus_network_forwards_network_forward_client_cert }}"
+    client_key: "{{ incus_network_forwards_network_forward_client_key }}"
+    server_cert: "{{ incus_network_forwards_network_forward_server_cert }}"
+    client_cert_path: "{{ incus_network_forwards_network_forward_client_cert_path }}"
+    client_key_path: "{{ incus_network_forwards_network_forward_client_key_path }}"
+    server_cert_path: "{{ incus_network_forwards_network_forward_server_cert_path }}"
+    token: "{{ incus_network_forwards_network_forward_token }}"
+    validate_certs: "{{ incus_network_forwards_network_forward_validate_certs }}"
+  no_log: "{{ incus_network_forwards_client_key is defined or incus_network_forwards_token is defined }}"
+  become: true
+  when: incus_network_forwards_cluster_info_state.cluster_members | length == 0 or 'database' in incus_network_forwards_cluster_info_state.cluster_members | map(attribute='roles') | first

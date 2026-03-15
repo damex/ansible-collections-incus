@@ -1,0 +1,10 @@
+---
+- name: Ensure incus network forwards
+  tags:
+    - incus
+    - incus_network_forwards
+  block:
+    - name: Ensure incus network forwards facts
+      ansible.builtin.import_tasks: facts.yml
+    - name: Ensure incus network forwards
+      ansible.builtin.import_tasks: network_forwards.yml

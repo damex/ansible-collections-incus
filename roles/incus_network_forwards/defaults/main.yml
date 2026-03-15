@@ -1,0 +1,6 @@
+---
+incus_network_forwards: [] # noqa: var-naming[no-role-prefix]
+incus_network_forwards_socket_path: /var/lib/incus/unix.socket
+incus_network_forwards_validate_certs: true
+incus_network_forwards_project: default
+incus_network_forwards_state: present
