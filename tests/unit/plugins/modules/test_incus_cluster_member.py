@@ -93,16 +93,24 @@ def test_create_check_mode() -> None:
     client.post.assert_not_called()
 
 
+MULTI_NODE = {'metadata': ['/1.0/cluster/members/node1', '/1.0/cluster/members/node2']}
+MEMBER_DEFAULT = {
+    'description': '',
+    'config': {},
+    'roles': [],
+    'groups': [],
+    'failure_domain': '',
+}
+
+
 def test_skip_matching_member() -> None:
     """Skip update when member already matches."""
     module = _mock_module()
     client = MagicMock()
-    client.get.return_value = {
-        'metadata': {
-            'description': '',
-            'config': {},
-        },
-    }
+    client.get.side_effect = [
+        {'metadata': MEMBER_DEFAULT},
+        MULTI_NODE,
+    ]
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=False)
     client.put.assert_not_called()
@@ -113,12 +121,10 @@ def test_update_member_description() -> None:
     module = _mock_module()
     module.params['description'] = 'Primary node'
     client = MagicMock()
-    client.get.return_value = {
-        'metadata': {
-            'description': '',
-            'config': {},
-        },
-    }
+    client.get.side_effect = [
+        {'metadata': MEMBER_DEFAULT},
+        MULTI_NODE,
+    ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
@@ -132,12 +138,10 @@ def test_update_member_config() -> None:
     module = _mock_module()
     module.params['config'] = {'scheduler.instance': 'manual'}
     client = MagicMock()
-    client.get.return_value = {
-        'metadata': {
-            'description': '',
-            'config': {'scheduler.instance': 'all'},
-        },
-    }
+    client.get.side_effect = [
+        {'metadata': {**MEMBER_DEFAULT, 'config': {'scheduler.instance': 'all'}}},
+        MULTI_NODE,
+    ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
@@ -148,20 +152,18 @@ def test_update_member_config() -> None:
 def test_update_member_roles() -> None:
     """Update member roles."""
     module = _mock_module()
-    module.params['roles'] = ['database']
+    module.params['roles'] = ['event-hub']
     client = MagicMock()
-    client.get.return_value = {
-        'metadata': {
-            'description': '',
-            'config': {},
-            'roles': [],
-        },
-    }
+    client.get.side_effect = [
+        {'metadata': {**MEMBER_DEFAULT, 'roles': ['database']}},
+        MULTI_NODE,
+    ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     put_data = client.put.call_args[0][1]
-    assert put_data['roles'] == ['database']
+    assert 'database' in put_data['roles']
+    assert 'event-hub' in put_data['roles']
 
 
 def test_delete_existing_member() -> None:

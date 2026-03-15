@@ -1,0 +1,99 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus cluster members.
+    description:
+      - Ensure Incus cluster members.
+    examples: |
+      - name: Ensure incus cluster members
+        hosts: incus
+        tasks:
+          - name: Ensure incus cluster members
+            ansible.builtin.import_role:
+              name: damex.incus.incus_cluster_members
+            vars:
+              incus_cluster_members:
+                - name: node1
+                  description: Primary node
+                  config:
+                    scheduler.instance: all
+                - name: node2
+                  config:
+                    scheduler.instance: manual
+    options:
+      incus_cluster_members:
+        description: List of Incus cluster members to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the cluster member.
+            required: true
+            type: str
+          description:
+            description: Description of the cluster member.
+            type: str
+          config:
+            description: Cluster member configuration key-value pairs.
+            type: dict
+            options:
+              scheduler.instance:
+                description: Controls how instances are scheduled to run on this member.
+                type: str
+                choices:
+                  - all
+                  - manual
+                  - group
+          roles:
+            description: List of roles assigned to the cluster member.
+            type: list
+            elements: str
+          groups:
+            description: List of cluster groups for the member.
+            type: list
+            elements: str
+          failure_domain:
+            description: Failure domain of the cluster member.
+            type: str
+          state:
+            description: Desired state of the cluster member.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_cluster_members_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_cluster_members_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_cluster_members_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_cluster_members_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_cluster_members_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_cluster_members_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_cluster_members_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_cluster_members_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_cluster_members_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_cluster_members_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_cluster_members_state:
+        description: Default desired state of the cluster members.
+        type: str
+        choices:
+          - present
+          - absent

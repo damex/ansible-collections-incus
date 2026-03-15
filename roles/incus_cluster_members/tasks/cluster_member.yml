@@ -1,0 +1,23 @@
+---
+- name: Ensure incus cluster member {{ incus_cluster_members_cluster_member_name }}
+  damex.incus.incus_cluster_member:
+    name: "{{ incus_cluster_members_cluster_member_name }}"
+    state: "{{ incus_cluster_members_cluster_member_state }}"
+    description: "{{ incus_cluster_members_cluster_member.description | default(omit) }}"
+    config: "{{ incus_cluster_members_cluster_member.config | default(omit) }}"
+    roles: "{{ incus_cluster_members_cluster_member.roles | default(omit) }}"
+    groups: "{{ incus_cluster_members_cluster_member.groups | default(omit) }}"
+    failure_domain: "{{ incus_cluster_members_cluster_member.failure_domain | default(omit) }}"
+    socket_path: "{{ incus_cluster_members_cluster_member_socket_path }}"
+    url: "{{ incus_cluster_members_cluster_member_url }}"
+    client_cert: "{{ incus_cluster_members_cluster_member_client_cert }}"
+    client_key: "{{ incus_cluster_members_cluster_member_client_key }}"
+    server_cert: "{{ incus_cluster_members_cluster_member_server_cert }}"
+    client_cert_path: "{{ incus_cluster_members_cluster_member_client_cert_path }}"
+    client_key_path: "{{ incus_cluster_members_cluster_member_client_key_path }}"
+    server_cert_path: "{{ incus_cluster_members_cluster_member_server_cert_path }}"
+    token: "{{ incus_cluster_members_cluster_member_token }}"
+    validate_certs: "{{ incus_cluster_members_cluster_member_validate_certs }}"
+  no_log: "{{ incus_cluster_members_client_key is defined or incus_cluster_members_token is defined }}"
+  become: true
+  when: incus_cluster_members_cluster_info_state.cluster_members | length == 0 or 'database' in incus_cluster_members_cluster_info_state.cluster_members | map(attribute='roles') | first

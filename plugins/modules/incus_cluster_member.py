@@ -128,6 +128,12 @@ from ansible_collections.damex.incus.plugins.module_utils.common import (
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
+_IMMUTABLE_ROLES = frozenset({
+    'database',
+    'database-leader',
+    'database-standby',
+})
+
 INCUS_CLUSTER_MEMBER_CONFIG_OPTIONS = {
     'scheduler.instance': {
         'type': 'str',
@@ -166,27 +172,34 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
                 'join_fingerprint': metadata.get('fingerprint', ''),
                 'join_addresses': metadata.get('addresses', []),
             }
+        # incus rejects PUT on single-node clusters due to database-client role validation bug
+        members = client.get('/1.0/cluster/members').get('metadata') or []
         desired: dict[str, Any] = {
             'description': module.params['description'],
             'config': incus_common_stringify_dict(module.params['config'] or {}),
+            'roles': sorted(current.get('roles', [])),
+            'groups': sorted(current.get('groups', [])),
+            'failure_domain': current.get('failure_domain', ''),
         }
-        roles = module.params.get('roles')
-        if roles is not None:
-            desired['roles'] = sorted(roles)
-        groups = module.params.get('groups')
-        if groups is not None:
-            desired['groups'] = sorted(groups)
-        failure_domain = module.params.get('failure_domain')
-        if failure_domain is not None:
-            desired['failure_domain'] = failure_domain
-        if all(k in current and current[k] == v for k, v in desired.items()):
-            return {'changed': False}
-        if not module.check_mode:
+        # user-specified roles merged with immutable ones incus manages
+        if module.params.get('roles') is not None:
+            current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
+            desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
+        # override current groups only when explicitly set
+        if module.params.get('groups') is not None:
+            desired['groups'] = sorted(module.params['groups'])
+        # override current failure domain only when explicitly set
+        if module.params.get('failure_domain') is not None:
+            desired['failure_domain'] = module.params['failure_domain']
+        changed = len(members) > 1 and not all(
+            k in current and current[k] == v for k, v in desired.items()
+        )
+        if changed and not module.check_mode:
             incus_wait(module, client, client.put(
                 f'/1.0/cluster/members/{encoded_name}',
                 desired,
             ))
-        return {'changed': True}
+        return {'changed': changed}
 
     if exists:
         if not module.check_mode:

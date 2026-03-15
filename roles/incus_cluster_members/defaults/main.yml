@@ -1,0 +1,5 @@
+---
+incus_cluster_members: [] # noqa: var-naming[no-role-prefix]
+incus_cluster_members_socket_path: /var/lib/incus/unix.socket
+incus_cluster_members_validate_certs: true
+incus_cluster_members_state: present
