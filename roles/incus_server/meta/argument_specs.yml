@@ -48,6 +48,28 @@ argument_specs:
       incus_server_force:
         type: bool
         description: Force preseed application even when configuration has not changed.
+      incus_server_cluster:
+        type: dict
+        description: Cluster configuration for preseed initialization.
+        options:
+          enabled:
+            type: bool
+            description: Whether clustering is enabled.
+          server_name:
+            type: str
+            description: Name of the cluster member.
+          server_address:
+            type: str
+            description: Address of the cluster member for cluster communication.
+          cluster_address:
+            type: str
+            description: Address of an existing cluster member to join.
+          cluster_certificate:
+            type: str
+            description: Expected cluster certificate in X509 PEM format.
+          cluster_token:
+            type: str
+            description: Join token for the target cluster.
       incus_server_config:
         required: true
         type: dict
