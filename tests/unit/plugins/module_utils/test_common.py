@@ -10,6 +10,7 @@ from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
     incus_common_stringify_value,
+    incus_common_strip_none,
 )
 
 __all__ = [
@@ -27,6 +28,10 @@ __all__ = [
     'test_stringify_value_bool_false',
     'test_stringify_value_string',
     'test_stringify_value_int',
+    'test_strip_none_dict',
+    'test_strip_none_list',
+    'test_strip_none_nested',
+    'test_strip_none_scalar',
 ]
 
 
@@ -129,3 +134,24 @@ def test_stringify_value_string() -> None:
 def test_stringify_value_int() -> None:
     """Stringify int values."""
     assert incus_common_stringify_value(64601) == '64601'
+
+
+def test_strip_none_dict() -> None:
+    """Remove None values from dict."""
+    assert incus_common_strip_none({'a': 1, 'b': None, 'c': 3}) == {'a': 1, 'c': 3}
+
+
+def test_strip_none_list() -> None:
+    """Remove None values from list."""
+    assert incus_common_strip_none([1, None, 3]) == [1, 3]
+
+
+def test_strip_none_nested() -> None:
+    """Remove None values recursively."""
+    data = {'a': {'b': None, 'c': 2}, 'd': [None, {'e': None, 'f': 1}]}
+    assert incus_common_strip_none(data) == {'a': {'c': 2}, 'd': [{'f': 1}]}
+
+
+def test_strip_none_scalar() -> None:
+    """Return scalar values unchanged."""
+    assert incus_common_strip_none('hello') == 'hello'

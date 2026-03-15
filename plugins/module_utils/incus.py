@@ -28,6 +28,7 @@ from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
     incus_common_stringify_value,
+    incus_common_strip_none,
 )
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     CLOUD_INIT_ALL_KEYS,
@@ -60,6 +61,7 @@ __all__ = [
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
     'incus_common_stringify_value',
+    'incus_common_strip_none',
     'incus_find_certificate',
     'incus_resolve_image_alias',
     'incus_run_info_module',
@@ -451,15 +453,6 @@ def incus_stringify_config(config: dict[str, Any] | None) -> dict[str, str]:
     return {k: incus_common_stringify_value(v) for k, v in (config or {}).items() if v is not None}
 
 
-def _strip_none(data: Any) -> Any:
-    """Strip None values recursively."""
-    if isinstance(data, dict):
-        return {key: _strip_none(value) for key, value in data.items() if value is not None}
-    if isinstance(data, list):
-        return [_strip_none(item) for item in data if item is not None]
-    return data
-
-
 def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
     """Stringify config with cloud-init YAML."""
     result = {}
@@ -467,7 +460,7 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
         if value is None:
             continue
         if isinstance(value, (dict, list)):
-            cleaned = _strip_none(value)
+            cleaned = incus_common_strip_none(value)
             if isinstance(cleaned, dict) and key in CLOUD_INIT_ALL_KEYS:
                 cleaned = cloud_init_data_lists_to_dicts(cleaned)
             prefix = '#cloud-config\n' if key in CLOUD_INIT_USER_KEYS else ''

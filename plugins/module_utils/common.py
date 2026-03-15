@@ -12,6 +12,7 @@ __all__ = [
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
     'incus_common_stringify_value',
+    'incus_common_strip_none',
 ]
 
 
@@ -41,3 +42,12 @@ def incus_common_flatten_to_config(prefix: str, data: dict[str, dict[str, Any]])
         for key, value in properties.items():
             config[f'{prefix}.{name}.{key}'] = incus_common_stringify_value(value)
     return config
+
+
+def incus_common_strip_none(data: Any) -> Any:
+    """Strip None values recursively."""
+    if isinstance(data, dict):
+        return {key: incus_common_strip_none(value) for key, value in data.items() if value is not None}
+    if isinstance(data, list):
+        return [incus_common_strip_none(item) for item in data if item is not None]
+    return data
