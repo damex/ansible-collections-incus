@@ -12,6 +12,8 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_certificate` | Ensure Incus certificate |
 | `incus_certificate_info` | Ensure Incus certificate information is gathered |
 | `incus_cluster_info` | Ensure Incus cluster information is gathered |
+| `incus_cluster_member` | Ensure Incus cluster member |
+| `incus_cluster_member_info` | Ensure Incus cluster member information is gathered |
 | `incus_image` | Ensure Incus image |
 | `incus_image_import` | Ensure Incus image from file or URL |
 | `incus_image_info` | Ensure Incus image information is gathered |
@@ -33,6 +35,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_profile_info` | Ensure Incus profile information is gathered |
 | `incus_project` | Ensure Incus project |
 | `incus_project_info` | Ensure Incus project information is gathered |
+| `incus_server` | Ensure Incus server configuration |
 | `incus_server_info` | Ensure Incus server information is gathered |
 | `incus_storage` | Ensure Incus storage |
 | `incus_storage_info` | Ensure Incus storage information is gathered |
@@ -47,6 +50,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_certificates` | Ensure Incus certificates |
 | `incus_client` | Ensure Incus client |
 | `incus_cluster` | Ensure Incus cluster |
+| `incus_cluster_members` | Ensure Incus cluster members |
 | `incus_image_imports` | Ensure Incus image imports |
 | `incus_images` | Ensure Incus images |
 | `incus_instances` | Ensure Incus instances |
