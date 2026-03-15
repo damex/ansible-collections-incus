@@ -11,7 +11,11 @@ from unittest.mock import MagicMock
 import pytest
 
 from ansible_collections.damex.incus.plugins.modules.incus_certificate import main
-from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS, run_module_main, assert_module_update
+from ansible_collections.damex.incus.tests.unit.conftest import (
+    CONNECTION_PARAMS,
+    assert_write_update,
+    run_module_main,
+)
 
 __all__ = [
     'test_create_certificate',
@@ -91,7 +95,7 @@ def test_update_restricted() -> None:
     module = _mock_module()
     module.params['restricted'] = True
     module.params['projects'] = ['default']
-    put_data = assert_module_update(main, MODULE, module, [{'metadata': [EXISTING_CERT]}])
+    put_data = assert_write_update(main, MODULE, module, [{'metadata': [EXISTING_CERT]}])
     assert put_data['restricted'] is True
     assert put_data['projects'] == ['default']
 
@@ -101,7 +105,7 @@ def test_update_projects() -> None:
     module = _mock_module()
     module.params['projects'] = ['staging']
     current = {**EXISTING_CERT, 'projects': ['default']}
-    assert_module_update(main, MODULE, module, [{'metadata': [current]}])
+    assert_write_update(main, MODULE, module, [{'metadata': [current]}])
 
 
 def test_delete_existing_certificate() -> None:

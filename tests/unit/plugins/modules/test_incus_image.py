@@ -12,11 +12,11 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import IncusNotF
 from ansible_collections.damex.incus.plugins.modules.incus_image import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_write_check_mode,
+    assert_write_delete_missing,
+    assert_write_fail_create,
+    assert_write_update,
     run_module_main,
-    assert_module_delete_missing,
-    assert_module_check_mode_create,
-    assert_module_fail_missing,
-    assert_module_update,
 )
 
 __all__ = [
@@ -79,7 +79,7 @@ def test_present_alias_exists_update_auto_update() -> None:
         'auto_update': False, 'public': False,
         'properties': {'os': 'debian'}, 'expires_at': '2030-01-01T00:00:00Z',
     }
-    put_data = assert_module_update(main, MODULE, module, [
+    put_data = assert_write_update(main, MODULE, module, [
         {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
         {'metadata': image_metadata},
     ])
@@ -93,7 +93,7 @@ def test_present_alias_exists_update_public() -> None:
     """Update public on existing image."""
     module = _mock_module()
     module.params['public'] = True
-    put_data = assert_module_update(main, MODULE, module, [
+    put_data = assert_write_update(main, MODULE, module, [
         {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
     ])
@@ -143,12 +143,12 @@ def test_present_copy_aliases() -> None:
 
 def test_present_missing_source() -> None:
     """Fail when source missing on create."""
-    assert_module_fail_missing(main, MODULE, _mock_module(source=None))
+    assert_write_fail_create(main, MODULE, _mock_module(source=None))
 
 
 def test_present_check_mode() -> None:
     """Skip post in check mode."""
-    assert_module_check_mode_create(main, MODULE, _mock_module(check_mode=True))
+    assert_write_check_mode(main, MODULE, _mock_module(check_mode=True))
 
 
 def test_absent_delete_by_fingerprint() -> None:
@@ -165,7 +165,7 @@ def test_absent_delete_by_fingerprint() -> None:
 
 def test_absent_alias_not_found() -> None:
     """Skip delete for missing alias."""
-    assert_module_delete_missing(main, MODULE, _mock_module(state='absent'))
+    assert_write_delete_missing(main, MODULE, _mock_module(state='absent'))
 
 
 def test_absent_check_mode() -> None:

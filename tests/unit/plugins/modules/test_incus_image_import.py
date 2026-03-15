@@ -12,10 +12,10 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import IncusNotF
 from ansible_collections.damex.incus.plugins.modules.incus_image_import import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_write_check_mode,
+    assert_write_delete_missing,
+    assert_write_fail_create,
     run_module_main,
-    assert_module_delete_missing,
-    assert_module_check_mode_create,
-    assert_module_fail_missing,
 )
 
 __all__ = [
@@ -124,12 +124,12 @@ def test_present_import_with_aliases(mock_shutil: MagicMock, mock_tempfile: Magi
 
 def test_present_missing_source() -> None:
     """Fail when source missing on create."""
-    assert_module_fail_missing(main, MODULE, _mock_module(source=None))
+    assert_write_fail_create(main, MODULE, _mock_module(source=None))
 
 
 def test_present_check_mode() -> None:
     """Skip all operations in check mode."""
-    assert_module_check_mode_create(main, MODULE, _mock_module(check_mode=True))
+    assert_write_check_mode(main, MODULE, _mock_module(check_mode=True))
 
 
 @patch(f'{MODULE}._incus_image_import_prepare', return_value='/tmp/image.tar.gz')
@@ -183,7 +183,7 @@ def test_absent_delete_by_fingerprint() -> None:
 
 def test_absent_alias_not_found() -> None:
     """Skip delete for missing alias."""
-    assert_module_delete_missing(main, MODULE, _mock_module(state='absent'))
+    assert_write_delete_missing(main, MODULE, _mock_module(state='absent'))
 
 
 def test_absent_check_mode() -> None:

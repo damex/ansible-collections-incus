@@ -23,11 +23,11 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_get_not_found,
     assert_crud,
     assert_crud_skip,
+    assert_write_check_mode,
+    assert_write_delete,
+    assert_write_delete_missing,
+    assert_write_fail_create,
     run_module_main,
-    assert_module_delete,
-    assert_module_delete_missing,
-    assert_module_check_mode_create,
-    assert_module_fail_missing,
 )
 
 __all__ = [
@@ -199,12 +199,13 @@ def test_main_create_and_start() -> None:
 
 def test_main_delete_existing() -> None:
     """Delete existing instance."""
-    assert_module_delete(main, MODULE, _mock_module(state='absent'), {'name': 'test', 'status': 'Running'})
+    assert_write_delete(main, MODULE, _mock_module(state='absent'),
+                        {'name': 'test', 'status': 'Running'})
 
 
 def test_main_delete_nonexistent() -> None:
     """Skip delete for missing instance."""
-    assert_module_delete_missing(main, MODULE, _mock_module(state='absent'))
+    assert_write_delete_missing(main, MODULE, _mock_module(state='absent'))
 
 
 def test_main_update_changed_config() -> None:
@@ -250,12 +251,12 @@ def test_main_filter_volatile_config() -> None:
 
 def test_main_fail_missing_source() -> None:
     """Fail when source missing on create."""
-    assert_module_fail_missing(main, MODULE, _mock_module(source=None))
+    assert_write_fail_create(main, MODULE, _mock_module(source=None))
 
 
 def test_main_check_mode_create() -> None:
     """Skip API calls in check mode."""
-    assert_module_check_mode_create(main, MODULE, _mock_module(check_mode=True))
+    assert_write_check_mode(main, MODULE, _mock_module(check_mode=True))
 
 
 def test_main_start_stopped_existing() -> None:

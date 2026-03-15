@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import collections.abc
+from contextlib import contextmanager
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -35,13 +36,8 @@ __all__ = [
     'assert_write_delete',
     'assert_write_delete_missing',
     'assert_write_check_mode',
+    'assert_write_fail_create',
     'run_module_main',
-    'assert_module_create',
-    'assert_module_delete',
-    'assert_module_delete_missing',
-    'assert_module_check_mode_create',
-    'assert_module_fail_missing',
-    'assert_module_update',
 ]
 
 CONNECTION_PARAMS: dict[str, Any] = {
@@ -59,6 +55,17 @@ CONNECTION_PARAMS: dict[str, Any] = {
 }
 
 INCUS_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.incus'
+
+
+@contextmanager
+def _write_patches(
+    module_path: str, module: MagicMock, client: MagicMock,
+) -> collections.abc.Generator[None, None, None]:
+    """Patch write module factory and client at both import sites."""
+    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
+         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client), \
+         patch(f'{module_path}.incus_create_client', return_value=client, create=True):
+        yield
 
 
 def assert_get_found(
@@ -196,8 +203,7 @@ def assert_write_create(
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=True)
     client.post.assert_called_once()
@@ -211,38 +217,43 @@ def assert_write_skip(
     """Call write main with matching resource and assert no change."""
     client = MagicMock()
     client.get.return_value = {'metadata': current}
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=False)
 
 
 def assert_write_update(
     main_func: collections.abc.Callable[[], None], module_path: str,
-    module: MagicMock, current: dict[str, Any],
-) -> None:
+    module: MagicMock, current: dict[str, Any] | list[dict[str, Any]],
+) -> dict[str, Any]:
     """Call write main with changed resource and assert updated."""
     client = MagicMock()
-    client.get.return_value = {'metadata': current}
+    if isinstance(current, list):
+        client.get.side_effect = current
+    else:
+        client.get.return_value = {'metadata': current}
     client.put.return_value = {'type': 'sync'}
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=True)
+    client.put.assert_called_once()
+    put_data: dict[str, Any] = client.put.call_args[0][1]
+    return put_data
 
 
 def assert_write_delete(
-    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
-) -> None:
+    main_func: collections.abc.Callable[[], None], module_path: str,
+    module: MagicMock, current: dict[str, Any] | None = None,
+) -> MagicMock:
     """Call write main and assert resource deleted."""
     client = MagicMock()
-    client.get.return_value = {'metadata': {'description': '', 'config': {}}}
+    client.get.return_value = {'metadata': current or {'description': '', 'config': {}}}
     client.delete.return_value = {'type': 'sync'}
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=True)
     client.delete.assert_called_once()
+    return client
 
 
 def assert_write_delete_missing(
@@ -251,8 +262,7 @@ def assert_write_delete_missing(
     """Call write main and assert skip for missing resource."""
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=False)
 
@@ -263,91 +273,29 @@ def assert_write_check_mode(
     """Call write main in check mode and assert no API calls."""
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
+    with _write_patches(module_path, module, client):
         main_func()
     module.exit_json.assert_called_once_with(changed=True)
     client.post.assert_not_called()
+
+
+def assert_write_fail_create(
+    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
+) -> None:
+    """Call write main and assert fail_json for missing required param."""
+    module.fail_json.side_effect = SystemExit(1)
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    with pytest.raises(SystemExit):
+        with _write_patches(module_path, module, client):
+            main_func()
+    module.fail_json.assert_called_once()
 
 
 def run_module_main(
     module_path: str, module: MagicMock, client: MagicMock,
     main_func: collections.abc.Callable[[], None],
 ) -> None:
-    """Patch module-level factories and run main."""
-    with patch(f'{module_path}.incus_create_write_module', return_value=module), \
-         patch(f'{module_path}.incus_create_client', return_value=client):
+    """Patch write module factory and client, then run main."""
+    with _write_patches(module_path, module, client):
         main_func()
-
-
-def assert_module_create(
-    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
-) -> MagicMock:
-    """Call module main with not-found resource and assert created."""
-    client = MagicMock()
-    client.get.side_effect = IncusNotFoundException('not found')
-    client.post.return_value = {'type': 'sync'}
-    run_module_main(module_path, module, client, main_func)
-    client.post.assert_called_once()
-    return client
-
-
-def assert_module_delete(
-    main_func: collections.abc.Callable[[], None], module_path: str,
-    module: MagicMock, current: dict[str, Any],
-) -> None:
-    """Call module main and assert resource deleted."""
-    client = MagicMock()
-    client.get.return_value = {'metadata': current}
-    client.delete.return_value = {'type': 'sync'}
-    run_module_main(module_path, module, client, main_func)
-    module.exit_json.assert_called_once_with(changed=True)
-    client.delete.assert_called_once()
-
-
-def assert_module_delete_missing(
-    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
-) -> None:
-    """Call module main and assert skip for missing resource."""
-    client = MagicMock()
-    client.get.side_effect = IncusNotFoundException('not found')
-    run_module_main(module_path, module, client, main_func)
-    module.exit_json.assert_called_once_with(changed=False)
-
-
-def assert_module_check_mode_create(
-    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
-) -> None:
-    """Call module main in check mode and assert no API calls."""
-    client = MagicMock()
-    client.get.side_effect = IncusNotFoundException('not found')
-    run_module_main(module_path, module, client, main_func)
-    assert module.exit_json.call_args[1]['changed'] is True
-    client.post.assert_not_called()
-
-
-def assert_module_fail_missing(
-    main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
-) -> None:
-    """Call module main and assert fail_json for missing required param."""
-    module.fail_json.side_effect = SystemExit(1)
-    client = MagicMock()
-    client.get.side_effect = IncusNotFoundException('not found')
-    with pytest.raises(SystemExit):
-        run_module_main(module_path, module, client, main_func)
-    module.fail_json.assert_called_once()
-
-
-def assert_module_update(
-    main_func: collections.abc.Callable[[], None], module_path: str,
-    module: MagicMock, get_responses: list[dict[str, Any]],
-) -> dict[str, Any]:
-    """Call module main with existing resource and assert PUT update."""
-    client = MagicMock()
-    client.get.side_effect = get_responses
-    client.put.return_value = {'type': 'sync'}
-    run_module_main(module_path, module, client, main_func)
-    module.exit_json.assert_called_once_with(changed=True)
-    client.put.assert_called_once()
-    put_data: dict[str, Any] = client.put.call_args[0][1]
-    return put_data
