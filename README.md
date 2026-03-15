@@ -18,6 +18,12 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_instance` | Ensure Incus instance |
 | `incus_instance_info` | Ensure Incus instance information is gathered |
 | `incus_network` | Ensure Incus network |
+| `incus_network_acl` | Ensure Incus network ACL |
+| `incus_network_acl_info` | Ensure Incus network ACL information is gathered |
+| `incus_network_address_set` | Ensure Incus network address set |
+| `incus_network_address_set_info` | Ensure Incus network address set information is gathered |
+| `incus_network_forward` | Ensure Incus network forward |
+| `incus_network_forward_info` | Ensure Incus network forward information is gathered |
 | `incus_network_info` | Ensure Incus network information is gathered |
 | `incus_profile` | Ensure Incus profile |
 | `incus_profile_info` | Ensure Incus profile information is gathered |
@@ -40,6 +46,9 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 | `incus_image_imports` | Ensure Incus image imports |
 | `incus_images` | Ensure Incus images |
 | `incus_instances` | Ensure Incus instances |
+| `incus_network_acls` | Ensure Incus network ACLs |
+| `incus_network_address_sets` | Ensure Incus network address sets |
+| `incus_network_forwards` | Ensure Incus network forwards |
 | `incus_networks` | Ensure Incus networks |
 | `incus_profiles` | Ensure Incus profiles |
 | `incus_projects` | Ensure Incus projects |
