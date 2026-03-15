@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible_collections.damex.incus.plugins.module_utils.common import incus_common_named_list_to_dict
+
 __all__ = [
     'CLOUD_INIT_ALL_KEYS',
     'CLOUD_INIT_CONFIG_OPTIONS',
@@ -15,7 +17,6 @@ __all__ = [
     'CLOUD_INIT_USER_KEYS',
     'cloud_init_data_lists_to_dicts',
     'cloud_init_interface_options',
-    'cloud_init_named_list_to_dict',
     'cloud_init_named_list_to_scalar_dict',
 ]
 
@@ -457,18 +458,6 @@ CLOUD_INIT_CONFIG_OPTIONS: dict[str, Any] = {
 }
 
 
-def cloud_init_named_list_to_dict(items: list[dict[str, Any]]) -> dict[str, Any]:
-    """Transform list of named dicts to dict keyed by name."""
-    return {
-        item['name']: {
-            key: value
-            for key, value in item.items()
-            if key != 'name'
-        }
-        for item in items
-    }
-
-
 def cloud_init_named_list_to_scalar_dict(items: list[dict[str, Any]]) -> dict[str, Any]:
     """Transform list of name/value pairs to dict."""
     return {item['name']: item.get('value', item.get('selection', '')) for item in items}
@@ -480,7 +469,7 @@ def cloud_init_data_lists_to_dicts(data: Any) -> Any:
         result: dict[str, Any] = {}
         for key, value in data.items():
             if key in CLOUD_INIT_NAMED_DICT_KEYS and isinstance(value, list):
-                result[key] = cloud_init_named_list_to_dict(value)
+                result[key] = incus_common_named_list_to_dict(value)
             elif key in CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(value, list):
                 result[key] = cloud_init_named_list_to_scalar_dict(value)
             else:

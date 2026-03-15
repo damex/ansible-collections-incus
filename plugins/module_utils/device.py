@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible_collections.damex.incus.plugins.module_utils.common import incus_common_named_list_to_dict
+
 __all__ = [
     'INCUS_DEVICE_OPTIONS',
     'devices_to_api',
@@ -149,16 +151,10 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
 
 def devices_to_api(devices: list[dict[str, Any]] | None) -> dict[str, dict[str, str]]:
     """Convert list of devices to Incus API dict format keyed by device name."""
-    api_devices: dict[str, dict[str, str]] = {}
-    for device in (devices or []):
-        device_name: str = device['name']
-        device_config: dict[str, str] = {}
-        for k, v in device.items():
-            if k == 'name' or v is None:
-                continue
-            if isinstance(v, bool):
-                device_config[k] = str(v).lower()
-            else:
-                device_config[k] = str(v)
-        api_devices[device_name] = device_config
-    return api_devices
+    return {
+        device_name: {
+            key: str(value).lower() if isinstance(value, bool) else str(value)
+            for key, value in device_properties.items()
+        }
+        for device_name, device_properties in incus_common_named_list_to_dict(devices).items()
+    }

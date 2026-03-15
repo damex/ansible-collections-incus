@@ -24,6 +24,10 @@ import collections.abc
 from typing import Any, NamedTuple
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.common import (
+    incus_common_flatten_to_config,
+    incus_common_named_list_to_dict,
+)
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     CLOUD_INIT_ALL_KEYS,
     CLOUD_INIT_CONFIG_OPTIONS,
@@ -52,6 +56,8 @@ __all__ = [
     'incus_create_write_module',
     'incus_ensure_info',
     'incus_ensure_resource',
+    'incus_common_flatten_to_config',
+    'incus_common_named_list_to_dict',
     'incus_find_certificate',
     'incus_resolve_image_alias',
     'incus_run_info_module',

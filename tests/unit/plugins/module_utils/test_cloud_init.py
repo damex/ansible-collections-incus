@@ -9,14 +9,10 @@ from __future__ import annotations
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     cloud_init_data_lists_to_dicts,
     cloud_init_interface_options,
-    cloud_init_named_list_to_dict,
     cloud_init_named_list_to_scalar_dict,
 )
 
 __all__ = [
-    'test_cloud_init_named_list_to_dict_single',
-    'test_cloud_init_named_list_to_dict_multiple',
-    'test_cloud_init_named_list_to_dict_empty',
     'test_cloud_init_named_list_to_scalar_dict_value',
     'test_cloud_init_named_list_to_scalar_dict_selection',
     'test_cloud_init_data_lists_to_dicts_disk_setup',
@@ -34,31 +30,6 @@ __all__ = [
     'test_cloud_init_interface_options_base_keys',
     'test_cloud_init_interface_options_extra_keys',
 ]
-
-
-def test_cloud_init_named_list_to_dict_single() -> None:
-    """Transform single named dict."""
-    result = cloud_init_named_list_to_dict([
-        {'name': '/dev/vdb', 'table_type': 'gpt', 'layout': True},
-    ])
-    assert result == {'/dev/vdb': {'table_type': 'gpt', 'layout': True}}
-
-
-def test_cloud_init_named_list_to_dict_multiple() -> None:
-    """Transform multiple named dicts."""
-    result = cloud_init_named_list_to_dict([
-        {'name': 'eth0', 'dhcp4': True},
-        {'name': 'eth1', 'dhcp4': False, 'addresses': ['10.0.0.2/24']},
-    ])
-    assert result == {
-        'eth0': {'dhcp4': True},
-        'eth1': {'dhcp4': False, 'addresses': ['10.0.0.2/24']},
-    }
-
-
-def test_cloud_init_named_list_to_dict_empty() -> None:
-    """Return empty dict for empty list."""
-    assert not cloud_init_named_list_to_dict([])
 
 
 def test_cloud_init_named_list_to_scalar_dict_value() -> None:
