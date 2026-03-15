@@ -466,16 +466,30 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
     return result
 
 
-def incus_build_desired(module: AnsibleModule) -> dict[str, Any]:
+def incus_build_desired(
+    module: AnsibleModule,
+    config_lists: dict[str, str] | None = None,
+) -> dict[str, Any]:
     """Build desired state."""
     has_devices = 'devices' in module.params and module.params['devices'] is not None
+    config = module.params['config'] or {}
+    if config_lists:
+        config = {key: value for key, value in config.items() if key not in config_lists}
     desired: dict[str, Any] = {
         'description': module.params['description'],
-        'config': incus_stringify_instance_config(module.params['config']) if has_devices
-        else incus_common_stringify_dict(module.params['config']),
+        'config': incus_stringify_instance_config(config) if has_devices
+        else incus_common_stringify_dict(config),
     }
     if has_devices:
         desired['devices'] = devices_to_api(module.params['devices'])
+    if config_lists:
+        raw_config = module.params['config'] or {}
+        for key, prefix in config_lists.items():
+            items = raw_config.get(key)
+            if items:
+                desired['config'].update(
+                    incus_common_flatten_to_config(prefix, incus_common_named_list_to_dict(items)),
+                )
     return desired
 
 

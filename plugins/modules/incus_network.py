@@ -421,8 +421,6 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
-    incus_common_flatten_to_config,
-    incus_common_named_list_to_dict,
     incus_run_write_module,
 )
 
@@ -595,19 +593,7 @@ def main() -> None:
         },
         'description': {'type': 'str', 'default': ''},
     })
-    config = module.params['config'] or {}
-    bgp_peers = config.get('bgp_peers')
-    tunnels = config.get('tunnels')
-    module.params['config'] = {key: value for key, value in config.items() if key not in ('bgp_peers', 'tunnels')}
-    desired = incus_build_desired(module)
-    if bgp_peers:
-        desired['config'].update(
-            incus_common_flatten_to_config('bgp.peers', incus_common_named_list_to_dict(bgp_peers)),
-        )
-    if tunnels:
-        desired['config'].update(
-            incus_common_flatten_to_config('tunnel', incus_common_named_list_to_dict(tunnels)),
-        )
+    desired = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'networks', desired, ['type']))
 
 

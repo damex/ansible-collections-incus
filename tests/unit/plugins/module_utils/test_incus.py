@@ -56,6 +56,8 @@ __all__ = [
     'test_build_desired_without_devices',
     'test_build_desired_with_devices',
     'test_build_desired_devices_none',
+    'test_build_desired_config_lists',
+    'test_build_desired_config_lists_empty',
     'test_wait_true',
     'test_wait_false',
     'test_wait_default',
@@ -318,6 +320,38 @@ def test_build_desired_devices_none() -> None:
     result = incus_build_desired(module)
     assert result == {'description': '', 'config': {'size': '5'}}
     assert 'devices' not in result
+
+
+def test_build_desired_config_lists() -> None:
+    """Flatten config lists to dotted keys."""
+    module = MagicMock()
+    module.params = {
+        'description': '',
+        'config': {
+            'ipv4.address': '10.0.0.1/24',
+            'bgp_peers': [
+                {'name': 'router', 'address': '10.0.0.1', 'asn': 64601, 'holdtime': None, 'password': None},
+            ],
+            'tunnels': None,
+        },
+    }
+    result = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
+    assert result['config']['ipv4.address'] == '10.0.0.1/24'
+    assert result['config']['bgp.peers.router.address'] == '10.0.0.1'
+    assert result['config']['bgp.peers.router.asn'] == '64601'
+    assert 'bgp_peers' not in result['config']
+    assert 'tunnels' not in result['config']
+
+
+def test_build_desired_config_lists_empty() -> None:
+    """Skip config lists when not provided."""
+    module = MagicMock()
+    module.params = {
+        'description': '',
+        'config': {'ipv4.address': '10.0.0.1/24', 'bgp_peers': None, 'tunnels': None},
+    }
+    result = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
+    assert result['config'] == {'ipv4.address': '10.0.0.1/24'}
 
 
 def test_wait_true() -> None:
