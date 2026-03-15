@@ -1,0 +1,16 @@
+---
+- name: Ensure incus cluster members
+  ansible.builtin.include_role:
+    name: damex.incus.incus_cluster_members
+  vars:
+    incus_cluster_members_socket_path: "{{ incus_cluster_socket_path }}"
+    incus_cluster_members_url: "{{ incus_cluster_url | default(omit) }}"
+    incus_cluster_members_client_cert: "{{ incus_cluster_client_cert | default(omit) }}"
+    incus_cluster_members_client_key: "{{ incus_cluster_client_key | default(omit) }}"
+    incus_cluster_members_server_cert: "{{ incus_cluster_server_cert | default(omit) }}"
+    incus_cluster_members_client_cert_path: "{{ incus_cluster_client_cert_path | default(omit) }}"
+    incus_cluster_members_client_key_path: "{{ incus_cluster_client_key_path | default(omit) }}"
+    incus_cluster_members_server_cert_path: "{{ incus_cluster_server_cert_path | default(omit) }}"
+    incus_cluster_members_token: "{{ incus_cluster_token | default(omit) }}"
+    incus_cluster_members_validate_certs: "{{ incus_cluster_validate_certs }}"
+  when: incus_cluster_members is defined and incus_cluster_members | length > 0

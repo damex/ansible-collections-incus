@@ -10,3 +10,7 @@
       ansible.builtin.import_tasks: bootstrap.yml
     - name: Ensure incus cluster join
       ansible.builtin.import_tasks: join.yml
+    - name: Ensure incus cluster config
+      ansible.builtin.import_tasks: config.yml
+    - name: Ensure incus cluster members
+      ansible.builtin.import_tasks: members.yml

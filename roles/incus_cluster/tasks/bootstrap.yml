@@ -3,7 +3,18 @@
   ansible.builtin.include_role:
     name: damex.incus.incus_server
   vars:
-    incus_server_preseed: "{{ incus_cluster_preseed }}"
+    incus_server_config: "{{ incus_cluster_config }}"
+    incus_server_cluster: "{{ incus_cluster_cluster }}"
+    incus_server_socket_path: "{{ incus_cluster_socket_path }}"
+    incus_server_url: "{{ incus_cluster_url | default(omit) }}"
+    incus_server_client_cert: "{{ incus_cluster_client_cert | default(omit) }}"
+    incus_server_client_key: "{{ incus_cluster_client_key | default(omit) }}"
+    incus_server_server_cert: "{{ incus_cluster_server_cert | default(omit) }}"
+    incus_server_client_cert_path: "{{ incus_cluster_client_cert_path | default(omit) }}"
+    incus_server_client_key_path: "{{ incus_cluster_client_key_path | default(omit) }}"
+    incus_server_server_cert_path: "{{ incus_cluster_server_cert_path | default(omit) }}"
+    incus_server_token: "{{ incus_cluster_token | default(omit) }}"
+    incus_server_validate_certs: "{{ incus_cluster_validate_certs }}"
   when:
     - inventory_hostname == incus_cluster_primary
     - not (incus_cluster_info_state.server.config.get('cluster.enabled') | bool)
