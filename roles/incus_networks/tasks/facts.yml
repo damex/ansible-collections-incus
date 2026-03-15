@@ -1,6 +1,6 @@
 ---
-- name: Ensure incus networks cluster facts
-  damex.incus.incus_cluster_info:
+- name: Ensure incus networks cluster member facts
+  damex.incus.incus_cluster_member_info:
     name: "{{ inventory_hostname }}"
     socket_path: "{{ incus_networks_socket_path }}"
     url: "{{ incus_networks_url | default(omit) }}"

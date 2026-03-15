@@ -1,6 +1,6 @@
 ---
-- name: Ensure incus image imports cluster facts
-  damex.incus.incus_cluster_info:
+- name: Ensure incus image imports cluster member facts
+  damex.incus.incus_cluster_member_info:
     name: "{{ inventory_hostname }}"
     socket_path: "{{ incus_image_imports_socket_path }}"
     url: "{{ incus_image_imports_url | default(omit) }}"

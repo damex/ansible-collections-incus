@@ -1,6 +1,6 @@
 ---
-- name: Ensure incus storage volumes cluster facts
-  damex.incus.incus_cluster_info:
+- name: Ensure incus storage volumes cluster member facts
+  damex.incus.incus_cluster_member_info:
     name: "{{ inventory_hostname }}"
     socket_path: "{{ incus_storage_volumes_socket_path }}"
     url: "{{ incus_storage_volumes_url | default(omit) }}"
