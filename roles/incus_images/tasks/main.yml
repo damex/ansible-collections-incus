@@ -4,5 +4,7 @@
     - incus
     - incus_images
   block:
+    - name: Ensure incus images facts
+      ansible.builtin.import_tasks: facts.yml
     - name: Ensure incus images
       ansible.builtin.import_tasks: images.yml
