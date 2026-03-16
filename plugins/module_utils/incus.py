@@ -550,6 +550,23 @@ def incus_build_query(
     return f'?{"&".join(params)}' if params else ''
 
 
+def _incus_desired_matches_current(desired: dict[str, Any], current: dict[str, Any]) -> bool:
+    """Check desired state matches current, ignoring extra keys in nested dicts."""
+    for key, desired_value in desired.items():
+        if key not in current:
+            return False
+        current_value = current[key]
+        if isinstance(desired_value, dict):
+            if not all(
+                nested_key in current_value and current_value[nested_key] == nested_value
+                for nested_key, nested_value in desired_value.items()
+            ):
+                return False
+        elif current_value != desired_value:
+            return False
+    return True
+
+
 def _build_create_data(
     module: AnsibleModule, name: str, desired: dict[str, Any],
     create_only_params: list[str] | None, *, require: bool = True,
@@ -594,7 +611,7 @@ def incus_ensure_resource(
             if not module.check_mode:
                 incus_wait(module, client, client.post(f'/1.0/{resource}{target_query}', create_data))
             return True
-        if all(k in current and current[k] == v for k, v in desired.items()):
+        if _incus_desired_matches_current(desired, current):
             return False
         update_query = target_query if target else base_query
         if not module.check_mode:
