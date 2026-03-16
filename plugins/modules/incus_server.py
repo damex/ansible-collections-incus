@@ -58,6 +58,31 @@ options:
         description:
           - Token for joining an existing cluster.
         type: str
+      member_config:
+        description:
+          - Member-specific configuration overrides for joining.
+        type: list
+        elements: dict
+        suboptions:
+          entity:
+            description:
+              - Type of entity being configured.
+            type: str
+            required: true
+          name:
+            description:
+              - Name of the entity.
+            type: str
+            required: true
+          key:
+            description:
+              - Configuration key to set.
+            type: str
+            required: true
+          value:
+            description:
+              - Value for the configuration key.
+            type: str
   config:
     description:
       - Server configuration key-value pairs.

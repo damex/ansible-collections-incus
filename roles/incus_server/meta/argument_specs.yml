@@ -70,6 +70,26 @@ argument_specs:
           cluster_token:
             type: str
             description: Join token for the target cluster.
+          member_config:
+            type: list
+            elements: dict
+            description: Member-specific configuration overrides for joining.
+            options:
+              entity:
+                required: true
+                type: str
+                description: Type of entity being configured.
+              name:
+                required: true
+                type: str
+                description: Name of the entity.
+              key:
+                required: true
+                type: str
+                description: Configuration key to set.
+              value:
+                type: str
+                description: Value for the configuration key.
       incus_server_config:
         required: true
         type: dict
