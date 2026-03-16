@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import base64
+import json
 from unittest.mock import MagicMock, patch
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
@@ -61,21 +63,27 @@ def _run_main(module: MagicMock, client: MagicMock) -> None:
 
 def test_create_generates_join_token() -> None:
     """Generate join token when member does not exist."""
-    module = _mock_module()
+    module = _mock_module(state='joined')
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
-    client.post.return_value = {'type': 'async', 'metadata': {'id': 'op1'}}
-    client.wait.return_value = {
+    client.post.return_value = {
         'metadata': {
-            'secret': 'test-join-token',
-            'fingerprint': 'abc123',
-            'addresses': ['10.0.0.1:8443'],
+            'metadata': {
+                'secret': 'test-join-token',
+                'fingerprint': 'abc123',
+                'addresses': ['10.0.0.1:8443'],
+                'expires_at': '2026-03-17T00:00:00Z',
+            },
         },
     }
     _run_main(module, client)
     call_kwargs = module.exit_json.call_args[1]
     assert call_kwargs['changed'] is True
-    assert call_kwargs['join_token'] == 'test-join-token'
+    token_json = json.loads(base64.standard_b64decode(call_kwargs['join_token']))
+    assert token_json['secret'] == 'test-join-token'
+    assert token_json['fingerprint'] == 'abc123'
+    assert token_json['addresses'] == ['10.0.0.1:8443']
+    assert token_json['server_name'] == 'node2'
     assert call_kwargs['join_fingerprint'] == 'abc123'
     assert call_kwargs['join_addresses'] == ['10.0.0.1:8443']
     client.post.assert_called_once()
@@ -85,7 +93,7 @@ def test_create_generates_join_token() -> None:
 
 def test_create_check_mode() -> None:
     """Skip API calls in check mode for new member."""
-    module = _mock_module(check_mode=True)
+    module = _mock_module(state='joined', check_mode=True)
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_main(module, client)

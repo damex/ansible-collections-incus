@@ -30,9 +30,12 @@ options:
   state:
     description:
       - Desired state of the cluster member.
+      - Use joined to generate a join token for a new member.
+      - Use present to update an existing member.
     type: str
     choices:
       - present
+      - joined
       - absent
     default: present
   description:
@@ -74,6 +77,7 @@ EXAMPLES = r"""
 - name: Ensure cluster member join token
   damex.incus.incus_cluster_member:
     name: node2
+    state: joined
   register: result
 
 - name: Ensure cluster member config
@@ -111,6 +115,8 @@ join_addresses:
   returned: when creating a new member
 """
 
+import base64
+import json
 from typing import Any
 from urllib.parse import quote
 
@@ -146,6 +152,29 @@ INCUS_CLUSTER_MEMBER_CONFIG_OPTIONS = {
 }
 
 
+def _create_join_token(client: Any, name: str) -> dict[str, Any]:
+    """Create join token for new cluster member."""
+    response = client.post('/1.0/cluster/members', {'server_name': name})
+    metadata = response.get('metadata', {}).get('metadata', {})
+    token_dict: dict[str, Any] = {
+        'server_name': name,
+        'fingerprint': metadata.get('fingerprint', ''),
+        'addresses': metadata.get('addresses', []),
+        'secret': metadata.get('secret', ''),
+    }
+    expires_at = metadata.get('expires_at', '')
+    if expires_at:
+        token_dict['expires_at'] = expires_at
+    return {
+        'changed': True,
+        'join_token': base64.standard_b64encode(
+            json.dumps(token_dict, separators=(',', ':')).encode(),
+        ).decode(),
+        'join_fingerprint': metadata.get('fingerprint', ''),
+        'join_addresses': metadata.get('addresses', []),
+    }
+
+
 def _ensure_cluster_member(module: Any) -> dict[str, Any]:
     """Ensure cluster member."""
     client = incus_create_client(module)
@@ -159,19 +188,14 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
         current = {}
         exists = False
 
+    if module.params['state'] == 'joined':
+        if not exists and not module.check_mode:
+            return _create_join_token(client, name)
+        return {'changed': not exists}
+
     if module.params['state'] == 'present':
         if not exists:
-            if module.check_mode:
-                return {'changed': True}
-            response = client.post('/1.0/cluster/members', {'server_name': name})
-            operation = incus_wait(module, client, response)
-            metadata = operation.get('metadata', {}) if operation else {}
-            return {
-                'changed': True,
-                'join_token': metadata.get('secret', ''),
-                'join_fingerprint': metadata.get('fingerprint', ''),
-                'join_addresses': metadata.get('addresses', []),
-            }
+            return {'changed': False}
         # incus rejects PUT on single-node clusters due to database-client role validation bug
         members = client.get('/1.0/cluster/members').get('metadata') or []
         desired: dict[str, Any] = {
@@ -214,6 +238,15 @@ def main() -> None:
     """Run module."""
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
+        'state': {
+            'type': 'str',
+            'default': 'present',
+            'choices': [
+                'present',
+                'joined',
+                'absent',
+            ],
+        },
         'description': {'type': 'str', 'default': ''},
         'config': {
             'type': 'dict',
