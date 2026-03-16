@@ -229,7 +229,10 @@ def main() -> None:
     name = module.params['name']
     query = incus_build_query(project, None)
     create_query = incus_build_query(project, target)
-    desired = {**incus_build_desired(module), 'profiles': module.params['profiles']}
+    desired = {
+        **incus_build_desired(module, config_key_values={'environment_variables': 'environment'}),
+        'profiles': module.params['profiles'],
+    }
 
     def _ensure_instance() -> bool:
         client = incus_create_client(module)

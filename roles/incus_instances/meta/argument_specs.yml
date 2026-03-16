@@ -357,6 +357,19 @@ argument_specs:
               oci.uid:
                 description: UID to run the OCI container as.
                 type: str
+              environment_variables:
+                description: List of environment variables to set in the instance.
+                type: list
+                elements: dict
+                options:
+                  name:
+                    description: Environment variable name.
+                    required: true
+                    type: str
+                  value:
+                    description: Environment variable value.
+                    required: true
+                    type: str
               cloud-init.network-config:
                 description: Cloud-init network configuration.
                 type: dict

@@ -388,6 +388,23 @@ options:
         description:
           - UID to run the OCI container as.
         type: str
+      environment_variables:
+        description:
+          - List of environment variables to set in the instance.
+          - Each entry is flattened to an C(environment.NAME) config key.
+        type: list
+        elements: dict
+        suboptions:
+          name:
+            description:
+              - Environment variable name.
+            type: str
+            required: true
+          value:
+            description:
+              - Environment variable value.
+            type: str
+            required: true
       cloud-init.network-config:
         description:
           - Cloud-init network configuration.

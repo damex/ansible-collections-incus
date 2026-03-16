@@ -25,6 +25,7 @@ from typing import Any, NamedTuple
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.common import (
+    incus_common_flatten_key_value_to_config,
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
     incus_common_stringify_dict,
@@ -173,6 +174,20 @@ INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
     'oci.entrypoint': {'type': 'str'},
     'oci.gid': {'type': 'str'},
     'oci.uid': {'type': 'str'},
+    'environment_variables': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {
+                'type': 'str',
+                'required': True,
+            },
+            'value': {
+                'type': 'str',
+                'required': True,
+            },
+        },
+    },
     **CLOUD_INIT_CONFIG_OPTIONS,
 }
 
@@ -469,12 +484,18 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
 def incus_build_desired(
     module: AnsibleModule,
     config_lists: dict[str, str] | None = None,
+    config_key_values: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Build desired state."""
     has_devices = 'devices' in module.params and module.params['devices'] is not None
     config = module.params['config'] or {}
+    list_keys = set()
     if config_lists:
-        config = {key: value for key, value in config.items() if key not in config_lists}
+        list_keys.update(config_lists)
+    if config_key_values:
+        list_keys.update(config_key_values)
+    if list_keys:
+        config = {key: value for key, value in config.items() if key not in list_keys}
     desired: dict[str, Any] = {
         'description': module.params['description'],
         'config': incus_stringify_instance_config(config) if has_devices
@@ -482,13 +503,20 @@ def incus_build_desired(
     }
     if has_devices:
         desired['devices'] = devices_to_api(module.params['devices'])
+    raw_config = module.params['config'] or {}
     if config_lists:
-        raw_config = module.params['config'] or {}
         for key, prefix in config_lists.items():
             items = raw_config.get(key)
             if items:
                 desired['config'].update(
                     incus_common_flatten_to_config(prefix, incus_common_named_list_to_dict(items)),
+                )
+    if config_key_values:
+        for key, prefix in config_key_values.items():
+            items = raw_config.get(key)
+            if items:
+                desired['config'].update(
+                    incus_common_flatten_key_value_to_config(prefix, items),
                 )
     return desired
 

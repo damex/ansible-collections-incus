@@ -54,6 +54,8 @@ __all__ = [
     'test_main_fail_missing_source',
     'test_main_check_mode_create',
     'test_main_start_stopped_existing',
+    'test_main_environment_variables_create',
+    'test_main_environment_variables_skip_matching',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_instance'
@@ -273,3 +275,42 @@ def test_main_start_stopped_existing() -> None:
     assert module.exit_json.call_args[1]['changed'] is True
     client.put.assert_called_once()
     assert client.put.call_args[0][1] == {'action': 'start'}
+
+
+def test_main_environment_variables_create() -> None:
+    """Create instance with environment variables flattened to config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'environment_variables': [
+            {'name': 'ESPHOME_DASHBOARD_USE_PING', 'value': 'true'},
+        ],
+    }
+    client = MagicMock()
+    client.get.side_effect = IncusNotFoundException('not found')
+    client.post.return_value = {'type': 'sync'}
+    client.put.return_value = {'type': 'sync'}
+    run_module_main(MODULE, module, client, main)
+    module.exit_json.assert_called_once()
+    assert module.exit_json.call_args[1]['changed'] is True
+    post_data = client.post.call_args[0][1]
+    assert post_data['config']['environment.ESPHOME_DASHBOARD_USE_PING'] == 'true'
+    assert 'environment_variables' not in post_data['config']
+
+
+def test_main_environment_variables_skip_matching() -> None:
+    """Skip update when environment variables match current config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'environment_variables': [
+            {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
+        ],
+    }
+    client = MagicMock()
+    client.get.return_value = {'metadata': {
+        'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
+        'description': '', 'config': {
+            'environment.HTTP_PROXY': 'http://proxy:3128',
+        }, 'devices': {}, 'profiles': ['default'],
+    }}
+    run_module_main(MODULE, module, client, main)
+    module.exit_json.assert_called_once_with(changed=False)

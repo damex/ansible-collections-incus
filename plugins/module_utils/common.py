@@ -9,12 +9,23 @@ from __future__ import annotations
 from typing import Any
 
 __all__ = [
+    'incus_common_flatten_key_value_to_config',
     'incus_common_flatten_to_config',
     'incus_common_named_list_to_dict',
     'incus_common_stringify_value',
     'incus_common_stringify_dict',
     'incus_common_strip_none',
 ]
+
+
+def incus_common_flatten_key_value_to_config(
+    prefix: str, items: list[dict[str, Any]] | None,
+) -> dict[str, str]:
+    """Flatten key-value list to dotted config keys."""
+    return {
+        f'{prefix}.{item["name"]}': incus_common_stringify_value(item['value'])
+        for item in (items or [])
+    }
 
 
 def incus_common_stringify_value(value: Any) -> str:

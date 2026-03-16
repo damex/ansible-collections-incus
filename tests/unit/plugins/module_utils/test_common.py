@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from ansible_collections.damex.incus.plugins.module_utils.common import (
+    incus_common_flatten_key_value_to_config,
     incus_common_flatten_to_config,
     incus_common_named_list_to_dict,
     incus_common_stringify_dict,
@@ -25,6 +26,11 @@ __all__ = [
     'test_flatten_to_config_optional_fields',
     'test_flatten_to_config_bool_values',
     'test_flatten_to_config_empty_dict',
+    'test_flatten_key_value_to_config_basic',
+    'test_flatten_key_value_to_config_multiple',
+    'test_flatten_key_value_to_config_bool_values',
+    'test_flatten_key_value_to_config_empty_list',
+    'test_flatten_key_value_to_config_none',
     'test_stringify_value_bool_true',
     'test_stringify_value_bool_false',
     'test_stringify_value_string',
@@ -123,6 +129,43 @@ def test_flatten_to_config_bool_values() -> None:
 def test_flatten_to_config_empty_dict() -> None:
     """Return empty dict for empty input."""
     assert not incus_common_flatten_to_config('bgp.peers', {})
+
+
+def test_flatten_key_value_to_config_basic() -> None:
+    """Flatten single key-value pair to dotted config key."""
+    items = [{'name': 'ESPHOME_DASHBOARD_USE_PING', 'value': 'true'}]
+    result = incus_common_flatten_key_value_to_config('environment', items)
+    assert result == {'environment.ESPHOME_DASHBOARD_USE_PING': 'true'}
+
+
+def test_flatten_key_value_to_config_multiple() -> None:
+    """Flatten multiple key-value pairs."""
+    items = [
+        {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
+        {'name': 'NO_PROXY', 'value': 'localhost'},
+    ]
+    result = incus_common_flatten_key_value_to_config('environment', items)
+    assert result == {
+        'environment.HTTP_PROXY': 'http://proxy:3128',
+        'environment.NO_PROXY': 'localhost',
+    }
+
+
+def test_flatten_key_value_to_config_bool_values() -> None:
+    """Stringify bool values as lowercase."""
+    items = [{'name': 'DEBUG', 'value': True}]
+    result = incus_common_flatten_key_value_to_config('environment', items)
+    assert result == {'environment.DEBUG': 'true'}
+
+
+def test_flatten_key_value_to_config_empty_list() -> None:
+    """Return empty dict for empty list."""
+    assert not incus_common_flatten_key_value_to_config('environment', [])
+
+
+def test_flatten_key_value_to_config_none() -> None:
+    """Return empty dict for None."""
+    assert not incus_common_flatten_key_value_to_config('environment', None)
 
 
 def test_stringify_value_bool_true() -> None:
