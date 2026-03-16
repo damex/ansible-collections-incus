@@ -587,7 +587,7 @@ def incus_ensure_resource(
         exists = False
 
     if module.params['state'] == 'present':
-        if not exists or (not target and current.get('status') == 'Pending'):
+        if not exists or current.get('status') in ('Pending', 'Unknown'):
             create_data = _build_create_data(module, name, desired, create_only_params, require=not exists)
             if name_key != 'name':
                 create_data[name_key] = create_data.pop('name')
