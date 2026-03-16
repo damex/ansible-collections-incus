@@ -43,6 +43,7 @@ __all__ = [
     'test_build_source_ubuntu_remote',
     'test_build_source_docker_remote',
     'test_build_source_explicit_server',
+    'test_build_source_oci_tag',
     'test_build_source_local_alias',
     'test_build_source_unknown_remote_fails',
     'test_build_query_no_params',
@@ -219,16 +220,31 @@ def test_build_source_docker_remote() -> None:
 
 
 def test_build_source_explicit_server() -> None:
-    """Override remote with explicit server."""
+    """Preserve full source as alias when server is explicit."""
     module = MagicMock()
     module.params = {
-        'source': 'images:debian/13',
-        'source_server': 'https://custom.example.com',
-        'source_protocol': 'lxd',
+        'source': 'myapp/backend',
+        'source_server': 'https://ghcr.io',
+        'source_protocol': 'oci',
     }
     result = incus_build_source(module)
-    assert result['server'] == 'https://custom.example.com'
-    assert result['protocol'] == 'lxd'
+    assert result['alias'] == 'myapp/backend'
+    assert result['server'] == 'https://ghcr.io'
+    assert result['protocol'] == 'oci'
+
+
+def test_build_source_oci_tag() -> None:
+    """Preserve tag in OCI source when server is explicit."""
+    module = MagicMock()
+    module.params = {
+        'source': 'home-assistant/home-assistant:stable',
+        'source_server': 'https://ghcr.io',
+        'source_protocol': 'oci',
+    }
+    result = incus_build_source(module)
+    assert result['alias'] == 'home-assistant/home-assistant:stable'
+    assert result['server'] == 'https://ghcr.io'
+    assert result['protocol'] == 'oci'
 
 
 def test_build_source_local_alias() -> None:
