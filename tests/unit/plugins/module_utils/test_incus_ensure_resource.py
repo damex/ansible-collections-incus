@@ -30,7 +30,7 @@ __all__ = [
     'test_ensure_resource_create_only_params',
     'test_ensure_resource_create_only_param_missing_fails',
     'test_ensure_resource_target_create',
-    'test_ensure_resource_target_exists_skips_update',
+    'test_ensure_resource_target_exists_updates',
     'test_ensure_resource_target_pending_posts',
     'test_ensure_resource_pending_finalize',
     'test_ensure_resource_encodes_name',
@@ -264,10 +264,11 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
-def test_ensure_resource_target_exists_skips_update(mock_create_client: MagicMock) -> None:
-    """Skip update when target is set and resource exists and is created."""
+def test_ensure_resource_target_exists_updates(mock_create_client: MagicMock) -> None:
+    """Update when target is set and resource exists with different config."""
     client = MagicMock()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}, 'status': 'Created'}}
+    client.put.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
 
     module = _ensure_module()
@@ -275,8 +276,8 @@ def test_ensure_resource_target_exists_skips_update(mock_create_client: MagicMoc
     desired = {'description': 'new', 'config': {}}
     result = incus_ensure_resource(module, 'storage-pools', desired)
 
-    assert result is False
-    client.put.assert_not_called()
+    assert result is True
+    client.put.assert_called_once()
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')

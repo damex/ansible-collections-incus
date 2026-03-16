@@ -594,12 +594,11 @@ def incus_ensure_resource(
             if not module.check_mode:
                 incus_wait(module, client, client.post(f'/1.0/{resource}{target_query}', create_data))
             return True
-        if target:
-            return False
         if all(k in current and current[k] == v for k, v in desired.items()):
             return False
+        update_query = target_query if target else base_query
         if not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{base_query}', desired))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{update_query}', desired))
         return True
 
     if exists:
