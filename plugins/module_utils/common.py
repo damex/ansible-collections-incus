@@ -21,7 +21,12 @@ __all__ = [
 def incus_common_flatten_key_value_to_config(
     prefix: str, items: list[dict[str, Any]] | None,
 ) -> dict[str, str]:
-    """Flatten key-value list to dotted config keys."""
+    """
+    Flatten key-value list to dotted config keys.
+
+    >>> incus_common_flatten_key_value_to_config('environment', [{'name': 'HTTP_PROXY', 'value': 'http://proxy'}])
+    {'environment.HTTP_PROXY': 'http://proxy'}
+    """
     return {
         f'{prefix}.{item["name"]}': incus_common_stringify_value(item['value'])
         for item in (items or [])
@@ -41,7 +46,12 @@ def incus_common_stringify_dict(data: dict[str, Any] | None) -> dict[str, str]:
 
 
 def incus_common_named_list_to_dict(items: list[dict[str, Any]] | None) -> dict[str, Any]:
-    """Convert named list to dict keyed by name."""
+    """
+    Convert named list to dict keyed by name.
+
+    >>> incus_common_named_list_to_dict([{'name': 'router', 'address': '10.0.0.1', 'asn': 64601}])
+    {'router': {'address': '10.0.0.1', 'asn': 64601}}
+    """
     return {
         item['name']: {
             key: value
@@ -53,7 +63,12 @@ def incus_common_named_list_to_dict(items: list[dict[str, Any]] | None) -> dict[
 
 
 def incus_common_flatten_to_config(prefix: str, data: dict[str, dict[str, Any]]) -> dict[str, str]:
-    """Flatten nested dict to dotted config keys with stringified values."""
+    """
+    Flatten nested dict to dotted config keys with stringified values.
+
+    >>> incus_common_flatten_to_config('bgp.peers', {'router': {'address': '10.0.0.1'}})
+    {'bgp.peers.router.address': '10.0.0.1'}
+    """
     config: dict[str, str] = {}
     for name, properties in data.items():
         for key, value in properties.items():
