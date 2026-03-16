@@ -640,13 +640,13 @@ def incus_ensure_resource(
         if _incus_desired_matches_current(desired, current):
             return False
         if not module.check_mode:
-            query = target_query if target else incus_build_query(project, None)
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', desired))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{target_query}', desired))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'))
+            base_query = incus_build_query(project, None)
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{base_query}'))
         return True
     return False
 
