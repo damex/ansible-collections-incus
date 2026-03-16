@@ -489,7 +489,7 @@ def incus_build_desired(
     """Build desired state."""
     has_devices = 'devices' in module.params and module.params['devices'] is not None
     config = module.params['config'] or {}
-    list_keys = set()
+    list_keys: set[str] = set()
     if config_lists:
         list_keys.update(config_lists)
     if config_key_values:
