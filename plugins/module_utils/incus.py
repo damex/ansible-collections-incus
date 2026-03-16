@@ -641,9 +641,9 @@ def incus_ensure_resource(
             return True
         if _incus_desired_matches_current(desired, current):
             return False
-        update_query = target_query if target else base_query
         if not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{update_query}', desired))
+            query = target_query if target else base_query
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', desired))
         return True
 
     if exists:
