@@ -59,6 +59,8 @@ __all__ = [
     'test_build_desired_devices_none',
     'test_build_desired_config_lists',
     'test_build_desired_config_lists_empty',
+    'test_build_desired_config_key_values',
+    'test_build_desired_config_key_values_empty',
     'test_wait_true',
     'test_wait_false',
     'test_wait_default',
@@ -368,6 +370,39 @@ def test_build_desired_config_lists_empty() -> None:
     }
     result = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
     assert result['config'] == {'ipv4.address': '10.0.0.1/24'}
+
+
+def test_build_desired_config_key_values() -> None:
+    """Flatten config key-values to dotted keys."""
+    module = MagicMock()
+    module.params = {
+        'description': '',
+        'config': {
+            'limits.cpu': '2',
+            'environment_variables': [
+                {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
+                {'name': 'DEBUG', 'value': True},
+            ],
+        },
+        'devices': None,
+    }
+    result = incus_build_desired(module, config_key_values={'environment_variables': 'environment'})
+    assert result['config']['limits.cpu'] == '2'
+    assert result['config']['environment.HTTP_PROXY'] == 'http://proxy:3128'
+    assert result['config']['environment.DEBUG'] == 'true'
+    assert 'environment_variables' not in result['config']
+
+
+def test_build_desired_config_key_values_empty() -> None:
+    """Skip config key-values when not provided."""
+    module = MagicMock()
+    module.params = {
+        'description': '',
+        'config': {'limits.cpu': '2', 'environment_variables': None},
+        'devices': None,
+    }
+    result = incus_build_desired(module, config_key_values={'environment_variables': 'environment'})
+    assert result['config'] == {'limits.cpu': '2'}
 
 
 def test_wait_true() -> None:
