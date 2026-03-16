@@ -620,7 +620,6 @@ def incus_ensure_resource(
     encoded_name = quote(name, safe='')
     project = module.params.get('project')
     target = module.params.get('target')
-    base_query = incus_build_query(project, None)
     target_query = incus_build_query(project, target)
 
     try:
@@ -641,13 +640,13 @@ def incus_ensure_resource(
         if _incus_desired_matches_current(desired, current):
             return False
         if not module.check_mode:
-            query = target_query if target else base_query
+            query = target_query if target else incus_build_query(project, None)
             incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', desired))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{base_query}'))
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'))
         return True
     return False
 
