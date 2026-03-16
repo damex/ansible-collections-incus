@@ -215,6 +215,7 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
         # override current failure domain only when explicitly set
         if module.params.get('failure_domain') is not None:
             desired['failure_domain'] = module.params['failure_domain']
+
         def _comparable(value: Any) -> Any:
             return sorted(value) if isinstance(value, list) else value
         changed = len(members) > 1 and not all(
