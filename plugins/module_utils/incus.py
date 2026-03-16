@@ -550,12 +550,11 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
     protocol = module.params.get('source_protocol') or 'simplestreams'
 
     alias = raw
-    if ':' in raw:
+    if ':' in raw and not server:
         remote, alias = raw.split(':', 1)
-        if not server:
-            if remote not in INCUS_KNOWN_REMOTES:
-                module.fail_json(msg=f"Unknown remote '{remote}'. Set source_server explicitly.")
-            server, protocol = INCUS_KNOWN_REMOTES[remote]
+        if remote not in INCUS_KNOWN_REMOTES:
+            module.fail_json(msg=f"Unknown remote '{remote}'. Set source_server explicitly.")
+        server, protocol = INCUS_KNOWN_REMOTES[remote]
 
     source = {'type': 'image', 'alias': alias}
     if server:
