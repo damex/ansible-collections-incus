@@ -1,6 +1,6 @@
 ---
 - name: Ensure incus cluster network {{ incus_networks_network_name }}
-  when: incus_networks_cluster_info_state.cluster_members | length == 0 or 'database' in incus_networks_cluster_info_state.cluster_members | map(attribute='roles') | first
+  when: incus_networks_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_networks_cluster_info_state.cluster_members | map(attribute='roles') | first
   block:
     - name: Ensure incus cluster network member {{ incus_networks_network_name }}
       damex.incus.incus_network:

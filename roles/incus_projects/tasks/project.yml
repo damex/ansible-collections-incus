@@ -17,4 +17,4 @@
     validate_certs: "{{ incus_projects_project_validate_certs }}"
   no_log: "{{ incus_projects_client_key is defined or incus_projects_token is defined }}"
   become: true
-  when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database' in incus_projects_cluster_info_state.cluster_members | map(attribute='roles') | first
+  when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_projects_cluster_info_state.cluster_members | map(attribute='roles') | first
