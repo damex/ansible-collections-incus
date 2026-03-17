@@ -3,6 +3,7 @@
   ansible.builtin.include_role:
     name: damex.incus.incus_server
   vars:
+    incus_server_init: true
     incus_server_config: "{{ incus_cluster_config }}"
     incus_server_cluster: "{{ incus_cluster_cluster }}"
     incus_server_socket_path: "{{ incus_cluster_socket_path }}"

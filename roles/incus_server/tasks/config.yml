@@ -2,6 +2,8 @@
 - name: Ensure incus server config
   damex.incus.incus_server:
     config: "{{ incus_server_config }}"
+    init: "{{ incus_server_init }}"
+    cluster: "{{ incus_server_cluster | default(omit) }}"
     socket_path: "{{ incus_server_socket_path }}"
     url: "{{ incus_server_url | default(omit) }}"
     client_cert: "{{ incus_server_client_cert | default(omit) }}"

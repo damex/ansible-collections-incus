@@ -1,3 +1,4 @@
 ---
 incus_server_socket_path: /var/lib/incus/unix.socket
 incus_server_validate_certs: true
+incus_server_init: false
