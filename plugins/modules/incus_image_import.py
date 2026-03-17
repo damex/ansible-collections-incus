@@ -17,7 +17,7 @@ description:
   - Import and delete Incus images from local files or URLs.
   - Supports raw and qcow2 disk images for virtual machines.
   - Raw images are automatically converted to qcow2 using C(qemu-img).
-  - ZIP archives are automatically extracted.
+  - ZIP and xz archives are automatically extracted.
   - Images are project-scoped resources identified by alias.
   - Requires C(qemu-img) on the target host for format detection and conversion.
 extends_documentation_fragment:
@@ -40,7 +40,7 @@ options:
     description:
       - Path to a local image file or URL to download from.
       - Supports raw and qcow2 disk images.
-      - ZIP archives are automatically extracted.
+      - ZIP and xz archives are automatically extracted.
       - Required when O(state=present) and the image does not yet exist or O(force=true).
     type: str
   architecture:
@@ -177,6 +177,7 @@ RETURN = r"""
 import hashlib
 import json
 import os
+import lzma
 import shutil
 import tarfile
 import tempfile
@@ -252,6 +253,28 @@ def _incus_image_import_extract_zip(module: Any, file_path: str, temp_directory:
     return file_path
 
 
+def _incus_image_import_is_xz(file_path: str) -> bool:
+    """Detect xz compressed file."""
+    try:
+        with lzma.open(file_path, 'rb') as fh:
+            fh.read(1)
+        return True
+    except lzma.LZMAError:
+        return False
+
+
+def _incus_image_import_extract_xz(module: Any, file_path: str, temp_directory: str) -> str:
+    """Decompress xz compressed file."""
+    output_path = os.path.join(temp_directory, os.path.basename(file_path).removesuffix('.xz'))
+    try:
+        with lzma.open(file_path, 'rb') as xz_file:
+            with open(output_path, 'wb') as out_file:
+                shutil.copyfileobj(xz_file, out_file)
+    except lzma.LZMAError as exc:
+        module.fail_json(msg=f"Failed decompressing xz archive: {exc}")
+    return output_path
+
+
 def _incus_image_import_detect_format(module: Any, qemu_img_path: str, file_path: str) -> str:
     """Detect image format using qemu-img."""
     rc, stdout, stderr = module.run_command([qemu_img_path, 'info', '--output=json', file_path])
@@ -325,6 +348,8 @@ def _incus_image_import_prepare(
         )
     if zipfile.is_zipfile(file_path):
         file_path = _incus_image_import_extract_zip(module, file_path, temp_directory)
+    if _incus_image_import_is_xz(file_path):
+        file_path = _incus_image_import_extract_xz(module, file_path, temp_directory)
     image_format = _incus_image_import_detect_format(module, qemu_img_path, file_path)
     if image_format != 'qcow2':
         file_path = _incus_image_import_convert_to_qcow2(module, qemu_img_path, file_path, temp_directory)
