@@ -6,10 +6,17 @@
 
 from __future__ import annotations
 
+import lzma
+import os
+import tempfile
 from unittest.mock import MagicMock, patch
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import IncusNotFoundException
-from ansible_collections.damex.incus.plugins.modules.incus_image_import import main
+from ansible_collections.damex.incus.plugins.modules.incus_image_import import (
+    _incus_image_import_extract_xz,
+    _incus_image_import_is_xz,
+    main,
+)
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_write_check_mode,
@@ -19,6 +26,10 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
 )
 
 __all__ = [
+    'test_is_xz_true',
+    'test_is_xz_false',
+    'test_extract_xz',
+    'test_extract_xz_invalid',
     'test_present_alias_exists_no_change',
     'test_present_import_image',
     'test_present_import_with_aliases',
@@ -32,6 +43,50 @@ __all__ = [
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_image_import'
+
+
+def test_is_xz_true() -> None:
+    """Detect xz compressed file."""
+    with tempfile.NamedTemporaryFile(suffix='.xz') as tmp:
+        tmp.write(lzma.compress(b'test data'))
+        tmp.flush()
+        assert _incus_image_import_is_xz(tmp.name) is True
+
+
+def test_is_xz_false() -> None:
+    """Reject non-xz file."""
+    with tempfile.NamedTemporaryFile(suffix='.qcow2') as tmp:
+        tmp.write(b'not compressed')
+        tmp.flush()
+        assert _incus_image_import_is_xz(tmp.name) is False
+
+
+def test_extract_xz() -> None:
+    """Decompress xz file."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        xz_path = os.path.join(tmp_dir, 'test.qcow2.xz')
+        with open(xz_path, 'wb') as fh:
+            fh.write(lzma.compress(b'qcow2 image data'))
+        module = MagicMock()
+        result = _incus_image_import_extract_xz(module, xz_path, tmp_dir)
+        assert result.endswith('test.qcow2')
+        with open(result, 'rb') as fh:
+            assert fh.read() == b'qcow2 image data'
+
+
+def test_extract_xz_invalid() -> None:
+    """Fail on invalid xz file."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        bad_path = os.path.join(tmp_dir, 'bad.xz')
+        with open(bad_path, 'wb') as fh:
+            fh.write(b'not xz data')
+        module = MagicMock()
+        module.fail_json.side_effect = SystemExit(1)
+        try:
+            _incus_image_import_extract_xz(module, bad_path, tmp_dir)
+        except SystemExit:
+            pass
+        module.fail_json.assert_called_once()
 
 
 def _mock_module(state: str = 'present', check_mode: bool = False,
