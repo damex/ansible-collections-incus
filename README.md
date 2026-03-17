@@ -83,7 +83,7 @@ Or via `requirements.yml`:
 ```yaml
 collections:
   - name: damex.incus
-    version: 1.9.3
+    version: 1.9.4
 ```
 
 ```
