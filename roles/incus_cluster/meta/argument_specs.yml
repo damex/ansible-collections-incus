@@ -12,7 +12,7 @@ argument_specs:
             ansible.builtin.import_role:
               name: damex.incus.incus_cluster
             vars:
-              incus_cluster_group: incus
+              incus_cluster_primary: node1
               incus_cluster_config:
                 core.https_address: :8443
               incus_cluster_cluster:
@@ -50,10 +50,10 @@ argument_specs:
       incus_cluster_validate_certs:
         type: bool
         description: Whether to validate TLS certificates.
-      incus_cluster_group:
+      incus_cluster_primary:
         required: true
         type: str
-        description: Cluster group to assign the member to.
+        description: Inventory hostname of the primary cluster node.
       incus_cluster_config:
         required: true
         type: dict

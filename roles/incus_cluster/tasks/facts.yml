@@ -14,7 +14,3 @@
   no_log: "{{ incus_cluster_client_key is defined or incus_cluster_token is defined }}"
   register: incus_cluster_info_state
   become: true
-
-- name: Ensure incus cluster primary fact
-  ansible.builtin.set_fact:
-    incus_cluster_primary: "{{ groups[incus_cluster_group] | first }}"
