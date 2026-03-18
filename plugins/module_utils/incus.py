@@ -685,7 +685,7 @@ def incus_ensure_resource(
             if not module.check_mode:
                 incus_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
             return True
-        global_config_keys = frozenset()
+        global_config_keys: frozenset[str] = frozenset()
         if target:
             global_config_keys = _incus_fetch_global_config_keys(
                 client,
