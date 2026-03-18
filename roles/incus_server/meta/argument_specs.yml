@@ -45,9 +45,6 @@ argument_specs:
       incus_server_validate_certs:
         description: Whether to validate TLS certificates.
         type: bool
-      incus_server_force:
-        type: bool
-        description: Force preseed application even when configuration has not changed.
       incus_server_cluster:
         type: dict
         description: Cluster configuration for preseed initialization.

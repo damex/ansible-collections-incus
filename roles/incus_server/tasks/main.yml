@@ -4,9 +4,5 @@
     - incus
     - incus_server
   block:
-    - name: Ensure incus server facts
-      ansible.builtin.import_tasks: facts.yml
-    - name: Ensure incus server
-      ansible.builtin.import_tasks: server.yml
     - name: Ensure incus server config
       ansible.builtin.import_tasks: config.yml

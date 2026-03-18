@@ -3,6 +3,6 @@
   ansible.builtin.include_role:
     name: damex.incus.incus_server
   vars:
-    incus_server_force: true
+    incus_server_init: true
     incus_server_config:
       core.https_address: :8443

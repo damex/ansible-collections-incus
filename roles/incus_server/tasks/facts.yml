@@ -1,8 +1,0 @@
----
-- name: Ensure incus server facts
-  ansible.builtin.command:
-    cmd: incus admin init --dump
-  register: incus_server_info_state
-  failed_when: false
-  changed_when: false
-  become: true
