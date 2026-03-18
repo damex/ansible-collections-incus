@@ -12,6 +12,7 @@ import pytest
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusNotFoundException,
+    IncusResourceOptions,
     incus_ensure_resource,
 )
 from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS
@@ -36,12 +37,17 @@ __all__ = [
     'test_ensure_resource_encodes_name',
     'test_ensure_resource_encodes_name_on_update',
     'test_ensure_resource_encodes_name_on_delete',
+    'test_ensure_resource_update_extra_config_keys',
+    'test_ensure_resource_update_extra_device_keys',
+    'test_ensure_resource_targeted_preserves_global_config',
+    'test_ensure_resource_targeted_removes_member_extra_config',
 ]
 
 
 def _ensure_module(
     name: str = 'test', state: str = 'present',
-    project: str | None = None, check_mode: bool = False,
+    project: str | None = None, target: str | None = None,
+    check_mode: bool = False,
 ) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
@@ -49,6 +55,7 @@ def _ensure_module(
         **CONNECTION_PARAMS,
         'name': name,
         'state': state,
+        'target': target,
     }
     if project:
         module.params['project'] = project
@@ -203,7 +210,10 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
     module.params['target'] = 'node1'
     module.params['driver'] = 'dir'
     desired = {'description': '', 'config': {}}
-    incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+    incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
 
     get_path = client.get.call_args[0][0]
     assert '?project=myproject&target=node1' in get_path
@@ -222,7 +232,10 @@ def test_ensure_resource_create_only_params(mock_create_client: MagicMock) -> No
     module = _ensure_module()
     module.params['driver'] = 'zfs'
     desired = {'description': '', 'config': {}}
-    incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+    incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
 
     post_data = client.post.call_args[0][1]
     assert post_data['driver'] == 'zfs'
@@ -239,7 +252,10 @@ def test_ensure_resource_create_only_param_missing_fails(mock_create_client: Mag
     module.fail_json.side_effect = SystemExit(1)
     desired = {'description': '', 'config': {}}
     with pytest.raises(SystemExit):
-        incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+        incus_ensure_resource(
+            module, 'storage-pools', desired,
+            IncusResourceOptions(create_only_params=['driver']),
+        )
     module.fail_json.assert_called_once()
     assert 'driver' in module.fail_json.call_args[1]['msg']
 
@@ -256,7 +272,10 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
     module.params['target'] = 'node1'
     module.params['driver'] = 'dir'
     desired = {'description': '', 'config': {}}
-    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+    result = incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
 
     assert result is True
     post_path = client.post.call_args[0][0]
@@ -292,7 +311,10 @@ def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> 
     module.params['target'] = 'node2'
     module.params['driver'] = 'dir'
     desired = {'description': '', 'config': {}}
-    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+    result = incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
 
     assert result is True
     get_path = client.get.call_args[0][0]
@@ -312,7 +334,10 @@ def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None
     module = _ensure_module()
     module.params['driver'] = 'dir'
     desired = {'description': '', 'config': {}}
-    result = incus_ensure_resource(module, 'storage-pools', desired, ['driver'])
+    result = incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
 
     assert result is True
     client.post.assert_called_once()
@@ -365,3 +390,92 @@ def test_ensure_resource_encodes_name_on_delete(mock_create_client: MagicMock) -
 
     delete_path = client.delete.call_args[0][0]
     assert '/1.0/storage-pools/pool%20%231' in delete_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_update_extra_config_keys(mock_create_client: MagicMock) -> None:
+    """Update when current config has extra keys not in desired."""
+    client = MagicMock()
+    client.get.return_value = {
+        'metadata': {
+            'description': 'desc',
+            'config': {'k': 'v', 'extra': 'val'},
+        },
+    }
+    client.put.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+    module = _ensure_module()
+    desired = {'description': 'desc', 'config': {'k': 'v'}}
+    result = incus_ensure_resource(module, 'projects', desired)
+    assert result is True
+    client.put.assert_called_once()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_update_extra_device_keys(mock_create_client: MagicMock) -> None:
+    """Update when current has extra devices not in desired."""
+    client = MagicMock()
+    client.get.return_value = {
+        'metadata': {
+            'description': '',
+            'config': {},
+            'devices': {
+                'eth0': {'type': 'nic', 'network': 'br0'},
+                'extra': {'type': 'disk', 'path': '/mnt'},
+            },
+        },
+    }
+    client.put.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+    module = _ensure_module()
+    desired = {
+        'description': '',
+        'config': {},
+        'devices': {'eth0': {'type': 'nic', 'network': 'br0'}},
+    }
+    result = incus_ensure_resource(module, 'profiles', desired)
+    assert result is True
+    client.put.assert_called_once()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_targeted_preserves_global_config(mock_create_client: MagicMock) -> None:
+    """Preserve global config keys when updating targeted resource."""
+    client = MagicMock()
+    client.get.side_effect = [
+        {'metadata': {
+            'config': {'bgp.ipv4.nexthop': '10.0.0.1', 'ipv4.address': '10.12.102.1/24'},
+        }},
+        {'metadata': {'config': {'ipv4.address': '10.12.102.1/24'}}},
+    ]
+    mock_create_client.return_value = client
+    module = _ensure_module(target='node1')
+    desired = {'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
+    result = incus_ensure_resource(module, 'networks', desired)
+    assert result is False
+    client.put.assert_not_called()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_targeted_removes_member_extra_config(mock_create_client: MagicMock) -> None:
+    """Remove member-specific extra keys not in desired when targeted."""
+    client = MagicMock()
+    client.get.side_effect = [
+        {'metadata': {
+            'config': {
+                'bgp.ipv4.nexthop': '10.0.0.1',
+                'ipv4.address': '10.12.102.1/24',
+                'bridge.external_interfaces': 'eth0',
+            },
+        }},
+        {'metadata': {'config': {'ipv4.address': '10.12.102.1/24'}}},
+    ]
+    client.put.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+    module = _ensure_module(target='node1')
+    desired = {'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
+    result = incus_ensure_resource(module, 'networks', desired)
+    assert result is True
+    put_data = client.put.call_args[0][1]
+    assert 'bridge.external_interfaces' not in put_data['config']
+    assert put_data['config']['ipv4.address'] == '10.12.102.1/24'

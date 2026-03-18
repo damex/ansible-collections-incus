@@ -134,6 +134,7 @@ from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusResourceOptions,
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
@@ -206,7 +207,10 @@ def main() -> None:
     resource = f'networks/{encoded_network}/forwards'
     desired = incus_build_desired(module)
     desired['ports'] = _normalize_ports(module.params.get('ports'))
-    incus_run_write_module(module, lambda: incus_ensure_resource(module, resource, desired, name_key='listen_address'))
+    incus_run_write_module(
+        module,
+        lambda: incus_ensure_resource(module, resource, desired, IncusResourceOptions(name_key='listen_address')),
+    )
 
 
 if __name__ == '__main__':

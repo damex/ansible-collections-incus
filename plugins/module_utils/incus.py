@@ -52,6 +52,7 @@ __all__ = [
     'IncusClientException',
     'IncusConnectionParameters',
     'IncusNotFoundException',
+    'IncusResourceOptions',
     'incus_build_desired',
     'incus_build_query',
     'incus_build_source',
@@ -578,18 +579,11 @@ def incus_build_query(
 
 
 def _incus_desired_matches_current(desired: dict[str, Any], current: dict[str, Any]) -> bool:
-    """Check desired state matches current, ignoring extra keys in nested dicts."""
+    """Check desired state matches current."""
     for key, desired_value in desired.items():
         if key not in current:
             return False
-        current_value = current[key]
-        if isinstance(desired_value, dict):
-            if not all(
-                nested_key in current_value and current_value[nested_key] == nested_value
-                for nested_key, nested_value in desired_value.items()
-            ):
-                return False
-        elif current_value != desired_value:
+        if current[key] != desired_value:
             return False
     return True
 
@@ -609,21 +603,69 @@ def _build_create_data(
     return data
 
 
+class IncusResourceOptions(NamedTuple):
+    """Options for incus_ensure_resource."""
+
+    create_only_params: list[str] | None = None
+    name_key: str = 'name'
+    immutable_config_keys: frozenset[str] = frozenset()
+
+
+INCUS_RUNTIME_CONFIG_PREFIXES = ('volatile.',)
+
+
+def _incus_build_effective_desired(
+    desired: dict[str, Any],
+    current: dict[str, Any],
+    immutable_config_keys: frozenset[str],
+    global_config_keys: frozenset[str],
+) -> dict[str, Any]:
+    """Build effective desired with preserved config keys from current."""
+    current_config = current.get('config', {})
+    desired_config = desired.get('config', {})
+    preserved = {
+        key: value
+        for key, value in current_config.items()
+        if key not in desired_config
+        and (key in global_config_keys
+             or key.startswith(INCUS_RUNTIME_CONFIG_PREFIXES)
+             or key in immutable_config_keys)
+    }
+    if not preserved:
+        return desired
+    result = {**desired}
+    result['config'] = {**preserved, **desired_config}
+    return result
+
+
+def _incus_fetch_global_config_keys(
+    client: IncusClient,
+    resource: str,
+    encoded_name: str,
+    project: str | None,
+) -> frozenset[str]:
+    """Fetch global config keys for a resource without target."""
+    query = incus_build_query(project, None)
+    metadata = client.get(f'/1.0/{resource}/{encoded_name}{query}').get('metadata', {})
+    return frozenset(metadata.get('config', {}))
+
+
 def incus_ensure_resource(
-    module: AnsibleModule, resource: str, desired: dict[str, Any],
-    create_only_params: list[str] | None = None,
-    name_key: str = 'name',
+    module: AnsibleModule,
+    resource: str,
+    desired: dict[str, Any],
+    options: IncusResourceOptions | None = None,
 ) -> bool:
     """Ensure resource."""
+    opts = options or IncusResourceOptions()
     client = incus_create_client(module)
-    name = module.params['name']
-    encoded_name = quote(name, safe='')
+    encoded_name = quote(module.params['name'], safe='')
     project = module.params.get('project')
     target = module.params.get('target')
-    target_query = incus_build_query(project, target)
+    query = incus_build_query(project, target)
 
     try:
-        current = client.get(f'/1.0/{resource}/{encoded_name}{target_query}').get('metadata') or {}
+        current = client.get(f'/1.0/{resource}/{encoded_name}{query}').get('metadata') or {}
         exists = True
     except IncusNotFoundException:
         current = {}
@@ -631,22 +673,45 @@ def incus_ensure_resource(
 
     if module.params['state'] == 'present':
         if not exists or current.get('status') in ('Pending', 'Unknown'):
-            create_data = _build_create_data(module, name, desired, create_only_params, require=not exists)
-            if name_key != 'name':
-                create_data[name_key] = create_data.pop('name')
+            create_data = _build_create_data(
+                module,
+                module.params['name'],
+                desired,
+                opts.create_only_params,
+                require=not exists,
+            )
+            if opts.name_key != 'name':
+                create_data[opts.name_key] = create_data.pop('name')
             if not module.check_mode:
-                incus_wait(module, client, client.post(f'/1.0/{resource}{target_query}', create_data))
+                incus_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
             return True
-        if _incus_desired_matches_current(desired, current):
+        global_config_keys = frozenset()
+        if target:
+            global_config_keys = _incus_fetch_global_config_keys(
+                client,
+                resource,
+                encoded_name,
+                project,
+            )
+        effective = _incus_build_effective_desired(
+            desired,
+            current,
+            opts.immutable_config_keys,
+            global_config_keys,
+        )
+        if _incus_desired_matches_current(effective, current):
             return False
         if not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{target_query}', desired))
+            incus_wait(module, client, client.put(
+                f'/1.0/{resource}/{encoded_name}{query}', effective,
+            ))
         return True
 
     if exists:
         if not module.check_mode:
-            base_query = incus_build_query(project, None)
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{base_query}'))
+            incus_wait(module, client, client.delete(
+                f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}',
+            ))
         return True
     return False
 

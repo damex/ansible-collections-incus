@@ -156,6 +156,7 @@ from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusResourceOptions,
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
@@ -199,7 +200,11 @@ def main() -> None:
     encoded_pool = quote(module.params['pool'], safe='')
     resource = f'storage-pools/{encoded_pool}/volumes/custom'
     desired = incus_build_desired(module)
-    incus_run_write_module(module, lambda: incus_ensure_resource(module, resource, desired, ['content_type']))
+    options = IncusResourceOptions(create_only_params=['content_type'])
+    incus_run_write_module(
+        module,
+        lambda: incus_ensure_resource(module, resource, desired, options),
+    )
 
 
 if __name__ == '__main__':

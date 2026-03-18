@@ -302,6 +302,7 @@ RETURN = r"""
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusResourceOptions,
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
@@ -309,6 +310,30 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
+
+INCUS_STORAGE_IMMUTABLE_CONFIG: dict[str, frozenset[str]] = {
+    'zfs': frozenset({
+        'zfs.pool_name',
+    }),
+    'lvm': frozenset({
+        'lvm.use_thinpool',
+        'lvm.thinpool_metadata_size',
+        'lvm.metadata_size',
+        'volume.lvm.stripes',
+        'volume.lvm.stripes.size',
+        'volume.block.type',
+    }),
+    'linstor': frozenset({
+        'linstor.resource_group.name',
+        'linstor.volume.prefix',
+    }),
+    'truenas': frozenset({
+        'truenas.dataset',
+    }),
+    'cephobject': frozenset({
+        'cephobject.bucket_name_prefix',
+    }),
+}
 
 INCUS_STORAGE_CONFIG_OPTIONS = {
     'source': {'type': 'str'},
@@ -382,7 +407,15 @@ def main() -> None:
         'description': {'type': 'str', 'default': ''},
     })
     desired = incus_build_desired(module)
-    incus_run_write_module(module, lambda: incus_ensure_resource(module, 'storage-pools', desired, ['driver']))
+    driver = module.params.get('driver') or ''
+    options = IncusResourceOptions(
+        create_only_params=['driver'],
+        immutable_config_keys=INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset()),
+    )
+    incus_run_write_module(
+        module,
+        lambda: incus_ensure_resource(module, 'storage-pools', desired, options),
+    )
 
 
 if __name__ == '__main__':

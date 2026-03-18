@@ -418,6 +418,7 @@ RETURN = r"""
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusResourceOptions,
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
@@ -594,7 +595,10 @@ def main() -> None:
         'description': {'type': 'str', 'default': ''},
     })
     desired = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
-    incus_run_write_module(module, lambda: incus_ensure_resource(module, 'networks', desired, ['type']))
+    incus_run_write_module(
+        module,
+        lambda: incus_ensure_resource(module, 'networks', desired, IncusResourceOptions(create_only_params=['type'])),
+    )
 
 
 if __name__ == '__main__':

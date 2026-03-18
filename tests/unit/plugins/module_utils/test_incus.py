@@ -13,6 +13,7 @@ import pytest
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusClientException,
     IncusNotFoundException,
+    _incus_build_effective_desired,
     incus_build_desired,
     incus_build_query,
     incus_build_source,
@@ -80,6 +81,13 @@ __all__ = [
     'test_resolve_image_alias_found',
     'test_resolve_image_alias_not_found',
     'test_resolve_image_alias_encodes_name',
+    'test_effective_desired_preserves_immutable_keys',
+    'test_effective_desired_no_matching_keys',
+    'test_effective_desired_desired_wins',
+    'test_effective_desired_preserves_volatile_keys',
+    'test_effective_desired_targeted_preserves_global_keys',
+    'test_effective_desired_non_targeted_removes_extra_keys',
+    'test_effective_desired_targeted_removes_member_extra_keys',
 ]
 
 
@@ -619,3 +627,104 @@ def test_resolve_image_alias_encodes_name() -> None:
     incus_resolve_image_alias(client, 'ubuntu/24.04', '?project=default')
     path = client.get.call_args[0][0]
     assert '/1.0/images/aliases/ubuntu%2F24.04?project=default' == path
+
+
+def test_effective_desired_preserves_immutable_keys() -> None:
+    """Copy immutable keys from current into desired."""
+    desired = {'description': '', 'config': {'source': 'system/incus'}}
+    current = {'config': {'source': 'system/incus', 'zfs.pool_name': 'system/incus'}}
+    result = _incus_build_effective_desired(
+        desired, current, frozenset({'zfs.pool_name'}), frozenset(),
+    )
+    assert result['config']['zfs.pool_name'] == 'system/incus'
+    assert result['config']['source'] == 'system/incus'
+
+
+def test_effective_desired_no_matching_keys() -> None:
+    """Return desired unchanged when no preserved keys in current."""
+    desired = {'description': '', 'config': {'source': 'system/incus'}}
+    current = {'config': {'source': 'system/incus'}}
+    result = _incus_build_effective_desired(
+        desired, current, frozenset({'zfs.pool_name'}), frozenset(),
+    )
+    assert result is desired
+
+
+def test_effective_desired_desired_wins() -> None:
+    """Desired config takes precedence over preserved keys."""
+    desired = {'description': '', 'config': {'zfs.pool_name': 'custom'}}
+    current = {'config': {'zfs.pool_name': 'system/incus'}}
+    result = _incus_build_effective_desired(
+        desired, current, frozenset({'zfs.pool_name'}), frozenset(),
+    )
+    assert result['config']['zfs.pool_name'] == 'custom'
+
+
+def test_effective_desired_preserves_volatile_keys() -> None:
+    """Preserve volatile keys from current config."""
+    desired = {'description': '', 'config': {'bridge.mtu': '1500'}}
+    current = {
+        'config': {
+            'bridge.mtu': '1500',
+            'volatile.bridge.hwaddr': 'aa:bb:cc:dd:ee:ff',
+            'volatile.last_state.created': 'true',
+        },
+    }
+    result = _incus_build_effective_desired(
+        desired, current, frozenset(), frozenset(),
+    )
+    assert result['config']['volatile.bridge.hwaddr'] == 'aa:bb:cc:dd:ee:ff'
+    assert result['config']['volatile.last_state.created'] == 'true'
+    assert result['config']['bridge.mtu'] == '1500'
+
+
+def test_effective_desired_targeted_preserves_global_keys() -> None:
+    """Preserve global config keys when targeted."""
+    desired = {'description': '', 'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
+    current = {
+        'config': {
+            'bgp.ipv4.nexthop': '10.0.0.1',
+            'ipv4.address': '10.12.102.1/24',
+            'dns.nameservers': '10.12.12.1',
+        },
+    }
+    global_keys = frozenset({'ipv4.address', 'dns.nameservers'})
+    result = _incus_build_effective_desired(
+        desired, current, frozenset(), global_keys,
+    )
+    assert result['config']['ipv4.address'] == '10.12.102.1/24'
+    assert result['config']['dns.nameservers'] == '10.12.12.1'
+    assert result['config']['bgp.ipv4.nexthop'] == '10.0.0.1'
+
+
+def test_effective_desired_non_targeted_removes_extra_keys() -> None:
+    """Do not preserve non-runtime extra keys when not targeted."""
+    desired = {'description': '', 'config': {'ipv4.address': '10.12.102.1/24'}}
+    current = {
+        'config': {
+            'ipv4.address': '10.12.102.1/24',
+            'dns.nameservers': '10.12.12.1',
+        },
+    }
+    result = _incus_build_effective_desired(
+        desired, current, frozenset(), frozenset(),
+    )
+    assert result is desired
+
+
+def test_effective_desired_targeted_removes_member_extra_keys() -> None:
+    """Remove member-specific extra keys not in desired when targeted."""
+    desired = {'description': '', 'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
+    current = {
+        'config': {
+            'bgp.ipv4.nexthop': '10.0.0.1',
+            'ipv4.address': '10.12.102.1/24',
+            'bridge.external_interfaces': 'eth0',
+        },
+    }
+    global_keys = frozenset({'ipv4.address'})
+    result = _incus_build_effective_desired(
+        desired, current, frozenset(), global_keys,
+    )
+    assert result['config']['ipv4.address'] == '10.12.102.1/24'
+    assert 'bridge.external_interfaces' not in result['config']
