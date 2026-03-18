@@ -18,4 +18,4 @@
     incus_server_validate_certs: "{{ incus_cluster_validate_certs }}"
   when:
     - inventory_hostname == incus_cluster_primary
-    - not (incus_cluster_info_state.server.config.get('cluster.enabled') | bool)
+    - not (incus_cluster_info_state.server.environment.server_clustered | bool)
