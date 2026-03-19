@@ -31,16 +31,17 @@ __all__ = [
     'test_ensure_resource_create_only_params',
     'test_ensure_resource_create_only_param_missing_fails',
     'test_ensure_resource_target_create',
-    'test_ensure_resource_target_exists_updates',
+    'test_ensure_resource_target_exists_created_skips',
+    'test_ensure_resource_target_pending_updates',
     'test_ensure_resource_target_pending_posts',
+    'test_ensure_resource_target_errored_fails_with_message',
+    'test_ensure_resource_target_not_found_but_created_skips',
     'test_ensure_resource_pending_finalize',
     'test_ensure_resource_encodes_name',
     'test_ensure_resource_encodes_name_on_update',
     'test_ensure_resource_encodes_name_on_delete',
     'test_ensure_resource_update_extra_config_keys',
     'test_ensure_resource_update_extra_device_keys',
-    'test_ensure_resource_targeted_preserves_global_config',
-    'test_ensure_resource_targeted_removes_member_extra_config',
 ]
 
 
@@ -215,8 +216,11 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    get_path = client.get.call_args[0][0]
+    get_path = client.get.call_args_list[0][0][0]
     assert '?project=myproject&target=node1' in get_path
+    global_get_path = client.get.call_args_list[1][0][0]
+    assert '?project=myproject' in global_get_path
+    assert 'target' not in global_get_path
     post_path = client.post.call_args[0][0]
     assert '?project=myproject&target=node1' in post_path
 
@@ -283,11 +287,10 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
-def test_ensure_resource_target_exists_updates(mock_create_client: MagicMock) -> None:
-    """Update when target is set and resource exists with different config."""
+def test_ensure_resource_target_exists_created_skips(mock_create_client: MagicMock) -> None:
+    """Skip when target is set and resource exists with non-pending status."""
     client = MagicMock()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}, 'status': 'Created'}}
-    client.put.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
 
     module = _ensure_module()
@@ -295,13 +298,39 @@ def test_ensure_resource_target_exists_updates(mock_create_client: MagicMock) ->
     desired = {'description': 'new', 'config': {}}
     result = incus_ensure_resource(module, 'storage-pools', desired)
 
+    assert result is False
+    client.put.assert_not_called()
+    client.post.assert_not_called()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_pending_updates(mock_create_client: MagicMock) -> None:
+    """POST when target is set and both targeted and global status are Pending."""
+    client = MagicMock()
+    client.get.side_effect = [
+        {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}},
+        {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}},
+    ]
+    client.post.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node1'
+    module.params['driver'] = 'dir'
+    desired = {'description': '', 'config': {}}
+    result = incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(create_only_params=['driver']),
+    )
+
     assert result is True
-    client.put.assert_called_once()
+    client.post.assert_called_once()
+    client.put.assert_not_called()
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> None:
-    """POST per-member when member not yet defined."""
+    """POST per-member when resource does not exist at all."""
     client = MagicMock()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
@@ -317,10 +346,48 @@ def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> 
     )
 
     assert result is True
-    get_path = client.get.call_args[0][0]
-    assert '?target=node2' in get_path
+    client.post.assert_called_once()
     post_path = client.post.call_args[0][0]
     assert '?target=node2' in post_path
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_errored_fails_with_message(mock_create_client: MagicMock) -> None:
+    """Fail with message when target shows Pending but global is Errored."""
+    client = MagicMock()
+    client.get.side_effect = [
+        {'metadata': {'config': {}, 'status': 'Pending'}},
+        {'metadata': {'config': {}, 'status': 'Errored'}},
+    ]
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node1'
+    desired = {'description': '', 'config': {}}
+    incus_ensure_resource(module, 'networks', desired)
+
+    module.fail_json.assert_called_once()
+    assert 'errored state, delete it first' in module.fail_json.call_args[1]['msg']
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_target_not_found_but_created_skips(mock_create_client: MagicMock) -> None:
+    """Skip when target GET returns 404 but resource exists globally as Created."""
+    client = MagicMock()
+    client.get.side_effect = [
+        IncusNotFoundException('not found'),
+        {'metadata': {'status': 'Created', 'config': {}}},
+    ]
+    mock_create_client.return_value = client
+
+    module = _ensure_module()
+    module.params['target'] = 'node1'
+    desired = {'description': '', 'config': {}}
+    result = incus_ensure_resource(module, 'networks', desired)
+
+    assert result is False
+    client.post.assert_not_called()
+    client.put.assert_not_called()
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -436,46 +503,3 @@ def test_ensure_resource_update_extra_device_keys(mock_create_client: MagicMock)
     result = incus_ensure_resource(module, 'profiles', desired)
     assert result is True
     client.put.assert_called_once()
-
-
-@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
-def test_ensure_resource_targeted_preserves_global_config(mock_create_client: MagicMock) -> None:
-    """Preserve global config keys when updating targeted resource."""
-    client = MagicMock()
-    client.get.side_effect = [
-        {'metadata': {
-            'config': {'bgp.ipv4.nexthop': '10.0.0.1', 'ipv4.address': '10.12.102.1/24'},
-        }},
-        {'metadata': {'config': {'ipv4.address': '10.12.102.1/24'}}},
-    ]
-    mock_create_client.return_value = client
-    module = _ensure_module(target='node1')
-    desired = {'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
-    result = incus_ensure_resource(module, 'networks', desired)
-    assert result is False
-    client.put.assert_not_called()
-
-
-@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
-def test_ensure_resource_targeted_removes_member_extra_config(mock_create_client: MagicMock) -> None:
-    """Remove member-specific extra keys not in desired when targeted."""
-    client = MagicMock()
-    client.get.side_effect = [
-        {'metadata': {
-            'config': {
-                'bgp.ipv4.nexthop': '10.0.0.1',
-                'ipv4.address': '10.12.102.1/24',
-                'bridge.external_interfaces': 'eth0',
-            },
-        }},
-        {'metadata': {'config': {'ipv4.address': '10.12.102.1/24'}}},
-    ]
-    client.put.return_value = {'type': 'sync'}
-    mock_create_client.return_value = client
-    module = _ensure_module(target='node1')
-    desired = {'config': {'bgp.ipv4.nexthop': '10.0.0.1'}}
-    result = incus_ensure_resource(module, 'networks', desired)
-    assert result is True
-    put_data = client.put.call_args[0][1]
-    assert 'bridge.external_interfaces' not in put_data['config']
-    assert put_data['config']['ipv4.address'] == '10.12.102.1/24'
