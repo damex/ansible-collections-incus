@@ -484,7 +484,13 @@ class IncusClient:
 
 
 def incus_create_client(module: AnsibleModule) -> IncusClient:
-    """Create client."""
+    """
+    Create client.
+
+    >>> client = incus_create_client(module)
+    >>> client.get('/1.0')
+    {'type': 'sync', 'metadata': {...}}
+    """
     return IncusClient(IncusConnectionParameters(
         socket_path=module.params.get('socket_path') or INCUS_SOCKET_PATH,
         url=module.params.get('url'),
@@ -500,7 +506,12 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
 
 
 def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, str]:
-    """Stringify config with cloud-init YAML."""
+    """
+    Stringify config with cloud-init YAML.
+
+    >>> incus_stringify_instance_config({'limits.cpu': 2, 'boot.autostart': True})
+    {'limits.cpu': '2', 'boot.autostart': 'true'}
+    """
     result = {}
     for key, value in (config or {}).items():
         if value is None:
@@ -521,7 +532,12 @@ def incus_build_desired(
     config_lists: dict[str, str] | None = None,
     config_key_values: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Build desired state."""
+    """
+    Build desired state.
+
+    >>> incus_build_desired(module)
+    {'description': '', 'config': {}}
+    """
     has_devices = 'devices' in module.params and module.params['devices'] is not None
     config = module.params['config'] or {}
     list_keys: set[str] = set()
@@ -579,7 +595,12 @@ INCUS_SOURCE_ARGS = {
 
 
 def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
-    """Build image source."""
+    """
+    Build image source.
+
+    >>> incus_build_source(module)
+    {'type': 'image', 'alias': 'debian/13', 'server': 'https://images.linuxcontainers.org', 'protocol': 'simplestreams'}
+    """
     raw = module.params['source']
     server = module.params.get('source_server')
     protocol = module.params.get('source_protocol') or 'simplestreams'
@@ -603,7 +624,14 @@ def incus_build_query(
     target: str | None = None,
     recursion: int | None = None,
 ) -> str:
-    """Build query string."""
+    """
+    Build query string.
+
+    >>> incus_build_query(project='myproject', recursion=1)
+    '?project=myproject&recursion=1'
+    >>> incus_build_query()
+    ''
+    """
     params = []
     if project:
         params.append(f'project={quote(project, safe="")}')
@@ -618,7 +646,12 @@ def _incus_desired_matches_current(
     desired: dict[str, Any],
     current: dict[str, Any],
 ) -> bool:
-    """Check desired state matches current."""
+    """
+    Check desired state matches current.
+
+    >>> _incus_desired_matches_current({'description': 'test'}, {'description': 'test', 'config': {}})
+    True
+    """
     for key, desired_value in desired.items():
         if key not in current:
             return False
@@ -635,7 +668,12 @@ def _build_create_data(
     *,
     require: bool = True,
 ) -> dict[str, Any]:
-    """Build create payload with create-only params."""
+    """
+    Build create payload.
+
+    >>> _build_create_data(module, 'web', {'description': ''}, ['source'])
+    {'name': 'web', 'description': '', 'source': 'images:debian/13'}
+    """
     data: dict[str, Any] = {'name': name, **desired}
     for param in (create_only_params or []):
         value = module.params.get(param)
@@ -663,7 +701,12 @@ def _incus_build_effective_desired(
     immutable_config_keys: frozenset[str],
     global_config_keys: frozenset[str],
 ) -> dict[str, Any]:
-    """Build effective desired with preserved config keys from current."""
+    """
+    Build effective desired state.
+
+    >>> _incus_build_effective_desired({'config': {'limits.cpu': '2'}}, {'config': {'volatile.uuid': 'abc'}}, frozenset(), frozenset())
+    {'config': {'volatile.uuid': 'abc', 'limits.cpu': '2'}}
+    """
     current_config = current.get('config', {})
     desired_config = desired.get('config', {})
     preserved = {
@@ -688,7 +731,12 @@ def _incus_check_target_creation(
     encoded_name: str,
     project: str | None,
 ) -> bool:
-    """Check whether creating a resource at a cluster target is allowed."""
+    """
+    Check target creation is allowed.
+
+    >>> _incus_check_target_creation(module, client, 'instances', 'web', 'default')
+    True
+    """
     try:
         global_query = incus_build_query(project, None)
         global_meta = client.get(f'/1.0/{resource}/{encoded_name}{global_query}').get('metadata') or {}
@@ -706,7 +754,12 @@ def incus_ensure_resource(
     desired: dict[str, Any],
     options: IncusResourceOptions | None = None,
 ) -> bool:
-    """Ensure resource."""
+    """
+    Ensure resource.
+
+    >>> incus_ensure_resource(module, 'instances', {'description': '', 'config': {}})
+    True
+    """
     opts = options or IncusResourceOptions()
     client = incus_create_client(module)
     encoded_name = quote(module.params['name'], safe='')
@@ -768,7 +821,12 @@ def incus_find_certificate(
     client: IncusClient,
     name: str,
 ) -> dict[str, Any] | None:
-    """Find certificate by name."""
+    """
+    Find certificate by name.
+
+    >>> incus_find_certificate(client, 'my-cert')
+    {'name': 'my-cert', 'type': 'client', 'fingerprint': 'abc123...'}
+    """
     query = incus_build_query(recursion=1)
     certificates = client.get(f'/1.0/certificates{query}').get('metadata') or []
     for certificate in certificates:
@@ -783,7 +841,12 @@ def incus_resolve_image_alias(
     alias: str,
     query: str,
 ) -> str | None:
-    """Resolve image alias to fingerprint."""
+    """
+    Resolve image alias to fingerprint.
+
+    >>> incus_resolve_image_alias(client, 'debian/13', '?project=default')
+    'abc123def456...'
+    """
     encoded_alias = quote(alias, safe='')
     try:
         alias_meta = client.get(f'/1.0/images/aliases/{encoded_alias}{query}').get('metadata') or {}
@@ -797,7 +860,11 @@ def incus_run_write_module(
     module: AnsibleModule,
     impl: collections.abc.Callable[[], bool],
 ) -> None:
-    """Execute write module."""
+    """
+    Execute write module.
+
+    >>> incus_run_write_module(module, impl)
+    """
     try:
         module.exit_json(changed=impl())
     except IncusClientException as exc:
@@ -809,7 +876,11 @@ def incus_run_info_module(
     resource: str,
     return_key: str,
 ) -> None:
-    """Execute info module."""
+    """
+    Execute info module.
+
+    >>> incus_run_info_module(module, 'instances', 'instances')
+    """
     name = module.params.get('name')
     project = module.params.get('project')
     result: list[Any] = []
@@ -844,7 +915,11 @@ def incus_ensure_info(
     *,
     project_scoped: bool = False,
 ) -> None:
-    """Execute info module."""
+    """
+    Execute info module.
+
+    >>> incus_ensure_info('instances', 'instances')
+    """
     args: dict[str, Any] = {'name': {'type': 'str'}}
     if project_scoped:
         args['project'] = {'type': 'str', 'default': 'default'}
@@ -853,7 +928,12 @@ def incus_ensure_info(
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
-    """Create info module."""
+    """
+    Create info module.
+
+    >>> incus_create_info_module({'name': {'type': 'str'}})
+    <AnsibleModule ...>
+    """
     return AnsibleModule(
         argument_spec={**argument_spec, **INCUS_COMMON_ARGS},
         supports_check_mode=True,
@@ -868,7 +948,12 @@ def incus_create_write_module(
     *,
     require_yaml: bool = False,
 ) -> AnsibleModule:
-    """Create write module."""
+    """
+    Create write module.
+
+    >>> incus_create_write_module({'name': {'type': 'str', 'required': True}})
+    <AnsibleModule ...>
+    """
     module = AnsibleModule(
         argument_spec={**argument_spec, **INCUS_COMMON_ARGS, **INCUS_WRITE_ARGS},
         supports_check_mode=True,
@@ -886,7 +971,11 @@ def incus_wait(
     client: IncusClient,
     response: dict[str, Any],
 ) -> dict[str, Any] | None:
-    """Wait for operation."""
+    """
+    Wait for operation.
+
+    >>> incus_wait(module, client, {'type': 'sync', 'metadata': {}})
+    """
     if module.params.get('wait', True):
         return client.wait(response)
     return None
