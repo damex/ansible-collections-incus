@@ -19,7 +19,8 @@ __all__ = [
 
 
 def incus_common_flatten_key_value_to_config(
-    prefix: str, items: list[dict[str, Any]] | None,
+    prefix: str,
+    items: list[dict[str, Any]] | None,
 ) -> dict[str, str]:
     """
     Flatten key-value list to dotted config keys.
