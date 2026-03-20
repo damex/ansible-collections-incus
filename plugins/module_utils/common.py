@@ -35,14 +35,26 @@ def incus_common_flatten_key_value_to_config(
 
 
 def incus_common_stringify_value(value: Any) -> str:
-    """Stringify a value, converting bool to lowercase."""
+    """
+    Stringify a value, converting bool to lowercase.
+
+    >>> incus_common_stringify_value(True)
+    'true'
+    >>> incus_common_stringify_value(42)
+    '42'
+    """
     if isinstance(value, bool):
         return str(value).lower()
     return str(value)
 
 
 def incus_common_stringify_dict(data: dict[str, Any] | None) -> dict[str, str]:
-    """Stringify dict values, converting bools to lowercase and skipping None."""
+    """
+    Stringify dict values, converting bools to lowercase and skipping None.
+
+    >>> incus_common_stringify_dict({'cpu': True, 'memory': None, 'procs': 4})
+    {'cpu': 'true', 'procs': '4'}
+    """
     return {key: incus_common_stringify_value(value) for key, value in (data or {}).items() if value is not None}
 
 
