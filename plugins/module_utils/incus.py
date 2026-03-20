@@ -2,7 +2,9 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Incus API client."""
+"""
+Incus API client.
+"""
 
 from __future__ import annotations
 
@@ -133,29 +135,49 @@ INCUS_COMMON_REQUIRED_BY = {
 
 
 class IncusClientException(Exception):
-    """API error."""
+    """
+    API error.
+    """
 
 
 class IncusNotFoundException(IncusClientException):
-    """Resource not found."""
+    """
+    Resource not found.
+    """
 
 
 class _UnixSocketHTTPConnection(http.client.HTTPConnection):
-    """HTTP over Unix socket."""
+    """
+    HTTP over Unix socket.
+    """
 
     def __init__(self, socket_path: str) -> None:
-        """Set socket path."""
+        """
+        Set socket path.
+
+        >>> conn = _UnixSocketHTTPConnection('/run/incus/unix.socket')
+        """
         super().__init__('localhost')
         self.socket_path = socket_path
 
     def connect(self) -> None:
-        """Connect to socket."""
+        """
+        Connect to socket.
+
+        >>> conn.connect()
+        """
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.socket_path)
 
 
 class IncusConnectionParameters(NamedTuple):
-    """Connection parameters for Incus API."""
+    """
+    Connection parameters for Incus API.
+
+    >>> params = IncusConnectionParameters()
+    >>> params.socket_path
+    '/var/lib/incus/unix.socket'
+    """
 
     socket_path: str = INCUS_SOCKET_PATH
     url: str | None = None
@@ -170,10 +192,16 @@ class IncusConnectionParameters(NamedTuple):
 
 
 class IncusClient:
-    """Incus API client."""
+    """
+    Incus API client.
+    """
 
     def __init__(self, parameters: IncusConnectionParameters | None = None) -> None:
-        """Set connection parameters."""
+        """
+        Set connection parameters.
+
+        >>> client = IncusClient()
+        """
         self.parameters = parameters or IncusConnectionParameters()
         self.host: str | None = None
         self.port: int = 8443
@@ -186,14 +214,24 @@ class IncusClient:
             self.port = parsed.port or 8443
 
     def _write_temp_file(self, content: str) -> str:
-        """Write content to temporary file."""
+        """
+        Write content to temporary file.
+
+        >>> client._write_temp_file('cert content')
+        '/tmp/tmpXXXXXX.pem'
+        """
         with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as temp_file:
             temp_file.write(content)
             self._temp_files.append(temp_file.name)
             return temp_file.name
 
     def _build_ssl_context(self) -> ssl.SSLContext:
-        """Build SSL context."""
+        """
+        Build SSL context.
+
+        >>> client._build_ssl_context()
+        <ssl.SSLContext object>
+        """
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         if not self.parameters.validate_certs:
             context.check_hostname = False
@@ -215,7 +253,12 @@ class IncusClient:
         return context
 
     def _connect(self) -> http.client.HTTPConnection:
-        """Create connection."""
+        """
+        Create connection.
+
+        >>> client._connect()
+        <_UnixSocketHTTPConnection object>
+        """
         if self.parameters.url:
             context = self._build_ssl_context()
             if self.host is None:
@@ -224,19 +267,32 @@ class IncusClient:
         return _UnixSocketHTTPConnection(self.parameters.socket_path)
 
     def _connection(self) -> http.client.HTTPConnection:
-        """Get connection."""
+        """
+        Get connection.
+
+        >>> client._connection()
+        <_UnixSocketHTTPConnection object>
+        """
         if self._conn is None:
             self._conn = self._connect()
         return self._conn
 
     def _close(self) -> None:
-        """Close connection."""
+        """
+        Close connection.
+
+        >>> client._close()
+        """
         if self._conn is not None:
             self._conn.close()
             self._conn = None
 
     def close(self) -> None:
-        """Close connection and clean up temporary files."""
+        """
+        Close connection and clean up temporary files.
+
+        >>> client.close()
+        """
         self._close()
         for temp_path in self._temp_files:
             try:
@@ -246,7 +302,12 @@ class IncusClient:
         self._temp_files.clear()
 
     def _headers(self) -> dict[str, str]:
-        """Build headers."""
+        """
+        Build headers.
+
+        >>> client._headers()
+        {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        """
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
         if self.parameters.token:
             headers['Authorization'] = f'Bearer {self.parameters.token}'
@@ -259,7 +320,12 @@ class IncusClient:
         body: str | bytes | None,
         headers: dict[str, str],
     ) -> dict[str, Any]:
-        """Execute request."""
+        """
+        Execute request.
+
+        >>> client._send('GET', '/1.0', None, {})
+        {'type': 'sync', 'status': 'Success', 'metadata': {...}}
+        """
         conn = self._connection()
         conn.request(method, path, body=body, headers=headers)
         response = conn.getresponse()
@@ -273,7 +339,12 @@ class IncusClient:
         body: str | bytes | None,
         headers: dict[str, str],
     ) -> dict[str, Any]:
-        """Execute request with retry."""
+        """
+        Execute request with retry.
+
+        >>> client._execute('GET', '/1.0', None, {})
+        {'type': 'sync', 'status': 'Success', 'metadata': {...}}
+        """
         try:
             content = self._send(method, path, body, headers)
         except IncusClientException:
@@ -306,12 +377,22 @@ class IncusClient:
         path: str,
         data: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Send JSON request."""
+        """
+        Send JSON request.
+
+        >>> client._request('GET', '/1.0')
+        {'type': 'sync', 'status': 'Success', 'metadata': {...}}
+        """
         body = json.dumps(data) if data is not None else None
         return self._execute(method, path, body, self._headers())
 
     def get(self, path: str) -> dict[str, Any]:
-        """GET request."""
+        """
+        GET request.
+
+        >>> client.get('/1.0/instances/web')
+        {'type': 'sync', 'metadata': {'name': 'web', 'status': 'Running', ...}}
+        """
         return self._request('GET', path)
 
     def post(
@@ -319,7 +400,12 @@ class IncusClient:
         path: str,
         data: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """POST request."""
+        """
+        POST request.
+
+        >>> client.post('/1.0/instances', {'name': 'web', 'type': 'container'})
+        {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
+        """
         return self._request('POST', path, data)
 
     def put(
@@ -327,7 +413,12 @@ class IncusClient:
         path: str,
         data: dict[str, Any],
     ) -> dict[str, Any]:
-        """PUT request."""
+        """
+        PUT request.
+
+        >>> client.put('/1.0/instances/web', {'description': 'updated'})
+        {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
+        """
         return self._request('PUT', path, data)
 
     def patch(
@@ -335,11 +426,21 @@ class IncusClient:
         path: str,
         data: dict[str, Any],
     ) -> dict[str, Any]:
-        """PATCH request."""
+        """
+        PATCH request.
+
+        >>> client.patch('/1.0/instances/web', {'description': 'updated'})
+        {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
+        """
         return self._request('PATCH', path, data)
 
     def delete(self, path: str) -> dict[str, Any]:
-        """DELETE request."""
+        """
+        DELETE request.
+
+        >>> client.delete('/1.0/instances/web')
+        {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
+        """
         return self._request('DELETE', path)
 
     def post_file(
@@ -348,7 +449,12 @@ class IncusClient:
         file_path: str,
         public: bool = False,
     ) -> dict[str, Any]:
-        """POST file."""
+        """
+        POST file.
+
+        >>> client.post_file('/1.0/images', '/tmp/image.tar.gz')
+        {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
+        """
         with open(file_path, 'rb') as fh:
             body = fh.read()
         headers = {
@@ -363,7 +469,12 @@ class IncusClient:
         return self._execute('POST', path, body, headers)
 
     def wait(self, response: dict[str, Any]) -> dict[str, Any] | None:
-        """Wait for operation."""
+        """
+        Wait for operation.
+
+        >>> client.wait({'type': 'async', 'metadata': {'id': 'op-id'}})
+        {'status': 'Success', 'metadata': {...}}
+        """
         if response.get('type') == 'async':
             encoded_op_id = quote(response['metadata']['id'], safe='')
             result = self._request('GET', f'/1.0/operations/{encoded_op_id}/wait')
@@ -592,7 +703,13 @@ def _build_create_data(
 
 
 class IncusResourceOptions(NamedTuple):
-    """Options for incus_ensure_resource."""
+    """
+    Options for incus_ensure_resource.
+
+    >>> opts = IncusResourceOptions(create_only_params=['source'])
+    >>> opts.create_only_params
+    ['source']
+    """
 
     create_only_params: list[str] | None = None
     name_key: str = 'name'

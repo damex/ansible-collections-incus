@@ -2,7 +2,9 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Cloud-init option definitions and transforms."""
+"""
+Cloud-init option definitions and transforms.
+"""
 
 from __future__ import annotations
 
@@ -45,7 +47,13 @@ CLOUD_INIT_NAMED_SCALAR_DICT_KEYS = frozenset({
 
 
 class CloudInitInterfaceTypeOptions(NamedTuple):
-    """Type-specific options for a cloud-init network interface."""
+    """
+    Type-specific options for a cloud-init network interface.
+
+    >>> opts = CloudInitInterfaceTypeOptions(interfaces={'type': 'list', 'elements': 'str'})
+    >>> opts.interfaces
+    {'type': 'list', 'elements': 'str'}
+    """
 
     match: dict[str, Any] | None = None
     interfaces: dict[str, Any] | None = None
@@ -488,22 +496,32 @@ CLOUD_INIT_CONFIG_OPTIONS: dict[str, Any] = {
 
 
 def cloud_init_named_list_to_scalar_dict(items: list[dict[str, Any]]) -> dict[str, Any]:
-    """Transform list of name/value pairs to dict."""
+    """
+    Transform list of name/value pairs to dict.
+
+    >>> cloud_init_named_list_to_scalar_dict([{'name': 'Authorization', 'value': 'Bearer token'}])
+    {'Authorization': 'Bearer token'}
+    """
     return {item['name']: item.get('value', item.get('selection', '')) for item in items}
 
 
 def cloud_init_data_lists_to_dicts(data: Any) -> Any:
-    """Transform cloud-init named lists to dict format."""
+    """
+    Transform cloud-init named lists to dict format.
+
+    >>> cloud_init_data_lists_to_dicts({'disk_setup': [{'name': '/dev/vdb', 'table_type': 'gpt'}]})
+    {'disk_setup': {'/dev/vdb': {'table_type': 'gpt'}}}
+    """
     match data:
         case dict():
             result: dict[str, Any] = {}
-            for key, value in data.items():
-                if key in CLOUD_INIT_NAMED_DICT_KEYS and isinstance(value, list):
-                    result[key] = incus_common_named_list_to_dict(value)
-                elif key in CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(value, list):
-                    result[key] = cloud_init_named_list_to_scalar_dict(value)
+            for field_key, field_value in data.items():
+                if field_key in CLOUD_INIT_NAMED_DICT_KEYS and isinstance(field_value, list):
+                    result[field_key] = incus_common_named_list_to_dict(field_value)
+                elif field_key in CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(field_value, list):
+                    result[field_key] = cloud_init_named_list_to_scalar_dict(field_value)
                 else:
-                    result[key] = cloud_init_data_lists_to_dicts(value)
+                    result[field_key] = cloud_init_data_lists_to_dicts(field_value)
             return result
         case list():
             return [cloud_init_data_lists_to_dicts(item) for item in data]

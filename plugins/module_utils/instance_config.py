@@ -2,7 +2,9 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Incus instance config argument spec options."""
+"""
+Incus instance config argument spec options.
+"""
 
 from __future__ import annotations
 

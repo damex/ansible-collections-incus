@@ -2,7 +2,9 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Incus device argument spec and helpers shared by profile and instance modules."""
+"""
+Incus device argument spec and helpers shared by profile and instance modules.
+"""
 
 from __future__ import annotations
 
@@ -153,11 +155,16 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
 
 
 def devices_to_api(devices: list[dict[str, Any]] | None) -> dict[str, dict[str, str]]:
-    """Convert list of devices to Incus API dict format keyed by device name."""
+    """
+    Convert list of devices to Incus API dict format keyed by device name.
+
+    >>> devices_to_api([{'name': 'eth0', 'type': 'nic', 'network': 'lxdbr0'}])
+    {'eth0': {'type': 'nic', 'network': 'lxdbr0'}}
+    """
     return {
         device_name: {
-            key: incus_common_stringify_value(value)
-            for key, value in device_properties.items()
+            property_key: incus_common_stringify_value(property_value)
+            for property_key, property_value in device_properties.items()
         }
         for device_name, device_properties in incus_common_named_list_to_dict(devices).items()
     }

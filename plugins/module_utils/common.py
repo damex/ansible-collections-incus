@@ -2,7 +2,9 @@
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Common data conversion utilities."""
+"""
+Common data conversion utilities.
+"""
 
 from __future__ import annotations
 
