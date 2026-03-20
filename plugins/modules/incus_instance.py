@@ -129,12 +129,43 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 class IncusInstanceDesired(NamedTuple):
-    """Desired state for an Incus instance."""
+    """
+    Desired state for an Incus instance.
+
+    >>> desired = IncusInstanceDesired(
+    ...     description='test',
+    ...     config={'limits.cpu': '2'},
+    ...     preserved_config={'volatile.x': '1'},
+    ...     devices={},
+    ...     profiles=['default'],
+    ... )
+    >>> desired.description
+    'test'
+    """
 
     description: str
     config: dict[str, Any]
+    preserved_config: dict[str, Any]
     devices: dict[str, Any]
     profiles: list[str]
+
+
+def _build_config(
+    preserved: dict[str, Any],
+    desired: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Build full instance config from preserved and desired keys.
+
+    >>> _build_config({'volatile.x': '1'}, {'limits.cpu': '2'})
+    {'volatile.x': '1', 'limits.cpu': '2'}
+    """
+    result = {}
+    for k, v in preserved.items():
+        result[k] = v
+    for k, v in desired.items():
+        result[k] = v
+    return result
 
 
 def _get_instance(
@@ -273,6 +304,7 @@ def main() -> None:
     def _ensure_instance() -> bool:
         client = incus_create_client(module)
         encoded_name = quote(name, safe='')
+        current, exists = _get_instance(client, query, encoded_name)
         built = incus_build_desired(
             module,
             config_key_values={'environment_variables': 'environment'},
@@ -280,10 +312,13 @@ def main() -> None:
         desired = IncusInstanceDesired(
             description=built['description'],
             config=built['config'],
+            preserved_config={
+                k: v for k, v in current.get('config', {}).items()
+                if k.startswith(('volatile.', 'image.'))
+            },
             devices=built['devices'],
             profiles=module.params['profiles'],
         )
-        current, exists = _get_instance(client, query, encoded_name)
 
         if state == 'absent':
             return _delete_instance(module, client, query, encoded_name) if exists else False
@@ -312,14 +347,14 @@ def main() -> None:
             )
             changed = True
         else:
-            current_config = {k: v for k, v in current.get('config', {}).items()
-                              if not k.startswith(('volatile.', 'image.'))}
+            current_config = {
+                k: v for k, v in current.get('config', {}).items()
+                if not k.startswith(('volatile.', 'image.'))
+            }
             if (current.get('description', '') != desired.description
                     or current_config != desired.config
                     or current.get('devices', {}) != desired.devices
                     or current.get('profiles', []) != desired.profiles):
-                preserved_config = {k: v for k, v in current.get('config', {}).items()
-                                    if k.startswith(('volatile.', 'image.'))}
                 _update_instance(
                     module,
                     client,
@@ -328,7 +363,7 @@ def main() -> None:
                     {
                         'architecture': current['architecture'],
                         'description': desired.description,
-                        'config': preserved_config | desired.config,
+                        'config': _build_config(desired.preserved_config, desired.config),
                         'devices': desired.devices,
                         'profiles': desired.profiles,
                     },
