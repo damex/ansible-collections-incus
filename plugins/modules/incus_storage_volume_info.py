@@ -118,8 +118,7 @@ def main() -> None:
     name = module.params.get('name')
     pool = module.params['pool']
     project = module.params.get('project')
-    encoded_pool = quote(pool, safe='')
-    base_path = f'/1.0/storage-pools/{encoded_pool}/volumes/custom'
+    base_path = f'/1.0/storage-pools/{quote(pool, safe="")}/volumes/custom'
     result: list[Any] = []
 
     try:

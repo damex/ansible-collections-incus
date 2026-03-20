@@ -308,7 +308,11 @@ def _incus_image_import_build_metadata(architecture: str, properties: dict[str, 
         'architecture': architecture,
         'creation_date': int(time.time()),
     }
-    clean_properties = {property_key: property_value for property_key, property_value in (properties or {}).items() if property_value is not None}
+    clean_properties = {
+        property_key: property_value
+        for property_key, property_value in (properties or {}).items()
+        if property_value is not None
+    }
     if clean_properties:
         metadata['properties'] = clean_properties
     return yaml.dump(metadata, default_flow_style=False)
