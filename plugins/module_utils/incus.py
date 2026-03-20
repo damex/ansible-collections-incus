@@ -681,18 +681,6 @@ def _incus_build_effective_desired(
     return result
 
 
-def _incus_fetch_global_config_keys(
-    client: IncusClient,
-    resource: str,
-    encoded_name: str,
-    project: str | None,
-) -> frozenset[str]:
-    """Fetch global config keys for a resource without target."""
-    query = incus_build_query(project, None)
-    metadata = client.get(f'/1.0/{resource}/{encoded_name}{query}').get('metadata', {})
-    return frozenset(metadata.get('config', {}))
-
-
 def _incus_check_target_creation(
     module: AnsibleModule,
     client: IncusClient,
