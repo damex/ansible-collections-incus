@@ -288,8 +288,9 @@ def _incus_image_import_extract_zip(
             names = zf.namelist()
             if not names:
                 module.fail_json(msg="ZIP archive is empty")
-            zf.extract(names[0], temp_directory)
-            return os.path.join(temp_directory, names[0])
+            first_name = next(iter(names))
+            zf.extract(first_name, temp_directory)
+            return os.path.join(temp_directory, first_name)
     except zipfile.BadZipFile as exc:
         module.fail_json(msg=f"Invalid ZIP archive: {exc}")
     return file_path
