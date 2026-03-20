@@ -6,7 +6,7 @@
       damex.incus.incus_storage:
         name: "{{ incus_storages_storage_name }}"
         state: "{{ incus_storages_storage_state }}"
-        driver: "{{ incus_storages_storage.driver }}"
+        driver: "{{ incus_storages_storage_driver }}"
         description: "{{ incus_storages_storage_description }}"
         config: "{{ incus_storages_storage.config | combine(incus_storages_target.config) if (incus_storages_storage.config is defined and incus_storages_target.config is defined) else incus_storages_target.config if incus_storages_target.config is defined else incus_storages_storage.config | default(omit) }}"
         target: "{{ incus_storages_target.name }}"
@@ -30,7 +30,7 @@
       damex.incus.incus_storage:
         name: "{{ incus_storages_storage_name }}"
         state: "{{ incus_storages_storage_state }}"
-        driver: "{{ incus_storages_storage.driver }}"
+        driver: "{{ incus_storages_storage_driver }}"
         description: "{{ incus_storages_storage_description }}"
         config: "{{ incus_storages_storage.config | dict2items | rejectattr('key', 'in', incus_storages_storage_member_config_keys) | items2dict if incus_storages_storage.config is defined else omit }}"
         socket_path: "{{ incus_storages_storage_socket_path }}"

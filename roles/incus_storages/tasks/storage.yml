@@ -3,9 +3,9 @@
   damex.incus.incus_storage:
     name: "{{ incus_storages_storage_name }}"
     state: "{{ incus_storages_storage_state }}"
-    driver: "{{ incus_storages_storage.driver }}"
+    driver: "{{ incus_storages_storage_driver }}"
     description: "{{ incus_storages_storage_description }}"
-    config: "{{ incus_storages_storage.config | default(omit) }}"
+    config: "{{ incus_storages_storage_config }}"
     socket_path: "{{ incus_storages_storage_socket_path }}"
     url: "{{ incus_storages_storage_url }}"
     client_cert: "{{ incus_storages_storage_client_cert }}"

@@ -6,7 +6,7 @@
       damex.incus.incus_network:
         name: "{{ incus_networks_network_name }}"
         state: "{{ incus_networks_network_state }}"
-        type: "{{ incus_networks_network.type }}"
+        type: "{{ incus_networks_network_type }}"
         description: "{{ incus_networks_network_description }}"
         project: "{{ incus_networks_network_project }}"
         config: "{{ incus_networks_network_target_member_config | combine(incus_networks_target.config) if incus_networks_target.config is defined else incus_networks_network_target_member_config }}"
@@ -38,7 +38,7 @@
       damex.incus.incus_network:
         name: "{{ incus_networks_network_name }}"
         state: "{{ incus_networks_network_state }}"
-        type: "{{ incus_networks_network.type }}"
+        type: "{{ incus_networks_network_type }}"
         description: "{{ incus_networks_network_description }}"
         project: "{{ incus_networks_network_project }}"
         config: "{{ incus_networks_network.config | dict2items | rejectattr('key', 'in', incus_networks_network_member_config_keys) | items2dict if incus_networks_network.config is defined else omit }}"

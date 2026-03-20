@@ -3,10 +3,10 @@
   damex.incus.incus_network:
     name: "{{ incus_networks_network_name }}"
     state: "{{ incus_networks_network_state }}"
-    type: "{{ incus_networks_network.type }}"
+    type: "{{ incus_networks_network_type }}"
     description: "{{ incus_networks_network_description }}"
     project: "{{ incus_networks_network_project }}"
-    config: "{{ incus_networks_network.config | default(omit) }}"
+    config: "{{ incus_networks_network_config }}"
     socket_path: "{{ incus_networks_network_socket_path }}"
     url: "{{ incus_networks_network_url }}"
     client_cert: "{{ incus_networks_network_client_cert }}"
