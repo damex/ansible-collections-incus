@@ -126,5 +126,6 @@ INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
             },
         },
     },
-    **CLOUD_INIT_CONFIG_OPTIONS,
 }
+for spec_key, spec_value in CLOUD_INIT_CONFIG_OPTIONS.items():
+    INCUS_INSTANCE_CONFIG_OPTIONS[spec_key] = spec_value

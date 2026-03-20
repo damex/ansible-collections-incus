@@ -157,8 +157,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'zone': {'type': 'str', 'required': True},
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
@@ -168,7 +167,10 @@ def main() -> None:
             'elements': 'dict',
             'options': INCUS_NETWORK_ZONE_RECORD_ENTRY_OPTIONS,
         },
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     encoded_zone = quote(module.params['zone'], safe='')
     resource = f'network-zones/{encoded_zone}/records'
     desired = incus_build_desired(module)

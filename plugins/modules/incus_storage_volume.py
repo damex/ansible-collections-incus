@@ -154,6 +154,7 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
 from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
@@ -187,8 +188,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'pool': {'type': 'str', 'required': True},
         'project': {'type': 'str', 'default': 'default'},
         'target': {'type': 'str'},
@@ -202,7 +202,10 @@ def main() -> None:
         },
         'description': {'type': 'str', 'default': ''},
         'config': {'type': 'dict', 'default': {}, 'options': INCUS_STORAGE_VOLUME_CONFIG_OPTIONS},
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     encoded_pool = quote(module.params['pool'], safe='')
     resource = f'storage-pools/{encoded_pool}/volumes/custom'
     desired = incus_build_desired(module)

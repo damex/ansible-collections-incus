@@ -71,6 +71,8 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
@@ -93,8 +95,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
         'devices': {
@@ -108,7 +109,10 @@ def main() -> None:
             'default': {},
             'options': INCUS_INSTANCE_CONFIG_OPTIONS,
         },
-    }, require_yaml=True)
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec, require_yaml=True)
     desired = incus_build_desired(module)
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'profiles', desired))
 

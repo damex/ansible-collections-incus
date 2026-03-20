@@ -302,6 +302,8 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusResourceOptions,
@@ -400,8 +402,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'target': {'type': 'str'},
         'driver': {
             'type': 'str',
@@ -411,7 +412,10 @@ def main() -> None:
         },
         'config': {'type': 'dict', 'default': {}, 'options': INCUS_STORAGE_CONFIG_OPTIONS},
         'description': {'type': 'str', 'default': ''},
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     desired = incus_build_desired(module)
     driver = module.params.get('driver') or ''
     options = IncusResourceOptions(

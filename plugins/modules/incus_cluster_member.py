@@ -256,8 +256,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'state': {
             'type': 'str',
             'default': 'present',
@@ -282,7 +281,11 @@ def main() -> None:
             'elements': 'str',
         },
         'failure_domain': {'type': 'str'},
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        if spec_key not in argument_spec:
+            argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     try:
         result = _ensure_cluster_member(module)
         module.exit_json(**result)

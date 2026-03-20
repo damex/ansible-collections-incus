@@ -706,20 +706,22 @@ def main() -> None:
 
     >>> main()
     """
+    config_options: dict[str, Any] = {
+        'logging': {
+            'type': 'list',
+            'elements': 'dict',
+            'options': INCUS_SERVER_LOGGING_OPTIONS,
+        },
+    }
+    for option_key, option_value in INCUS_SERVER_CONFIG_OPTIONS.items():
+        config_options[option_key] = option_value
     module = incus_create_write_module({
         'init': {'type': 'bool', 'default': False},
         'cluster': {'type': 'dict'},
         'config': {
             'type': 'dict',
             'default': {},
-            'options': {
-                **INCUS_SERVER_CONFIG_OPTIONS,
-                'logging': {
-                    'type': 'list',
-                    'elements': 'dict',
-                    'options': INCUS_SERVER_LOGGING_OPTIONS,
-                },
-            },
+            'options': config_options,
         },
     })
     desired_config = _build_desired_config(module.params['config'] or {})

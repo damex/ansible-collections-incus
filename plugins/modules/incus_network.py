@@ -418,6 +418,8 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
+from typing import Any
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusResourceOptions,
@@ -579,8 +581,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'project': {'type': 'str', 'default': 'default'},
         'target': {'type': 'str'},
         'type': {
@@ -599,7 +600,10 @@ def main() -> None:
             'options': INCUS_NETWORK_CONFIG_OPTIONS,
         },
         'description': {'type': 'str', 'default': ''},
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     desired = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
     incus_run_write_module(
         module,

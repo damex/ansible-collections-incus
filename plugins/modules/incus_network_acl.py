@@ -314,8 +314,7 @@ def main() -> None:
 
     >>> main()
     """
-    module = incus_create_write_module({
-        **INCUS_COMMON_ARGUMENT_SPEC,
+    argument_spec: dict[str, Any] = {
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
         'config': {'type': 'dict', 'default': {}},
@@ -329,7 +328,10 @@ def main() -> None:
             'elements': 'dict',
             'options': INCUS_NETWORK_ACL_RULE_OPTIONS,
         },
-    })
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
     desired = incus_build_desired(module)
     desired['ingress'] = _normalize_rules(module.params.get('ingress'))
     desired['egress'] = _normalize_rules(module.params.get('egress'))
