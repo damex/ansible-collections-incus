@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus certificate."""
+"""
+Ensure Incus certificate.
+"""
 
 from __future__ import annotations
 
@@ -95,7 +97,12 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def _ensure_certificate(module: Any) -> bool:
-    """Ensure certificate state."""
+    """
+    Ensure certificate state.
+
+    >>> _ensure_certificate(module)
+    True
+    """
     client = incus_create_client(module)
     name = module.params['name']
     current = incus_find_certificate(client, name)
@@ -139,7 +146,11 @@ def _ensure_certificate(module: Any) -> bool:
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         'name': {'type': 'str', 'required': True},
         'state': {
