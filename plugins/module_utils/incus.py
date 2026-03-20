@@ -681,8 +681,13 @@ def _incus_build_effective_desired(
     }
     if not preserved:
         return desired
+    combined_config: dict[str, Any] = {}
+    for config_key, config_value in preserved.items():
+        combined_config[config_key] = config_value
+    for config_key, config_value in desired_config.items():
+        combined_config[config_key] = config_value
     result = desired.copy()
-    result['config'] = preserved | desired_config
+    result['config'] = combined_config
     return result
 
 
