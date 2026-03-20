@@ -260,18 +260,19 @@ def _manage_state(
     >>> _manage_state(module, client, '/1.0/instances/web/state', 'started', 'Stopped')
     True
     """
-    if state == 'started' and status != 'Running':
-        if not module.check_mode:
-            incus_wait(module, client, client.put(state_path, {'action': 'start'}))
-        return True
-    if state == 'stopped' and status != 'Stopped':
-        if not module.check_mode:
-            incus_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
-        return True
-    if state == 'restarted' and status == 'Running':
-        if not module.check_mode:
-            incus_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
-        return True
+    match state:
+        case 'started' if status != 'Running':
+            if not module.check_mode:
+                incus_wait(module, client, client.put(state_path, {'action': 'start'}))
+            return True
+        case 'stopped' if status != 'Stopped':
+            if not module.check_mode:
+                incus_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
+            return True
+        case 'restarted' if status == 'Running':
+            if not module.check_mode:
+                incus_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
+            return True
     return False
 
 
