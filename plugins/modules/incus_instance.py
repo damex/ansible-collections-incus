@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus instance."""
+"""
+Ensure Incus instance.
+"""
 
 from __future__ import annotations
 
@@ -173,7 +175,12 @@ def _get_instance(
     query: str,
     encoded_name: str,
 ) -> tuple[dict[str, Any], bool]:
-    """Return (metadata dict, exists bool) for the instance."""
+    """
+    Return (metadata dict, exists bool) for the instance.
+
+    >>> _get_instance(client, '?project=default', 'web')
+    ({'name': 'web', 'status': 'Running', ...}, True)
+    """
     try:
         return client.get(f'/1.0/instances/{encoded_name}{query}').get('metadata') or {}, True
     except IncusNotFoundException:
@@ -186,7 +193,12 @@ def _create_instance(
     create_query: str,
     payload: dict[str, Any],
 ) -> bool:
-    """Create instance from image source (stopped state)."""
+    """
+    Create instance from image source (stopped state).
+
+    >>> _create_instance(module, client, '?project=default', {'name': 'web', 'type': 'container'})
+    True
+    """
     if not module.check_mode:
         incus_wait(
             module,
@@ -203,7 +215,12 @@ def _update_instance(
     encoded_name: str,
     payload: dict[str, Any],
 ) -> bool:
-    """Update instance config, devices, and profiles."""
+    """
+    Update instance config, devices, and profiles.
+
+    >>> _update_instance(module, client, '?project=default', 'web', {'description': 'updated'})
+    True
+    """
     if not module.check_mode:
         incus_wait(
             module,
@@ -219,7 +236,12 @@ def _delete_instance(
     query: str,
     encoded_name: str,
 ) -> bool:
-    """Delete instance."""
+    """
+    Delete instance.
+
+    >>> _delete_instance(module, client, '?project=default', 'web')
+    True
+    """
     if not module.check_mode:
         incus_wait(module, client, client.delete(f'/1.0/instances/{encoded_name}{query}'))
     return True
@@ -232,7 +254,12 @@ def _manage_state(
     state: str,
     status: str,
 ) -> bool:
-    """Start, stop, or restart the instance based on desired state."""
+    """
+    Start, stop, or restart the instance based on desired state.
+
+    >>> _manage_state(module, client, '/1.0/instances/web/state', 'started', 'Stopped')
+    True
+    """
     if state == 'started' and status != 'Running':
         if not module.check_mode:
             incus_wait(module, client, client.put(state_path, {'action': 'start'}))
@@ -249,7 +276,11 @@ def _manage_state(
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     argument_spec: dict[str, Any] = {
         'name': {'type': 'str', 'required': True},
         'state': {
