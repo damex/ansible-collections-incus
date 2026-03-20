@@ -137,17 +137,28 @@ def _get_instance(client: IncusClient, query: str, encoded_name: str) -> tuple[d
 
 
 def _create_instance(
-    module: Any, client: IncusClient, create_query: str,
-    name: str, desired: dict[str, Any],
+    module: Any,
+    client: IncusClient,
+    create_query: str,
+    name: str,
+    desired: dict[str, Any],
 ) -> bool:
     """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
     if not module.check_mode:
-        incus_wait(module, client, client.post(f'/1.0/instances{create_query}', {'name': name, **desired}))
+        incus_wait(
+            module,
+            client,
+            client.post(f'/1.0/instances{create_query}', {'name': name} | desired),
+        )
     return True
 
 
 def _update_instance(
-    module: Any, client: IncusClient, query: str, encoded_name: str, desired: dict[str, Any],
+    module: Any,
+    client: IncusClient,
+    query: str,
+    encoded_name: str,
+    desired: dict[str, Any],
 ) -> bool:
     """Update instance config, devices, and profiles. desired must include architecture."""
     if not module.check_mode:
@@ -155,14 +166,25 @@ def _update_instance(
     return True
 
 
-def _delete_instance(module: Any, client: IncusClient, query: str, encoded_name: str) -> bool:
+def _delete_instance(
+    module: Any,
+    client: IncusClient,
+    query: str,
+    encoded_name: str,
+) -> bool:
     """Delete instance."""
     if not module.check_mode:
         incus_wait(module, client, client.delete(f'/1.0/instances/{encoded_name}{query}'))
     return True
 
 
-def _manage_state(module: Any, client: IncusClient, state_path: str, state: str, status: str) -> bool:
+def _manage_state(
+    module: Any,
+    client: IncusClient,
+    state_path: str,
+    state: str,
+    status: str,
+) -> bool:
     """Start, stop, or restart the instance based on desired state."""
     if state == 'started' and status != 'Running':
         if not module.check_mode:
@@ -229,10 +251,10 @@ def main() -> None:
     name = module.params['name']
     query = incus_build_query(project, None)
     create_query = incus_build_query(project, target)
-    desired = {
-        **incus_build_desired(module, config_key_values={'environment_variables': 'environment'}),
-        'profiles': module.params['profiles'],
-    }
+    desired = incus_build_desired(
+        module,
+        config_key_values={'environment_variables': 'environment'},
+    ) | {'profiles': module.params['profiles']}
 
     def _ensure_instance() -> bool:
         client = incus_create_client(module)
@@ -249,8 +271,7 @@ def main() -> None:
         if not exists:
             if not module.params['source']:
                 module.fail_json(msg="'source' is required when creating an instance")
-            create_desired = {
-                **desired,
+            create_desired = desired | {
                 'type': module.params['type'],
                 'ephemeral': module.params['ephemeral'],
                 'source': incus_build_source(module),
@@ -266,8 +287,8 @@ def main() -> None:
                     or current.get('profiles', []) != desired['profiles']):
                 preserved_config = {k: v for k, v in current.get('config', {}).items()
                                     if k.startswith(('volatile.', 'image.'))}
-                update_desired = {'architecture': current['architecture'], **desired}
-                update_desired['config'] = {**preserved_config, **desired['config']}
+                update_desired = {'architecture': current['architecture']} | desired
+                update_desired['config'] = preserved_config | desired['config']
                 _update_instance(module, client, query, encoded_name, update_desired)
                 changed = True
 

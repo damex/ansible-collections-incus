@@ -576,7 +576,7 @@ def _build_create_data(
     ... )
     {'name': 'web', 'description': '', 'source': 'images:debian/13'}
     """
-    data: dict[str, Any] = {'name': name, **desired}
+    data: dict[str, Any] = {'name': name} | desired
     for param in (create_only_params or []):
         value = module.params.get(param)
         if require and not value:
@@ -626,8 +626,8 @@ def _incus_build_effective_desired(
     }
     if not preserved:
         return desired
-    result = {**desired}
-    result['config'] = {**preserved, **desired_config}
+    result = desired.copy()
+    result['config'] = preserved | desired_config
     return result
 
 
