@@ -38,11 +38,11 @@
             validate_certs: "{{ incus_cluster_validate_certs }}"
           delegate_to: "{{ incus_cluster_primary }}"
           register: incus_cluster_member_token_state
-#          no_log: true
+          no_log: true
         - name: Ensure incus cluster is joined {{ incus_cluster_cluster.server_name }}
           damex.incus.incus_server:
             init: true
             config: "{{ incus_cluster_config }}"
             cluster: "{{ incus_cluster_cluster | combine({'cluster_address': hostvars[incus_cluster_primary].incus_cluster_cluster.server_address, 'cluster_token': incus_cluster_member_token_state.join_token}) }}"
             socket_path: "{{ incus_cluster_socket_path }}"
-#          no_log: true
+          no_log: true
