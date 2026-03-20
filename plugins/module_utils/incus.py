@@ -583,7 +583,6 @@ def incus_build_desired(
     return desired
 
 
-
 def _incus_desired_matches_current(
     desired: dict[str, Any],
     current: dict[str, Any],
