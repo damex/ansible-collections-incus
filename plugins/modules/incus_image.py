@@ -125,12 +125,20 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def _update_image(
-    module: Any, client: IncusClient, encoded_fingerprint: str, query: str,
+    module: Any,
+    client: IncusClient,
+    encoded_fingerprint: str,
+    query: str,
 ) -> bool:
     """
     Update image properties if they differ from desired state.
 
-    >>> _update_image(module, client, 'abc123', '?project=default')
+    >>> _update_image(
+    ...     module,
+    ...     client,
+    ...     'abc123',
+    ...     '?project=default',
+    ... )
     False
     """
     image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata') or {}

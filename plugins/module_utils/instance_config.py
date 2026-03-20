@@ -104,9 +104,17 @@ INCUS_INSTANCE_CONFIG_OPTIONS: dict[str, Any] = {
     'raw.qemu.scriptlet': {'type': 'str'},
     'raw.seccomp': {'type': 'str'},
     'agent.nic_config': {'type': 'bool'},
-    'cluster.evacuate': {'type': 'str', 'choices': [
-        'auto', 'live-migrate', 'migrate', 'stop', 'stateful-stop', 'force-stop',
-    ]},
+    'cluster.evacuate': {
+        'type': 'str',
+        'choices': [
+            'auto',
+            'live-migrate',
+            'migrate',
+            'stop',
+            'stateful-stop',
+            'force-stop',
+        ],
+    },
     'linux.kernel_modules': {'type': 'str'},
     'oci.cwd': {'type': 'str'},
     'oci.entrypoint': {'type': 'str'},
