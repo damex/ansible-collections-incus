@@ -361,7 +361,13 @@ class IncusClient:
             headers['Authorization'] = f'Bearer {self.parameters.token}'
         return headers
 
-    def _send(self, method: str, path: str, body: str | bytes | None, headers: dict[str, str]) -> dict[str, Any]:
+    def _send(
+        self,
+        method: str,
+        path: str,
+        body: str | bytes | None,
+        headers: dict[str, str],
+    ) -> dict[str, Any]:
         """Execute request."""
         conn = self._connection()
         conn.request(method, path, body=body, headers=headers)
@@ -369,7 +375,13 @@ class IncusClient:
         result: dict[str, Any] = json.loads(response.read().decode('utf-8'))
         return result
 
-    def _execute(self, method: str, path: str, body: str | bytes | None, headers: dict[str, str]) -> dict[str, Any]:
+    def _execute(
+        self,
+        method: str,
+        path: str,
+        body: str | bytes | None,
+        headers: dict[str, str],
+    ) -> dict[str, Any]:
         """Execute request with retry."""
         try:
             content = self._send(method, path, body, headers)
@@ -397,7 +409,12 @@ class IncusClient:
 
         return content
 
-    def _request(self, method: str, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+    def _request(
+        self,
+        method: str,
+        path: str,
+        data: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Send JSON request."""
         body = json.dumps(data) if data is not None else None
         return self._execute(method, path, body, self._headers())
@@ -406,15 +423,27 @@ class IncusClient:
         """GET request."""
         return self._request('GET', path)
 
-    def post(self, path: str, data: dict[str, Any] | None = None) -> dict[str, Any]:
+    def post(
+        self,
+        path: str,
+        data: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """POST request."""
         return self._request('POST', path, data)
 
-    def put(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
+    def put(
+        self,
+        path: str,
+        data: dict[str, Any],
+    ) -> dict[str, Any]:
         """PUT request."""
         return self._request('PUT', path, data)
 
-    def patch(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
+    def patch(
+        self,
+        path: str,
+        data: dict[str, Any],
+    ) -> dict[str, Any]:
         """PATCH request."""
         return self._request('PATCH', path, data)
 
@@ -422,7 +451,12 @@ class IncusClient:
         """DELETE request."""
         return self._request('DELETE', path)
 
-    def post_file(self, path: str, file_path: str, public: bool = False) -> dict[str, Any]:
+    def post_file(
+        self,
+        path: str,
+        file_path: str,
+        public: bool = False,
+    ) -> dict[str, Any]:
         """POST file."""
         with open(file_path, 'rb') as fh:
             body = fh.read()
@@ -565,7 +599,9 @@ def incus_build_source(module: AnsibleModule) -> dict[str, Any]:
 
 
 def incus_build_query(
-    project: str | None = None, target: str | None = None, recursion: int | None = None,
+    project: str | None = None,
+    target: str | None = None,
+    recursion: int | None = None,
 ) -> str:
     """Build query string."""
     params = []
@@ -578,7 +614,10 @@ def incus_build_query(
     return f'?{"&".join(params)}' if params else ''
 
 
-def _incus_desired_matches_current(desired: dict[str, Any], current: dict[str, Any]) -> bool:
+def _incus_desired_matches_current(
+    desired: dict[str, Any],
+    current: dict[str, Any],
+) -> bool:
     """Check desired state matches current."""
     for key, desired_value in desired.items():
         if key not in current:
@@ -589,8 +628,12 @@ def _incus_desired_matches_current(desired: dict[str, Any], current: dict[str, A
 
 
 def _build_create_data(
-    module: AnsibleModule, name: str, desired: dict[str, Any],
-    create_only_params: list[str] | None, *, require: bool = True,
+    module: AnsibleModule,
+    name: str,
+    desired: dict[str, Any],
+    create_only_params: list[str] | None,
+    *,
+    require: bool = True,
 ) -> dict[str, Any]:
     """Build create payload with create-only params."""
     data: dict[str, Any] = {'name': name, **desired}
@@ -733,7 +776,10 @@ def incus_ensure_resource(
     return False
 
 
-def incus_find_certificate(client: IncusClient, name: str) -> dict[str, Any] | None:
+def incus_find_certificate(
+    client: IncusClient,
+    name: str,
+) -> dict[str, Any] | None:
     """Find certificate by name."""
     query = incus_build_query(recursion=1)
     certificates = client.get(f'/1.0/certificates{query}').get('metadata') or []
@@ -744,7 +790,11 @@ def incus_find_certificate(client: IncusClient, name: str) -> dict[str, Any] | N
     return None
 
 
-def incus_resolve_image_alias(client: IncusClient, alias: str, query: str) -> str | None:
+def incus_resolve_image_alias(
+    client: IncusClient,
+    alias: str,
+    query: str,
+) -> str | None:
     """Resolve image alias to fingerprint."""
     encoded_alias = quote(alias, safe='')
     try:
@@ -755,7 +805,10 @@ def incus_resolve_image_alias(client: IncusClient, alias: str, query: str) -> st
         return None
 
 
-def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable[[], bool]) -> None:
+def incus_run_write_module(
+    module: AnsibleModule,
+    impl: collections.abc.Callable[[], bool],
+) -> None:
     """Execute write module."""
     try:
         module.exit_json(changed=impl())
@@ -763,7 +816,11 @@ def incus_run_write_module(module: AnsibleModule, impl: collections.abc.Callable
         module.fail_json(msg=str(exc))
 
 
-def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str) -> None:
+def incus_run_info_module(
+    module: AnsibleModule,
+    resource: str,
+    return_key: str,
+) -> None:
     """Execute info module."""
     name = module.params.get('name')
     project = module.params.get('project')
@@ -793,7 +850,12 @@ def incus_run_info_module(module: AnsibleModule, resource: str, return_key: str)
     module.exit_json(**{return_key: result})
 
 
-def incus_ensure_info(resource: str, return_key: str, *, project_scoped: bool = False) -> None:
+def incus_ensure_info(
+    resource: str,
+    return_key: str,
+    *,
+    project_scoped: bool = False,
+) -> None:
     """Execute info module."""
     args: dict[str, Any] = {'name': {'type': 'str'}}
     if project_scoped:
@@ -814,7 +876,9 @@ def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
 
 
 def incus_create_write_module(
-    argument_spec: dict[str, Any], *, require_yaml: bool = False,
+    argument_spec: dict[str, Any],
+    *,
+    require_yaml: bool = False,
 ) -> AnsibleModule:
     """Create write module."""
     module = AnsibleModule(
@@ -829,7 +893,11 @@ def incus_create_write_module(
     return module
 
 
-def incus_wait(module: AnsibleModule, client: IncusClient, response: dict[str, Any]) -> dict[str, Any] | None:
+def incus_wait(
+    module: AnsibleModule,
+    client: IncusClient,
+    response: dict[str, Any],
+) -> dict[str, Any] | None:
     """Wait for operation."""
     if module.params.get('wait', True):
         return client.wait(response)
