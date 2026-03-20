@@ -44,7 +44,12 @@ CLOUD_INIT_NAMED_SCALAR_DICT_KEYS = frozenset({
 
 
 def cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
-    """Build cloud-init network interface options."""
+    """
+    Build cloud-init network interface options.
+
+    >>> sorted(cloud_init_interface_options().keys())
+    ['accept-ra', 'addresses', 'dhcp4', 'dhcp6', 'gateway4', 'gateway6', 'mtu', 'nameservers', 'optional', 'routes', 'set-name']
+    """
     opts: dict[str, Any] = {
         'name': {'type': 'str', 'required': True},
         'dhcp4': {'type': 'bool'},
