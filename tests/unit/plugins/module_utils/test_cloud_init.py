@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
+    CloudInitInterfaceTypeOptions,
     cloud_init_data_lists_to_dicts,
     cloud_init_interface_options,
     cloud_init_named_list_to_scalar_dict,
@@ -192,8 +193,10 @@ def test_cloud_init_interface_options_base_keys() -> None:
 def test_cloud_init_interface_options_extra_keys() -> None:
     """Merge extra keys into interface options."""
     opts = cloud_init_interface_options(
-        interfaces={'type': 'list', 'elements': 'str'},
-        parameters={'type': 'dict'},
+        CloudInitInterfaceTypeOptions(
+            interfaces={'type': 'list', 'elements': 'str'},
+            parameters={'type': 'dict'},
+        ),
     )
     assert 'interfaces' in opts
     assert 'parameters' in opts
