@@ -93,7 +93,12 @@ def incus_common_flatten_to_config(
 
 
 def incus_common_strip_none(data: Any) -> Any:
-    """Strip None values recursively."""
+    """
+    Strip None values recursively from dicts and lists.
+
+    >>> incus_common_strip_none({'a': 1, 'b': None, 'c': {'d': None, 'e': 2}})
+    {'a': 1, 'c': {'e': 2}}
+    """
     if isinstance(data, dict):
         return {key: incus_common_strip_none(value) for key, value in data.items() if value is not None}
     if isinstance(data, list):
