@@ -222,7 +222,7 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
             desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
         if module.params.get('groups') is not None:
             desired['groups'] = sorted(module.params['groups'])
-        if module.params.get('failure_domain') is not None:
+        if module.params.get('failure_domain'):
             desired['failure_domain'] = module.params['failure_domain']
 
         def _comparable(value: Any) -> Any:
