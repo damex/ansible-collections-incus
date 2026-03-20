@@ -217,14 +217,11 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
             'groups': sorted(current.get('groups', [])),
             'failure_domain': current.get('failure_domain', ''),
         }
-        # user-specified roles merged with immutable ones incus manages
         if module.params.get('roles') is not None:
             current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
             desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
-        # override current groups only when explicitly set
         if module.params.get('groups') is not None:
             desired['groups'] = sorted(module.params['groups'])
-        # override current failure domain only when explicitly set
         if module.params.get('failure_domain') is not None:
             desired['failure_domain'] = module.params['failure_domain']
 
