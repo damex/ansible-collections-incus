@@ -450,16 +450,20 @@ def incus_build_desired(
         for key, prefix in config_lists.items():
             items = raw_config.get(key)
             if items:
-                desired['config'].update(
-                    incus_common_flatten_to_config(prefix, incus_common_named_list_to_dict(items)),
-                )
+                for config_key, config_value in incus_common_flatten_to_config(
+                    prefix,
+                    incus_common_named_list_to_dict(items),
+                ).items():
+                    desired['config'][config_key] = config_value
     if config_key_values:
         for key, prefix in config_key_values.items():
             items = raw_config.get(key)
             if items:
-                desired['config'].update(
-                    incus_common_flatten_key_value_to_config(prefix, items),
-                )
+                for config_key, config_value in incus_common_flatten_key_value_to_config(
+                    prefix,
+                    items,
+                ).items():
+                    desired['config'][config_key] = config_value
     return desired
 
 
@@ -576,7 +580,8 @@ def _build_create_data(
     ... )
     {'name': 'web', 'description': '', 'source': 'images:debian/13'}
     """
-    data: dict[str, Any] = {'name': name} | desired
+    data: dict[str, Any] = desired.copy()
+    data['name'] = name
     for param in (create_only_params or []):
         value = module.params.get(param)
         if require and not value:
@@ -868,8 +873,11 @@ def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
     >>> incus_create_info_module({'name': {'type': 'str'}})
     <AnsibleModule ...>
     """
+    full_spec = argument_spec.copy()
+    for spec_key, spec_value in INCUS_COMMON_ARGS.items():
+        full_spec[spec_key] = spec_value
     return AnsibleModule(
-        argument_spec={**argument_spec, **INCUS_COMMON_ARGS},
+        argument_spec=full_spec,
         supports_check_mode=True,
         mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
         required_together=INCUS_COMMON_REQUIRED_TOGETHER,
@@ -888,8 +896,13 @@ def incus_create_write_module(
     >>> incus_create_write_module({'name': {'type': 'str', 'required': True}})
     <AnsibleModule ...>
     """
+    full_spec = argument_spec.copy()
+    for spec_key, spec_value in INCUS_COMMON_ARGS.items():
+        full_spec[spec_key] = spec_value
+    for spec_key, spec_value in INCUS_WRITE_ARGS.items():
+        full_spec[spec_key] = spec_value
     module = AnsibleModule(
-        argument_spec={**argument_spec, **INCUS_COMMON_ARGS, **INCUS_WRITE_ARGS},
+        argument_spec=full_spec,
         supports_check_mode=True,
         mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
         required_together=INCUS_COMMON_REQUIRED_TOGETHER,

@@ -143,7 +143,7 @@ def _update_image(
 
 def main() -> None:
     """Run module."""
-    module = incus_create_write_module({
+    argument_spec: dict[str, Any] = {
         'alias': {'type': 'str', 'required': True},
         'state': {
             'type': 'str',
@@ -154,7 +154,6 @@ def main() -> None:
             ],
         },
         'project': {'type': 'str', 'default': 'default'},
-        **INCUS_SOURCE_ARGS,
         'type': {
             'type': 'str',
             'default': 'container',
@@ -166,7 +165,10 @@ def main() -> None:
         'copy_aliases': {'type': 'bool', 'default': False},
         'auto_update': {'type': 'bool', 'default': False},
         'public': {'type': 'bool', 'default': False},
-    })
+    }
+    for spec_key, spec_value in INCUS_SOURCE_ARGS.items():
+        argument_spec[spec_key] = spec_value
+    module = incus_create_write_module(argument_spec)
 
     def _ensure_image() -> bool:
         client = incus_create_client(module)

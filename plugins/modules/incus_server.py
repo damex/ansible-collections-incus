@@ -645,12 +645,11 @@ def _build_desired_config(config: dict[str, Any]) -> dict[str, str]:
     flat_config = {key: value for key, value in config.items() if key != 'logging'}
     desired = incus_common_stringify_dict(flat_config)
     if logging_items:
-        desired.update(
-            incus_common_flatten_to_config(
-                'logging',
-                incus_common_named_list_to_dict(logging_items),
-            ),
-        )
+        for config_key, config_value in incus_common_flatten_to_config(
+            'logging',
+            incus_common_named_list_to_dict(logging_items),
+        ).items():
+            desired[config_key] = config_value
     return desired
 
 

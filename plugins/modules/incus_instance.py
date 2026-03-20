@@ -250,48 +250,51 @@ def _manage_state(
 
 def main() -> None:
     """Run module."""
+    argument_spec: dict[str, Any] = {
+        'name': {'type': 'str', 'required': True},
+        'state': {
+            'type': 'str',
+            'default': 'started',
+            'choices': [
+                'started',
+                'stopped',
+                'restarted',
+                'absent',
+            ],
+        },
+        'target': {'type': 'str'},
+        'project': {'type': 'str', 'default': 'default'},
+        'type': {
+            'type': 'str',
+            'default': 'container',
+            'choices': [
+                'container',
+                'virtual-machine',
+            ],
+        },
+        'ephemeral': {'type': 'bool', 'default': False},
+        'profiles': {
+            'type': 'list',
+            'elements': 'str',
+            'default': ['default'],
+        },
+        'description': {'type': 'str', 'default': ''},
+        'config': {
+            'type': 'dict',
+            'default': {},
+            'options': INCUS_INSTANCE_CONFIG_OPTIONS,
+        },
+        'devices': {
+            'type': 'list',
+            'elements': 'dict',
+            'default': [],
+            'options': INCUS_DEVICE_OPTIONS,
+        },
+    }
+    for spec_key, spec_value in INCUS_SOURCE_ARGS.items():
+        argument_spec[spec_key] = spec_value
     module = incus_create_write_module(
-        {
-            'name': {'type': 'str', 'required': True},
-            'state': {
-                'type': 'str',
-                'default': 'started',
-                'choices': [
-                    'started',
-                    'stopped',
-                    'restarted',
-                    'absent',
-                ],
-            },
-            'target': {'type': 'str'},
-            'project': {'type': 'str', 'default': 'default'},
-            'type': {
-                'type': 'str',
-                'default': 'container',
-                'choices': [
-                    'container',
-                    'virtual-machine',
-                ],
-            },
-            'ephemeral': {'type': 'bool', 'default': False},
-            'profiles': {
-                'type': 'list',
-                'elements': 'str',
-                'default': ['default'],
-            },
-            'description': {'type': 'str', 'default': ''},
-            'config': {
-                'type': 'dict',
-                'default': {},
-                'options': INCUS_INSTANCE_CONFIG_OPTIONS,
-            },
-            'devices': {
-                'type': 'list',
-                'elements': 'dict',
-                'default': [],
-                'options': INCUS_DEVICE_OPTIONS,
-            },
-        } | INCUS_SOURCE_ARGS,
+        argument_spec,
         require_yaml=True,
     )
     state = module.params['state']

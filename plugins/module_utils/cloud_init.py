@@ -91,7 +91,9 @@ def cloud_init_interface_options(
         }},
     }
     if type_options:
-        opts.update({option_key: option_value for option_key, option_value in type_options._asdict().items() if option_value is not None})
+        for option_key, option_value in type_options._asdict().items():
+            if option_value is not None:
+                opts[option_key] = option_value
     return opts
 
 
