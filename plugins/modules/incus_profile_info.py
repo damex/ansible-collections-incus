@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus profile information is gathered."""
+"""
+Ensure Incus profile information is gathered.
+"""
 
 from __future__ import annotations
 
@@ -74,7 +76,11 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     incus_ensure_info('profiles', 'profiles', project_scoped=True)
 
 

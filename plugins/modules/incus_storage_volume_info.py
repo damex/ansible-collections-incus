@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus storage volume information is gathered."""
+"""
+Ensure Incus storage volume information is gathered.
+"""
 
 from __future__ import annotations
 
@@ -93,14 +95,20 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
+    argument_spec: dict[str, Any] = {
+        'pool': {'type': 'str', 'required': True},
+        'name': {'type': 'str'},
+        'project': {'type': 'str', 'default': 'default'},
+    }
+    for spec_key, spec_value in INCUS_COMMON_ARGS.items():
+        argument_spec[spec_key] = spec_value
     module = AnsibleModule(
-        argument_spec={
-            'pool': {'type': 'str', 'required': True},
-            'name': {'type': 'str'},
-            'project': {'type': 'str', 'default': 'default'},
-            **INCUS_COMMON_ARGS,
-        },
+        argument_spec=argument_spec,
         supports_check_mode=True,
         mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
         required_together=INCUS_COMMON_REQUIRED_TOGETHER,
