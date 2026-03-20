@@ -25,7 +25,10 @@ def incus_common_flatten_key_value_to_config(
     """
     Flatten key-value list to dotted config keys.
 
-    >>> incus_common_flatten_key_value_to_config('environment', [{'name': 'HTTP_PROXY', 'value': 'http://proxy'}])
+    >>> incus_common_flatten_key_value_to_config(
+    ...     'environment',
+    ...     [{'name': 'HTTP_PROXY', 'value': 'http://proxy'}],
+    ... )
     {'environment.HTTP_PROXY': 'http://proxy'}
     """
     return {
@@ -82,7 +85,10 @@ def incus_common_flatten_to_config(
     """
     Flatten nested dict to dotted config keys with stringified values.
 
-    >>> incus_common_flatten_to_config('bgp.peers', {'router': {'address': '10.0.0.1'}})
+    >>> incus_common_flatten_to_config(
+    ...     'bgp.peers',
+    ...     {'router': {'address': '10.0.0.1'}},
+    ... )
     {'bgp.peers.router.address': '10.0.0.1'}
     """
     config: dict[str, str] = {}

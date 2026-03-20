@@ -627,7 +627,10 @@ def incus_build_query(
     """
     Build query string.
 
-    >>> incus_build_query(project='myproject', recursion=1)
+    >>> incus_build_query(
+    ...     project='myproject',
+    ...     recursion=1,
+    ... )
     '?project=myproject&recursion=1'
     >>> incus_build_query()
     ''
@@ -649,7 +652,10 @@ def _incus_desired_matches_current(
     """
     Check desired state matches current.
 
-    >>> _incus_desired_matches_current({'description': 'test'}, {'description': 'test', 'config': {}})
+    >>> _incus_desired_matches_current(
+    ...     {'description': 'test'},
+    ...     {'description': 'test', 'config': {}},
+    ... )
     True
     """
     for key, desired_value in desired.items():
@@ -671,7 +677,12 @@ def _build_create_data(
     """
     Build create payload.
 
-    >>> _build_create_data(module, 'web', {'description': ''}, ['source'])
+    >>> _build_create_data(
+    ...     module,
+    ...     'web',
+    ...     {'description': ''},
+    ...     ['source'],
+    ... )
     {'name': 'web', 'description': '', 'source': 'images:debian/13'}
     """
     data: dict[str, Any] = {'name': name, **desired}
@@ -704,7 +715,12 @@ def _incus_build_effective_desired(
     """
     Build effective desired state.
 
-    >>> _incus_build_effective_desired({'config': {'limits.cpu': '2'}}, {'config': {'volatile.uuid': 'abc'}}, frozenset(), frozenset())
+    >>> _incus_build_effective_desired(
+    ...     {'config': {'limits.cpu': '2'}},
+    ...     {'config': {'volatile.uuid': 'abc'}},
+    ...     frozenset(),
+    ...     frozenset(),
+    ... )
     {'config': {'volatile.uuid': 'abc', 'limits.cpu': '2'}}
     """
     current_config = current.get('config', {})
@@ -734,7 +750,13 @@ def _incus_check_target_creation(
     """
     Check target creation is allowed.
 
-    >>> _incus_check_target_creation(module, client, 'instances', 'web', 'default')
+    >>> _incus_check_target_creation(
+    ...     module,
+    ...     client,
+    ...     'instances',
+    ...     'web',
+    ...     'default',
+    ... )
     True
     """
     try:
@@ -757,7 +779,11 @@ def incus_ensure_resource(
     """
     Ensure resource.
 
-    >>> incus_ensure_resource(module, 'instances', {'description': '', 'config': {}})
+    >>> incus_ensure_resource(
+    ...     module,
+    ...     'instances',
+    ...     {'description': '', 'config': {}},
+    ... )
     True
     """
     opts = options or IncusResourceOptions()
@@ -824,7 +850,10 @@ def incus_find_certificate(
     """
     Find certificate by name.
 
-    >>> incus_find_certificate(client, 'my-cert')
+    >>> incus_find_certificate(
+    ...     client,
+    ...     'my-cert',
+    ... )
     {'name': 'my-cert', 'type': 'client', 'fingerprint': 'abc123...'}
     """
     query = incus_build_query(recursion=1)
@@ -844,7 +873,11 @@ def incus_resolve_image_alias(
     """
     Resolve image alias to fingerprint.
 
-    >>> incus_resolve_image_alias(client, 'debian/13', '?project=default')
+    >>> incus_resolve_image_alias(
+    ...     client,
+    ...     'debian/13',
+    ...     '?project=default',
+    ... )
     'abc123def456...'
     """
     encoded_alias = quote(alias, safe='')
@@ -863,7 +896,10 @@ def incus_run_write_module(
     """
     Execute write module.
 
-    >>> incus_run_write_module(module, impl)
+    >>> incus_run_write_module(
+    ...     module,
+    ...     impl,
+    ... )
     """
     try:
         module.exit_json(changed=impl())
@@ -879,7 +915,11 @@ def incus_run_info_module(
     """
     Execute info module.
 
-    >>> incus_run_info_module(module, 'instances', 'instances')
+    >>> incus_run_info_module(
+    ...     module,
+    ...     'instances',
+    ...     'instances',
+    ... )
     """
     name = module.params.get('name')
     project = module.params.get('project')
@@ -918,7 +958,10 @@ def incus_ensure_info(
     """
     Execute info module.
 
-    >>> incus_ensure_info('instances', 'instances')
+    >>> incus_ensure_info(
+    ...     'instances',
+    ...     'instances',
+    ... )
     """
     args: dict[str, Any] = {'name': {'type': 'str'}}
     if project_scoped:
@@ -974,7 +1017,11 @@ def incus_wait(
     """
     Wait for operation.
 
-    >>> incus_wait(module, client, {'type': 'sync', 'metadata': {}})
+    >>> incus_wait(
+    ...     module,
+    ...     client,
+    ...     {'type': 'sync', 'metadata': {}},
+    ... )
     """
     if module.params.get('wait', True):
         return client.wait(response)
