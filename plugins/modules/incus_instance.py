@@ -202,10 +202,11 @@ def _create_instance(
     ...     client,
     ...     '?project=default',
     ...     'web',
-    ...     {'name': 'web', 'type': 'container'},
+    ...     {'type': 'container'},
     ... )
     True
     """
+    payload['name'] = name
     if not module.check_mode:
         incus_wait(
             module,
@@ -378,7 +379,6 @@ def main() -> None:
                 create_query,
                 name,
                 {
-                    'name': name,
                     'description': desired.description,
                     'config': desired.config,
                     'devices': desired.devices,
