@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus image."""
+"""
+Ensure Incus image.
+"""
 
 from __future__ import annotations
 
@@ -125,7 +127,12 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 def _update_image(
     module: Any, client: IncusClient, encoded_fingerprint: str, query: str,
 ) -> bool:
-    """Update image properties if they differ from desired state."""
+    """
+    Update image properties if they differ from desired state.
+
+    >>> _update_image(module, client, 'abc123', '?project=default')
+    False
+    """
     image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata') or {}
     desired_auto_update = module.params['auto_update']
     desired_public = module.params['public']
@@ -142,7 +149,11 @@ def _update_image(
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     argument_spec: dict[str, Any] = {
         'alias': {'type': 'str', 'required': True},
         'state': {

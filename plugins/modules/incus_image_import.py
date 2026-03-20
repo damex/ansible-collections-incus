@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus image from file or URL."""
+"""
+Ensure Incus image from file or URL.
+"""
 
 from __future__ import annotations
 
@@ -206,7 +208,12 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def _incus_image_import_download_source(module: Any, source: str, temp_directory: str, timeout: int) -> str:
-    """Download source to temporary directory."""
+    """
+    Download source to temporary directory.
+
+    >>> _incus_image_import_download_source(module, '/tmp/image.img', '/tmp/work', 30)
+    '/tmp/image.img'
+    """
     if source.startswith(('http://', 'https://')):
         download_path = os.path.join(temp_directory, os.path.basename(source))
         try:
@@ -224,7 +231,11 @@ def _incus_image_import_download_source(module: Any, source: str, temp_directory
 def _incus_image_import_verify_checksum(
     module: Any, file_path: str, expected_checksum: str, algorithm: str,
 ) -> None:
-    """Verify file checksum."""
+    """
+    Verify file checksum.
+
+    >>> _incus_image_import_verify_checksum(module, '/tmp/image.img', 'abc123', 'sha256')
+    """
     file_hash = hashlib.new(algorithm)
     with open(file_path, 'rb') as fh:
         while True:
@@ -240,7 +251,12 @@ def _incus_image_import_verify_checksum(
 
 
 def _incus_image_import_extract_zip(module: Any, file_path: str, temp_directory: str) -> str:
-    """Extract first file from ZIP archive."""
+    """
+    Extract first file from ZIP archive.
+
+    >>> _incus_image_import_extract_zip(module, '/tmp/image.zip', '/tmp/work')
+    '/tmp/work/image.img'
+    """
     try:
         with zipfile.ZipFile(file_path, 'r') as zf:
             names = zf.namelist()
@@ -254,7 +270,12 @@ def _incus_image_import_extract_zip(module: Any, file_path: str, temp_directory:
 
 
 def _incus_image_import_is_xz(file_path: str) -> bool:
-    """Detect xz compressed file."""
+    """
+    Detect xz compressed file.
+
+    >>> _incus_image_import_is_xz('/tmp/image.img.xz')
+    True
+    """
     try:
         with lzma.open(file_path, 'rb') as fh:
             fh.read(1)
@@ -264,7 +285,12 @@ def _incus_image_import_is_xz(file_path: str) -> bool:
 
 
 def _incus_image_import_extract_xz(module: Any, file_path: str, temp_directory: str) -> str:
-    """Decompress xz compressed file."""
+    """
+    Decompress xz compressed file.
+
+    >>> _incus_image_import_extract_xz(module, '/tmp/image.img.xz', '/tmp/work')
+    '/tmp/work/image.img'
+    """
     output_path = os.path.join(temp_directory, os.path.basename(file_path).removesuffix('.xz'))
     try:
         with lzma.open(file_path, 'rb') as xz_file:
@@ -276,7 +302,12 @@ def _incus_image_import_extract_xz(module: Any, file_path: str, temp_directory: 
 
 
 def _incus_image_import_detect_format(module: Any, qemu_img_path: str, file_path: str) -> str:
-    """Detect image format using qemu-img."""
+    """
+    Detect image format using qemu-img.
+
+    >>> _incus_image_import_detect_format(module, '/usr/bin/qemu-img', '/tmp/image.img')
+    'raw'
+    """
     rc, stdout, stderr = module.run_command([qemu_img_path, 'info', '--output=json', file_path])
     if rc:
         module.fail_json(msg=f"Failed detecting image format: {stderr}")
@@ -292,7 +323,12 @@ def _incus_image_import_detect_format(module: Any, qemu_img_path: str, file_path
 def _incus_image_import_convert_to_qcow2(
     module: Any, qemu_img_path: str, file_path: str, temp_directory: str,
 ) -> str:
-    """Convert image to qcow2 format."""
+    """
+    Convert image to qcow2 format.
+
+    >>> _incus_image_import_convert_to_qcow2(module, '/usr/bin/qemu-img', '/tmp/image.img', '/tmp/work')
+    '/tmp/work/rootfs.img'
+    """
     qcow2_path = os.path.join(temp_directory, 'rootfs.img')
     rc, _stdout, stderr = module.run_command([
         qemu_img_path, 'convert', '-f', 'raw', '-O', 'qcow2', file_path, qcow2_path,
@@ -303,7 +339,12 @@ def _incus_image_import_convert_to_qcow2(
 
 
 def _incus_image_import_build_metadata(architecture: str, properties: dict[str, str] | None) -> str:
-    """Build metadata.yaml content."""
+    """
+    Build metadata.yaml content.
+
+    >>> _incus_image_import_build_metadata('x86_64', {'os': 'debian', 'release': 'bookworm'})
+    'architecture: x86_64\\ncreation_date: ...\\nproperties:\\n  os: debian\\n  release: bookworm\\n'
+    """
     metadata: dict[str, Any] = {
         'architecture': architecture,
         'creation_date': int(time.time()),
@@ -322,7 +363,12 @@ def _incus_image_import_build_tarball(
     module: Any, image_path: str, architecture: str,
     properties: dict[str, str] | None, temp_directory: str,
 ) -> str:
-    """Build image tarball with metadata."""
+    """
+    Build image tarball with metadata.
+
+    >>> _incus_image_import_build_tarball(module, '/tmp/work/rootfs.img', 'x86_64', None, '/tmp/work')
+    '/tmp/work/image.tar.gz'
+    """
     metadata_path = os.path.join(temp_directory, 'metadata.yaml')
     with open(metadata_path, 'w', encoding='utf-8') as fh:
         fh.write(_incus_image_import_build_metadata(architecture, properties))
@@ -340,7 +386,12 @@ def _incus_image_import_prepare(
     module: Any, source: str, architecture: str,
     properties: dict[str, str] | None, temp_directory: str,
 ) -> str:
-    """Prepare image tarball from source."""
+    """
+    Prepare image tarball from source.
+
+    >>> _incus_image_import_prepare(module, '/tmp/image.img', 'x86_64', None, '/tmp/work')
+    '/tmp/work/image.tar.gz'
+    """
     qemu_img_path = module.get_bin_path('qemu-img')
     if not qemu_img_path:
         module.fail_json(msg="qemu-img is required but not found on the target host")
@@ -366,7 +417,11 @@ def _incus_image_import_create_aliases(
     client: IncusClient, fingerprint: str, alias: str,
     aliases: list[str] | None, query: str,
 ) -> None:
-    """Create image aliases."""
+    """
+    Create image aliases.
+
+    >>> _incus_image_import_create_aliases(client, 'abc123', 'debian/13', None, '?project=default')
+    """
     all_aliases = [alias] + (aliases or [])
     for name in all_aliases:
         client.post(f'/1.0/images/aliases{query}', {
@@ -376,7 +431,11 @@ def _incus_image_import_create_aliases(
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         'alias': {'type': 'str', 'required': True},
         'aliases': {

@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus network forward."""
+"""
+Ensure Incus network forward.
+"""
 
 from __future__ import annotations
 
@@ -171,7 +173,12 @@ INCUS_NETWORK_FORWARD_PORT_OPTIONS = {
 
 
 def _normalize_ports(ports: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    """Normalize ports with defaults."""
+    """
+    Normalize ports with defaults.
+
+    >>> _normalize_ports([{'protocol': 'p', 'listen_port': '0', 'target_address': 'a'}])
+    [{'description': '', 'protocol': 'p', 'listen_port': '0', 'target_port': '', 'target_address': 'a', 'snat': False}]
+    """
     normalized = []
     for port in (ports or []):
         normalized.append({
@@ -186,7 +193,11 @@ def _normalize_ports(ports: list[dict[str, Any]] | None) -> list[dict[str, Any]]
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'network': {'type': 'str', 'required': True},

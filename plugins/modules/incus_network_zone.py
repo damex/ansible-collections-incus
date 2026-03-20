@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus network zone."""
+"""
+Ensure Incus network zone.
+"""
 
 from __future__ import annotations
 
@@ -81,7 +83,11 @@ __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},

@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus server configuration."""
+"""
+Ensure Incus server configuration.
+"""
 
 from __future__ import annotations
 
@@ -640,7 +642,12 @@ INCUS_SERVER_LOGGING_OPTIONS = {
 
 
 def _build_desired_config(config: dict[str, Any]) -> dict[str, str]:
-    """Build desired config with flattened logging."""
+    """
+    Build desired config with flattened logging.
+
+    >>> _build_desired_config({'core.https_address': ':8443'})
+    {'core.https_address': ':8443'}
+    """
     logging_items = config.get('logging')
     flat_config = {key: value for key, value in config.items() if key != 'logging'}
     desired = incus_common_stringify_dict(flat_config)
@@ -654,7 +661,12 @@ def _build_desired_config(config: dict[str, Any]) -> dict[str, str]:
 
 
 def _preseed_init(module: Any, desired_config: dict[str, str]) -> bool:
-    """Initialize server with preseed."""
+    """
+    Initialize server with preseed.
+
+    >>> _preseed_init(module, {'core.https_address': ':8443'})
+    True
+    """
     if module.check_mode:
         return True
     preseed: dict[str, Any] = {'config': desired_config}
@@ -671,7 +683,12 @@ def _preseed_init(module: Any, desired_config: dict[str, str]) -> bool:
 
 
 def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> bool:
-    """Ensure server config matches desired state."""
+    """
+    Ensure server config matches desired state.
+
+    >>> _ensure_server_config(module, {'core.https_address': ':8443'})
+    True
+    """
     if module.params.get('init'):
         return _preseed_init(module, desired_config)
     client = incus_create_client(module)
@@ -684,7 +701,11 @@ def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> bool:
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         'init': {'type': 'bool', 'default': False},
         'cluster': {'type': 'dict'},

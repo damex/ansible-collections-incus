@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus cluster member."""
+"""
+Ensure Incus cluster member.
+"""
 
 from __future__ import annotations
 
@@ -153,7 +155,12 @@ INCUS_CLUSTER_MEMBER_CONFIG_OPTIONS = {
 
 
 def _create_join_token(client: Any, name: str) -> dict[str, Any]:
-    """Create join token for new cluster member."""
+    """
+    Create join token for new cluster member.
+
+    >>> _create_join_token(client, 'node2')
+    {'changed': True, 'join_token': '...', 'join_fingerprint': '...', 'join_addresses': [...]}
+    """
     response = client.post('/1.0/cluster/members', {'server_name': name})
     metadata = response.get('metadata', {}).get('metadata', {})
     token_dict: dict[str, Any] = {
@@ -176,7 +183,12 @@ def _create_join_token(client: Any, name: str) -> dict[str, Any]:
 
 
 def _ensure_cluster_member(module: Any) -> dict[str, Any]:
-    """Ensure cluster member."""
+    """
+    Ensure cluster member.
+
+    >>> _ensure_cluster_member(module)
+    {'changed': False}
+    """
     client = incus_create_client(module)
     name = module.params['name']
     encoded_name = quote(name, safe='')
@@ -239,7 +251,11 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'state': {

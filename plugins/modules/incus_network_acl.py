@@ -4,7 +4,9 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Ensure Incus network ACL."""
+"""
+Ensure Incus network ACL.
+"""
 
 from __future__ import annotations
 
@@ -281,7 +283,12 @@ INCUS_NETWORK_ACL_RULE_OPTIONS = {
 
 
 def _normalize_rules(rules: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
-    """Normalize rules with defaults and stable sort."""
+    """
+    Normalize rules with defaults and stable sort.
+
+    >>> _normalize_rules([{'action': 'allow', 'protocol': 'tcp'}])
+    [{'action': 'allow', 'protocol': 'tcp', 'state': 'enabled'}]
+    """
     normalized = []
     for rule in (rules or []):
         entry: dict[str, Any] = {'action': rule['action']}
@@ -302,7 +309,11 @@ def _normalize_rules(rules: list[dict[str, Any]] | None) -> list[dict[str, Any]]
 
 
 def main() -> None:
-    """Run module."""
+    """
+    Run module.
+
+    >>> main()
+    """
     module = incus_create_write_module({
         **INCUS_COMMON_ARGUMENT_SPEC,
         'project': {'type': 'str', 'default': 'default'},
