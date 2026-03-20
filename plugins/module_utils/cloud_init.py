@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, NamedTuple
 
 from ansible_collections.damex.incus.plugins.module_utils.common import incus_common_named_list_to_dict
 
@@ -15,6 +15,7 @@ __all__ = [
     'CLOUD_INIT_CONFIG_OPTIONS',
     'CLOUD_INIT_DATA_OPTIONS',
     'CLOUD_INIT_USER_KEYS',
+    'CloudInitInterfaceTypeOptions',
     'cloud_init_data_lists_to_dicts',
     'cloud_init_interface_options',
     'cloud_init_named_list_to_scalar_dict',
@@ -43,7 +44,19 @@ CLOUD_INIT_NAMED_SCALAR_DICT_KEYS = frozenset({
 })
 
 
-def cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
+class CloudInitInterfaceTypeOptions(NamedTuple):
+    """Type-specific options for a cloud-init network interface."""
+
+    match: dict[str, Any] | None = None
+    interfaces: dict[str, Any] | None = None
+    parameters: dict[str, Any] | None = None
+    id: dict[str, Any] | None = None
+    link: dict[str, Any] | None = None
+
+
+def cloud_init_interface_options(
+    type_options: CloudInitInterfaceTypeOptions | None = None,
+) -> dict[str, Any]:
     """
     Build cloud-init network interface options.
 
@@ -77,7 +90,8 @@ def cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
             'search': {'type': 'list', 'elements': 'str'},
         }},
     }
-    opts.update(extra)
+    if type_options:
+        opts.update({k: v for k, v in type_options._asdict().items() if v is not None})
     return opts
 
 
@@ -413,47 +427,55 @@ CLOUD_INIT_CONFIG_OPTIONS: dict[str, Any] = {
                 'type': 'list',
                 'elements': 'dict',
                 'options': cloud_init_interface_options(
-                    match={'type': 'dict', 'options': {
-                        'name': {'type': 'str'},
-                        'macaddress': {'type': 'str'},
-                        'driver': {'type': 'str'},
-                    }},
+                    CloudInitInterfaceTypeOptions(
+                        match={'type': 'dict', 'options': {
+                            'name': {'type': 'str'},
+                            'macaddress': {'type': 'str'},
+                            'driver': {'type': 'str'},
+                        }},
+                    ),
                 ),
             },
             'bonds': {
                 'type': 'list',
                 'elements': 'dict',
                 'options': cloud_init_interface_options(
-                    interfaces={'type': 'list', 'elements': 'str'},
-                    parameters={
-                        'type': 'dict',
-                        'options': {
-                            'mode': {'type': 'str'},
-                            'mii-monitor-interval': {'type': 'int'},
+                    CloudInitInterfaceTypeOptions(
+                        interfaces={'type': 'list', 'elements': 'str'},
+                        parameters={
+                            'type': 'dict',
+                            'options': {
+                                'mode': {'type': 'str'},
+                                'mii-monitor-interval': {'type': 'int'},
+                            },
                         },
-                    },
+                    ),
                 ),
             },
             'bridges': {
                 'type': 'list',
                 'elements': 'dict',
                 'options': cloud_init_interface_options(
-                    interfaces={'type': 'list', 'elements': 'str'},
-                    parameters={
-                        'type': 'dict',
-                        'options': {
-                            'stp': {'type': 'bool'},
-                            'forward-delay': {'type': 'int'},
+                    CloudInitInterfaceTypeOptions(
+                        interfaces={'type': 'list', 'elements': 'str'},
+                        parameters={
+                            'type': 'dict',
+                            'options': {
+                                'stp': {'type': 'bool'},
+                                'forward-delay': {'type': 'int'},
+                            },
                         },
-                    },
+                    ),
                 ),
             },
             'vlans': {
                 'type': 'list',
                 'elements': 'dict',
                 'options': cloud_init_interface_options(
-                    id={'type': 'int', 'required': True},
-                    link={'type': 'str', 'required': True},
+                    CloudInitInterfaceTypeOptions(
+                        id={'type': 'int', 'required': True},
+                        link={'type': 'str', 'required': True},
+                    ),
                 ),
             },
         },
