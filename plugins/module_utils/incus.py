@@ -735,20 +735,31 @@ def incus_ensure_resource(
             if opts.name_key != 'name':
                 create_data[opts.name_key] = create_data.pop('name')
             if not module.check_mode:
-                incus_wait(module, client, client.post(f'/1.0/{resource}{query}', create_data))
+                incus_wait(
+                    module,
+                    client,
+                    client.post(f'/1.0/{resource}{query}', create_data),
+                )
             return True
         if target:
             return False
         effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
         changed = not _incus_desired_matches_current(effective, current)
         if changed and not module.check_mode:
-            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', effective))
+            incus_wait(
+                module,
+                client,
+                client.put(f'/1.0/{resource}/{encoded_name}{query}', effective),
+            )
         return changed
 
     if exists:
         if not module.check_mode:
-            delete_query = incus_build_query(project, None)
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{delete_query}'))
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'),
+            )
         return True
     return False
 
