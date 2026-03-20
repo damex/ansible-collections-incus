@@ -693,6 +693,25 @@ def _incus_fetch_global_config_keys(
     return frozenset(metadata.get('config', {}))
 
 
+def _incus_check_target_creation(
+    module: AnsibleModule,
+    client: IncusClient,
+    resource: str,
+    encoded_name: str,
+    project: str | None,
+) -> bool:
+    """Check whether creating a resource at a cluster target is allowed."""
+    try:
+        global_query = incus_build_query(project, None)
+        global_meta = client.get(f'/1.0/{resource}/{encoded_name}{global_query}').get('metadata') or {}
+        global_status = global_meta.get('status')
+        if global_status == 'Errored':
+            module.fail_json(msg=f'{module.params["name"]} is in errored state, delete it first')
+        return global_status in ('Pending', 'Unknown', None)
+    except IncusNotFoundException:
+        return True
+
+
 def incus_ensure_resource(
     module: AnsibleModule,
     resource: str,
@@ -716,21 +735,8 @@ def incus_ensure_resource(
 
     if module.params['state'] == 'present':
         if not exists or current.get('status') in ('Pending', 'Unknown'):
-            if target:
-                try:
-                    global_query = incus_build_query(project, None)
-                    global_meta = client.get(
-                        f'/1.0/{resource}/{encoded_name}{global_query}',
-                    ).get('metadata') or {}
-                    global_status = global_meta.get('status')
-                    if global_status == 'Errored':
-                        module.fail_json(
-                            msg=f'{module.params["name"]} is in errored state, delete it first',
-                        )
-                    elif global_status not in ('Pending', 'Unknown', None):
-                        return False
-                except IncusNotFoundException:
-                    pass
+            if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
+                return False
             create_data = _build_create_data(
                 module,
                 module.params['name'],
@@ -745,33 +751,16 @@ def incus_ensure_resource(
             return True
         if target:
             return False
-        global_config_keys: frozenset[str] = frozenset()
-        if target:
-            global_config_keys = _incus_fetch_global_config_keys(
-                client,
-                resource,
-                encoded_name,
-                project,
-            )
-        effective = _incus_build_effective_desired(
-            desired,
-            current,
-            opts.immutable_config_keys,
-            global_config_keys,
-        )
+        effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
         if _incus_desired_matches_current(effective, current):
             return False
         if not module.check_mode:
-            incus_wait(module, client, client.put(
-                f'/1.0/{resource}/{encoded_name}{query}', effective,
-            ))
+            incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', effective))
         return True
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(
-                f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}',
-            ))
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'))
         return True
     return False
 
