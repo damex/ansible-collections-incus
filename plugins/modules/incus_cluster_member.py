@@ -219,7 +219,7 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
         def _comparable(value: Any) -> Any:
             return sorted(value) if isinstance(value, list) else value
         changed = len(members) > 1 and not all(
-            k in current and _comparable(current[k]) == v for k, v in desired.items()
+            key in current and _comparable(current[key]) == value for key, value in desired.items()
         )
         if changed and not module.check_mode:
             incus_wait(module, client, client.put(

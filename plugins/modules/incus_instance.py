@@ -161,10 +161,10 @@ def _build_config(
     {'volatile.x': '1', 'limits.cpu': '2'}
     """
     result = {}
-    for k, v in preserved.items():
-        result[k] = v
-    for k, v in desired.items():
-        result[k] = v
+    for key, value in preserved.items():
+        result[key] = value
+    for key, value in desired.items():
+        result[key] = value
     return result
 
 
@@ -313,8 +313,8 @@ def main() -> None:
             description=built['description'],
             config=built['config'],
             preserved_config={
-                k: v for k, v in current.get('config', {}).items()
-                if k.startswith(('volatile.', 'image.'))
+                key: value for key, value in current.get('config', {}).items()
+                if key.startswith(('volatile.', 'image.'))
             },
             devices=built['devices'],
             profiles=module.params['profiles'],
@@ -348,8 +348,8 @@ def main() -> None:
             changed = True
         else:
             current_config = {
-                k: v for k, v in current.get('config', {}).items()
-                if not k.startswith(('volatile.', 'image.'))
+                key: value for key, value in current.get('config', {}).items()
+                if not key.startswith(('volatile.', 'image.'))
             }
             if (current.get('description', '') != desired.description
                     or current_config != desired.config
