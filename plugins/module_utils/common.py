@@ -75,7 +75,10 @@ def incus_common_named_list_to_dict(items: list[dict[str, Any]] | None) -> dict[
     }
 
 
-def incus_common_flatten_to_config(prefix: str, data: dict[str, dict[str, Any]]) -> dict[str, str]:
+def incus_common_flatten_to_config(
+    prefix: str,
+    data: dict[str, dict[str, Any]],
+) -> dict[str, str]:
     """
     Flatten nested dict to dotted config keys with stringified values.
 
