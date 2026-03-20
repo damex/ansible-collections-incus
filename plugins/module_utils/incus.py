@@ -740,15 +740,15 @@ def incus_ensure_resource(
         if target:
             return False
         effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
-        if _incus_desired_matches_current(effective, current):
-            return False
-        if not module.check_mode:
+        changed = not _incus_desired_matches_current(effective, current)
+        if changed and not module.check_mode:
             incus_wait(module, client, client.put(f'/1.0/{resource}/{encoded_name}{query}', effective))
-        return True
+        return changed
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'))
+            delete_query = incus_build_query(project, None)
+            incus_wait(module, client, client.delete(f'/1.0/{resource}/{encoded_name}{delete_query}'))
         return True
     return False
 
