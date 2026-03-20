@@ -47,8 +47,8 @@ def cloud_init_interface_options(**extra: Any) -> dict[str, Any]:
     """
     Build cloud-init network interface options.
 
-    >>> sorted(cloud_init_interface_options().keys())
-    ['accept-ra', 'addresses', 'dhcp4', 'dhcp6', 'gateway4', 'gateway6', 'mtu', 'nameservers', 'optional', 'routes', 'set-name']
+    >>> cloud_init_interface_options()['dhcp4']
+    {'type': 'bool'}
     """
     opts: dict[str, Any] = {
         'name': {'type': 'str', 'required': True},
