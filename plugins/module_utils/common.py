@@ -105,8 +105,10 @@ def incus_common_strip_none(data: Any) -> Any:
     >>> incus_common_strip_none({'a': 1, 'b': None, 'c': {'d': None, 'e': 2}})
     {'a': 1, 'c': {'e': 2}}
     """
-    if isinstance(data, dict):
-        return {key: incus_common_strip_none(value) for key, value in data.items() if value is not None}
-    if isinstance(data, list):
-        return [incus_common_strip_none(item) for item in data if item is not None]
-    return data
+    match data:
+        case dict():
+            return {key: incus_common_strip_none(value) for key, value in data.items() if value is not None}
+        case list():
+            return [incus_common_strip_none(item) for item in data if item is not None]
+        case _:
+            return data

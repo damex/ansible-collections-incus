@@ -492,16 +492,18 @@ def cloud_init_named_list_to_scalar_dict(items: list[dict[str, Any]]) -> dict[st
 
 def cloud_init_data_lists_to_dicts(data: Any) -> Any:
     """Transform cloud-init named lists to dict format."""
-    if isinstance(data, dict):
-        result: dict[str, Any] = {}
-        for key, value in data.items():
-            if key in CLOUD_INIT_NAMED_DICT_KEYS and isinstance(value, list):
-                result[key] = incus_common_named_list_to_dict(value)
-            elif key in CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(value, list):
-                result[key] = cloud_init_named_list_to_scalar_dict(value)
-            else:
-                result[key] = cloud_init_data_lists_to_dicts(value)
-        return result
-    if isinstance(data, list):
-        return [cloud_init_data_lists_to_dicts(item) for item in data]
-    return data
+    match data:
+        case dict():
+            result: dict[str, Any] = {}
+            for key, value in data.items():
+                if key in CLOUD_INIT_NAMED_DICT_KEYS and isinstance(value, list):
+                    result[key] = incus_common_named_list_to_dict(value)
+                elif key in CLOUD_INIT_NAMED_SCALAR_DICT_KEYS and isinstance(value, list):
+                    result[key] = cloud_init_named_list_to_scalar_dict(value)
+                else:
+                    result[key] = cloud_init_data_lists_to_dicts(value)
+            return result
+        case list():
+            return [cloud_init_data_lists_to_dicts(item) for item in data]
+        case _:
+            return data
