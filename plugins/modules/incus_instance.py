@@ -104,7 +104,7 @@ EXAMPLES = r"""
 RETURN = r"""
 """
 
-from typing import Any
+from typing import Any, NamedTuple
 from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.device import (
@@ -128,7 +128,20 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _get_instance(client: IncusClient, query: str, encoded_name: str) -> tuple[dict[str, Any], bool]:
+class IncusInstanceDesired(NamedTuple):
+    """Desired state for an Incus instance."""
+
+    description: str
+    config: dict[str, Any]
+    devices: dict[str, Any]
+    profiles: list[str]
+
+
+def _get_instance(
+    client: IncusClient,
+    query: str,
+    encoded_name: str,
+) -> tuple[dict[str, Any], bool]:
     """Return (metadata dict, exists bool) for the instance."""
     try:
         return client.get(f'/1.0/instances/{encoded_name}{query}').get('metadata') or {}, True
@@ -140,15 +153,14 @@ def _create_instance(
     module: Any,
     client: IncusClient,
     create_query: str,
-    name: str,
-    desired: dict[str, Any],
+    payload: dict[str, Any],
 ) -> bool:
-    """Create instance from image source (stopped state). desired must include source/type/ephemeral."""
+    """Create instance from image source (stopped state)."""
     if not module.check_mode:
         incus_wait(
             module,
             client,
-            client.post(f'/1.0/instances{create_query}', {'name': name} | desired),
+            client.post(f'/1.0/instances{create_query}', payload),
         )
     return True
 
@@ -158,11 +170,15 @@ def _update_instance(
     client: IncusClient,
     query: str,
     encoded_name: str,
-    desired: dict[str, Any],
+    payload: dict[str, Any],
 ) -> bool:
-    """Update instance config, devices, and profiles. desired must include architecture."""
+    """Update instance config, devices, and profiles."""
     if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/instances/{encoded_name}{query}', desired))
+        incus_wait(
+            module,
+            client,
+            client.put(f'/1.0/instances/{encoded_name}{query}', payload),
+        )
     return True
 
 
@@ -203,62 +219,70 @@ def _manage_state(
 
 def main() -> None:
     """Run module."""
-    module = incus_create_write_module({
-        'name': {'type': 'str', 'required': True},
-        'state': {
-            'type': 'str',
-            'default': 'started',
-            'choices': [
-                'started',
-                'stopped',
-                'restarted',
-                'absent',
-            ],
-        },
-        'target': {'type': 'str'},
-        'project': {'type': 'str', 'default': 'default'},
-        **INCUS_SOURCE_ARGS,
-        'type': {
-            'type': 'str',
-            'default': 'container',
-            'choices': [
-                'container',
-                'virtual-machine',
-            ],
-        },
-        'ephemeral': {'type': 'bool', 'default': False},
-        'profiles': {
-            'type': 'list',
-            'elements': 'str',
-            'default': ['default'],
-        },
-        'description': {'type': 'str', 'default': ''},
-        'config': {
-            'type': 'dict',
-            'default': {},
-            'options': INCUS_INSTANCE_CONFIG_OPTIONS,
-        },
-        'devices': {
-            'type': 'list',
-            'elements': 'dict',
-            'default': [],
-            'options': INCUS_DEVICE_OPTIONS,
-        },
-    }, require_yaml=True)
+    module = incus_create_write_module(
+        {
+            'name': {'type': 'str', 'required': True},
+            'state': {
+                'type': 'str',
+                'default': 'started',
+                'choices': [
+                    'started',
+                    'stopped',
+                    'restarted',
+                    'absent',
+                ],
+            },
+            'target': {'type': 'str'},
+            'project': {'type': 'str', 'default': 'default'},
+            'type': {
+                'type': 'str',
+                'default': 'container',
+                'choices': [
+                    'container',
+                    'virtual-machine',
+                ],
+            },
+            'ephemeral': {'type': 'bool', 'default': False},
+            'profiles': {
+                'type': 'list',
+                'elements': 'str',
+                'default': ['default'],
+            },
+            'description': {'type': 'str', 'default': ''},
+            'config': {
+                'type': 'dict',
+                'default': {},
+                'options': INCUS_INSTANCE_CONFIG_OPTIONS,
+            },
+            'devices': {
+                'type': 'list',
+                'elements': 'dict',
+                'default': [],
+                'options': INCUS_DEVICE_OPTIONS,
+            },
+        } | INCUS_SOURCE_ARGS,
+        require_yaml=True,
+    )
     state = module.params['state']
     project = module.params['project']
     target = module.params.get('target')
     name = module.params['name']
     query = incus_build_query(project, None)
     create_query = incus_build_query(project, target)
-    desired = incus_build_desired(
-        module,
-        config_key_values={'environment_variables': 'environment'},
-    ) | {'profiles': module.params['profiles']}
 
     def _ensure_instance() -> bool:
         client = incus_create_client(module)
         encoded_name = quote(name, safe='')
+        built = incus_build_desired(
+            module,
+            config_key_values={'environment_variables': 'environment'},
+        )
+        desired = IncusInstanceDesired(
+            description=built['description'],
+            config=built['config'],
+            devices=built['devices'],
+            profiles=module.params['profiles'],
+        )
         current, exists = _get_instance(client, query, encoded_name)
 
         if state == 'absent':
@@ -271,25 +295,44 @@ def main() -> None:
         if not exists:
             if not module.params['source']:
                 module.fail_json(msg="'source' is required when creating an instance")
-            create_desired = desired | {
-                'type': module.params['type'],
-                'ephemeral': module.params['ephemeral'],
-                'source': incus_build_source(module),
-            }
-            _create_instance(module, client, create_query, name, create_desired)
+            _create_instance(
+                module,
+                client,
+                create_query,
+                {
+                    'name': name,
+                    'description': desired.description,
+                    'config': desired.config,
+                    'devices': desired.devices,
+                    'profiles': desired.profiles,
+                    'type': module.params['type'],
+                    'ephemeral': module.params['ephemeral'],
+                    'source': incus_build_source(module),
+                },
+            )
             changed = True
         else:
             current_config = {k: v for k, v in current.get('config', {}).items()
                               if not k.startswith(('volatile.', 'image.'))}
-            if (current.get('description', '') != desired['description']
-                    or current_config != desired['config']
-                    or current.get('devices', {}) != desired['devices']
-                    or current.get('profiles', []) != desired['profiles']):
+            if (current.get('description', '') != desired.description
+                    or current_config != desired.config
+                    or current.get('devices', {}) != desired.devices
+                    or current.get('profiles', []) != desired.profiles):
                 preserved_config = {k: v for k, v in current.get('config', {}).items()
                                     if k.startswith(('volatile.', 'image.'))}
-                update_desired = {'architecture': current['architecture']} | desired
-                update_desired['config'] = preserved_config | desired['config']
-                _update_instance(module, client, query, encoded_name, update_desired)
+                _update_instance(
+                    module,
+                    client,
+                    query,
+                    encoded_name,
+                    {
+                        'architecture': current['architecture'],
+                        'description': desired.description,
+                        'config': preserved_config | desired.config,
+                        'devices': desired.devices,
+                        'profiles': desired.profiles,
+                    },
+                )
                 changed = True
 
         return _manage_state(module, client, state_path, state, status) or changed
