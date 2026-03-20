@@ -191,12 +191,19 @@ def _create_instance(
     module: Any,
     client: IncusClient,
     create_query: str,
+    name: str,
     payload: dict[str, Any],
 ) -> bool:
     """
     Create instance from image source (stopped state).
 
-    >>> _create_instance(module, client, '?project=default', {'name': 'web', 'type': 'container'})
+    >>> _create_instance(
+    ...     module,
+    ...     client,
+    ...     '?project=default',
+    ...     'web',
+    ...     {'name': 'web', 'type': 'container'},
+    ... )
     True
     """
     if not module.check_mode:
@@ -369,6 +376,7 @@ def main() -> None:
                 module,
                 client,
                 create_query,
+                name,
                 {
                     'name': name,
                     'description': desired.description,
