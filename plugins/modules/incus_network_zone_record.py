@@ -49,10 +49,21 @@ options:
     default: ''
   config:
     description:
-      - Network zone record configuration key-value pairs.
-      - Only user-defined keys (user.*) are supported.
-    type: dict
-    default: {}
+      - User-defined configuration entries.
+      - Each entry is flattened to a C(user.<name>) config key.
+    type: list
+    elements: dict
+    suboptions:
+      name:
+        description:
+          - Configuration key name (without the user. prefix).
+        type: str
+        required: true
+      value:
+        description:
+          - Configuration value.
+        type: str
+        required: true
   entries:
     description:
       - List of DNS entries for the record.
@@ -112,10 +123,12 @@ from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
-    incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
+)
+from ansible_collections.damex.incus.plugins.module_utils.common import (
+    incus_common_flatten_key_value_to_config,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -161,7 +174,20 @@ def main() -> None:
         'zone': {'type': 'str', 'required': True},
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
-        'config': {'type': 'dict', 'default': {}},
+        'config': {
+            'type': 'list',
+            'elements': 'dict',
+            'options': {
+                'name': {
+                    'type': 'str',
+                    'required': True,
+                },
+                'value': {
+                    'type': 'str',
+                    'required': True,
+                },
+            },
+        },
         'entries': {
             'type': 'list',
             'elements': 'dict',
@@ -173,8 +199,11 @@ def main() -> None:
     module = incus_create_write_module(argument_spec)
     encoded_zone = quote(module.params['zone'], safe='')
     resource = f'network-zones/{encoded_zone}/records'
-    desired = incus_build_desired(module)
-    desired['entries'] = _normalize_entries(module.params.get('entries'))
+    desired: dict[str, Any] = {
+        'description': module.params['description'],
+        'config': incus_common_flatten_key_value_to_config('user', module.params.get('config')),
+        'entries': _normalize_entries(module.params.get('entries')),
+    }
     incus_run_write_module(module, lambda: incus_ensure_resource(module, resource, desired))
 
 

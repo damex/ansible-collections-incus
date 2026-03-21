@@ -113,8 +113,10 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
     INCUS_DEVICE_OPTIONS,
 )
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.instance_config import (
     INCUS_INSTANCE_CONFIG_OPTIONS,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
     IncusClient,
     IncusNotFoundException,

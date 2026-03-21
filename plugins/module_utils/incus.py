@@ -45,12 +45,8 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_source import (
     incus_build_query,
     incus_build_source,
 )
-from ansible_collections.damex.incus.plugins.module_utils.instance_config import (
-    INCUS_INSTANCE_CONFIG_OPTIONS,
-)
 
 __all__ = [
-    'INCUS_INSTANCE_CONFIG_OPTIONS',
     'INCUS_COMMON_ARGUMENT_SPEC',
     'INCUS_COMMON_ARGS',
     'INCUS_COMMON_MUTUALLY_EXCLUSIVE',
@@ -70,16 +66,10 @@ __all__ = [
     'incus_create_write_module',
     'incus_ensure_info',
     'incus_ensure_resource',
-    'incus_common_flatten_to_config',
-    'incus_common_named_list_to_dict',
-    'incus_common_stringify_dict',
-    'incus_common_stringify_value',
-    'incus_common_strip_none',
     'incus_find_certificate',
     'incus_resolve_image_alias',
     'incus_run_info_module',
     'incus_run_write_module',
-    'incus_stringify_instance_config',
     'incus_wait',
 ]
 
@@ -670,9 +660,6 @@ class IncusResourceOptions(NamedTuple):
     immutable_config_keys: frozenset[str] = frozenset()
 
 
-INCUS_RUNTIME_CONFIG_PREFIXES = ('volatile.',)
-
-
 def _incus_build_effective_desired(
     desired: dict[str, Any],
     current: dict[str, Any],
@@ -697,7 +684,7 @@ def _incus_build_effective_desired(
         for key, value in current_config.items()
         if key not in desired_config
         and (key in global_config_keys
-             or key.startswith(INCUS_RUNTIME_CONFIG_PREFIXES)
+             or key.startswith('volatile.')
              or key in immutable_config_keys)
     }
     has_absent_immutable = any(

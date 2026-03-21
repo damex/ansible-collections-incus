@@ -44,10 +44,21 @@ options:
     default: ''
   config:
     description:
-      - Zone configuration key-value pairs.
-      - Only user-defined keys (user.*) are supported.
-    type: dict
-    default: {}
+      - User-defined configuration entries.
+      - Each entry is flattened to a C(user.<name>) config key.
+    type: list
+    elements: dict
+    suboptions:
+      name:
+        description:
+          - Configuration key name (without the user. prefix).
+        type: str
+        required: true
+      value:
+        description:
+          - Configuration value.
+        type: str
+        required: true
 """
 
 EXAMPLES = r"""
@@ -60,7 +71,8 @@ EXAMPLES = r"""
   damex.incus.incus_network_zone:
     name: example.com
     config:
-      user.note: Primary zone
+      - name: note
+        value: Primary zone
 
 - name: Ensure network zone is absent
   damex.incus.incus_network_zone:
@@ -75,10 +87,12 @@ from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
-    incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
+)
+from ansible_collections.damex.incus.plugins.module_utils.common import (
+    incus_common_flatten_key_value_to_config,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -93,12 +107,28 @@ def main() -> None:
     argument_spec: dict[str, Any] = {
         'project': {'type': 'str', 'default': 'default'},
         'description': {'type': 'str', 'default': ''},
-        'config': {'type': 'dict', 'default': {}},
+        'config': {
+            'type': 'list',
+            'elements': 'dict',
+            'options': {
+                'name': {
+                    'type': 'str',
+                    'required': True,
+                },
+                'value': {
+                    'type': 'str',
+                    'required': True,
+                },
+            },
+        },
     }
     for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
         argument_spec[spec_key] = spec_value
     module = incus_create_write_module(argument_spec)
-    desired = incus_build_desired(module)
+    desired: dict[str, Any] = {
+        'description': module.params['description'],
+        'config': incus_common_flatten_key_value_to_config('user', module.params.get('config')),
+    }
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'network-zones', desired))
 
 
