@@ -25,7 +25,7 @@ extends_documentation_fragment:
   - damex.incus.common.project
   - damex.incus.common.write
   - damex.incus.common.source
-  - damex.incus.devices
+  - damex.incus.instance_devices
 options:
   name:
     description:
