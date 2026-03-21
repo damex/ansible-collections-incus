@@ -3,3 +3,6 @@
   ansible.builtin.setup:
     gather_subset:
       - pkg_mgr
+
+- name: Ensure incus service facts
+  ansible.builtin.service_facts: # yamllint disable-line rule:empty-values

@@ -1,4 +1,13 @@
 ---
+- name: Ensure system dnsmasq is stopped
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: dnsmasq
+    systemd_service_state: stopped
+    systemd_service_enabled: false
+  when: "'dnsmasq.service' in ansible_facts.services"
+
 - name: Ensure incus systemd service {{ incus_service_name }}
   ansible.builtin.include_role:
     name: damex.systemd.systemd_service
