@@ -23,6 +23,7 @@ extends_documentation_fragment:
   - damex.incus.common
   - damex.incus.common.project
   - damex.incus.common.write
+  - damex.incus.config_user
 options:
   name:
     description:
@@ -42,23 +43,6 @@ options:
       - Description of the network zone.
     type: str
     default: ''
-  config:
-    description:
-      - User-defined configuration entries.
-      - Each entry is flattened to a C(user.<name>) config key.
-    type: list
-    elements: dict
-    suboptions:
-      name:
-        description:
-          - Configuration key name (without the user. prefix).
-        type: str
-        required: true
-      value:
-        description:
-          - Configuration value.
-        type: str
-        required: true
 """
 
 EXAMPLES = r"""
