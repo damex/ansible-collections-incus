@@ -787,7 +787,7 @@ def incus_ensure_resource(
             incus_wait(
                 module,
                 client,
-                client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, None)}'),
+                client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, target)}'),
             )
         return True
     return False

@@ -98,6 +98,12 @@ argument_specs:
                   bgp.ipv6.nexthop:
                     description: Override the next-hop for advertised IPv6 prefixes.
                     type: str
+              state:
+                description: Desired state of this cluster member's network entry.
+                type: str
+                choices:
+                  - present
+                  - absent
           project:
             description: Incus project to scope the network to.
             type: str

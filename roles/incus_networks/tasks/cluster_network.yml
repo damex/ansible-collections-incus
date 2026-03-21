@@ -5,7 +5,7 @@
     - name: Ensure incus cluster network member {{ incus_networks_network_name }}
       damex.incus.incus_network:
         name: "{{ incus_networks_network_name }}"
-        state: "{{ incus_networks_network_state }}"
+        state: "{{ incus_networks_target.state | default(incus_networks_network_state) }}"
         type: "{{ incus_networks_network_type }}"
         description: "{{ incus_networks_network_description }}"
         project: "{{ incus_networks_network_project }}"

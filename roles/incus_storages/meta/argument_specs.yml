@@ -81,6 +81,12 @@ argument_specs:
                   lvm.vg_name:
                     description: Name of the LVM volume group.
                     type: str
+              state:
+                description: Desired state of this cluster member's storage pool entry.
+                type: str
+                choices:
+                  - present
+                  - absent
           project:
             description: Project to scope the storage pool to.
             type: str

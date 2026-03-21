@@ -5,7 +5,7 @@
     - name: Ensure incus cluster storage member {{ incus_storages_storage_name }}
       damex.incus.incus_storage:
         name: "{{ incus_storages_storage_name }}"
-        state: "{{ incus_storages_storage_state }}"
+        state: "{{ incus_storages_target.state | default(incus_storages_storage_state) }}"
         driver: "{{ incus_storages_storage_driver }}"
         description: "{{ incus_storages_storage_description }}"
         config: "{{ incus_storages_storage.config | combine(incus_storages_target.config) if (incus_storages_storage.config is defined and incus_storages_target.config is defined) else incus_storages_target.config if incus_storages_target.config is defined else incus_storages_storage.config | default(omit) }}"
