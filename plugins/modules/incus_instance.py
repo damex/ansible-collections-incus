@@ -109,7 +109,7 @@ RETURN = r"""
 from typing import Any, NamedTuple
 from urllib.parse import quote
 
-from ansible_collections.damex.incus.plugins.module_utils.device import (
+from ansible_collections.damex.incus.plugins.module_utils.instance_devices import (
     INCUS_DEVICE_OPTIONS,
 )
 

@@ -40,7 +40,7 @@ from ansible_collections.damex.incus.plugins.module_utils.cloud_init import (
     CLOUD_INIT_USER_KEYS,
     cloud_init_data_lists_to_dicts,
 )
-from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
+from ansible_collections.damex.incus.plugins.module_utils.instance_devices import devices_to_api
 from ansible_collections.damex.incus.plugins.module_utils.incus_source import (
     INCUS_SOURCE_ARGS,
     incus_build_query,

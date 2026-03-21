@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from ansible_collections.damex.incus.plugins.module_utils.device import devices_to_api
+from ansible_collections.damex.incus.plugins.module_utils.instance_devices import devices_to_api
 
 __all__ = [
     'test_devices_to_api_empty_list',

@@ -73,7 +73,7 @@ RETURN = r"""
 
 from typing import Any
 
-from ansible_collections.damex.incus.plugins.module_utils.device import (
+from ansible_collections.damex.incus.plugins.module_utils.instance_devices import (
     INCUS_DEVICE_OPTIONS,
 )
 
