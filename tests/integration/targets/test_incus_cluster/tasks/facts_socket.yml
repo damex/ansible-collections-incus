@@ -1,0 +1,11 @@
+---
+- name: Ensure incus cluster member info
+  damex.incus.incus_cluster_member_info:
+    name: test-node
+  register: incus_cluster_member_info_state
+
+- name: Ensure incus cluster member info
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_member_info_state.cluster_members is defined
+      - "'test-node' in incus_cluster_member_info_state.cluster_members | map(attribute='server_name')"

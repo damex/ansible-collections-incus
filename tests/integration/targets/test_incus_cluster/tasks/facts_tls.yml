@@ -1,0 +1,53 @@
+---
+- name: Ensure tls client private key is generated
+  community.crypto.openssl_privatekey:
+    path: /tmp/tls-client.key
+    type: ECC
+    curve: secp256r1
+
+- name: Ensure tls client certificate is generated
+  community.crypto.x509_certificate:
+    path: /tmp/tls-client.crt
+    privatekey_path: /tmp/tls-client.key
+    provider: selfsigned
+    selfsigned_not_after: +1d
+
+- name: Ensure tls client certificate is read
+  ansible.builtin.slurp:
+    src: /tmp/tls-client.crt
+  register: incus_tls_client_certificate_state
+
+- name: Ensure tls client certificate is trusted
+  damex.incus.incus_certificate:
+    name: tls-client
+    certificate: "{{ incus_tls_client_certificate_state.content | b64decode }}"
+    state: present
+
+- name: Ensure incus cluster server info (tls)
+  damex.incus.incus_server_info:
+    url: https://127.0.0.1:8443
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/cluster.crt
+  register: incus_cluster_server_info_tls_state
+
+- name: Ensure incus cluster server info (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_server_info_tls_state.server is defined
+      - incus_cluster_server_info_tls_state.server.auth == 'trusted'
+
+- name: Ensure incus cluster member info (tls)
+  damex.incus.incus_cluster_member_info:
+    name: test-node
+    url: https://127.0.0.1:8443
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/cluster.crt
+  register: incus_cluster_member_info_tls_state
+
+- name: Ensure incus cluster member info (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_member_info_tls_state.cluster_members is defined
+      - "'test-node' in incus_cluster_member_info_tls_state.cluster_members | map(attribute='server_name')"

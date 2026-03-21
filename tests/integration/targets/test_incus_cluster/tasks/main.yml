@@ -1,0 +1,9 @@
+---
+- name: Ensure incus cluster
+  block:
+    - name: Ensure incus cluster role
+      ansible.builtin.import_tasks: role.yml
+    - name: Ensure incus cluster facts (socket)
+      ansible.builtin.import_tasks: facts_socket.yml
+    - name: Ensure incus cluster facts (tls)
+      ansible.builtin.import_tasks: facts_tls.yml

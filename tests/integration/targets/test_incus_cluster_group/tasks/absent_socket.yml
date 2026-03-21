@@ -1,0 +1,31 @@
+---
+- name: Ensure incus cluster group is deleted
+  damex.incus.incus_cluster_group:
+    name: test-group
+    state: absent
+  register: incus_cluster_group_absent_state
+
+- name: Ensure incus cluster group is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_absent_state is changed
+
+- name: Ensure incus cluster group deletion is idempotent
+  damex.incus.incus_cluster_group:
+    name: test-group
+    state: absent
+  register: incus_cluster_group_absent_idempotent_state
+
+- name: Ensure incus cluster group deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_absent_idempotent_state is not changed
+
+- name: Ensure incus cluster group info after deletion
+  damex.incus.incus_cluster_group_info: {}
+  register: incus_cluster_group_info_after_state
+
+- name: Ensure incus cluster group info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-group' not in incus_cluster_group_info_after_state.cluster_groups | map(attribute='name')"

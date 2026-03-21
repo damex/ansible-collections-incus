@@ -1,0 +1,82 @@
+---
+- name: Ensure incus cluster group is created
+  damex.incus.incus_cluster_group:
+    name: test-group
+    description: Test cluster group
+  register: incus_cluster_group_present_state
+
+- name: Ensure incus cluster group is created
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_present_state is changed
+
+- name: Ensure incus cluster group is idempotent
+  damex.incus.incus_cluster_group:
+    name: test-group
+    description: Test cluster group
+  register: incus_cluster_group_idempotent_state
+
+- name: Ensure incus cluster group is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_idempotent_state is not changed
+
+- name: Ensure incus cluster group description is updated
+  damex.incus.incus_cluster_group:
+    name: test-group
+    description: Updated cluster group
+  register: incus_cluster_group_update_state
+
+- name: Ensure incus cluster group description is updated
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_update_state is changed
+
+- name: Ensure incus cluster group members are updated
+  damex.incus.incus_cluster_group:
+    name: test-group
+    description: Updated cluster group
+    members:
+      - test-node
+  register: incus_cluster_group_members_state
+
+- name: Ensure incus cluster group members are updated
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_members_state is changed
+
+- name: Ensure incus cluster group members are idempotent
+  damex.incus.incus_cluster_group:
+    name: test-group
+    description: Updated cluster group
+    members:
+      - test-node
+  register: incus_cluster_group_members_idempotent_state
+
+- name: Ensure incus cluster group members are idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_members_idempotent_state is not changed
+
+- name: Ensure incus cluster group info
+  damex.incus.incus_cluster_group_info: {}
+  register: incus_cluster_group_info_state
+
+- name: Ensure incus cluster group info
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_info_state.cluster_groups is defined
+      - "'test-group' in incus_cluster_group_info_state.cluster_groups | map(attribute='name')"
+
+- name: Ensure incus cluster group info by name
+  damex.incus.incus_cluster_group_info:
+    name: test-group
+  register: incus_cluster_group_info_named_state
+
+- name: Ensure incus cluster group info by name
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_info_named_state.cluster_groups | length == 1
+      - "'test-group' in incus_cluster_group_info_named_state.cluster_groups | map(attribute='name')"
+      - "'Updated cluster group' in incus_cluster_group_info_named_state.cluster_groups | map(attribute='description')"
+      - "'test-node' in incus_cluster_group_info_named_state.cluster_groups | selectattr('name', 'equalto', 'test-group') | map(attribute='members') | first"

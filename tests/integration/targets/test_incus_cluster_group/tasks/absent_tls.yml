@@ -1,0 +1,43 @@
+---
+- name: Ensure incus cluster group is deleted (tls)
+  damex.incus.incus_cluster_group:
+    name: tls-test-group
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/cluster.crt
+  register: incus_cluster_group_tls_absent_state
+
+- name: Ensure incus cluster group is deleted (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_tls_absent_state is changed
+
+- name: Ensure incus cluster group deletion is idempotent (tls)
+  damex.incus.incus_cluster_group:
+    name: tls-test-group
+    state: absent
+    url: https://127.0.0.1:8443
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/cluster.crt
+  register: incus_cluster_group_tls_absent_idempotent_state
+
+- name: Ensure incus cluster group deletion is idempotent (tls)
+  ansible.builtin.assert:
+    that:
+      - incus_cluster_group_tls_absent_idempotent_state is not changed
+
+- name: Ensure incus cluster group info after deletion (tls)
+  damex.incus.incus_cluster_group_info:
+    url: https://127.0.0.1:8443
+    client_cert_path: /tmp/tls-client.crt
+    client_key_path: /tmp/tls-client.key
+    server_cert_path: /var/lib/incus/cluster.crt
+  register: incus_cluster_group_tls_info_after_state
+
+- name: Ensure incus cluster group info after deletion (tls)
+  ansible.builtin.assert:
+    that:
+      - "'tls-test-group' not in incus_cluster_group_tls_info_after_state.cluster_groups | map(attribute='name')"
