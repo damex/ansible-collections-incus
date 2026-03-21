@@ -24,6 +24,7 @@ __all__ = [
     'test_skip_matching_storage',
     'test_update_storage_config',
     'test_delete_existing_storage',
+    'test_delete_existing_storage_per_target',
     'test_delete_nonexistent_storage',
     'test_storage_check_mode',
 ]
@@ -67,6 +68,14 @@ def test_update_storage_config() -> None:
 def test_delete_existing_storage() -> None:
     """Delete existing storage pool."""
     assert_write_delete(main, MODULE, _mock_module(state='absent'))
+
+
+def test_delete_existing_storage_per_target() -> None:
+    """Delete storage pool member scoped to cluster target."""
+    module = _mock_module(state='absent')
+    module.params['target'] = 'biggie1.home'
+    client = assert_write_delete(main, MODULE, module)
+    client.delete.assert_called_once_with('/1.0/storage-pools/tank?target=biggie1.home')
 
 
 def test_delete_nonexistent_storage() -> None:
