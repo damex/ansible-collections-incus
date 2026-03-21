@@ -315,6 +315,11 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
+INCUS_STORAGE_IMMUTABLE_UNIVERSAL: frozenset[str] = frozenset({
+    'source',
+    'source.wipe',
+})
+
 INCUS_STORAGE_IMMUTABLE_CONFIG: dict[str, frozenset[str]] = {
     'zfs': frozenset({
         'zfs.pool_name',
@@ -420,7 +425,7 @@ def main() -> None:
     driver = module.params.get('driver') or ''
     options = IncusResourceOptions(
         create_only_params=['driver'],
-        immutable_config_keys=INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset()),
+        immutable_config_keys=frozenset({*INCUS_STORAGE_IMMUTABLE_UNIVERSAL, *INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset())}),
     )
     incus_run_write_module(
         module,
