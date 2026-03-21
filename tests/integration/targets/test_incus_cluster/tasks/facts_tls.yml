@@ -25,13 +25,14 @@
 
 - name: Ensure incus server info (socket)
   damex.incus.incus_server_info:
+    socket_path: /var/lib/incus/unix.socket
   register: incus_server_socket_info_state
 
 - name: Ensure incus server certificate is stored
   ansible.builtin.copy:
     content: "{{ incus_server_socket_info_state.server.environment.certificate }}"
     dest: /tmp/incus-server.crt
-    mode: '0644'
+    mode: "0644"
 
 - name: Ensure incus cluster server info (tls)
   damex.incus.incus_server_info:
