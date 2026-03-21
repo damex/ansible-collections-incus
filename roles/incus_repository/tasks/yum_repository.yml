@@ -1,0 +1,11 @@
+---
+- name: Ensure incus repository yum repository {{ incus_repository_yum_repository_name }}
+  ansible.builtin.include_role:
+    name: damex.yum.yum_repositories
+  vars:
+    yum_repositories: # noqa: var-naming[no-role-prefix]
+      - name: "{{ incus_repository_yum_repository_name }}"
+        baseurl: "{{ incus_repository_yum_repository_baseurl }}"
+        gpgcheck: "{{ incus_repository_yum_repository_gpgcheck }}"
+        gpgkey: "{{ incus_repository_yum_repository_gpgkey }}"
+  when: ansible_facts['pkg_mgr'] in ["dnf", "dnf5"]

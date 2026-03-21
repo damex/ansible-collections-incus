@@ -5,3 +5,7 @@ incus_repository_apt_repository_name: incus
 incus_repository_apt_repository_url: https://pkgs.zabbly.com/incus/stable
 incus_repository_apt_repository_components:
   - main
+incus_repository_yum_repository_name: damex-incus
+incus_repository_yum_repository_baseurl: https://yum-repositories.damex.org/incus/fc/$releasever/$basearch
+incus_repository_yum_repository_gpgcheck: true
+incus_repository_yum_repository_gpgkey: https://yum-repositories.damex.org/incus/yum-repositories-2035-11-30.asc

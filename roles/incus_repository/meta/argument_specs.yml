@@ -40,3 +40,15 @@ argument_specs:
         type: list
         elements: str
         description: List of APT repository components to enable.
+      incus_repository_yum_repository_name:
+        type: str
+        description: Unique repository ID for the Incus YUM repository.
+      incus_repository_yum_repository_baseurl:
+        type: str
+        description: URL to the directory where the Incus YUM repository repodata is located.
+      incus_repository_yum_repository_gpgcheck:
+        type: bool
+        description: GPG signature check for the Incus YUM repository.
+      incus_repository_yum_repository_gpgkey:
+        type: str
+        description: URL pointing to the ASCII-armored GPG key file for the Incus YUM repository.

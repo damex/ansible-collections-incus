@@ -10,3 +10,5 @@
       ansible.builtin.import_tasks: apt_key.yml
     - name: Ensure incus repository apt repository
       ansible.builtin.import_tasks: apt_repository.yml
+    - name: Ensure incus repository yum repository
+      ansible.builtin.import_tasks: yum_repository.yml
