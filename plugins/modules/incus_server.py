@@ -746,6 +746,7 @@ def main() -> None:
                         'key': {
                             'type': 'str',
                             'required': True,
+                            'no_log': False,
                         },
                         'value': {'type': 'str'},
                     },
