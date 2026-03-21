@@ -55,9 +55,11 @@ server:
       type: str
 """
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
     incus_create_client,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_info_module,
 )
 

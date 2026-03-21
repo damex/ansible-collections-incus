@@ -11,7 +11,7 @@ import os
 import tempfile
 from unittest.mock import MagicMock, patch
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import IncusNotFoundException
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusNotFoundException
 from ansible_collections.damex.incus.plugins.modules.incus_image_import import (
     _incus_image_import_extract_xz,
     _incus_image_import_is_xz,

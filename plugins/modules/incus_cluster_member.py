@@ -122,11 +122,13 @@ import json
 from typing import Any
 from urllib.parse import quote
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGUMENT_SPEC,
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
     IncusNotFoundException,
     incus_create_client,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_COMMON_ARGUMENT_SPEC,
     incus_create_write_module,
     incus_wait,
 )

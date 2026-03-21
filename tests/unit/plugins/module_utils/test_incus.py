@@ -10,9 +10,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
     IncusNotFoundException,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
     _incus_build_effective_desired,
     incus_build_desired,
     incus_build_query,

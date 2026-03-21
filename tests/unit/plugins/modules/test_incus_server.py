@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
 )
 from ansible_collections.damex.incus.plugins.modules.incus_server import main

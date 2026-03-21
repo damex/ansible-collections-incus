@@ -116,14 +116,16 @@ from ansible_collections.damex.incus.plugins.module_utils.device import (
 from ansible_collections.damex.incus.plugins.module_utils.instance_config import (
     INCUS_INSTANCE_CONFIG_OPTIONS,
 )
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_SOURCE_ARGS,
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClient,
     IncusNotFoundException,
+    incus_create_client,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    INCUS_SOURCE_ARGS,
     incus_build_desired,
     incus_build_query,
     incus_build_source,
-    incus_create_client,
     incus_create_write_module,
     incus_run_write_module,
     incus_wait,

@@ -194,10 +194,12 @@ try:
 except ImportError:
     pass
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClient,
-    incus_build_query,
     incus_create_client,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    incus_build_query,
     incus_create_write_module,
     incus_resolve_image_alias,
     incus_run_write_module,

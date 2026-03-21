@@ -511,8 +511,10 @@ RETURN = r"""
 import json
 from typing import Any
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import (
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     incus_create_client,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_write_module,
     incus_run_write_module,
 )

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import IncusClientException
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusClientException
 from ansible_collections.damex.incus.plugins.modules.incus_certificate_info import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     mock_incus_client,

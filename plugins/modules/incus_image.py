@@ -109,14 +109,16 @@ RETURN = r"""
 from typing import Any
 from urllib.parse import quote
 
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
+    IncusClient,
+    incus_create_client,
+)
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
-    IncusClient,
     incus_build_query,
     incus_build_source,
-    incus_create_client,
-    incus_resolve_image_alias,
     incus_create_write_module,
+    incus_resolve_image_alias,
     incus_run_write_module,
     incus_wait,
 )

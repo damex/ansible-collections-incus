@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from ansible_collections.damex.incus.plugins.module_utils.incus import IncusNotFoundException
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusNotFoundException
 from ansible_collections.damex.incus.plugins.modules.incus_image import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
