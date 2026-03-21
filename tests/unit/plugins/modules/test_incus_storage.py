@@ -61,7 +61,7 @@ def test_skip_matching_storage() -> None:
 def test_update_storage_config() -> None:
     """Update storage pool with changed config."""
     module = _mock_module()
-    module.params['config'] = {'zfs.pool_name': 'newpool'}
+    module.params['config'] = {'size': '100GB'}
     assert_write_update(main, MODULE, module, {'description': '', 'config': {}})
 
 
