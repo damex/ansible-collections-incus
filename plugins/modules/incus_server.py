@@ -717,7 +717,39 @@ def main() -> None:
         config_options[option_key] = option_value
     module = incus_create_write_module({
         'init': {'type': 'bool', 'default': False},
-        'cluster': {'type': 'dict'},
+        'cluster': {
+            'type': 'dict',
+            'options': {
+                'enabled': {'type': 'bool'},
+                'server_name': {'type': 'str'},
+                'server_address': {'type': 'str'},
+                'cluster_address': {'type': 'str'},
+                'cluster_certificate': {'type': 'str'},
+                'cluster_token': {
+                    'type': 'str',
+                    'no_log': True,
+                },
+                'member_config': {
+                    'type': 'list',
+                    'elements': 'dict',
+                    'options': {
+                        'entity': {
+                            'type': 'str',
+                            'required': True,
+                        },
+                        'name': {
+                            'type': 'str',
+                            'required': True,
+                        },
+                        'key': {
+                            'type': 'str',
+                            'required': True,
+                        },
+                        'value': {'type': 'str'},
+                    },
+                },
+            },
+        },
         'config': {
             'type': 'dict',
             'default': {},
