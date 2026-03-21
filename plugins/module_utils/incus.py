@@ -678,12 +678,18 @@ def _incus_build_effective_desired(
              or key.startswith(INCUS_RUNTIME_CONFIG_PREFIXES)
              or key in immutable_config_keys)
     }
-    if not preserved:
+    has_absent_immutable = any(
+        config_key in immutable_config_keys and config_key not in current_config
+        for config_key in desired_config
+    )
+    if not preserved and not has_absent_immutable:
         return desired
     combined_config: dict[str, Any] = {}
     for config_key, config_value in preserved.items():
         combined_config[config_key] = config_value
     for config_key, config_value in desired_config.items():
+        if config_key in immutable_config_keys and config_key not in current_config:
+            continue
         combined_config[config_key] = config_value
     result = desired.copy()
     result['config'] = combined_config
