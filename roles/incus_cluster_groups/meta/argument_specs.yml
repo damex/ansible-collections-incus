@@ -1,0 +1,79 @@
+---
+argument_specs:
+  main:
+    short_description: Ensure Incus cluster groups.
+    description:
+      - Ensure Incus cluster groups.
+    examples: |
+      - name: Ensure incus cluster groups
+        hosts: incus
+        tasks:
+          - name: Ensure incus cluster groups
+            ansible.builtin.import_role:
+              name: damex.incus.incus_cluster_groups
+            vars:
+              incus_cluster_groups:
+                - name: dpu
+                  description: ARM64 DPU nodes
+                  members:
+                    - arm64-node1
+                    - arm64-node2
+    options:
+      incus_cluster_groups:
+        description: List of Incus cluster groups to ensure.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the cluster group.
+            required: true
+            type: str
+          description:
+            description: Description of the cluster group.
+            type: str
+          members:
+            description: List of cluster member names in the group.
+            type: list
+            elements: str
+          state:
+            description: Desired state of the cluster group.
+            type: str
+            choices:
+              - present
+              - absent
+      incus_cluster_groups_socket_path:
+        description: Path to the Incus Unix socket.
+        type: path
+      incus_cluster_groups_url:
+        description: URL of the Incus server API.
+        type: str
+      incus_cluster_groups_client_cert:
+        description: Client certificate content for API authentication.
+        type: str
+      incus_cluster_groups_client_key:
+        description: Client key content for API authentication.
+        type: str
+      incus_cluster_groups_server_cert:
+        description: Server certificate content for API verification.
+        type: str
+      incus_cluster_groups_client_cert_path:
+        description: Path to the TLS client certificate for API authentication.
+        type: path
+      incus_cluster_groups_client_key_path:
+        description: Path to the TLS client key for API authentication.
+        type: path
+      incus_cluster_groups_server_cert_path:
+        description: Path to the TLS server certificate for API verification.
+        type: path
+      incus_cluster_groups_token:
+        description: Authentication token for the Incus API.
+        type: str
+      incus_cluster_groups_validate_certs:
+        description: Whether to validate TLS certificates.
+        type: bool
+      incus_cluster_groups_state:
+        description: Default desired state of the cluster groups.
+        type: str
+        choices:
+          - present
+          - absent

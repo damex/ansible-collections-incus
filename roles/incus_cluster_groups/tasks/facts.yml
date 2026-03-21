@@ -1,0 +1,17 @@
+---
+- name: Ensure incus cluster groups cluster member facts
+  damex.incus.incus_cluster_member_info:
+    name: "{{ inventory_hostname }}"
+    socket_path: "{{ incus_cluster_groups_socket_path }}"
+    url: "{{ incus_cluster_groups_url | default(omit) }}"
+    client_cert: "{{ incus_cluster_groups_client_cert | default(omit) }}"
+    client_key: "{{ incus_cluster_groups_client_key | default(omit) }}"
+    server_cert: "{{ incus_cluster_groups_server_cert | default(omit) }}"
+    client_cert_path: "{{ incus_cluster_groups_client_cert_path | default(omit) }}"
+    client_key_path: "{{ incus_cluster_groups_client_key_path | default(omit) }}"
+    server_cert_path: "{{ incus_cluster_groups_server_cert_path | default(omit) }}"
+    token: "{{ incus_cluster_groups_token | default(omit) }}"
+    validate_certs: "{{ incus_cluster_groups_validate_certs }}"
+  no_log: "{{ incus_cluster_groups_client_key is defined or incus_cluster_groups_token is defined }}"
+  register: incus_cluster_groups_cluster_info_state
+  become: true

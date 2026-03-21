@@ -1,0 +1,20 @@
+---
+- name: Ensure incus cluster group {{ incus_cluster_groups_cluster_group_name }}
+  damex.incus.incus_cluster_group:
+    name: "{{ incus_cluster_groups_cluster_group_name }}"
+    state: "{{ incus_cluster_groups_cluster_group_state }}"
+    description: "{{ incus_cluster_groups_cluster_group.description | default(omit) }}"
+    members: "{{ incus_cluster_groups_cluster_group.members | default(omit) }}"
+    socket_path: "{{ incus_cluster_groups_cluster_group_socket_path }}"
+    url: "{{ incus_cluster_groups_cluster_group_url }}"
+    client_cert: "{{ incus_cluster_groups_cluster_group_client_cert }}"
+    client_key: "{{ incus_cluster_groups_cluster_group_client_key }}"
+    server_cert: "{{ incus_cluster_groups_cluster_group_server_cert }}"
+    client_cert_path: "{{ incus_cluster_groups_cluster_group_client_cert_path }}"
+    client_key_path: "{{ incus_cluster_groups_cluster_group_client_key_path }}"
+    server_cert_path: "{{ incus_cluster_groups_cluster_group_server_cert_path }}"
+    token: "{{ incus_cluster_groups_cluster_group_token }}"
+    validate_certs: "{{ incus_cluster_groups_cluster_group_validate_certs }}"
+  no_log: "{{ incus_cluster_groups_client_key is defined or incus_cluster_groups_token is defined }}"
+  become: true
+  when: incus_cluster_groups_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_cluster_groups_cluster_info_state.cluster_members | map(attribute='roles') | first
