@@ -462,21 +462,50 @@ def _incus_image_import_prepare(
     qemu_img_path = module.get_bin_path('qemu-img')
     if not qemu_img_path:
         module.fail_json(msg="qemu-img is required but not found on the target host")
-    file_path = _incus_image_import_download_source(module, source, temp_directory, module.params['timeout'])
+    file_path = _incus_image_import_download_source(
+        module,
+        source,
+        temp_directory,
+        module.params['timeout'],
+    )
     expected_checksum = module.params.get('checksum')
     if expected_checksum:
         _incus_image_import_verify_checksum(
-            module, file_path, expected_checksum, module.params['checksum_algorithm'],
+            module,
+            file_path,
+            expected_checksum,
+            module.params['checksum_algorithm'],
         )
     if zipfile.is_zipfile(file_path):
-        file_path = _incus_image_import_extract_zip(module, file_path, temp_directory)
+        file_path = _incus_image_import_extract_zip(
+            module,
+            file_path,
+            temp_directory,
+        )
     if _incus_image_import_is_xz(file_path):
-        file_path = _incus_image_import_extract_xz(module, file_path, temp_directory)
-    image_format = _incus_image_import_detect_format(module, qemu_img_path, file_path)
+        file_path = _incus_image_import_extract_xz(
+            module,
+            file_path,
+            temp_directory,
+        )
+    image_format = _incus_image_import_detect_format(
+        module,
+        qemu_img_path,
+        file_path,
+    )
     if image_format != 'qcow2':
-        file_path = _incus_image_import_convert_to_qcow2(module, qemu_img_path, file_path, temp_directory)
+        file_path = _incus_image_import_convert_to_qcow2(
+            module,
+            qemu_img_path,
+            file_path,
+            temp_directory,
+        )
     return _incus_image_import_build_tarball(
-        module, file_path, architecture, properties, temp_directory,
+        module,
+        file_path,
+        architecture,
+        properties,
+        temp_directory,
     )
 
 
@@ -500,10 +529,13 @@ def _incus_image_import_create_aliases(
     """
     all_aliases = [alias] + (aliases or [])
     for name in all_aliases:
-        client.post(f'/1.0/images/aliases{query}', {
-            'name': name,
-            'target': fingerprint,
-        })
+        client.post(
+            f'/1.0/images/aliases{query}',
+            {
+                'name': name,
+                'target': fingerprint,
+            },
+        )
 
 
 def main() -> None:
@@ -581,11 +613,16 @@ def main() -> None:
             temp_directory = tempfile.mkdtemp()
             try:
                 tarball_path = _incus_image_import_prepare(
-                    module, module.params['source'], module.params['architecture'],
-                    module.params.get('properties'), temp_directory,
+                    module,
+                    module.params['source'],
+                    module.params['architecture'],
+                    module.params.get('properties'),
+                    temp_directory,
                 )
                 response = client.post_file(
-                    f'/1.0/images{query}', tarball_path, module.params['public'],
+                    f'/1.0/images{query}',
+                    tarball_path,
+                    module.params['public'],
                 )
                 metadata = client.wait(response)
                 if metadata:
@@ -595,7 +632,11 @@ def main() -> None:
                 if not fingerprint:
                     module.fail_json(msg="Failed to retrieve image fingerprint after upload")
                 _incus_image_import_create_aliases(
-                    client, fingerprint, alias, module.params.get('aliases'), query,
+                    client,
+                    fingerprint,
+                    alias,
+                    module.params.get('aliases'),
+                    query,
                 )
             finally:
                 shutil.rmtree(temp_directory, ignore_errors=True)
