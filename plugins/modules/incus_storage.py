@@ -425,7 +425,9 @@ def main() -> None:
     driver = module.params.get('driver') or ''
     options = IncusResourceOptions(
         create_only_params=['driver'],
-        immutable_config_keys=frozenset({*INCUS_STORAGE_IMMUTABLE_UNIVERSAL, *INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset())}),
+        immutable_config_keys=INCUS_STORAGE_IMMUTABLE_UNIVERSAL.union(
+            INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset()),
+        ),
     )
     incus_run_write_module(
         module,
