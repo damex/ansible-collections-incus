@@ -23,12 +23,22 @@
     certificate: "{{ incus_tls_client_certificate_state.content | b64decode }}"
     state: present
 
+- name: Ensure incus server info (socket)
+  damex.incus.incus_server_info:
+  register: incus_server_socket_info_state
+
+- name: Ensure incus server certificate is stored
+  ansible.builtin.copy:
+    content: "{{ incus_server_socket_info_state.server.environment.certificate }}"
+    dest: /tmp/incus-server.crt
+    mode: '0644'
+
 - name: Ensure incus cluster server info (tls)
   damex.incus.incus_server_info:
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/cluster.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_cluster_server_info_tls_state
 
 - name: Ensure incus cluster server info (tls)
@@ -43,7 +53,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/cluster.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_cluster_member_info_tls_state
 
 - name: Ensure incus cluster member info (tls)

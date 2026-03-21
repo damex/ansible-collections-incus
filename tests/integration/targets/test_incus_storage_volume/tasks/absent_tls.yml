@@ -7,7 +7,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/server.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_storage_volume_tls_absent_state
 
 - name: Ensure incus storage volume is deleted (tls)
@@ -23,7 +23,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/server.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_storage_volume_tls_absent_idempotent_state
 
 - name: Ensure incus storage volume deletion is idempotent (tls)
@@ -37,7 +37,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/server.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_storage_volume_tls_info_after_state
 
 - name: Ensure incus storage volume info after deletion (tls)
@@ -52,4 +52,4 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/server.crt
+    server_cert_path: /tmp/incus-server.crt

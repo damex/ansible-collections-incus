@@ -6,7 +6,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/cluster.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_cluster_group_tls_absent_state
 
 - name: Ensure incus cluster group is deleted (tls)
@@ -21,7 +21,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/cluster.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_cluster_group_tls_absent_idempotent_state
 
 - name: Ensure incus cluster group deletion is idempotent (tls)
@@ -34,7 +34,7 @@
     url: https://127.0.0.1:8443
     client_cert_path: /tmp/tls-client.crt
     client_key_path: /tmp/tls-client.key
-    server_cert_path: /var/lib/incus/cluster.crt
+    server_cert_path: /tmp/incus-server.crt
   register: incus_cluster_group_tls_info_after_state
 
 - name: Ensure incus cluster group info after deletion (tls)
