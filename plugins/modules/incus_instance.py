@@ -251,7 +251,11 @@ def _delete_instance(
     True
     """
     if not module.check_mode:
-        incus_wait(module, client, client.delete(f'/1.0/instances/{encoded_name}{query}'))
+        incus_wait(
+            module,
+            client,
+            client.delete(f'/1.0/instances/{encoded_name}{query}'),
+        )
     return True
 
 
@@ -265,21 +269,48 @@ def _manage_state(
     """
     Start, stop, or restart the instance based on desired state.
 
-    >>> _manage_state(module, client, '/1.0/instances/web/state', 'started', 'Stopped')
+    >>> _manage_state(
+    ...     module,
+    ...     client,
+    ...     '/1.0/instances/web/state',
+    ...     'started',
+    ...     'Stopped',
+    ... )
     True
     """
     match state:
         case 'started' if status != 'Running':
             if not module.check_mode:
-                incus_wait(module, client, client.put(state_path, {'action': 'start'}))
+                incus_wait(
+                    module,
+                    client,
+                    client.put(
+                        state_path,
+                        {'action': 'start'},
+                    ),
+                )
             return True
         case 'stopped' if status != 'Stopped':
             if not module.check_mode:
-                incus_wait(module, client, client.put(state_path, {'action': 'stop', 'force': True}))
+                incus_wait(
+                    module,
+                    client,
+                    client.put(
+                        state_path,
+                        {'action': 'stop', 'force': True},
+                    ),
+                )
             return True
         case 'restarted' if status == 'Running':
             if not module.check_mode:
-                incus_wait(module, client, client.put(state_path, {'action': 'restart', 'force': True}))
+                incus_wait(
+                    module,
+                    client,
+                    client.put(
+                        state_path,
+                        {'action': 'restart', 'force': True},
+                    ),
+                )
             return True
     return False
 

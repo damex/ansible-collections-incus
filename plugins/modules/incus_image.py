@@ -147,12 +147,19 @@ def _update_image(
     if image.get('auto_update', False) == desired_auto_update and image.get('public', False) == desired_public:
         return False
     if not module.check_mode:
-        incus_wait(module, client, client.put(f'/1.0/images/{encoded_fingerprint}{query}', {
-            'auto_update': desired_auto_update,
-            'public': desired_public,
-            'properties': image.get('properties') or {},
-            'expires_at': image.get('expires_at', ''),
-        }))
+        incus_wait(
+            module,
+            client,
+            client.put(
+                f'/1.0/images/{encoded_fingerprint}{query}',
+                {
+                    'auto_update': desired_auto_update,
+                    'public': desired_public,
+                    'properties': image.get('properties') or {},
+                    'expires_at': image.get('expires_at', ''),
+                },
+            ),
+        )
     return True
 
 
@@ -213,7 +220,14 @@ def main() -> None:
                 'public': module.params['public'],
             }
             if not module.check_mode:
-                incus_wait(module, client, client.post(f'/1.0/images{query}', data))
+                incus_wait(
+                    module,
+                    client,
+                    client.post(
+                        f'/1.0/images{query}',
+                        data,
+                    ),
+                )
             return True
 
         fingerprint = incus_resolve_image_alias(client, alias, query)
@@ -221,7 +235,11 @@ def main() -> None:
             return False
         if not module.check_mode:
             encoded_fingerprint = quote(fingerprint, safe='')
-            incus_wait(module, client, client.delete(f'/1.0/images/{encoded_fingerprint}{query}'))
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+            )
         return True
 
     incus_run_write_module(module, _ensure_image)

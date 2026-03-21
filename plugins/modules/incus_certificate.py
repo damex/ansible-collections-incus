@@ -113,13 +113,20 @@ def _ensure_certificate(module: Any) -> bool:
             if not cert_pem:
                 module.fail_json(msg="'certificate' is required when adding a new trust store entry")
             if not module.check_mode:
-                incus_wait(module, client, client.post('/1.0/certificates', {
-                    'name': name,
-                    'type': module.params['type'],
-                    'certificate': cert_pem,
-                    'restricted': module.params['restricted'],
-                    'projects': module.params['projects'],
-                }))
+                incus_wait(
+                    module,
+                    client,
+                    client.post(
+                        '/1.0/certificates',
+                        {
+                            'name': name,
+                            'type': module.params['type'],
+                            'certificate': cert_pem,
+                            'restricted': module.params['restricted'],
+                            'projects': module.params['projects'],
+                        },
+                    ),
+                )
             return True
         desired_restricted = module.params['restricted']
         desired_projects = sorted(module.params['projects'])
@@ -129,18 +136,29 @@ def _ensure_certificate(module: Any) -> bool:
             return False
         if not module.check_mode:
             encoded_fingerprint = quote(current['fingerprint'], safe='')
-            incus_wait(module, client, client.put(f'/1.0/certificates/{encoded_fingerprint}', {
-                'name': name,
-                'type': current.get('type', 'client'),
-                'restricted': desired_restricted,
-                'projects': module.params['projects'],
-            }))
+            incus_wait(
+                module,
+                client,
+                client.put(
+                    f'/1.0/certificates/{encoded_fingerprint}',
+                    {
+                        'name': name,
+                        'type': current.get('type', 'client'),
+                        'restricted': desired_restricted,
+                        'projects': module.params['projects'],
+                    },
+                ),
+            )
         return True
 
     if current is not None:
         if not module.check_mode:
             encoded_fingerprint = quote(current['fingerprint'], safe='')
-            incus_wait(module, client, client.delete(f'/1.0/certificates/{encoded_fingerprint}'))
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/certificates/{encoded_fingerprint}'),
+            )
         return True
     return False
 

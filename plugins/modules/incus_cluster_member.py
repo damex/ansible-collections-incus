@@ -232,17 +232,23 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
             for field_key, field_value in desired.items()
         )
         if changed and not module.check_mode:
-            incus_wait(module, client, client.put(
-                f'/1.0/cluster/members/{encoded_name}',
-                desired,
-            ))
+            incus_wait(
+                module,
+                client,
+                client.put(
+                    f'/1.0/cluster/members/{encoded_name}',
+                    desired,
+                ),
+            )
         return {'changed': changed}
 
     if exists:
         if not module.check_mode:
-            incus_wait(module, client, client.delete(
-                f'/1.0/cluster/members/{encoded_name}',
-            ))
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/cluster/members/{encoded_name}'),
+            )
         return {'changed': True}
     return {'changed': False}
 

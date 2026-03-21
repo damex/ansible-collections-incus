@@ -569,7 +569,11 @@ def main() -> None:
             if fingerprint and module.params['force']:
                 if not module.check_mode:
                     encoded_fingerprint = quote(fingerprint, safe='')
-                    incus_wait(module, client, client.delete(f'/1.0/images/{encoded_fingerprint}{query}'))
+                    incus_wait(
+                        module,
+                        client,
+                        client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+                    )
             if not module.params['source']:
                 module.fail_json(msg="'source' is required when creating an image")
             if module.check_mode:
@@ -602,7 +606,11 @@ def main() -> None:
             return False
         if not module.check_mode:
             encoded_fingerprint = quote(fingerprint, safe='')
-            incus_wait(module, client, client.delete(f'/1.0/images/{encoded_fingerprint}{query}'))
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+            )
         return True
 
     incus_run_write_module(module, _ensure_image)
