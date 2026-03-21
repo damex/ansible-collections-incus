@@ -72,15 +72,50 @@ RETURN = r"""
 """
 
 from typing import Any
+from urllib.parse import quote
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusNotFoundException,
+    incus_create_client,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
+    incus_wait,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
+
+
+def _incus_ensure_cluster_group_absent(module: Any) -> bool:
+    """
+    Ensure cluster group is absent, clearing members before deletion.
+
+    >>> _incus_ensure_cluster_group_absent(module)
+    True
+    """
+    client = incus_create_client(module)
+    name = quote(module.params['name'], safe='')
+    try:
+        current = client.get(f'/1.0/cluster/groups/{name}').get('metadata') or {}
+    except IncusNotFoundException:
+        return False
+    if not module.check_mode:
+        if current.get('members'):
+            incus_wait(
+                module,
+                client,
+                client.put(
+                    f'/1.0/cluster/groups/{name}',
+                    {'description': current.get('description', ''), 'members': []},
+                ),
+            )
+        incus_wait(
+            module,
+            client,
+            client.delete(f'/1.0/cluster/groups/{name}'),
+        )
+    return True
 
 
 def main() -> None:
@@ -103,10 +138,16 @@ def main() -> None:
         'description': module.params['description'],
         'members': sorted(module.params.get('members') or []),
     }
-    incus_run_write_module(
-        module,
-        lambda: incus_ensure_resource(module, 'cluster/groups', desired),
-    )
+    if module.params['state'] == 'absent':
+        incus_run_write_module(
+            module,
+            lambda: _incus_ensure_cluster_group_absent(module),
+        )
+    else:
+        incus_run_write_module(
+            module,
+            lambda: incus_ensure_resource(module, 'cluster/groups', desired),
+        )
 
 
 if __name__ == '__main__':

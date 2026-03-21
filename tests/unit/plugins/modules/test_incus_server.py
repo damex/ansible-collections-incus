@@ -70,7 +70,7 @@ def test_update_server_config() -> None:
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     client.put.assert_called_once()
-    put_data = client.put.call_args[0][1]
+    _path, put_data = client.put.call_args.args
     assert put_data['config']['core.https_address'] == ':8443'
 
 
@@ -105,7 +105,7 @@ def test_update_server_logging() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
-    put_data = client.put.call_args[0][1]
+    _path, put_data = client.put.call_args.args
     assert put_data['config']['logging.loki01.target.type'] == 'loki'
     assert put_data['config']['logging.loki01.target.address'] == 'https://loki:3100'
     assert put_data['config']['logging.loki01.target.labels'] == 'env=prod'
@@ -154,7 +154,7 @@ def test_update_server_config_extra_keys_removed() -> None:
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     client.put.assert_called_once()
-    put_data = client.put.call_args[0][1]
+    _path, put_data = client.put.call_args.args
     assert 'core.metrics_address' not in put_data['config']
 
 
@@ -188,7 +188,7 @@ def test_init_with_cluster() -> None:
     client = MagicMock()
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
-    preseed_data = module.run_command.call_args[1]['data']
+    preseed_data = module.run_command.call_args.kwargs['data']
     assert '"cluster"' in preseed_data
     assert '"server_name"' in preseed_data
 
