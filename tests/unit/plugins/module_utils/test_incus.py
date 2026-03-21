@@ -478,6 +478,8 @@ def _info_module(name: str | None = None, project: str | None = None) -> MagicMo
 def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
     """Return single resource as list."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': {'name': 'pool1', 'driver': 'zfs'}}
     mock_create_client.return_value = client
 
@@ -491,6 +493,8 @@ def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
 def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
     """Return empty list when resource not found."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusNotFoundException('not found')
     mock_create_client.return_value = client
 
@@ -504,6 +508,8 @@ def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
 def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
     """Return all resources."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     items = [{'name': 'a'}, {'name': 'b'}]
     client.get.return_value = {'metadata': items}
     mock_create_client.return_value = client
@@ -519,6 +525,8 @@ def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
 def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
     """Include project in query."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': []}
     mock_create_client.return_value = client
 
@@ -534,6 +542,8 @@ def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
 def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
     """Encode special characters in resource name."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': {'name': 'pool/special'}}
     mock_create_client.return_value = client
 
@@ -548,6 +558,8 @@ def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
 def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
     """Encode special characters in project query param."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': []}
     mock_create_client.return_value = client
 
@@ -562,6 +574,8 @@ def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
 def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None:
     """Fail on client exception."""
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusClientException('connection refused')
     mock_create_client.return_value = client
 

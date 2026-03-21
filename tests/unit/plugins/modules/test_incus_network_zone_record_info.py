@@ -47,6 +47,8 @@ def test_return_record_by_name() -> None:
     """Return record by name."""
     module = _mock_module(name='web')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {'name': 'web', 'description': '', 'entries': []},
     }
@@ -60,6 +62,8 @@ def test_return_empty_for_missing_record() -> None:
     """Return empty list for missing record."""
     module = _mock_module(name='missing')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusNotFoundException('not found')
     _run_info(module, client)
     module.exit_json.assert_called_once_with(network_zone_records=[])
@@ -69,6 +73,8 @@ def test_return_all_records() -> None:
     """Return all records."""
     module = _mock_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': [
             {'name': 'web'},
@@ -84,6 +90,8 @@ def test_fail_on_record_exception() -> None:
     """Fail on client exception."""
     module = _mock_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusClientException('connection refused')
     _run_info(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')

@@ -589,70 +589,70 @@ def main() -> None:
     }, require_yaml=True)
 
     def _ensure_image() -> bool:
-        client = incus_create_client(module)
-        alias = module.params['alias']
-        project = module.params['project']
-        query = incus_build_query(project=project)
+        with incus_create_client(module) as client:
+            alias = module.params['alias']
+            project = module.params['project']
+            query = incus_build_query(project=project)
 
-        if module.params['state'] == 'present':
-            fingerprint = incus_resolve_image_alias(client, alias, query)
-            if fingerprint and not module.params['force']:
-                return False
-            if fingerprint and module.params['force']:
-                if not module.check_mode:
-                    encoded_fingerprint = quote(fingerprint, safe='')
-                    incus_wait(
+            if module.params['state'] == 'present':
+                fingerprint = incus_resolve_image_alias(client, alias, query)
+                if fingerprint and not module.params['force']:
+                    return False
+                if fingerprint and module.params['force']:
+                    if not module.check_mode:
+                        encoded_fingerprint = quote(fingerprint, safe='')
+                        incus_wait(
+                            module,
+                            client,
+                            client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+                        )
+                if not module.params['source']:
+                    module.fail_json(msg="'source' is required when creating an image")
+                if module.check_mode:
+                    return True
+                temp_directory = tempfile.mkdtemp()
+                try:
+                    tarball_path = _incus_image_import_prepare(
                         module,
-                        client,
-                        client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+                        module.params['source'],
+                        module.params['architecture'],
+                        module.params.get('properties'),
+                        temp_directory,
                     )
-            if not module.params['source']:
-                module.fail_json(msg="'source' is required when creating an image")
-            if module.check_mode:
+                    response = client.post_file(
+                        f'/1.0/images{query}',
+                        tarball_path,
+                        module.params['public'],
+                    )
+                    metadata = client.wait(response)
+                    if metadata:
+                        fingerprint = (metadata.get('metadata') or {}).get('fingerprint', '')
+                    else:
+                        fingerprint = (response.get('metadata') or {}).get('fingerprint', '')
+                    if not fingerprint:
+                        module.fail_json(msg="Failed to retrieve image fingerprint after upload")
+                    _incus_image_import_create_aliases(
+                        client,
+                        fingerprint,
+                        alias,
+                        module.params.get('aliases'),
+                        query,
+                    )
+                finally:
+                    shutil.rmtree(temp_directory, ignore_errors=True)
                 return True
-            temp_directory = tempfile.mkdtemp()
-            try:
-                tarball_path = _incus_image_import_prepare(
-                    module,
-                    module.params['source'],
-                    module.params['architecture'],
-                    module.params.get('properties'),
-                    temp_directory,
-                )
-                response = client.post_file(
-                    f'/1.0/images{query}',
-                    tarball_path,
-                    module.params['public'],
-                )
-                metadata = client.wait(response)
-                if metadata:
-                    fingerprint = (metadata.get('metadata') or {}).get('fingerprint', '')
-                else:
-                    fingerprint = (response.get('metadata') or {}).get('fingerprint', '')
-                if not fingerprint:
-                    module.fail_json(msg="Failed to retrieve image fingerprint after upload")
-                _incus_image_import_create_aliases(
-                    client,
-                    fingerprint,
-                    alias,
-                    module.params.get('aliases'),
-                    query,
-                )
-            finally:
-                shutil.rmtree(temp_directory, ignore_errors=True)
-            return True
 
-        fingerprint = incus_resolve_image_alias(client, alias, query)
-        if not fingerprint:
-            return False
-        if not module.check_mode:
-            encoded_fingerprint = quote(fingerprint, safe='')
-            incus_wait(
-                module,
-                client,
-                client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
-            )
-        return True
+            fingerprint = incus_resolve_image_alias(client, alias, query)
+            if not fingerprint:
+                return False
+            if not module.check_mode:
+                encoded_fingerprint = quote(fingerprint, safe='')
+                incus_wait(
+                    module,
+                    client,
+                    client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+                )
+            return True
 
     incus_run_write_module(module, _ensure_image)
 

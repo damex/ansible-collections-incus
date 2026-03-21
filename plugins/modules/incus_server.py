@@ -691,13 +691,13 @@ def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> bool:
     """
     if module.params.get('init'):
         return _preseed_init(module, desired_config)
-    client = incus_create_client(module)
-    current = client.get('/1.0').get('metadata', {}).get('config', {})
-    if current == desired_config:
-        return False
-    if not module.check_mode:
-        client.put('/1.0', {'config': desired_config})
-    return True
+    with incus_create_client(module) as client:
+        current = client.get('/1.0').get('metadata', {}).get('config', {})
+        if current == desired_config:
+            return False
+        if not module.check_mode:
+            client.put('/1.0', {'config': desired_config})
+        return True
 
 
 def main() -> None:

@@ -63,9 +63,9 @@ def main() -> None:
     """
     module = incus_create_info_module({})
     try:
-        client = incus_create_client(module)
-        response = client.get('/1.0/cluster')
-        cluster = response.get('metadata') or {}
+        with incus_create_client(module) as client:
+            response = client.get('/1.0/cluster')
+            cluster = response.get('metadata') or {}
     except IncusClientException as exc:
         module.fail_json(msg=str(exc))
         return

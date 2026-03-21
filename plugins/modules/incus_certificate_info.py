@@ -96,14 +96,13 @@ def main() -> None:
     result: list[dict[str, Any]] = []
 
     try:
-        client = incus_create_client(module)
-
-        if name:
-            certificate = incus_find_certificate(client, name)
-            result = [certificate] if certificate else []
-        else:
-            query = incus_build_query(recursion=1)
-            result = client.get(f'/1.0/certificates{query}').get('metadata') or []
+        with incus_create_client(module) as client:
+            if name:
+                certificate = incus_find_certificate(client, name)
+                result = [certificate] if certificate else []
+            else:
+                query = incus_build_query(recursion=1)
+                result = client.get(f'/1.0/certificates{query}').get('metadata') or []
 
     except IncusClientException as e:
         module.fail_json(msg=str(e))

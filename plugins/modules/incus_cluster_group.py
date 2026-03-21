@@ -94,28 +94,28 @@ def _incus_ensure_cluster_group_absent(module: Any) -> bool:
     >>> _incus_ensure_cluster_group_absent(module)
     True
     """
-    client = incus_create_client(module)
-    name = quote(module.params['name'], safe='')
-    try:
-        current = client.get(f'/1.0/cluster/groups/{name}').get('metadata') or {}
-    except IncusNotFoundException:
-        return False
-    if not module.check_mode:
-        if current.get('members'):
+    with incus_create_client(module) as client:
+        name = quote(module.params['name'], safe='')
+        try:
+            current = client.get(f'/1.0/cluster/groups/{name}').get('metadata') or {}
+        except IncusNotFoundException:
+            return False
+        if not module.check_mode:
+            if current.get('members'):
+                incus_wait(
+                    module,
+                    client,
+                    client.put(
+                        f'/1.0/cluster/groups/{name}',
+                        {'description': current.get('description', ''), 'members': []},
+                    ),
+                )
             incus_wait(
                 module,
                 client,
-                client.put(
-                    f'/1.0/cluster/groups/{name}',
-                    {'description': current.get('description', ''), 'members': []},
-                ),
+                client.delete(f'/1.0/cluster/groups/{name}'),
             )
-        incus_wait(
-            module,
-            client,
-            client.delete(f'/1.0/cluster/groups/{name}'),
-        )
-    return True
+        return True
 
 
 def main() -> None:

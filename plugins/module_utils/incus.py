@@ -306,6 +306,28 @@ class IncusClient:
                 pass
         self._temp_files.clear()
 
+    def __enter__(self) -> IncusClient:
+        """
+        Enter context.
+
+        >>> with IncusClient() as client:
+        ...     pass
+        """
+        return self
+
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        exception_traceback: object,
+    ) -> None:
+        """
+        Exit context and clean up.
+
+        >>> client.__exit__(None, None, None)
+        """
+        self.close()
+
     def _headers(self) -> dict[str, str]:
         """
         Build headers.
@@ -743,60 +765,60 @@ def incus_ensure_resource(
     True
     """
     opts = options or IncusResourceOptions()
-    client = incus_create_client(module)
-    encoded_name = quote(module.params['name'], safe='')
-    project = module.params.get('project')
-    target = module.params.get('target')
-    query = incus_build_query(project, target)
+    with incus_create_client(module) as client:
+        encoded_name = quote(module.params['name'], safe='')
+        project = module.params.get('project')
+        target = module.params.get('target')
+        query = incus_build_query(project, target)
 
-    try:
-        current = client.get(f'/1.0/{resource}/{encoded_name}{query}').get('metadata') or {}
-        exists = True
-    except IncusNotFoundException:
-        current = {}
-        exists = False
+        try:
+            current = client.get(f'/1.0/{resource}/{encoded_name}{query}').get('metadata') or {}
+            exists = True
+        except IncusNotFoundException:
+            current = {}
+            exists = False
 
-    if module.params['state'] == 'present':
-        if not exists or current.get('status') in ('Pending', 'Unknown'):
-            if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
+        if module.params['state'] == 'present':
+            if not exists or current.get('status') in ('Pending', 'Unknown'):
+                if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
+                    return False
+                create_data = _build_create_data(
+                    module,
+                    module.params['name'],
+                    desired,
+                    opts.create_only_params,
+                    require=not exists,
+                )
+                if opts.name_key != 'name':
+                    create_data[opts.name_key] = create_data.pop('name')
+                if not module.check_mode:
+                    incus_wait(
+                        module,
+                        client,
+                        client.post(f'/1.0/{resource}{query}', create_data),
+                    )
+                return True
+            if target:
                 return False
-            create_data = _build_create_data(
-                module,
-                module.params['name'],
-                desired,
-                opts.create_only_params,
-                require=not exists,
-            )
-            if opts.name_key != 'name':
-                create_data[opts.name_key] = create_data.pop('name')
+            effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
+            changed = not _incus_desired_matches_current(effective, current)
+            if changed and not module.check_mode:
+                incus_wait(
+                    module,
+                    client,
+                    client.put(f'/1.0/{resource}/{encoded_name}{query}', effective),
+                )
+            return changed
+
+        if exists:
             if not module.check_mode:
                 incus_wait(
                     module,
                     client,
-                    client.post(f'/1.0/{resource}{query}', create_data),
+                    client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, target)}'),
                 )
             return True
-        if target:
-            return False
-        effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
-        changed = not _incus_desired_matches_current(effective, current)
-        if changed and not module.check_mode:
-            incus_wait(
-                module,
-                client,
-                client.put(f'/1.0/{resource}/{encoded_name}{query}', effective),
-            )
-        return changed
-
-    if exists:
-        if not module.check_mode:
-            incus_wait(
-                module,
-                client,
-                client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, target)}'),
-            )
-        return True
-    return False
+        return False
 
 
 def incus_find_certificate(
@@ -882,22 +904,21 @@ def incus_run_info_module(
     result: list[Any] = []
 
     try:
-        client = incus_create_client(module)
-
-        if name:
-            encoded_name = quote(name, safe='')
-            query = incus_build_query(project=project)
-            path = f'/1.0/{resource}/{encoded_name}{query}'
-            try:
-                response = client.get(path)
-                metadata = response.get('metadata')
-                result = [metadata] if metadata else []
-            except IncusNotFoundException:
-                result = []
-        else:
-            query = incus_build_query(project=project, recursion=1)
-            response = client.get(f'/1.0/{resource}{query}')
-            result = response.get('metadata') or []
+        with incus_create_client(module) as client:
+            if name:
+                encoded_name = quote(name, safe='')
+                query = incus_build_query(project=project)
+                path = f'/1.0/{resource}/{encoded_name}{query}'
+                try:
+                    response = client.get(path)
+                    metadata = response.get('metadata')
+                    result = [metadata] if metadata else []
+                except IncusNotFoundException:
+                    result = []
+            else:
+                query = incus_build_query(project=project, recursion=1)
+                response = client.get(f'/1.0/{resource}{query}')
+                result = response.get('metadata') or []
 
     except IncusClientException as e:
         module.fail_json(msg=str(e))

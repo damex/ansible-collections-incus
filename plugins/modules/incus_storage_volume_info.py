@@ -122,21 +122,20 @@ def main() -> None:
     result: list[Any] = []
 
     try:
-        client = incus_create_client(module)
-
-        if name:
-            encoded_name = quote(name, safe='')
-            query = incus_build_query(project=project)
-            try:
-                response = client.get(f'{base_path}/{encoded_name}{query}')
-                metadata = response.get('metadata')
-                result = [metadata] if metadata else []
-            except IncusNotFoundException:
-                result = []
-        else:
-            query = incus_build_query(project=project, recursion=1)
-            response = client.get(f'{base_path}{query}')
-            result = response.get('metadata') or []
+        with incus_create_client(module) as client:
+            if name:
+                encoded_name = quote(name, safe='')
+                query = incus_build_query(project=project)
+                try:
+                    response = client.get(f'{base_path}/{encoded_name}{query}')
+                    metadata = response.get('metadata')
+                    result = [metadata] if metadata else []
+                except IncusNotFoundException:
+                    result = []
+            else:
+                query = incus_build_query(project=project, recursion=1)
+                response = client.get(f'{base_path}{query}')
+                result = response.get('metadata') or []
 
     except IncusClientException as exc:
         module.fail_json(msg=str(exc))

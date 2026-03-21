@@ -72,9 +72,9 @@ def main() -> None:
     """
     module = incus_create_info_module({})
     try:
-        client = incus_create_client(module)
-        response = client.get('/1.0')
-        server = response.get('metadata') or {}
+        with incus_create_client(module) as client:
+            response = client.get('/1.0')
+            server = response.get('metadata') or {}
     except IncusClientException as e:
         module.fail_json(msg=str(e))
         return

@@ -47,6 +47,8 @@ def test_return_forward_by_name() -> None:
     """Return forward by listen address."""
     module = _mock_module(name='192.168.1.100')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {'listen_address': '192.168.1.100', 'description': ''},
     }
@@ -60,6 +62,8 @@ def test_return_empty_for_missing_forward() -> None:
     """Return empty list for missing forward."""
     module = _mock_module(name='192.168.1.200')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusNotFoundException('not found')
     _run_info(module, client)
     module.exit_json.assert_called_once_with(network_forwards=[])
@@ -69,6 +73,8 @@ def test_return_all_forwards() -> None:
     """Return all forwards."""
     module = _mock_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': [
             {'listen_address': '192.168.1.100'},
@@ -84,6 +90,8 @@ def test_fail_on_forward_exception() -> None:
     """Fail on client exception."""
     module = _mock_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusClientException('connection refused')
     _run_info(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')

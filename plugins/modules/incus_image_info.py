@@ -112,17 +112,17 @@ def main() -> None:
     result: list[Any] = []
 
     try:
-        client = incus_create_client(module)
-        if name:
-            fingerprint = incus_resolve_image_alias(client, name, query)
-            if fingerprint:
-                encoded_fingerprint = quote(fingerprint, safe='')
-                image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata')
-                result = [image] if image else []
-        else:
-            list_query = incus_build_query(project=project, recursion=1)
-            response = client.get(f'/1.0/images{list_query}')
-            result = response.get('metadata') or []
+        with incus_create_client(module) as client:
+            if name:
+                fingerprint = incus_resolve_image_alias(client, name, query)
+                if fingerprint:
+                    encoded_fingerprint = quote(fingerprint, safe='')
+                    image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata')
+                    result = [image] if image else []
+            else:
+                list_query = incus_build_query(project=project, recursion=1)
+                response = client.get(f'/1.0/images{list_query}')
+                result = response.get('metadata') or []
     except IncusClientException as exc:
         module.fail_json(msg=str(exc))
 

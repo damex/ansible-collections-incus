@@ -189,68 +189,68 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
     >>> _ensure_cluster_member(module)
     {'changed': False}
     """
-    client = incus_create_client(module)
-    name = module.params['name']
-    encoded_name = quote(name, safe='')
+    with incus_create_client(module) as client:
+        name = module.params['name']
+        encoded_name = quote(name, safe='')
 
-    try:
-        current = client.get(f'/1.0/cluster/members/{encoded_name}').get('metadata') or {}
-        exists = True
-    except IncusNotFoundException:
-        current = {}
-        exists = False
+        try:
+            current = client.get(f'/1.0/cluster/members/{encoded_name}').get('metadata') or {}
+            exists = True
+        except IncusNotFoundException:
+            current = {}
+            exists = False
 
-    if module.params['state'] == 'joined':
-        if not exists and not module.check_mode:
-            return _create_join_token(client, name)
-        return {'changed': not exists}
+        if module.params['state'] == 'joined':
+            if not exists and not module.check_mode:
+                return _create_join_token(client, name)
+            return {'changed': not exists}
 
-    if module.params['state'] == 'present':
-        if not exists:
-            return {'changed': False}
-        # incus rejects PUT on single-node clusters due to database-client role validation bug
-        members = client.get('/1.0/cluster/members').get('metadata') or []
-        desired: dict[str, Any] = {
-            'description': module.params['description'],
-            'config': incus_common_stringify_dict(module.params['config'] or {}),
-            'roles': sorted(current.get('roles', [])),
-            'groups': sorted(current.get('groups', [])),
-            'failure_domain': current.get('failure_domain', ''),
-        }
-        if module.params.get('roles') is not None:
-            current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
-            desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
-        if module.params.get('groups') is not None:
-            desired['groups'] = sorted(module.params['groups'])
-        if module.params.get('failure_domain'):
-            desired['failure_domain'] = module.params['failure_domain']
+        if module.params['state'] == 'present':
+            if not exists:
+                return {'changed': False}
+            # incus rejects PUT on single-node clusters due to database-client role validation bug
+            members = client.get('/1.0/cluster/members').get('metadata') or []
+            desired: dict[str, Any] = {
+                'description': module.params['description'],
+                'config': incus_common_stringify_dict(module.params['config'] or {}),
+                'roles': sorted(current.get('roles', [])),
+                'groups': sorted(current.get('groups', [])),
+                'failure_domain': current.get('failure_domain', ''),
+            }
+            if module.params.get('roles') is not None:
+                current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
+                desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
+            if module.params.get('groups') is not None:
+                desired['groups'] = sorted(module.params['groups'])
+            if module.params.get('failure_domain'):
+                desired['failure_domain'] = module.params['failure_domain']
 
-        def _comparable(value: Any) -> Any:
-            return sorted(value) if isinstance(value, list) else value
-        changed = len(members) > 1 and not all(
-            field_key in current and _comparable(current[field_key]) == field_value
-            for field_key, field_value in desired.items()
-        )
-        if changed and not module.check_mode:
-            incus_wait(
-                module,
-                client,
-                client.put(
-                    f'/1.0/cluster/members/{encoded_name}',
-                    desired,
-                ),
+            def _comparable(value: Any) -> Any:
+                return sorted(value) if isinstance(value, list) else value
+            changed = len(members) > 1 and not all(
+                field_key in current and _comparable(current[field_key]) == field_value
+                for field_key, field_value in desired.items()
             )
-        return {'changed': changed}
+            if changed and not module.check_mode:
+                incus_wait(
+                    module,
+                    client,
+                    client.put(
+                        f'/1.0/cluster/members/{encoded_name}',
+                        desired,
+                    ),
+                )
+            return {'changed': changed}
 
-    if exists:
-        if not module.check_mode:
-            incus_wait(
-                module,
-                client,
-                client.delete(f'/1.0/cluster/members/{encoded_name}'),
-            )
-        return {'changed': True}
-    return {'changed': False}
+        if exists:
+            if not module.check_mode:
+                incus_wait(
+                    module,
+                    client,
+                    client.delete(f'/1.0/cluster/members/{encoded_name}'),
+                )
+            return {'changed': True}
+        return {'changed': False}
 
 
 def main() -> None:

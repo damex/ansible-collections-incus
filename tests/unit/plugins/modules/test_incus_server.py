@@ -65,6 +65,8 @@ def test_update_server_config() -> None:
     """Update server config when values differ."""
     module = _mock_module(config={'core.https_address': ':8443'})
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': {'config': {}}}
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
@@ -78,6 +80,8 @@ def test_skip_matching_server_config() -> None:
     """Skip update when config already matches."""
     module = _mock_module(config={'core.https_address': ':8443'})
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {'config': {'core.https_address': ':8443'}},
     }
@@ -101,6 +105,8 @@ def test_update_server_logging() -> None:
         ],
     })
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': {'config': {}}}
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
@@ -125,6 +131,8 @@ def test_skip_matching_server_logging() -> None:
         ],
     })
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {
             'config': {
@@ -142,6 +150,8 @@ def test_update_server_config_extra_keys_removed() -> None:
     """Update when current config has extra keys not in desired."""
     module = _mock_module(config={'core.https_address': ':8443'})
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {
             'config': {
@@ -166,6 +176,8 @@ def test_init_runs_preseed() -> None:
     )
     module.run_command.return_value = (0, '', '')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     module.run_command.assert_called_once()
@@ -186,6 +198,8 @@ def test_init_with_cluster() -> None:
     )
     module.run_command.return_value = (0, '', '')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     preseed_data = module.run_command.call_args.kwargs['data']
@@ -201,6 +215,8 @@ def test_init_preseed_failure() -> None:
     )
     module.run_command.return_value = (1, '', 'preseed error')
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     _run_main(module, client)
     module.fail_json.assert_called_once()
 
@@ -213,6 +229,8 @@ def test_init_check_mode() -> None:
         check_mode=True,
     )
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
     module.run_command.assert_not_called()
@@ -225,6 +243,8 @@ def test_server_check_mode() -> None:
         check_mode=True,
     )
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': {'config': {}}}
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
@@ -235,6 +255,8 @@ def test_server_fail_on_exception() -> None:
     """Fail on client exception."""
     module = _mock_module(config={'core.https_address': ':8443'})
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusClientException('connection refused')
     _run_main(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')

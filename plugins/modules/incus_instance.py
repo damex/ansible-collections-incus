@@ -376,75 +376,75 @@ def main() -> None:
     create_query = incus_build_query(project, target)
 
     def _ensure_instance() -> bool:
-        client = incus_create_client(module)
-        encoded_name = quote(name, safe='')
-        current, exists = _get_instance(client, query, encoded_name)
-        built = incus_build_desired(
-            module,
-            config_key_values={'environment_variables': 'environment'},
-        )
-        desired = IncusInstanceDesired(
-            description=built['description'],
-            config=built['config'],
-            preserved_config={
-                config_key: config_value for config_key, config_value in current.get('config', {}).items()
-                if config_key.startswith(('volatile.', 'image.'))
-            },
-            devices=built['devices'],
-            profiles=module.params['profiles'],
-        )
-
-        if state == 'absent':
-            return _delete_instance(module, client, query, encoded_name) if exists else False
-
-        status = current.get('status', 'Stopped') if exists else 'Stopped'
-        state_path = f'/1.0/instances/{encoded_name}/state{query}'
-        changed = False
-
-        if not exists:
-            if not module.params['source']:
-                module.fail_json(msg="'source' is required when creating an instance")
-            _create_instance(
+        with incus_create_client(module) as client:
+            encoded_name = quote(name, safe='')
+            current, exists = _get_instance(client, query, encoded_name)
+            built = incus_build_desired(
                 module,
-                client,
-                create_query,
-                name,
-                {
-                    'description': desired.description,
-                    'config': desired.config,
-                    'devices': desired.devices,
-                    'profiles': desired.profiles,
-                    'type': module.params['type'],
-                    'ephemeral': module.params['ephemeral'],
-                    'source': incus_build_source(module),
-                },
+                config_key_values={'environment_variables': 'environment'},
             )
-            changed = True
-        else:
-            current_config = {
-                config_key: config_value for config_key, config_value in current.get('config', {}).items()
-                if not config_key.startswith(('volatile.', 'image.'))
-            }
-            if (current.get('description', '') != desired.description
-                    or current_config != desired.config
-                    or current.get('devices', {}) != desired.devices
-                    or current.get('profiles', []) != desired.profiles):
-                _update_instance(
+            desired = IncusInstanceDesired(
+                description=built['description'],
+                config=built['config'],
+                preserved_config={
+                    config_key: config_value for config_key, config_value in current.get('config', {}).items()
+                    if config_key.startswith(('volatile.', 'image.'))
+                },
+                devices=built['devices'],
+                profiles=module.params['profiles'],
+            )
+
+            if state == 'absent':
+                return _delete_instance(module, client, query, encoded_name) if exists else False
+
+            status = current.get('status', 'Stopped') if exists else 'Stopped'
+            state_path = f'/1.0/instances/{encoded_name}/state{query}'
+            changed = False
+
+            if not exists:
+                if not module.params['source']:
+                    module.fail_json(msg="'source' is required when creating an instance")
+                _create_instance(
                     module,
                     client,
-                    query,
-                    encoded_name,
+                    create_query,
+                    name,
                     {
-                        'architecture': current['architecture'],
                         'description': desired.description,
-                        'config': _build_config(desired.preserved_config, desired.config),
+                        'config': desired.config,
                         'devices': desired.devices,
                         'profiles': desired.profiles,
+                        'type': module.params['type'],
+                        'ephemeral': module.params['ephemeral'],
+                        'source': incus_build_source(module),
                     },
                 )
                 changed = True
+            else:
+                current_config = {
+                    config_key: config_value for config_key, config_value in current.get('config', {}).items()
+                    if not config_key.startswith(('volatile.', 'image.'))
+                }
+                if (current.get('description', '') != desired.description
+                        or current_config != desired.config
+                        or current.get('devices', {}) != desired.devices
+                        or current.get('profiles', []) != desired.profiles):
+                    _update_instance(
+                        module,
+                        client,
+                        query,
+                        encoded_name,
+                        {
+                            'architecture': current['architecture'],
+                            'description': desired.description,
+                            'config': _build_config(desired.preserved_config, desired.config),
+                            'devices': desired.devices,
+                            'profiles': desired.profiles,
+                        },
+                    )
+                    changed = True
 
-        return _manage_state(module, client, state_path, state, status) or changed
+            return _manage_state(module, client, state_path, state, status) or changed
 
     incus_run_write_module(module, _ensure_instance)
 

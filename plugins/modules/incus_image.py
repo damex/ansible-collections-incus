@@ -197,50 +197,50 @@ def main() -> None:
     module = incus_create_write_module(argument_spec)
 
     def _ensure_image() -> bool:
-        client = incus_create_client(module)
-        alias = module.params['alias']
-        project = module.params['project']
-        query = incus_build_query(project=project)
+        with incus_create_client(module) as client:
+            alias = module.params['alias']
+            project = module.params['project']
+            query = incus_build_query(project=project)
 
-        if module.params['state'] == 'present':
+            if module.params['state'] == 'present':
+                fingerprint = incus_resolve_image_alias(client, alias, query)
+                if fingerprint:
+                    encoded_fingerprint = quote(fingerprint, safe='')
+                    return _update_image(module, client, encoded_fingerprint, query)
+                if not module.params['source']:
+                    module.fail_json(msg="'source' is required when creating an image")
+                source = incus_build_source(module)
+                source['image_type'] = module.params['type']
+                if module.params['copy_aliases']:
+                    source['copy_aliases'] = True
+                data: dict[str, Any] = {
+                    'source': source,
+                    'aliases': [{'name': alias}],
+                    'auto_update': module.params['auto_update'],
+                    'public': module.params['public'],
+                }
+                if not module.check_mode:
+                    incus_wait(
+                        module,
+                        client,
+                        client.post(
+                            f'/1.0/images{query}',
+                            data,
+                        ),
+                    )
+                return True
+
             fingerprint = incus_resolve_image_alias(client, alias, query)
-            if fingerprint:
-                encoded_fingerprint = quote(fingerprint, safe='')
-                return _update_image(module, client, encoded_fingerprint, query)
-            if not module.params['source']:
-                module.fail_json(msg="'source' is required when creating an image")
-            source = incus_build_source(module)
-            source['image_type'] = module.params['type']
-            if module.params['copy_aliases']:
-                source['copy_aliases'] = True
-            data: dict[str, Any] = {
-                'source': source,
-                'aliases': [{'name': alias}],
-                'auto_update': module.params['auto_update'],
-                'public': module.params['public'],
-            }
+            if not fingerprint:
+                return False
             if not module.check_mode:
+                encoded_fingerprint = quote(fingerprint, safe='')
                 incus_wait(
                     module,
                     client,
-                    client.post(
-                        f'/1.0/images{query}',
-                        data,
-                    ),
+                    client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
                 )
             return True
-
-        fingerprint = incus_resolve_image_alias(client, alias, query)
-        if not fingerprint:
-            return False
-        if not module.check_mode:
-            encoded_fingerprint = quote(fingerprint, safe='')
-            incus_wait(
-                module,
-                client,
-                client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
-            )
-        return True
 
     incus_run_write_module(module, _ensure_image)
 

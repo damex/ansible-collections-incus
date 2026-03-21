@@ -57,11 +57,19 @@ CONNECTION_PARAMS: dict[str, Any] = {
 INCUS_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.incus'
 
 
+def _make_context_client(client: MagicMock) -> MagicMock:
+    """Configure mock client for context manager protocol."""
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
+    return client
+
+
 @contextmanager
 def _write_patches(
     module_path: str, module: MagicMock, client: MagicMock,
 ) -> collections.abc.Generator[None, None, None]:
     """Patch write module factory and client at both import sites."""
+    _make_context_client(client)
     with patch(f'{module_path}.incus_create_write_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client), \
          patch(f'{module_path}.incus_create_client', return_value=client, create=True):
@@ -122,6 +130,7 @@ def run_main(
     main_func: collections.abc.Callable[[], None],
 ) -> None:
     """Wire mock factories and run module main."""
+    _make_context_client(client)
     mock_create_module.return_value = module
     mock_create_client.return_value = client
     main_func()
@@ -143,7 +152,7 @@ def assert_info_by_name(
 ) -> dict[str, Any]:
     """Call info main and assert single resource returned."""
     module = _info_module(name, project)
-    client = MagicMock()
+    client = _make_context_client(MagicMock())
     client.get.return_value = {'metadata': metadata}
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
@@ -159,7 +168,7 @@ def assert_info_not_found(
 ) -> None:
     """Call info main and assert empty list for missing name."""
     module = _info_module(name, project)
-    client = MagicMock()
+    client = _make_context_client(MagicMock())
     client.get.side_effect = IncusNotFoundException('not found')
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
@@ -173,7 +182,7 @@ def assert_info_all(
 ) -> None:
     """Call info main and assert all resources returned."""
     module = _info_module(None, project)
-    client = MagicMock()
+    client = _make_context_client(MagicMock())
     client.get.return_value = {'metadata': items}
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
@@ -188,7 +197,7 @@ def assert_info_fail(
 ) -> None:
     """Call info main and assert failure on client exception."""
     module = _info_module(None, project)
-    client = MagicMock()
+    client = _make_context_client(MagicMock())
     client.get.side_effect = IncusClientException('connection refused')
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):

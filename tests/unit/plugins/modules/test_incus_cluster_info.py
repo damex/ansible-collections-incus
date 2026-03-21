@@ -32,6 +32,8 @@ def test_return_cluster_metadata(mock_create_module: MagicMock, mock_create_clie
     """Return cluster metadata."""
     module = _mock_info_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {
         'metadata': {'enabled': True, 'server_name': 'node1'},
     }
@@ -47,6 +49,8 @@ def test_return_empty_cluster(mock_create_module: MagicMock, mock_create_client:
     """Return empty dict when no metadata."""
     module = _mock_info_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.return_value = {'metadata': None}
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.exit_json.assert_called_once_with(cluster={})
@@ -58,6 +62,8 @@ def test_fail_on_cluster_exception(mock_create_module: MagicMock, mock_create_cl
     """Fail on client exception."""
     module = _mock_info_module()
     client = MagicMock()
+    client.__enter__ = MagicMock(return_value=client)
+    client.__exit__ = MagicMock(return_value=False)
     client.get.side_effect = IncusClientException('connection refused')
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.fail_json.assert_called_once_with(msg='connection refused')
