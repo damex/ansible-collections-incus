@@ -15,7 +15,10 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusResourceOptions,
     incus_ensure_resource,
 )
-from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS
+from ansible_collections.damex.incus.tests.unit.conftest import (
+    CONNECTION_PARAMS,
+    mock_incus_client,
+)
 
 __all__ = [
     'test_ensure_resource_create',
@@ -67,9 +70,7 @@ def _ensure_module(
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_create(mock_create_client: MagicMock) -> None:
     """Create missing resource."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -85,9 +86,7 @@ def test_ensure_resource_create(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_no_change(mock_create_client: MagicMock) -> None:
     """Skip matching resource."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': 'desc', 'config': {'k': 'v'}}}
     mock_create_client.return_value = client
 
@@ -101,9 +100,7 @@ def test_ensure_resource_no_change(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_update(mock_create_client: MagicMock) -> None:
     """Update changed resource."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
     client.put.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -119,9 +116,7 @@ def test_ensure_resource_update(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_delete_exists(mock_create_client: MagicMock) -> None:
     """Delete existing resource."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': '', 'config': {}}}
     client.delete.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -136,9 +131,7 @@ def test_ensure_resource_delete_exists(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_delete_not_exists(mock_create_client: MagicMock) -> None:
     """Skip deleting missing resource."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     mock_create_client.return_value = client
 
@@ -151,9 +144,7 @@ def test_ensure_resource_delete_not_exists(mock_create_client: MagicMock) -> Non
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_check_mode_create(mock_create_client: MagicMock) -> None:
     """Skip create in check mode."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     mock_create_client.return_value = client
 
@@ -167,9 +158,7 @@ def test_ensure_resource_check_mode_create(mock_create_client: MagicMock) -> Non
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_check_mode_update(mock_create_client: MagicMock) -> None:
     """Skip PUT in check mode."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
     mock_create_client.return_value = client
 
@@ -184,9 +173,7 @@ def test_ensure_resource_check_mode_update(mock_create_client: MagicMock) -> Non
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_check_mode_delete(mock_create_client: MagicMock) -> None:
     """Skip DELETE in check mode."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': '', 'config': {}}}
     mock_create_client.return_value = client
 
@@ -200,9 +187,7 @@ def test_ensure_resource_check_mode_delete(mock_create_client: MagicMock) -> Non
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_project_query(mock_create_client: MagicMock) -> None:
     """Add project query param."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -220,9 +205,7 @@ def test_ensure_resource_project_query(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> None:
     """Combine project and target in queries."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -248,9 +231,7 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_create_only_params(mock_create_client: MagicMock) -> None:
     """Include create-only params."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -270,9 +251,7 @@ def test_ensure_resource_create_only_params(mock_create_client: MagicMock) -> No
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_create_only_param_missing_fails(mock_create_client: MagicMock) -> None:
     """Fail when required create-only param is missing."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     mock_create_client.return_value = client
 
@@ -291,9 +270,7 @@ def test_ensure_resource_create_only_param_missing_fails(mock_create_client: Mag
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
     """Include target in create query."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -315,9 +292,7 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_exists_created_skips(mock_create_client: MagicMock) -> None:
     """Skip when target is set and resource exists with non-pending status."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}, 'status': 'Created'}}
     mock_create_client.return_value = client
 
@@ -334,9 +309,7 @@ def test_ensure_resource_target_exists_created_skips(mock_create_client: MagicMo
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_pending_updates(mock_create_client: MagicMock) -> None:
     """POST when target is set and both targeted and global status are Pending."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}},
         {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}},
@@ -361,9 +334,7 @@ def test_ensure_resource_target_pending_updates(mock_create_client: MagicMock) -
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> None:
     """POST per-member when resource does not exist at all."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -386,9 +357,7 @@ def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_errored_fails_with_message(mock_create_client: MagicMock) -> None:
     """Fail with message when target shows Pending but global is Errored."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {'config': {}, 'status': 'Pending'}},
         {'metadata': {'config': {}, 'status': 'Errored'}},
@@ -407,9 +376,7 @@ def test_ensure_resource_target_errored_fails_with_message(mock_create_client: M
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_target_not_found_but_created_skips(mock_create_client: MagicMock) -> None:
     """Skip when target GET returns 404 but resource exists globally as Created."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         IncusNotFoundException('not found'),
         {'metadata': {'status': 'Created', 'config': {}}},
@@ -429,9 +396,7 @@ def test_ensure_resource_target_not_found_but_created_skips(mock_create_client: 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None:
     """POST to finalize when resource is pending and no target."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': '', 'config': {}, 'status': 'Pending'}}
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -452,9 +417,7 @@ def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_encodes_name(mock_create_client: MagicMock) -> None:
     """Encode special characters in resource name on GET."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -470,9 +433,7 @@ def test_ensure_resource_encodes_name(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_encodes_name_on_update(mock_create_client: MagicMock) -> None:
     """Encode special characters in resource name on PUT."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': 'old', 'config': {}}}
     client.put.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -488,9 +449,7 @@ def test_ensure_resource_encodes_name_on_update(mock_create_client: MagicMock) -
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_encodes_name_on_delete(mock_create_client: MagicMock) -> None:
     """Encode special characters in resource name on DELETE."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': '', 'config': {}}}
     client.delete.return_value = {'type': 'sync'}
     mock_create_client.return_value = client
@@ -506,9 +465,7 @@ def test_ensure_resource_encodes_name_on_delete(mock_create_client: MagicMock) -
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_update_extra_config_keys(mock_create_client: MagicMock) -> None:
     """Update when current config has extra keys not in desired."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {
         'metadata': {
             'description': 'desc',
@@ -527,9 +484,7 @@ def test_ensure_resource_update_extra_config_keys(mock_create_client: MagicMock)
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_ensure_resource_update_extra_device_keys(mock_create_client: MagicMock) -> None:
     """Update when current has extra devices not in desired."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {
         'metadata': {
             'description': '',

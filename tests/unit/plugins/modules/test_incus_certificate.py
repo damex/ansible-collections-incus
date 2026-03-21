@@ -14,6 +14,7 @@ from ansible_collections.damex.incus.plugins.modules.incus_certificate import ma
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_write_update,
+    mock_incus_client,
     run_module_main,
 )
 
@@ -59,7 +60,7 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
 def test_create_certificate() -> None:
     """Add new certificate to trust store."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -74,7 +75,7 @@ def test_create_missing_pem() -> None:
     """Fail when certificate PEM missing on create."""
     module = _mock_module(certificate=None)
     module.fail_json.side_effect = SystemExit(1)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     with pytest.raises(SystemExit):
         run_module_main(MODULE, module, client, main)
@@ -84,7 +85,7 @@ def test_create_missing_pem() -> None:
 def test_skip_matching_certificate() -> None:
     """Skip when certificate already matches."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': [EXISTING_CERT]}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=False)
@@ -111,7 +112,7 @@ def test_update_projects() -> None:
 def test_delete_existing_certificate() -> None:
     """Delete existing certificate."""
     module = _mock_module(state='absent')
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': [EXISTING_CERT]}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -123,7 +124,7 @@ def test_delete_existing_certificate() -> None:
 def test_delete_missing_certificate() -> None:
     """Skip delete for missing certificate."""
     module = _mock_module(state='absent')
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=False)
@@ -132,7 +133,7 @@ def test_delete_missing_certificate() -> None:
 def test_check_mode_create_certificate() -> None:
     """Skip API calls in check mode."""
     module = _mock_module(check_mode=True)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=True)

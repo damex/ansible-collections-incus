@@ -24,7 +24,10 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_stringify_instance_config,
     incus_wait,
 )
-from ansible_collections.damex.incus.tests.unit.conftest import CONNECTION_PARAMS
+from ansible_collections.damex.incus.tests.unit.conftest import (
+    CONNECTION_PARAMS,
+    mock_incus_client,
+)
 
 __all__ = [
     'test_stringify_instance_config_empty',
@@ -477,9 +480,7 @@ def _info_module(name: str | None = None, project: str | None = None) -> MagicMo
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
     """Return single resource as list."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'pool1', 'driver': 'zfs'}}
     mock_create_client.return_value = client
 
@@ -492,9 +493,7 @@ def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
     """Return empty list when resource not found."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     mock_create_client.return_value = client
 
@@ -507,9 +506,7 @@ def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
     """Return all resources."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     items = [{'name': 'a'}, {'name': 'b'}]
     client.get.return_value = {'metadata': items}
     mock_create_client.return_value = client
@@ -524,9 +521,7 @@ def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
     """Include project in query."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     mock_create_client.return_value = client
 
@@ -541,9 +536,7 @@ def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
     """Encode special characters in resource name."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'pool/special'}}
     mock_create_client.return_value = client
 
@@ -557,9 +550,7 @@ def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
     """Encode special characters in project query param."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     mock_create_client.return_value = client
 
@@ -573,9 +564,7 @@ def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
 def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None:
     """Fail on client exception."""
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusClientException('connection refused')
     mock_create_client.return_value = client
 

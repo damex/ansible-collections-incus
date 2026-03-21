@@ -10,7 +10,10 @@ from unittest.mock import MagicMock, patch
 
 from ansible_collections.damex.incus.plugins.module_utils.incus import IncusClientException
 from ansible_collections.damex.incus.plugins.modules.incus_certificate_info import main
-from ansible_collections.damex.incus.tests.unit.conftest import run_main
+from ansible_collections.damex.incus.tests.unit.conftest import (
+    mock_incus_client,
+    run_main,
+)
 
 __all__ = [
     'test_return_certificate_by_name',
@@ -31,9 +34,7 @@ def test_return_certificate_by_name(mock_create_module: MagicMock, mock_create_c
     """Return certificate by name."""
     module = MagicMock()
     module.params = {'name': 'ansible'}
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': CERTS}
     run_main(mock_create_module, mock_create_client, module, client, main)
     certs = module.exit_json.call_args[1]['certificates']
@@ -47,9 +48,7 @@ def test_return_empty_for_missing_certificate(mock_create_module: MagicMock, moc
     """Return empty list for missing certificate."""
     module = MagicMock()
     module.params = {'name': 'missing'}
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': CERTS}
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.exit_json.assert_called_once_with(certificates=[])
@@ -61,9 +60,7 @@ def test_return_all_certificates(mock_create_module: MagicMock, mock_create_clie
     """Return all certificates."""
     module = MagicMock()
     module.params = {'name': None}
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': CERTS}
     run_main(mock_create_module, mock_create_client, module, client, main)
     certs = module.exit_json.call_args[1]['certificates']
@@ -76,9 +73,7 @@ def test_fail_on_certificate_exception(mock_create_module: MagicMock, mock_creat
     """Fail on client exception."""
     module = MagicMock()
     module.params = {'name': None}
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusClientException('connection refused')
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.fail_json.assert_called_once_with(msg='connection refused')

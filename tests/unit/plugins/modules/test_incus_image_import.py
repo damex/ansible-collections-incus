@@ -21,6 +21,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_write_check_mode,
     assert_write_delete_missing,
+    mock_incus_client,
     assert_write_fail_create,
     run_module_main,
 )
@@ -120,7 +121,7 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
 def test_present_alias_exists_no_change() -> None:
     """Skip existing image."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=False)
@@ -135,7 +136,7 @@ def test_present_import_image(mock_shutil: MagicMock, mock_tempfile: MagicMock,
     """Import new image."""
     mock_tempfile.mkdtemp.return_value = '/tmp/test-dir'
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post_file.return_value = {'type': 'async', 'metadata': {'id': 'op-123'}}
     client.wait.return_value = {'metadata': {'fingerprint': 'abc123'}}
@@ -161,7 +162,7 @@ def test_present_import_with_aliases(mock_shutil: MagicMock, mock_tempfile: Magi
     module = _mock_module()
     module.params['alias'] = 'chr'
     module.params['aliases'] = ['chr/7.22']
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post_file.return_value = {'type': 'async', 'metadata': {'id': 'op-123'}}
     client.wait.return_value = {'metadata': {'fingerprint': 'abc123'}}
@@ -195,7 +196,7 @@ def test_present_force_reimport(mock_shutil: MagicMock, mock_tempfile: MagicMock
     """Delete and re-import when force is true."""
     mock_tempfile.mkdtemp.return_value = '/tmp/test-dir'
     module = _mock_module(force=True)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     client.delete.return_value = {'type': 'sync'}
     client.post_file.return_value = {'type': 'async', 'metadata': {'id': 'op-123'}}
@@ -216,7 +217,7 @@ def test_present_force_reimport(mock_shutil: MagicMock, mock_tempfile: MagicMock
 def test_present_force_check_mode() -> None:
     """Skip force re-import in check mode."""
     module = _mock_module(force=True, check_mode=True)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=True)
@@ -227,7 +228,7 @@ def test_present_force_check_mode() -> None:
 def test_absent_delete_by_fingerprint() -> None:
     """Delete image by fingerprint."""
     module = _mock_module(state='absent')
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -244,7 +245,7 @@ def test_absent_alias_not_found() -> None:
 def test_absent_check_mode() -> None:
     """Skip delete in check mode."""
     module = _mock_module(state='absent', check_mode=True)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=True)

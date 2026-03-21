@@ -13,6 +13,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_write_create,
     assert_write_check_mode,
+    mock_incus_client,
     assert_write_delete,
     assert_write_delete_missing,
     assert_write_skip,
@@ -115,7 +116,7 @@ def test_delete_existing_cluster_group() -> None:
 
 def test_delete_cluster_group_with_members() -> None:
     """Clear members then delete non-empty cluster group."""
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'description': '', 'members': ['test-node']}}
     client.put.return_value = {'type': 'sync'}
     client.delete.return_value = {'type': 'sync'}

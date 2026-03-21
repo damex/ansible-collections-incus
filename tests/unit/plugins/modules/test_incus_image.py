@@ -14,6 +14,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_write_check_mode,
     assert_write_delete_missing,
+    mock_incus_client,
     assert_write_fail_create,
     assert_write_update,
     run_module_main,
@@ -60,7 +61,7 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
 def test_present_alias_exists_no_change() -> None:
     """Skip existing image with matching settings."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
@@ -105,7 +106,7 @@ def test_present_alias_exists_update_check_mode() -> None:
     """Skip PUT in check mode when update needed."""
     module = _mock_module(check_mode=True)
     module.params['auto_update'] = True
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {'name': 'debian/13', 'target': 'abc123'}},
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
@@ -118,7 +119,7 @@ def test_present_alias_exists_update_check_mode() -> None:
 def test_present_copy_image() -> None:
     """Copy new image."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -133,7 +134,7 @@ def test_present_copy_aliases() -> None:
     """Include copy_aliases in source."""
     module = _mock_module()
     module.params['copy_aliases'] = True
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -154,7 +155,7 @@ def test_present_check_mode() -> None:
 def test_absent_delete_by_fingerprint() -> None:
     """Delete image by fingerprint."""
     module = _mock_module(state='absent')
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'debian/13', 'target': 'abc123'}}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
@@ -171,7 +172,7 @@ def test_absent_alias_not_found() -> None:
 def test_absent_check_mode() -> None:
     """Skip delete in check mode."""
     module = _mock_module(state='absent', check_mode=True)
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'debian/13', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
     module.exit_json.assert_called_once_with(changed=True)

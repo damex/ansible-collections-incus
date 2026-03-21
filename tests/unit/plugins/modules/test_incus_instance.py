@@ -21,6 +21,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_get_found,
     assert_get_not_found,
+    mock_incus_client,
     assert_crud,
     assert_crud_skip,
     assert_write_check_mode,
@@ -106,7 +107,7 @@ def test_manage_state_start_stopped() -> None:
     """Start stopped instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     client.put.return_value = {'type': 'sync'}
     result = _manage_state(module, client, '/1.0/instances/test/state', 'started', 'Stopped')
     assert result is True
@@ -118,7 +119,7 @@ def test_manage_state_stop_running() -> None:
     """Stop running instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     client.put.return_value = {'type': 'sync'}
     result = _manage_state(module, client, '/1.0/instances/test/state', 'stopped', 'Running')
     assert result is True
@@ -129,7 +130,7 @@ def test_manage_state_restart_running() -> None:
     """Restart running instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     client.put.return_value = {'type': 'sync'}
     result = _manage_state(module, client, '/1.0/instances/test/state', 'restarted', 'Running')
     assert result is True
@@ -140,7 +141,7 @@ def test_manage_state_restart_stopped_noop() -> None:
     """Skip restart for stopped instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     result = _manage_state(module, client, '/1.0/instances/test/state', 'restarted', 'Stopped')
     assert result is False
 
@@ -149,7 +150,7 @@ def test_manage_state_already_started() -> None:
     """Skip start for running instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     result = _manage_state(module, client, '/1.0/instances/test/state', 'started', 'Running')
     assert result is False
 
@@ -158,7 +159,7 @@ def test_manage_state_already_stopped() -> None:
     """Skip stop for stopped instance."""
     module = MagicMock()
     module.check_mode = False
-    client = MagicMock()
+    client = mock_incus_client()
     result = _manage_state(module, client, '/1.0/instances/test/state', 'stopped', 'Stopped')
     assert result is False
 
@@ -189,7 +190,7 @@ def _mock_module(state: str = 'started', check_mode: bool = False,
 def test_main_create_and_start() -> None:
     """Create and start new instance."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     client.put.return_value = {'type': 'sync'}
@@ -214,7 +215,7 @@ def test_main_update_changed_config() -> None:
     """Update instance with changed config."""
     module = _mock_module()
     module.params['config'] = {'limits.cpu': '4'}
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {
         'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
         'description': '', 'config': {'limits.cpu': '2'}, 'devices': {}, 'profiles': ['default'],
@@ -228,7 +229,7 @@ def test_main_update_changed_config() -> None:
 def test_main_skip_matching() -> None:
     """Skip matching instance."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {
         'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
         'description': '', 'config': {}, 'devices': {}, 'profiles': ['default'],
@@ -240,7 +241,7 @@ def test_main_skip_matching() -> None:
 def test_main_filter_volatile_config() -> None:
     """Filter volatile and image config keys."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {
         'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
         'description': '', 'config': {
@@ -264,7 +265,7 @@ def test_main_check_mode_create() -> None:
 def test_main_start_stopped_existing() -> None:
     """Start stopped existing instance without config change."""
     module = _mock_module()
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {
         'name': 'test', 'status': 'Stopped', 'architecture': 'x86_64',
         'description': '', 'config': {}, 'devices': {}, 'profiles': ['default'],
@@ -285,7 +286,7 @@ def test_main_environment_variables_create() -> None:
             {'name': 'ESPHOME_DASHBOARD_USE_PING', 'value': 'true'},
         ],
     }
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     client.put.return_value = {'type': 'sync'}
@@ -305,7 +306,7 @@ def test_main_environment_variables_skip_matching() -> None:
             {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
         ],
     }
-    client = MagicMock()
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {
         'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
         'description': '', 'config': {

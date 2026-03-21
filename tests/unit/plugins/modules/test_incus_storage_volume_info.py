@@ -13,6 +13,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusNotFoundException,
 )
 from ansible_collections.damex.incus.plugins.modules.incus_storage_volume_info import main
+from ansible_collections.damex.incus.tests.unit.conftest import mock_incus_client
 
 __all__ = [
     'test_return_volume_by_name',
@@ -55,9 +56,7 @@ def _run_info(module: MagicMock, client: MagicMock) -> None:
 def test_return_volume_by_name() -> None:
     """Return volume by name."""
     module = _mock_module(name='data')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'data', 'content_type': 'filesystem'}}
     _run_info(module, client)
     result = module.exit_json.call_args[1]['storage_volumes']
@@ -68,9 +67,7 @@ def test_return_volume_by_name() -> None:
 def test_return_empty_for_missing_volume() -> None:
     """Return empty list for missing volume."""
     module = _mock_module(name='missing')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_info(module, client)
     module.exit_json.assert_called_once_with(storage_volumes=[])
@@ -79,9 +76,7 @@ def test_return_empty_for_missing_volume() -> None:
 def test_return_all_volumes() -> None:
     """Return all volumes."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {'metadata': [{'name': 'a'}, {'name': 'b'}]}
     _run_info(module, client)
     result = module.exit_json.call_args[1]['storage_volumes']
@@ -91,9 +86,7 @@ def test_return_all_volumes() -> None:
 def test_fail_on_volume_exception() -> None:
     """Fail on client exception."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusClientException('connection refused')
     _run_info(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')

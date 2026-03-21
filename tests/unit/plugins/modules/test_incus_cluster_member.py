@@ -17,6 +17,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 from ansible_collections.damex.incus.plugins.modules.incus_cluster_member import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    mock_incus_client,
 )
 
 __all__ = [
@@ -64,9 +65,7 @@ def _run_main(module: MagicMock, client: MagicMock) -> None:
 def test_create_generates_join_token() -> None:
     """Generate join token when member does not exist."""
     module = _mock_module(state='joined')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {
         'metadata': {
@@ -96,9 +95,7 @@ def test_create_generates_join_token() -> None:
 def test_create_check_mode() -> None:
     """Skip API calls in check mode for new member."""
     module = _mock_module(state='joined', check_mode=True)
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=True)
@@ -118,9 +115,7 @@ MEMBER_DEFAULT = {
 def test_skip_matching_member() -> None:
     """Skip update when member already matches."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': MEMBER_DEFAULT},
         MULTI_NODE,
@@ -134,9 +129,7 @@ def test_update_member_description() -> None:
     """Update member description."""
     module = _mock_module()
     module.params['description'] = 'Primary node'
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': MEMBER_DEFAULT},
         MULTI_NODE,
@@ -153,9 +146,7 @@ def test_update_member_config() -> None:
     """Update member config."""
     module = _mock_module()
     module.params['config'] = {'scheduler.instance': 'manual'}
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {**MEMBER_DEFAULT, 'config': {'scheduler.instance': 'all'}}},
         MULTI_NODE,
@@ -171,9 +162,7 @@ def test_update_member_roles() -> None:
     """Update member roles."""
     module = _mock_module()
     module.params['roles'] = ['event-hub']
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = [
         {'metadata': {**MEMBER_DEFAULT, 'roles': ['database']}},
         MULTI_NODE,
@@ -189,9 +178,7 @@ def test_update_member_roles() -> None:
 def test_delete_existing_member() -> None:
     """Delete existing cluster member."""
     module = _mock_module(state='absent')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {
         'metadata': {'description': '', 'config': {}},
     }
@@ -204,9 +191,7 @@ def test_delete_existing_member() -> None:
 def test_delete_nonexistent_member() -> None:
     """Skip delete for missing cluster member."""
     module = _mock_module(state='absent')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_main(module, client)
     module.exit_json.assert_called_once_with(changed=False)
@@ -215,9 +200,7 @@ def test_delete_nonexistent_member() -> None:
 def test_fail_on_exception() -> None:
     """Fail on client exception."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusClientException('connection refused')
     _run_main(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')

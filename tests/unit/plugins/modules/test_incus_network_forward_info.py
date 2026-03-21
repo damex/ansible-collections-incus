@@ -13,6 +13,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     IncusNotFoundException,
 )
 from ansible_collections.damex.incus.plugins.modules.incus_network_forward_info import main
+from ansible_collections.damex.incus.tests.unit.conftest import mock_incus_client
 
 __all__ = [
     'test_return_forward_by_name',
@@ -46,9 +47,7 @@ def _run_info(module: MagicMock, client: MagicMock) -> None:
 def test_return_forward_by_name() -> None:
     """Return forward by listen address."""
     module = _mock_module(name='192.168.1.100')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {
         'metadata': {'listen_address': '192.168.1.100', 'description': ''},
     }
@@ -61,9 +60,7 @@ def test_return_forward_by_name() -> None:
 def test_return_empty_for_missing_forward() -> None:
     """Return empty list for missing forward."""
     module = _mock_module(name='192.168.1.200')
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_info(module, client)
     module.exit_json.assert_called_once_with(network_forwards=[])
@@ -72,9 +69,7 @@ def test_return_empty_for_missing_forward() -> None:
 def test_return_all_forwards() -> None:
     """Return all forwards."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.return_value = {
         'metadata': [
             {'listen_address': '192.168.1.100'},
@@ -89,9 +84,7 @@ def test_return_all_forwards() -> None:
 def test_fail_on_forward_exception() -> None:
     """Fail on client exception."""
     module = _mock_module()
-    client = MagicMock()
-    client.__enter__ = MagicMock(return_value=client)
-    client.__exit__ = MagicMock(return_value=False)
+    client = mock_incus_client()
     client.get.side_effect = IncusClientException('connection refused')
     _run_info(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')
