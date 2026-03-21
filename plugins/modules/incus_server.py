@@ -675,11 +675,11 @@ def _preseed_init(module: Any, desired_config: dict[str, str]) -> bool:
     cluster = module.params.get('cluster')
     if cluster:
         preseed['cluster'] = cluster
-    rc, _stdout, stderr = module.run_command(
+    return_code, _stdout, stderr = module.run_command(
         ['incus', 'admin', 'init', '--preseed'],
         data=json.dumps(preseed),
     )
-    if rc:
+    if return_code:
         module.fail_json(msg=f'Preseed initialization failed: {stderr}')
     return True
 

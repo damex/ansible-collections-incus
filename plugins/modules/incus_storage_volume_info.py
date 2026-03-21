@@ -139,8 +139,8 @@ def main() -> None:
                 response = client.get(f'{base_path}{query}')
                 result = response.get('metadata') or []
 
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
 
     module.exit_json(storage_volumes=result)
 

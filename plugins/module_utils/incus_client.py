@@ -276,12 +276,12 @@ class IncusClient:
             except IncusClientException:
                 self._close()
                 raise
-            except Exception as e:
+            except Exception as exception:
                 self._close()
-                raise IncusClientException(str(e)) from e
-        except Exception as e:
+                raise IncusClientException(str(exception)) from exception
+        except Exception as exception:
             self._close()
-            raise IncusClientException(str(e)) from e
+            raise IncusClientException(str(exception)) from exception
 
         if content.get('type') == 'error':
             if content.get('error_code') == 404:
@@ -374,8 +374,8 @@ class IncusClient:
         >>> client.post_file('/1.0/images', '/tmp/image.tar.gz')
         {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
         """
-        with open(file_path, 'rb') as fh:
-            body = fh.read()
+        with open(file_path, 'rb') as file_handle:
+            body = file_handle.read()
         headers = {
             'Content-Type': 'application/octet-stream',
             'Accept': 'application/json',

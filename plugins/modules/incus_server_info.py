@@ -77,8 +77,8 @@ def main() -> None:
         with incus_create_client(module) as client:
             response = client.get('/1.0')
             server = response.get('metadata') or {}
-    except IncusClientException as e:
-        module.fail_json(msg=str(e))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
         return
     module.exit_json(server=server)
 

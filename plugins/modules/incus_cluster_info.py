@@ -68,8 +68,8 @@ def main() -> None:
         with incus_create_client(module) as client:
             response = client.get('/1.0/cluster')
             cluster = response.get('metadata') or {}
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
         return
     module.exit_json(cluster=cluster)
 

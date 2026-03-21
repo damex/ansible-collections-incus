@@ -455,20 +455,20 @@ def incus_resolve_image_alias(
 
 def incus_run_write_module(
     module: AnsibleModule,
-    impl: collections.abc.Callable[[], bool],
+    implementation: collections.abc.Callable[[], bool],
 ) -> None:
     """
     Execute write module.
 
     >>> incus_run_write_module(
     ...     module,
-    ...     impl,
+    ...     implementation,
     ... )
     """
     try:
-        module.exit_json(changed=impl())
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+        module.exit_json(changed=implementation())
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
 
 
 def incus_run_info_module(
@@ -506,8 +506,8 @@ def incus_run_info_module(
                 response = client.get(f'/1.0/{resource}{query}')
                 result = response.get('metadata') or []
 
-    except IncusClientException as e:
-        module.fail_json(msg=str(e))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
 
     module.exit_json(**{return_key: result})
 

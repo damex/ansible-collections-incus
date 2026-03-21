@@ -106,8 +106,8 @@ def main() -> None:
                 query = incus_build_query(recursion=1)
                 result = client.get(f'/1.0/certificates{query}').get('metadata') or []
 
-    except IncusClientException as e:
-        module.fail_json(msg=str(e))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
         return
 
     module.exit_json(certificates=result)

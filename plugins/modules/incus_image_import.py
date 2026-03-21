@@ -230,10 +230,10 @@ def _incus_image_import_download_source(
         download_path = os.path.join(temp_directory, os.path.basename(source))
         try:
             with open_url(source, timeout=timeout) as response:
-                with open(download_path, 'wb') as fh:
-                    shutil.copyfileobj(response, fh)
-        except OSError as exc:
-            module.fail_json(msg=f"Failed downloading source: {exc}")
+                with open(download_path, 'wb') as file_handle:
+                    shutil.copyfileobj(response, file_handle)
+        except OSError as exception:
+            module.fail_json(msg=f"Failed downloading source: {exception}")
         return download_path
     if not os.path.isfile(source):
         module.fail_json(msg=f"Source file not found: {source}")
@@ -257,9 +257,9 @@ def _incus_image_import_verify_checksum(
     ... )
     """
     file_hash = hashlib.new(algorithm)
-    with open(file_path, 'rb') as fh:
+    with open(file_path, 'rb') as file_handle:
         while True:
-            chunk = fh.read(65536)
+            chunk = file_handle.read(65536)
             if not chunk:
                 break
             file_hash.update(chunk)
@@ -293,8 +293,8 @@ def _incus_image_import_extract_zip(
             first_name = next(iter(names))
             zf.extract(first_name, temp_directory)
             return os.path.join(temp_directory, first_name)
-    except zipfile.BadZipFile as exc:
-        module.fail_json(msg=f"Invalid ZIP archive: {exc}")
+    except zipfile.BadZipFile as exception:
+        module.fail_json(msg=f"Invalid ZIP archive: {exception}")
     return file_path
 
 
@@ -306,8 +306,8 @@ def _incus_image_import_is_xz(file_path: str) -> bool:
     True
     """
     try:
-        with lzma.open(file_path, 'rb') as fh:
-            fh.read(1)
+        with lzma.open(file_path, 'rb') as file_handle:
+            file_handle.read(1)
         return True
     except lzma.LZMAError:
         return False
@@ -325,8 +325,8 @@ def _incus_image_import_extract_xz(module: Any, file_path: str, temp_directory: 
         with lzma.open(file_path, 'rb') as xz_file:
             with open(output_path, 'wb') as out_file:
                 shutil.copyfileobj(xz_file, out_file)
-    except lzma.LZMAError as exc:
-        module.fail_json(msg=f"Failed decompressing xz archive: {exc}")
+    except lzma.LZMAError as exception:
+        module.fail_json(msg=f"Failed decompressing xz archive: {exception}")
     return output_path
 
 
@@ -345,15 +345,15 @@ def _incus_image_import_detect_format(
     ... )
     'raw'
     """
-    rc, stdout, stderr = module.run_command([qemu_img_path, 'info', '--output=json', file_path])
-    if rc:
+    return_code, stdout, stderr = module.run_command([qemu_img_path, 'info', '--output=json', file_path])
+    if return_code:
         module.fail_json(msg=f"Failed detecting image format: {stderr}")
     try:
         info = json.loads(stdout)
         image_format: str = info.get('format', 'raw')
         return image_format
-    except (ValueError, KeyError) as exc:
-        module.fail_json(msg=f"Failed parsing qemu-img output: {exc}")
+    except (ValueError, KeyError) as exception:
+        module.fail_json(msg=f"Failed parsing qemu-img output: {exception}")
     return 'raw'
 
 
@@ -375,10 +375,10 @@ def _incus_image_import_convert_to_qcow2(
     '/tmp/work/rootfs.img'
     """
     qcow2_path = os.path.join(temp_directory, 'rootfs.img')
-    rc, _stdout, stderr = module.run_command([
+    return_code, _stdout, stderr = module.run_command([
         qemu_img_path, 'convert', '-f', 'raw', '-O', 'qcow2', file_path, qcow2_path,
     ])
-    if rc:
+    if return_code:
         module.fail_json(msg=f"Failed converting image to qcow2: {stderr}")
     return qcow2_path
 
@@ -430,15 +430,15 @@ def _incus_image_import_build_tarball(
     '/tmp/work/image.tar.gz'
     """
     metadata_path = os.path.join(temp_directory, 'metadata.yaml')
-    with open(metadata_path, 'w', encoding='utf-8') as fh:
-        fh.write(_incus_image_import_build_metadata(architecture, properties))
+    with open(metadata_path, 'w', encoding='utf-8') as file_handle:
+        file_handle.write(_incus_image_import_build_metadata(architecture, properties))
     tarball_path = os.path.join(temp_directory, 'image.tar.gz')
     try:
         with tarfile.open(tarball_path, 'w:gz') as tar:
             tar.add(metadata_path, arcname='metadata.yaml')
             tar.add(image_path, arcname='rootfs.img')
-    except OSError as exc:
-        module.fail_json(msg=f"Failed creating image tarball: {exc}")
+    except OSError as exception:
+        module.fail_json(msg=f"Failed creating image tarball: {exception}")
     return tarball_path
 
 

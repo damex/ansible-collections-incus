@@ -125,8 +125,8 @@ def main() -> None:
                 list_query = incus_build_query(project=project, recursion=1)
                 response = client.get(f'/1.0/images{list_query}')
                 result = response.get('metadata') or []
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
 
     module.exit_json(images=result)
 

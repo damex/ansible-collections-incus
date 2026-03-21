@@ -294,8 +294,8 @@ def main() -> None:
     try:
         result = _ensure_cluster_member(module)
         module.exit_json(**result)
-    except IncusClientException as exc:
-        module.fail_json(msg=str(exc))
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
 
 
 if __name__ == '__main__':
