@@ -81,7 +81,7 @@ def test_ensure_resource_create(mock_create_client: MagicMock) -> None:
     desired = {'description': '', 'config': {}}
     result = incus_ensure_resource(module, 'projects', desired)
 
-    assert result is True
+    assert result['changed'] is True
     client.post.assert_called_once()
 
 
@@ -96,7 +96,7 @@ def test_ensure_resource_no_change(mock_create_client: MagicMock) -> None:
     desired = {'description': 'desc', 'config': {'k': 'v'}}
     result = incus_ensure_resource(module, 'projects', desired)
 
-    assert result is False
+    assert result['changed'] is False
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -111,7 +111,7 @@ def test_ensure_resource_update(mock_create_client: MagicMock) -> None:
     desired = {'description': 'new', 'config': {}}
     result = incus_ensure_resource(module, 'projects', desired)
 
-    assert result is True
+    assert result['changed'] is True
     client.put.assert_called_once()
 
 
@@ -126,7 +126,7 @@ def test_ensure_resource_delete_exists(mock_create_client: MagicMock) -> None:
     module = _ensure_module(state='absent')
     result = incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
 
-    assert result is True
+    assert result['changed'] is True
     client.delete.assert_called_once()
 
 
@@ -140,7 +140,7 @@ def test_ensure_resource_delete_not_exists(mock_create_client: MagicMock) -> Non
     module = _ensure_module(state='absent')
     result = incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
 
-    assert result is False
+    assert result['changed'] is False
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -153,7 +153,7 @@ def test_ensure_resource_check_mode_create(mock_create_client: MagicMock) -> Non
     module = _ensure_module(check_mode=True)
     result = incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
 
-    assert result is True
+    assert result['changed'] is True
     client.post.assert_not_called()
 
 
@@ -168,7 +168,7 @@ def test_ensure_resource_check_mode_update(mock_create_client: MagicMock) -> Non
     desired = {'description': 'new', 'config': {}}
     result = incus_ensure_resource(module, 'projects', desired)
 
-    assert result is True
+    assert result['changed'] is True
     client.put.assert_not_called()
 
 
@@ -182,7 +182,7 @@ def test_ensure_resource_check_mode_delete(mock_create_client: MagicMock) -> Non
     module = _ensure_module(state='absent', check_mode=True)
     result = incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
 
-    assert result is True
+    assert result['changed'] is True
     client.delete.assert_not_called()
 
 
@@ -286,7 +286,7 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    assert result is True
+    assert result['changed'] is True
     post_path = client.post.call_args[0][0]
     assert '?target=node1' in post_path
 
@@ -303,7 +303,7 @@ def test_ensure_resource_target_exists_created_skips(mock_create_client: MagicMo
     desired = {'description': 'new', 'config': {}}
     result = incus_ensure_resource(module, 'storage-pools', desired)
 
-    assert result is False
+    assert result['changed'] is False
     client.put.assert_not_called()
     client.post.assert_not_called()
 
@@ -328,7 +328,7 @@ def test_ensure_resource_target_pending_updates(mock_create_client: MagicMock) -
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    assert result is True
+    assert result['changed'] is True
     client.post.assert_called_once()
     client.put.assert_not_called()
 
@@ -350,7 +350,7 @@ def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> 
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    assert result is True
+    assert result['changed'] is True
     client.post.assert_called_once()
     post_path = client.post.call_args[0][0]
     assert '?target=node2' in post_path
@@ -390,7 +390,7 @@ def test_ensure_resource_target_not_found_but_created_skips(mock_create_client: 
     desired = {'description': '', 'config': {}}
     result = incus_ensure_resource(module, 'networks', desired)
 
-    assert result is False
+    assert result['changed'] is False
     client.post.assert_not_called()
     client.put.assert_not_called()
 
@@ -411,7 +411,7 @@ def test_ensure_resource_pending_finalize(mock_create_client: MagicMock) -> None
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    assert result is True
+    assert result['changed'] is True
     client.post.assert_called_once()
     client.put.assert_not_called()
 
@@ -479,7 +479,7 @@ def test_ensure_resource_update_extra_config_keys(mock_create_client: MagicMock)
     module = _ensure_module()
     desired = {'description': 'desc', 'config': {'k': 'v'}}
     result = incus_ensure_resource(module, 'projects', desired)
-    assert result is True
+    assert result['changed'] is True
     client.put.assert_called_once()
 
 
@@ -506,5 +506,5 @@ def test_ensure_resource_update_extra_device_keys(mock_create_client: MagicMock)
         'devices': {'eth0': {'type': 'nic', 'network': 'br0'}},
     }
     result = incus_ensure_resource(module, 'profiles', desired)
-    assert result is True
+    assert result['changed'] is True
     client.put.assert_called_once()

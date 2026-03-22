@@ -12,6 +12,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import In
 from ansible_collections.damex.incus.plugins.modules.incus_image import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     assert_write_check_mode,
     assert_write_delete_missing,
     mock_incus_client,
@@ -67,7 +68,7 @@ def test_present_alias_exists_no_change() -> None:
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
     ]
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
     client.post.assert_not_called()
     client.put.assert_not_called()
 
@@ -112,7 +113,7 @@ def test_present_alias_exists_update_check_mode() -> None:
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
     ]
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_not_called()
 
 
@@ -123,7 +124,7 @@ def test_present_copy_image() -> None:
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post.assert_called_once()
     post_data = client.post.call_args[0][1]
     assert post_data['aliases'] == [{'name': 'debian/13'}]
@@ -159,7 +160,7 @@ def test_absent_delete_by_fingerprint() -> None:
     client.get.return_value = {'metadata': {'name': 'debian/13', 'target': 'abc123'}}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_called_once()
     assert 'abc123' in client.delete.call_args[0][0]
 
@@ -175,5 +176,5 @@ def test_absent_check_mode() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'debian/13', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_not_called()

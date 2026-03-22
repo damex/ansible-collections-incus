@@ -28,6 +28,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 )
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     mock_incus_client,
 )
 
@@ -451,14 +452,14 @@ def test_run_write_module_success_changed() -> None:
     """Exit changed on success."""
     module = MagicMock()
     incus_run_write_module(module, lambda: True)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
 
 
 def test_run_write_module_success_unchanged() -> None:
     """Exit unchanged on no-op."""
     module = MagicMock()
     incus_run_write_module(module, lambda: False)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_run_write_module_client_exception() -> None:

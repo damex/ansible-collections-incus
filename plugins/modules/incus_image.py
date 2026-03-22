@@ -116,6 +116,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
     incus_build_query,
+    incus_build_result,
     incus_build_source,
     incus_create_write_module,
     incus_resolve_image_alias,
@@ -131,7 +132,8 @@ def _update_image(
     client: IncusClient,
     encoded_fingerprint: str,
     query: str,
-) -> bool:
+    alias: str,
+) -> dict[str, Any]:
     """
     Update image properties if they differ from desired state.
 
@@ -140,14 +142,17 @@ def _update_image(
     ...     client,
     ...     'abc123',
     ...     '?project=default',
+    ...     'debian/13',
     ... )
-    False
+    {'changed': False, 'changed_keys': []}
     """
     image = client.get(f'/1.0/images/{encoded_fingerprint}{query}').get('metadata') or {}
     desired_auto_update = module.params['auto_update']
     desired_public = module.params['public']
-    if image.get('auto_update', False) == desired_auto_update and image.get('public', False) == desired_public:
-        return False
+    current_auto_update = image.get('auto_update', False)
+    current_public = image.get('public', False)
+    if current_auto_update == desired_auto_update and current_public == desired_public:
+        return incus_build_result(False)
     if not module.check_mode:
         incus_wait(
             module,
@@ -162,7 +167,19 @@ def _update_image(
                 },
             ),
         )
-    return True
+    return incus_build_result(
+        True,
+        before={
+            'alias': alias,
+            'auto_update': current_auto_update,
+            'public': current_public,
+        },
+        after={
+            'alias': alias,
+            'auto_update': desired_auto_update,
+            'public': desired_public,
+        },
+    )
 
 
 def main() -> None:
@@ -198,7 +215,7 @@ def main() -> None:
         argument_spec[spec_key] = spec_value
     module = incus_create_write_module(argument_spec)
 
-    def _ensure_image() -> bool:
+    def _ensure_image() -> dict[str, Any]:
         with incus_create_client(module) as client:
             alias = module.params['alias']
             project = module.params['project']
@@ -208,7 +225,7 @@ def main() -> None:
                 fingerprint = incus_resolve_image_alias(client, alias, query)
                 if fingerprint:
                     encoded_fingerprint = quote(fingerprint, safe='')
-                    return _update_image(module, client, encoded_fingerprint, query)
+                    return _update_image(module, client, encoded_fingerprint, query, alias)
                 if not module.params['source']:
                     module.fail_json(msg="'source' is required when creating an image")
                 source = incus_build_source(module)
@@ -230,11 +247,19 @@ def main() -> None:
                             data,
                         ),
                     )
-                return True
+                return incus_build_result(
+                    True,
+                    before={},
+                    after={
+                        'alias': alias,
+                        'auto_update': module.params['auto_update'],
+                        'public': module.params['public'],
+                    },
+                )
 
             fingerprint = incus_resolve_image_alias(client, alias, query)
             if not fingerprint:
-                return False
+                return incus_build_result(False)
             if not module.check_mode:
                 encoded_fingerprint = quote(fingerprint, safe='')
                 incus_wait(
@@ -242,7 +267,15 @@ def main() -> None:
                     client,
                     client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
                 )
-            return True
+            return incus_build_result(
+                True,
+                before={
+                    'alias': alias,
+                    'auto_update': module.params['auto_update'],
+                    'public': module.params['public'],
+                },
+                after={},
+            )
 
     incus_run_write_module(module, _ensure_image)
 
