@@ -56,6 +56,7 @@ __all__ = [
     'INCUS_SOURCE_ARGS',
     'IncusResourceOptions',
     'incus_build_desired',
+    'incus_build_result',
     'incus_build_query',
     'incus_build_source',
     'incus_create_info_module',
@@ -259,6 +260,20 @@ class IncusResourceOptions(NamedTuple):
     immutable_config_keys: frozenset[str] = frozenset()
 
 
+class IncusResourceState(NamedTuple):
+    """
+    Current and desired state for a resource.
+
+    >>> state = IncusResourceState(desired={'description': ''}, current={}, exists=False)
+    >>> state.exists
+    False
+    """
+
+    desired: dict[str, Any]
+    current: dict[str, Any]
+    exists: bool
+
+
 def _incus_build_effective_desired(
     desired: dict[str, Any],
     current: dict[str, Any],
@@ -334,12 +349,118 @@ def _incus_check_target_creation(
         return True
 
 
+def _incus_build_changed_keys(
+    before: dict[str, Any],
+    after: dict[str, Any],
+) -> list[str]:
+    """
+    Build list of changed keys between before and after states.
+
+    >>> _incus_build_changed_keys(
+    ...     {'description': '', 'config': {'core.https_address': ':8443'}},
+    ...     {'description': 'new', 'config': {'core.https_address': ':9443'}},
+    ... )
+    ['core.https_address', 'description']
+    """
+    changed: list[str] = []
+    all_keys = sorted(set(before) | set(after))
+    for field_key in all_keys:
+        before_value = before.get(field_key)
+        after_value = after.get(field_key)
+        if before_value == after_value:
+            continue
+        if field_key == 'config':
+            before_config = before_value if isinstance(before_value, dict) else {}
+            after_config = after_value if isinstance(after_value, dict) else {}
+            for config_key in sorted(set(before_config) | set(after_config)):
+                if before_config.get(config_key) != after_config.get(config_key):
+                    changed.append(config_key)
+        else:
+            changed.append(field_key)
+    return changed
+
+
+def incus_build_result(
+    changed: bool,
+    before: dict[str, Any] | None = None,
+    after: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Build standard write module result with diff and changed keys.
+
+    >>> incus_build_result(True, {'description': ''}, {'description': 'new'})['changed']
+    True
+    """
+    result: dict[str, Any] = {'changed': changed, 'changed_keys': []}
+    if changed and before is not None and after is not None:
+        result['diff'] = {'before': before, 'after': after}
+        result['changed_keys'] = _incus_build_changed_keys(before, after)
+    return result
+
+
+def _incus_ensure_present(
+    module: AnsibleModule,
+    client: IncusClient,
+    resource: str,
+    state: IncusResourceState,
+    options: IncusResourceOptions,
+) -> dict[str, Any]:
+    """
+    Ensure resource is present.
+
+    >>> _incus_ensure_present(module, client, 'networks', IncusResourceState({}, {}, False), IncusResourceOptions())
+    {'changed': True, 'diff': {...}, 'changed_keys': [...]}
+    """
+    encoded_name = quote(module.params['name'], safe='')
+    target = module.params.get('target')
+    query = incus_build_query(module.params.get('project'), target)
+    if not state.exists or state.current.get('status') in ('Pending', 'Unknown'):
+        project = module.params.get('project')
+        if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
+            return incus_build_result(False)
+        create_data = _build_create_data(
+            module,
+            module.params['name'],
+            state.desired,
+            options.create_only_params,
+            require=not state.exists,
+        )
+        if options.name_key != 'name':
+            create_data[options.name_key] = create_data.pop('name')
+        if not module.check_mode:
+            incus_wait(
+                module,
+                client,
+                client.post(f'/1.0/{resource}{query}', create_data),
+            )
+        return incus_build_result(True, before={}, after=state.desired)
+    if target:
+        return incus_build_result(False)
+    effective = _incus_build_effective_desired(
+        state.desired,
+        state.current,
+        options.immutable_config_keys,
+        frozenset(),
+    )
+    changed = not _incus_desired_matches_current(effective, state.current)
+    if changed and not module.check_mode:
+        incus_wait(
+            module,
+            client,
+            client.put(f'/1.0/{resource}/{encoded_name}{query}', effective),
+        )
+    if changed:
+        before = {field_key: state.current.get(field_key) for field_key in effective}
+        return incus_build_result(True, before=before, after=effective)
+    return incus_build_result(False)
+
+
 def incus_ensure_resource(
     module: AnsibleModule,
     resource: str,
     desired: dict[str, Any],
     options: IncusResourceOptions | None = None,
-) -> bool:
+) -> dict[str, Any]:
     """
     Ensure resource.
 
@@ -348,7 +469,7 @@ def incus_ensure_resource(
     ...     'instances',
     ...     {'description': '', 'config': {}},
     ... )
-    True
+    {'changed': True, 'diff': {'before': {}, 'after': {'description': '', 'config': {}}}}
     """
     opts = options or IncusResourceOptions()
     with incus_create_client(module) as client:
@@ -365,36 +486,17 @@ def incus_ensure_resource(
             exists = False
 
         if module.params['state'] == 'present':
-            if not exists or current.get('status') in ('Pending', 'Unknown'):
-                if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
-                    return False
-                create_data = _build_create_data(
-                    module,
-                    module.params['name'],
-                    desired,
-                    opts.create_only_params,
-                    require=not exists,
-                )
-                if opts.name_key != 'name':
-                    create_data[opts.name_key] = create_data.pop('name')
-                if not module.check_mode:
-                    incus_wait(
-                        module,
-                        client,
-                        client.post(f'/1.0/{resource}{query}', create_data),
-                    )
-                return True
-            if target:
-                return False
-            effective = _incus_build_effective_desired(desired, current, opts.immutable_config_keys, frozenset())
-            changed = not _incus_desired_matches_current(effective, current)
-            if changed and not module.check_mode:
-                incus_wait(
-                    module,
-                    client,
-                    client.put(f'/1.0/{resource}/{encoded_name}{query}', effective),
-                )
-            return changed
+            return _incus_ensure_present(
+                module,
+                client,
+                resource,
+                IncusResourceState(
+                    desired=desired,
+                    current=current,
+                    exists=exists,
+                ),
+                opts,
+            )
 
         if exists:
             if not module.check_mode:
@@ -403,8 +505,9 @@ def incus_ensure_resource(
                     client,
                     client.delete(f'/1.0/{resource}/{encoded_name}{incus_build_query(project, target)}'),
                 )
-            return True
-        return False
+            before = {field_key: current.get(field_key) for field_key in desired}
+            return incus_build_result(True, before=before, after={})
+        return incus_build_result(False)
 
 
 def incus_find_certificate(
@@ -455,7 +558,7 @@ def incus_resolve_image_alias(
 
 def incus_run_write_module(
     module: AnsibleModule,
-    implementation: collections.abc.Callable[[], bool],
+    implementation: collections.abc.Callable[[], bool | dict[str, Any]],
 ) -> None:
     """
     Execute write module.
@@ -466,7 +569,27 @@ def incus_run_write_module(
     ... )
     """
     try:
-        module.exit_json(changed=implementation())
+        result = implementation()
+        if isinstance(result, dict):
+            changed = result['changed']
+            changed_keys = result.get('changed_keys', [])
+            diff = result.get('diff')
+            if diff:
+                module.exit_json(
+                    changed=changed,
+                    diff=diff,
+                    changed_keys=changed_keys,
+                )
+            else:
+                module.exit_json(
+                    changed=changed,
+                    changed_keys=changed_keys,
+                )
+        else:
+            module.exit_json(
+                changed=result,
+                changed_keys=[],
+            )
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))
 

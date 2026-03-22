@@ -15,6 +15,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 from ansible_collections.damex.incus.plugins.modules.incus_server import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     mock_incus_client,
 )
 
@@ -69,7 +70,7 @@ def test_update_server_config() -> None:
     client.get.return_value = {'metadata': {'config': {}}}
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_called_once()
     _path, put_data = client.put.call_args.args
     assert put_data['config']['core.https_address'] == ':8443'
@@ -83,7 +84,7 @@ def test_skip_matching_server_config() -> None:
         'metadata': {'config': {'core.https_address': ':8443'}},
     }
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
     client.put.assert_not_called()
 
 
@@ -105,7 +106,7 @@ def test_update_server_logging() -> None:
     client.get.return_value = {'metadata': {'config': {}}}
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     _path, put_data = client.put.call_args.args
     assert put_data['config']['logging.loki01.target.type'] == 'loki'
     assert put_data['config']['logging.loki01.target.address'] == 'https://loki:3100'
@@ -135,7 +136,7 @@ def test_skip_matching_server_logging() -> None:
         },
     }
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
     client.put.assert_not_called()
 
 
@@ -153,7 +154,7 @@ def test_update_server_config_extra_keys_removed() -> None:
     }
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_called_once()
     _path, put_data = client.put.call_args.args
     assert 'core.metrics_address' not in put_data['config']
@@ -168,7 +169,7 @@ def test_init_runs_preseed() -> None:
     module.run_command.return_value = (0, '', '')
     client = mock_incus_client()
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     module.run_command.assert_called_once()
     client.get.assert_not_called()
     client.put.assert_not_called()
@@ -188,7 +189,7 @@ def test_init_with_cluster() -> None:
     module.run_command.return_value = (0, '', '')
     client = mock_incus_client()
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     preseed_data = module.run_command.call_args.kwargs['data']
     assert '"cluster"' in preseed_data
     assert '"server_name"' in preseed_data
@@ -215,7 +216,7 @@ def test_init_check_mode() -> None:
     )
     client = mock_incus_client()
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     module.run_command.assert_not_called()
 
 
@@ -228,7 +229,7 @@ def test_server_check_mode() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'config': {}}}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_not_called()
 
 

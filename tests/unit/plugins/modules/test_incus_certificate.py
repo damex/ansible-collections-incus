@@ -13,6 +13,7 @@ import pytest
 from ansible_collections.damex.incus.plugins.modules.incus_certificate import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     assert_write_update,
     mock_incus_client,
     run_module_main,
@@ -64,7 +65,7 @@ def test_create_certificate() -> None:
     client.get.return_value = {'metadata': []}
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     assert client.post.call_count == 1
     payload = client.post.call_args[0][1]
     assert payload['name'] == 'ansible'
@@ -88,7 +89,7 @@ def test_skip_matching_certificate() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': [EXISTING_CERT]}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_update_restricted() -> None:
@@ -116,7 +117,7 @@ def test_delete_existing_certificate() -> None:
     client.get.return_value = {'metadata': [EXISTING_CERT]}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     assert client.delete.call_count == 1
     assert client.delete.call_args[0][0] == '/1.0/certificates/abc123'
 
@@ -127,7 +128,7 @@ def test_delete_missing_certificate() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_check_mode_create_certificate() -> None:
@@ -136,5 +137,5 @@ def test_check_mode_create_certificate() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post.assert_not_called()

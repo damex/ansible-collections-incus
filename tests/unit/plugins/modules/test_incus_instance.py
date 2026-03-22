@@ -19,6 +19,7 @@ from ansible_collections.damex.incus.plugins.modules.incus_instance import (
 )
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     assert_get_found,
     assert_get_not_found,
     mock_incus_client,
@@ -195,8 +196,7 @@ def test_main_create_and_start() -> None:
     client.post.return_value = {'type': 'sync'}
     client.put.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once()
-    assert module.exit_json.call_args[1]['changed'] is True
+    assert_exit_changed(module, True)
     client.post.assert_called_once()
 
 
@@ -222,8 +222,7 @@ def test_main_update_changed_config() -> None:
     }}
     client.put.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once()
-    assert module.exit_json.call_args[1]['changed'] is True
+    assert_exit_changed(module, True)
 
 
 def test_main_skip_matching() -> None:
@@ -235,7 +234,7 @@ def test_main_skip_matching() -> None:
         'description': '', 'config': {}, 'devices': {}, 'profiles': ['default'],
     }}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_main_filter_volatile_config() -> None:
@@ -249,7 +248,7 @@ def test_main_filter_volatile_config() -> None:
         }, 'devices': {}, 'profiles': ['default'],
     }}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_main_fail_missing_source() -> None:
@@ -272,8 +271,7 @@ def test_main_start_stopped_existing() -> None:
     }}
     client.put.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once()
-    assert module.exit_json.call_args[1]['changed'] is True
+    assert_exit_changed(module, True)
     client.put.assert_called_once()
     assert client.put.call_args[0][1] == {'action': 'start'}
 
@@ -291,8 +289,7 @@ def test_main_environment_variables_create() -> None:
     client.post.return_value = {'type': 'sync'}
     client.put.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once()
-    assert module.exit_json.call_args[1]['changed'] is True
+    assert_exit_changed(module, True)
     post_data = client.post.call_args[0][1]
     assert post_data['config']['environment.ESPHOME_DASHBOARD_USE_PING'] == 'true'
     assert 'environment_variables' not in post_data['config']
@@ -314,4 +311,4 @@ def test_main_environment_variables_skip_matching() -> None:
         }, 'devices': {}, 'profiles': ['default'],
     }}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)

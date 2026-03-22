@@ -19,6 +19,7 @@ from ansible_collections.damex.incus.plugins.modules.incus_image_import import (
 )
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     assert_write_check_mode,
     assert_write_delete_missing,
     mock_incus_client,
@@ -124,7 +125,7 @@ def test_present_alias_exists_no_change() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
     client.post_file.assert_not_called()
 
 
@@ -142,7 +143,7 @@ def test_present_import_image(mock_shutil: MagicMock, mock_tempfile: MagicMock,
     client.wait.return_value = {'metadata': {'fingerprint': 'abc123'}}
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post_file.assert_called_once()
     client.post.assert_called_once()
     alias_data = client.post.call_args[0][1]
@@ -168,7 +169,7 @@ def test_present_import_with_aliases(mock_shutil: MagicMock, mock_tempfile: Magi
     client.wait.return_value = {'metadata': {'fingerprint': 'abc123'}}
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     assert client.post.call_count == 2
     first_alias = client.post.call_args_list[0][0][1]
     second_alias = client.post.call_args_list[1][0][1]
@@ -203,7 +204,7 @@ def test_present_force_reimport(mock_shutil: MagicMock, mock_tempfile: MagicMock
     client.wait.return_value = {'metadata': {'fingerprint': 'def456'}}
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_called_once()
     assert 'abc123' in client.delete.call_args[0][0]
     client.post_file.assert_called_once()
@@ -220,7 +221,7 @@ def test_present_force_check_mode() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_not_called()
     client.post_file.assert_not_called()
 
@@ -232,7 +233,7 @@ def test_absent_delete_by_fingerprint() -> None:
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     client.delete.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_called_once()
     assert 'abc123' in client.delete.call_args[0][0]
 
@@ -248,5 +249,5 @@ def test_absent_check_mode() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
     run_module_main(MODULE, module, client, main)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_not_called()

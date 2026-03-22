@@ -129,6 +129,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    incus_build_result,
     incus_create_write_module,
     incus_wait,
 )
@@ -184,12 +185,65 @@ def _create_join_token(client: Any, name: str) -> dict[str, Any]:
     }
 
 
+def _ensure_cluster_member_present(
+    module: Any,
+    client: Any,
+    current: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Ensure cluster member is present.
+
+    >>> _ensure_cluster_member_present(module, client, {})
+    {'changed': False, 'changed_keys': []}
+    """
+    # incus rejects PUT on single-node clusters due to database-client role validation bug
+    members = client.get('/1.0/cluster/members').get('metadata') or []
+    desired: dict[str, Any] = {
+        'description': module.params['description'],
+        'config': incus_common_stringify_dict(module.params['config'] or {}),
+        'roles': sorted(current.get('roles', [])),
+        'groups': sorted(current.get('groups', [])),
+        'failure_domain': current.get('failure_domain', ''),
+    }
+    if module.params.get('roles') is not None:
+        current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
+        desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
+    if module.params.get('groups') is not None:
+        desired['groups'] = sorted(module.params['groups'])
+    if module.params.get('failure_domain'):
+        desired['failure_domain'] = module.params['failure_domain']
+
+    def _comparable(value: Any) -> Any:
+        return sorted(value) if isinstance(value, list) else value
+    before = {
+        field_key: current.get(field_key)
+        for field_key in desired
+    }
+    changed = len(members) > 1 and not all(
+        field_key in current and _comparable(current[field_key]) == field_value
+        for field_key, field_value in desired.items()
+    )
+    if not changed:
+        return incus_build_result(False)
+    encoded_name = quote(module.params['name'], safe='')
+    if not module.check_mode:
+        incus_wait(
+            module,
+            client,
+            client.put(
+                f'/1.0/cluster/members/{encoded_name}',
+                desired,
+            ),
+        )
+    return incus_build_result(True, before=before, after=desired)
+
+
 def _ensure_cluster_member(module: Any) -> dict[str, Any]:
     """
     Ensure cluster member.
 
     >>> _ensure_cluster_member(module)
-    {'changed': False}
+    {'changed': False, 'changed_keys': []}
     """
     with incus_create_client(module) as client:
         name = module.params['name']
@@ -205,54 +259,31 @@ def _ensure_cluster_member(module: Any) -> dict[str, Any]:
         if module.params['state'] == 'joined':
             if not exists and not module.check_mode:
                 return _create_join_token(client, name)
-            return {'changed': not exists}
+            return incus_build_result(not exists)
 
         if module.params['state'] == 'present':
             if not exists:
-                return {'changed': False}
-            # incus rejects PUT on single-node clusters due to database-client role validation bug
-            members = client.get('/1.0/cluster/members').get('metadata') or []
-            desired: dict[str, Any] = {
-                'description': module.params['description'],
-                'config': incus_common_stringify_dict(module.params['config'] or {}),
+                return incus_build_result(False)
+            return _ensure_cluster_member_present(module, client, current)
+
+        if not exists:
+            return incus_build_result(False)
+        if not module.check_mode:
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/cluster/members/{encoded_name}'),
+            )
+        return incus_build_result(
+            True,
+            before={
+                'description': current.get('description', ''),
+                'config': current.get('config', {}),
                 'roles': sorted(current.get('roles', [])),
                 'groups': sorted(current.get('groups', [])),
-                'failure_domain': current.get('failure_domain', ''),
-            }
-            if module.params.get('roles') is not None:
-                current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
-                desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
-            if module.params.get('groups') is not None:
-                desired['groups'] = sorted(module.params['groups'])
-            if module.params.get('failure_domain'):
-                desired['failure_domain'] = module.params['failure_domain']
-
-            def _comparable(value: Any) -> Any:
-                return sorted(value) if isinstance(value, list) else value
-            changed = len(members) > 1 and not all(
-                field_key in current and _comparable(current[field_key]) == field_value
-                for field_key, field_value in desired.items()
-            )
-            if changed and not module.check_mode:
-                incus_wait(
-                    module,
-                    client,
-                    client.put(
-                        f'/1.0/cluster/members/{encoded_name}',
-                        desired,
-                    ),
-                )
-            return {'changed': changed}
-
-        if exists:
-            if not module.check_mode:
-                incus_wait(
-                    module,
-                    client,
-                    client.delete(f'/1.0/cluster/members/{encoded_name}'),
-                )
-            return {'changed': True}
-        return {'changed': False}
+            },
+            after={},
+        )
 
 
 def main() -> None:
@@ -293,7 +324,29 @@ def main() -> None:
     module = incus_create_write_module(argument_spec)
     try:
         result = _ensure_cluster_member(module)
-        module.exit_json(**result)
+        changed = result['changed']
+        changed_keys = result.get('changed_keys', [])
+        diff = result.get('diff')
+        join_token = result.get('join_token')
+        if join_token:
+            module.exit_json(
+                changed=changed,
+                changed_keys=changed_keys,
+                join_token=join_token,
+                join_fingerprint=result.get('join_fingerprint', ''),
+                join_addresses=result.get('join_addresses', []),
+            )
+        elif diff:
+            module.exit_json(
+                changed=changed,
+                diff=diff,
+                changed_keys=changed_keys,
+            )
+        else:
+            module.exit_json(
+                changed=changed,
+                changed_keys=changed_keys,
+            )
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))
 

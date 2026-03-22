@@ -80,6 +80,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    incus_build_result,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
@@ -89,21 +90,22 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _incus_ensure_cluster_group_absent(module: Any) -> bool:
+def _incus_ensure_cluster_group_absent(module: Any) -> dict[str, Any]:
     """
     Ensure cluster group is absent, clearing members before deletion.
 
     >>> _incus_ensure_cluster_group_absent(module)
-    True
+    {'changed': True, 'diff': {...}, 'changed_keys': [...]}
     """
     with incus_create_client(module) as client:
         name = quote(module.params['name'], safe='')
         try:
             current = client.get(f'/1.0/cluster/groups/{name}').get('metadata') or {}
         except IncusNotFoundException:
-            return False
+            return incus_build_result(False)
+        current_members = sorted(current.get('members') or [])
         if not module.check_mode:
-            if current.get('members'):
+            if current_members:
                 incus_wait(
                     module,
                     client,
@@ -117,7 +119,14 @@ def _incus_ensure_cluster_group_absent(module: Any) -> bool:
                 client,
                 client.delete(f'/1.0/cluster/groups/{name}'),
             )
-        return True
+        return incus_build_result(
+            True,
+            before={
+                'description': current.get('description', ''),
+                'members': current_members,
+            },
+            after={},
+        )
 
 
 def main() -> None:

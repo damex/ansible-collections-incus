@@ -37,6 +37,7 @@ __all__ = [
     'assert_write_delete_missing',
     'assert_write_check_mode',
     'assert_write_fail_create',
+    'assert_exit_changed',
     'mock_incus_client',
     'run_module_main',
 ]
@@ -211,6 +212,12 @@ def assert_info_fail(
     module.fail_json.assert_called_once_with(msg='connection refused')
 
 
+def assert_exit_changed(module: MagicMock, expected: bool) -> None:
+    """Assert exit_json was called with expected changed value."""
+    module.exit_json.assert_called_once()
+    assert module.exit_json.call_args[1]['changed'] == expected
+
+
 def assert_write_create(
     main_func: collections.abc.Callable[[], None], module_path: str, module: MagicMock,
 ) -> MagicMock:
@@ -220,7 +227,7 @@ def assert_write_create(
     client.post.return_value = {'type': 'sync'}
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post.assert_called_once()
     return client
 
@@ -234,7 +241,7 @@ def assert_write_skip(
     client.get.return_value = {'metadata': current}
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def assert_write_update(
@@ -250,7 +257,7 @@ def assert_write_update(
     client.put.return_value = {'type': 'sync'}
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_called_once()
     put_data: dict[str, Any] = client.put.call_args[0][1]
     return put_data
@@ -266,7 +273,7 @@ def assert_write_delete(
     client.delete.return_value = {'type': 'sync'}
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_called_once()
     return client
 
@@ -279,7 +286,7 @@ def assert_write_delete_missing(
     client.get.side_effect = IncusNotFoundException('not found')
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def assert_write_check_mode(
@@ -290,7 +297,7 @@ def assert_write_check_mode(
     client.get.side_effect = IncusNotFoundException('not found')
     with _write_patches(module_path, module, client):
         main_func()
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post.assert_not_called()
 
 

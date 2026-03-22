@@ -17,6 +17,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 from ansible_collections.damex.incus.plugins.modules.incus_cluster_member import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
+    assert_exit_changed,
     mock_incus_client,
 )
 
@@ -98,7 +99,7 @@ def test_create_check_mode() -> None:
     client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.post.assert_not_called()
 
 
@@ -121,7 +122,7 @@ def test_skip_matching_member() -> None:
         MULTI_NODE,
     ]
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
     client.put.assert_not_called()
 
 
@@ -136,7 +137,7 @@ def test_update_member_description() -> None:
     ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.put.assert_called_once()
     put_data = client.put.call_args[0][1]
     assert put_data['description'] == 'Primary node'
@@ -153,7 +154,7 @@ def test_update_member_config() -> None:
     ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     put_data = client.put.call_args[0][1]
     assert put_data['config']['scheduler.instance'] == 'manual'
 
@@ -169,7 +170,7 @@ def test_update_member_roles() -> None:
     ]
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     put_data = client.put.call_args[0][1]
     assert 'database' in put_data['roles']
     assert 'event-hub' in put_data['roles']
@@ -184,7 +185,7 @@ def test_delete_existing_member() -> None:
     }
     client.delete.return_value = {'type': 'sync'}
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=True)
+    assert_exit_changed(module, True)
     client.delete.assert_called_once()
 
 
@@ -194,7 +195,7 @@ def test_delete_nonexistent_member() -> None:
     client = mock_incus_client()
     client.get.side_effect = IncusNotFoundException('not found')
     _run_main(module, client)
-    module.exit_json.assert_called_once_with(changed=False)
+    assert_exit_changed(module, False)
 
 
 def test_fail_on_exception() -> None:

@@ -89,6 +89,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     incus_create_client,
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    incus_build_result,
     incus_create_write_module,
     incus_find_certificate,
     incus_run_write_module,
@@ -98,12 +99,12 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
 
-def _ensure_certificate(module: Any) -> bool:
+def _ensure_certificate(module: Any) -> dict[str, Any]:
     """
     Ensure certificate state.
 
     >>> _ensure_certificate(module)
-    True
+    {'changed': True, 'diff': {...}, 'changed_keys': [...]}
     """
     with incus_create_client(module) as client:
         name = module.params['name']
@@ -129,13 +130,21 @@ def _ensure_certificate(module: Any) -> bool:
                             },
                         ),
                     )
-                return True
+                return incus_build_result(
+                    True,
+                    before={},
+                    after={
+                        'name': name,
+                        'restricted': module.params['restricted'],
+                        'projects': module.params['projects'],
+                    },
+                )
             desired_restricted = module.params['restricted']
             desired_projects = sorted(module.params['projects'])
             current_restricted = current.get('restricted', False)
             current_projects = sorted(current.get('projects') or [])
             if current_restricted == desired_restricted and current_projects == desired_projects:
-                return False
+                return incus_build_result(False)
             if not module.check_mode:
                 encoded_fingerprint = quote(current['fingerprint'], safe='')
                 incus_wait(
@@ -151,7 +160,17 @@ def _ensure_certificate(module: Any) -> bool:
                         },
                     ),
                 )
-            return True
+            return incus_build_result(
+                True,
+                before={
+                    'restricted': current_restricted,
+                    'projects': current_projects,
+                },
+                after={
+                    'restricted': desired_restricted,
+                    'projects': desired_projects,
+                },
+            )
 
         if current is not None:
             if not module.check_mode:
@@ -161,8 +180,16 @@ def _ensure_certificate(module: Any) -> bool:
                     client,
                     client.delete(f'/1.0/certificates/{encoded_fingerprint}'),
                 )
-            return True
-        return False
+            return incus_build_result(
+                True,
+                before={
+                    'name': name,
+                    'restricted': current.get('restricted', False),
+                    'projects': sorted(current.get('projects') or []),
+                },
+                after={},
+            )
+        return incus_build_result(False)
 
 
 def main() -> None:

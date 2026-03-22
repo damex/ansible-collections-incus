@@ -515,6 +515,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     incus_create_client,
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
+    incus_build_result,
     incus_create_write_module,
     incus_run_write_module,
 )
@@ -684,22 +685,30 @@ def _preseed_init(module: Any, desired_config: dict[str, str]) -> bool:
     return True
 
 
-def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> bool:
+def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> dict[str, Any]:
     """
     Ensure server config matches desired state.
 
     >>> _ensure_server_config(module, {'core.https_address': ':8443'})
-    True
+    {'changed': True, 'changed_keys': ['core.https_address']}
     """
     if module.params.get('init'):
-        return _preseed_init(module, desired_config)
+        return incus_build_result(
+            _preseed_init(module, desired_config),
+            before={},
+            after=desired_config,
+        )
     with incus_create_client(module) as client:
         current = client.get('/1.0').get('metadata', {}).get('config', {})
         if current == desired_config:
-            return False
+            return incus_build_result(False)
         if not module.check_mode:
             client.put('/1.0', {'config': desired_config})
-        return True
+        return incus_build_result(
+            True,
+            before=current,
+            after=desired_config,
+        )
 
 
 def main() -> None:

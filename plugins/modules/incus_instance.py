@@ -125,6 +125,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_SOURCE_ARGS,
     incus_build_desired,
     incus_build_query,
+    incus_build_result,
     incus_build_source,
     incus_create_write_module,
     incus_run_write_module,
@@ -379,7 +380,7 @@ def main() -> None:
     query = incus_build_query(project, None)
     create_query = incus_build_query(project, target)
 
-    def _ensure_instance() -> bool:
+    def _ensure_instance() -> dict[str, Any]:
         with incus_create_client(module) as client:
             encoded_name = quote(name, safe='')
             current, exists = _get_instance(client, query, encoded_name)
@@ -399,11 +400,27 @@ def main() -> None:
             )
 
             if state == 'absent':
-                return _delete_instance(module, client, query, encoded_name) if exists else False
+                if exists:
+                    current_state = {
+                        'description': current.get('description', ''),
+                        'config': {
+                            config_key: config_value
+                            for config_key, config_value in current.get('config', {}).items()
+                            if not config_key.startswith(('volatile.', 'image.'))
+                        },
+                        'devices': current.get('devices', {}),
+                        'profiles': current.get('profiles', []),
+                        'status': current.get('status', 'Stopped'),
+                    }
+                    _delete_instance(module, client, query, encoded_name)
+                    return incus_build_result(True, before=current_state, after={})
+                return incus_build_result(False)
 
             status = current.get('status', 'Stopped') if exists else 'Stopped'
             state_path = f'/1.0/instances/{encoded_name}/state{query}'
-            changed = False
+            config_changed = False
+            before: dict[str, Any] = {}
+            after: dict[str, Any] = {}
 
             if not exists:
                 if not module.params['source']:
@@ -423,7 +440,14 @@ def main() -> None:
                         'source': incus_build_source(module),
                     },
                 )
-                changed = True
+                config_changed = True
+                before = {}
+                after = {
+                    'description': desired.description,
+                    'config': desired.config,
+                    'devices': desired.devices,
+                    'profiles': desired.profiles,
+                }
             else:
                 current_config = {
                     config_key: config_value for config_key, config_value in current.get('config', {}).items()
@@ -446,9 +470,30 @@ def main() -> None:
                             'profiles': desired.profiles,
                         },
                     )
-                    changed = True
+                    config_changed = True
+                    before = {
+                        'description': current.get('description', ''),
+                        'config': current_config,
+                        'devices': current.get('devices', {}),
+                        'profiles': current.get('profiles', []),
+                    }
+                    after = {
+                        'description': desired.description,
+                        'config': desired.config,
+                        'devices': desired.devices,
+                        'profiles': desired.profiles,
+                    }
 
-            return _manage_state(module, client, state_path, state, status) or changed
+            state_changed = _manage_state(module, client, state_path, state, status)
+            if state_changed:
+                target_status = {'started': 'Running', 'stopped': 'Stopped', 'restarted': 'Running'}
+                if 'status' not in before:
+                    before['status'] = status
+                after['status'] = target_status.get(state, status)
+
+            if config_changed or state_changed:
+                return incus_build_result(True, before=before, after=after)
+            return incus_build_result(False)
 
     incus_run_write_module(module, _ensure_instance)
 
