@@ -1,0 +1,7 @@
+---
+- name: Ensure incus service restarted on address change
+  ansible.builtin.include_role:
+    name: damex.systemd.systemd_service
+  vars:
+    systemd_service_name: incus
+    systemd_service_restart_on: "{{ incus_server_configuration_state.changed_keys | intersect(incus_server_restart_keys) | length > 0 }}"

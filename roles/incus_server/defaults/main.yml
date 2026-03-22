@@ -2,3 +2,12 @@
 incus_server_socket_path: /var/lib/incus/unix.socket
 incus_server_validate_certs: true
 incus_server_init: false
+incus_server_restart_keys:
+  - core.https_address
+  - cluster.https_address
+  - core.bgp_address
+  - core.dns_address
+  - core.metrics_address
+  - core.storage_buckets_address
+  - core.debug_address
+  - core.syslog_socket

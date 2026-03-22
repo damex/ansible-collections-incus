@@ -6,3 +6,5 @@
   block:
     - name: Ensure incus server config
       ansible.builtin.import_tasks: config.yml
+    - name: Ensure incus server systemd
+      ansible.builtin.import_tasks: systemd.yml
