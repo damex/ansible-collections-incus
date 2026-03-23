@@ -75,22 +75,11 @@ storage_volumes:
       type: dict
 """
 
-from typing import Any
 from urllib.parse import quote
 
-from ansible.module_utils.basic import AnsibleModule
-
-from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
-    IncusClientException,
-    IncusNotFoundException,
-    incus_create_client,
-)
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
-    INCUS_COMMON_ARGS,
-    INCUS_COMMON_MUTUALLY_EXCLUSIVE,
-    INCUS_COMMON_REQUIRED_BY,
-    INCUS_COMMON_REQUIRED_TOGETHER,
-    incus_build_query,
+    incus_create_info_module,
+    incus_run_info_module,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -102,47 +91,14 @@ def main() -> None:
 
     >>> main()
     """
-    argument_spec: dict[str, Any] = {
+    module = incus_create_info_module({
         'pool': {'type': 'str', 'required': True},
         'name': {'type': 'str'},
         'project': {'type': 'str', 'default': 'default'},
-    }
-    for spec_key, spec_value in INCUS_COMMON_ARGS.items():
-        argument_spec[spec_key] = spec_value
-    module = AnsibleModule(
-        argument_spec=argument_spec,
-        supports_check_mode=True,
-        mutually_exclusive=INCUS_COMMON_MUTUALLY_EXCLUSIVE,
-        required_together=INCUS_COMMON_REQUIRED_TOGETHER,
-        required_by=INCUS_COMMON_REQUIRED_BY,
-    )
-
-    name = module.params.get('name')
-    pool = module.params['pool']
-    project = module.params.get('project')
-    base_path = f'/1.0/storage-pools/{quote(pool, safe="")}/volumes/custom'
-    result: list[Any] = []
-
-    try:
-        with incus_create_client(module) as client:
-            if name:
-                encoded_name = quote(name, safe='')
-                query = incus_build_query(project=project)
-                try:
-                    response = client.get(f'{base_path}/{encoded_name}{query}')
-                    metadata = response.get('metadata')
-                    result = [metadata] if metadata else []
-                except IncusNotFoundException:
-                    result = []
-            else:
-                query = incus_build_query(project=project, recursion=1)
-                response = client.get(f'{base_path}{query}')
-                result = response.get('metadata') or []
-
-    except IncusClientException as exception:
-        module.fail_json(msg=str(exception))
-
-    module.exit_json(storage_volumes=result)
+    })
+    encoded_pool = quote(module.params['pool'], safe='')
+    resource = f'storage-pools/{encoded_pool}/volumes/custom'
+    incus_run_info_module(module, resource, 'storage_volumes')
 
 
 if __name__ == '__main__':
