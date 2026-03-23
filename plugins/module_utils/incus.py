@@ -531,8 +531,7 @@ def incus_find_certificate(
     certificates = client.get(f'/1.0/certificates{query}').get('metadata') or []
     for certificate in certificates:
         if certificate.get('name') == name:
-            result: dict[str, Any] = certificate
-            return result
+            return certificate
     return None
 
 
