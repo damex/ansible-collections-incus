@@ -3,7 +3,7 @@ argument_specs:
   main:
     short_description: Ensure Incus repository.
     description:
-      - Ensure the Incus repository.
+      - Ensure Incus repository.
     examples: |
       - name: Ensure incus repository
         hosts: incus
@@ -23,32 +23,32 @@ argument_specs:
     options:
       incus_repository_apt_key_id:
         type: str
-        description: GPG key ID for the Incus APT repository.
+        description: Incus APT repository GPG key ID.
       incus_repository_apt_key_url:
         type: str
-        description: URL of the GPG key for the Incus APT repository.
+        description: Incus APT repository GPG key URL.
       incus_repository_apt_repository_name:
         type: str
-        description: Name of the Incus APT repository source entry.
+        description: Incus APT repository source entry name.
       incus_repository_apt_repository_url:
         type: str
-        description: Base URL of the Incus APT repository.
+        description: Incus APT repository base URL.
       incus_repository_apt_repository_distribution:
         type: str
-        description: Distribution component override for the APT repository.
+        description: APT repository distribution component override.
       incus_repository_apt_repository_components:
         type: list
         elements: str
-        description: List of APT repository components to enable.
+        description: APT repository components.
       incus_repository_yum_repository_name:
         type: str
-        description: Unique repository ID for the Incus YUM repository.
+        description: Incus YUM repository ID.
       incus_repository_yum_repository_baseurl:
         type: str
-        description: URL to the directory where the Incus YUM repository repodata is located.
+        description: Incus YUM repository repodata directory URL.
       incus_repository_yum_repository_gpgcheck:
         type: bool
-        description: GPG signature check for the Incus YUM repository.
+        description: Incus YUM repository GPG signature check.
       incus_repository_yum_repository_gpgkey:
         type: str
-        description: URL pointing to the ASCII-armored GPG key file for the Incus YUM repository.
+        description: Incus YUM repository ASCII-armored GPG key URL.

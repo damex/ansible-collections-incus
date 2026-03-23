@@ -28,7 +28,7 @@ argument_specs:
                         source: /mnt/data
     options:
       incus_storages:
-        description: List of storage pools to ensure.
+        description: Storage pools to ensure.
         type: list
         elements: dict
         options:
@@ -54,7 +54,7 @@ argument_specs:
             description: Storage pool description.
             type: str
           targets:
-            description: List of cluster members to create the storage pool on.
+            description: Cluster members to create the storage pool on.
             type: list
             elements: dict
             options:
@@ -107,7 +107,7 @@ argument_specs:
                 description: Upper limit on the bandwidth for rsync.
                 type: str
               rsync.compression:
-                description: Whether to use compression for rsync.
+                description: Rsync compression.
                 type: bool
               btrfs.mount_options:
                 description: Mount options for the Btrfs filesystem.
@@ -122,7 +122,7 @@ argument_specs:
                 description: Name of the LVM thin pool.
                 type: str
               lvm.use_thinpool:
-                description: Whether to use an LVM thin pool.
+                description: LVM thin pool.
                 type: bool
               lvm.vg.force_reuse:
                 description: Force reuse of an existing LVM volume group.
@@ -131,10 +131,10 @@ argument_specs:
                 description: Name of the LVM volume group.
                 type: str
               zfs.clone_copy:
-                description: Whether to use ZFS lightweight clones.
+                description: ZFS lightweight clones.
                 type: bool
               zfs.export:
-                description: Whether to export the ZFS pool on removal.
+                description: ZFS pool export on removal.
                 type: bool
               zfs.pool_name:
                 description: Name of the ZFS pool.
@@ -155,10 +155,10 @@ argument_specs:
                 description: Name of the Ceph OSD pool.
                 type: str
               ceph.rbd.clone_copy:
-                description: Whether to use RBD lightweight clones.
+                description: RBD lightweight clones.
                 type: bool
               ceph.rbd.du:
-                description: Whether to use RBD disk usage tracking.
+                description: RBD disk usage tracking.
                 type: bool
               ceph.rbd.features:
                 description: RBD image features to enable.
@@ -176,7 +176,7 @@ argument_specs:
                 description: Name of the CephFS data pool.
                 type: str
               cephfs.fscache:
-                description: Whether to enable fscache for CephFS.
+                description: CephFS fscache.
                 type: bool
               cephfs.meta_pool:
                 description: Name of the CephFS metadata pool.
@@ -200,7 +200,7 @@ argument_specs:
                 description: URL of the RADOS Gateway endpoint.
                 type: str
               cephobject.radosgw.endpoint_cert_file:
-                description: Path to the RADOS Gateway endpoint certificate.
+                description: RADOS Gateway endpoint certificate path.
                 type: str
               cephobject.user.name:
                 description: Ceph object store user name.
@@ -218,7 +218,7 @@ argument_specs:
                 description: Prefix for LINSTOR volume names.
                 type: str
               drbd.auto_add_quorum_tiebreaker:
-                description: Whether to automatically add a DRBD quorum tiebreaker.
+                description: Automatic DRBD quorum tiebreaker.
                 type: bool
               drbd.auto_diskful:
                 description: Automatic diskful mode for DRBD.
@@ -233,10 +233,10 @@ argument_specs:
                 description: API key for TrueNAS authentication.
                 type: str
               truenas.clone_copy:
-                description: Whether to use TrueNAS lightweight clones.
+                description: TrueNAS lightweight clones.
                 type: bool
               truenas.config:
-                description: Path to the TrueNAS configuration file.
+                description: TrueNAS configuration file path.
                 type: str
               truenas.dataset:
                 description: Name of the TrueNAS dataset.
@@ -260,7 +260,7 @@ argument_specs:
               - present
               - absent
       incus_storages_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_storages_url:
         description: URL of the Incus server API.
@@ -275,19 +275,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_storages_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_storages_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_storages_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_storages_token:
         description: Authentication token for the Incus API.
         type: str
       incus_storages_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_storages_project:
         description: Incus project to scope storage pools to.

@@ -22,7 +22,7 @@ argument_specs:
                     scheduler.instance: manual
     options:
       incus_cluster_members:
-        description: List of Incus cluster members to ensure.
+        description: Incus cluster members to ensure.
         type: list
         elements: dict
         options:
@@ -45,11 +45,11 @@ argument_specs:
                   - manual
                   - group
           roles:
-            description: List of roles assigned to the cluster member.
+            description: Roles assigned to the cluster member.
             type: list
             elements: str
           groups:
-            description: List of cluster groups for the member.
+            description: Cluster groups for the member.
             type: list
             elements: str
           failure_domain:
@@ -62,7 +62,7 @@ argument_specs:
               - present
               - absent
       incus_cluster_members_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_cluster_members_url:
         description: URL of the Incus server API.
@@ -77,19 +77,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_cluster_members_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_cluster_members_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_cluster_members_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_cluster_members_token:
         description: Authentication token for the Incus API.
         type: str
       incus_cluster_members_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_cluster_members_state:
         description: Default desired state of the cluster members.

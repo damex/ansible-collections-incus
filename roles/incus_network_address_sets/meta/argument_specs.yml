@@ -24,7 +24,7 @@ argument_specs:
                     - 2001:db8::1
     options:
       incus_network_address_sets:
-        description: List of Incus network address sets to ensure.
+        description: Incus network address sets to ensure.
         type: list
         elements: dict
         options:
@@ -39,7 +39,7 @@ argument_specs:
             description: Network address set configuration key-value pairs.
             type: dict
           addresses:
-            description: List of IPv4 or IPv6 addresses, with or without CIDR suffix.
+            description: IPv4 or IPv6 addresses, with or without CIDR suffix.
             type: list
             elements: str
           project:
@@ -52,7 +52,7 @@ argument_specs:
               - present
               - absent
       incus_network_address_sets_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_network_address_sets_url:
         description: URL of the Incus server API.
@@ -67,19 +67,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_network_address_sets_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_network_address_sets_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_network_address_sets_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_network_address_sets_token:
         description: Authentication token for the Incus API.
         type: str
       incus_network_address_sets_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_network_address_sets_project:
         description: Default Incus project for network address sets.

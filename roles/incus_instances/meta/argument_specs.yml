@@ -55,7 +55,7 @@ argument_specs:
                         - postgresql-client
     options:
       incus_instances:
-        description: List of instances to ensure.
+        description: Instances to ensure.
         type: list
         elements: dict
         options:
@@ -102,7 +102,7 @@ argument_specs:
                 description: Raw QEMU command-line arguments.
                 type: str
               boot.autostart:
-                description: Whether to start the instance on daemon startup.
+                description: Instance autostart on daemon startup.
                 type: bool
               boot.autostart.delay:
                 description: Seconds to wait after the instance started.
@@ -111,13 +111,13 @@ argument_specs:
                 description: Instance startup priority (higher starts first).
                 type: int
               security.privileged:
-                description: Whether to run the instance in privileged mode.
+                description: Privileged mode.
                 type: bool
               security.nesting:
                 description: Allow running Incus inside the instance.
                 type: bool
               security.agent.metrics:
-                description: Whether the incus-agent exposes metrics.
+                description: Incus-agent metrics exposure.
                 type: bool
               security.bpffs.delegate_attachs:
                 description: Delegated BPF attach types.
@@ -132,43 +132,43 @@ argument_specs:
                 description: Delegated BPF program types.
                 type: str
               security.bpffs.path:
-                description: Path to the BPFFS mount in the instance.
+                description: BPFFS mount path in the instance.
                 type: str
               security.csm:
-                description: Whether to enable Compatibility Support Module.
+                description: Compatibility Support Module.
                 type: bool
               security.guestapi:
-                description: Whether to enable the guest API.
+                description: Guest API.
                 type: bool
               security.guestapi.images:
-                description: Whether to allow image access via the guest API.
+                description: Guest API image access.
                 type: bool
               security.idmap.base:
                 description: Base host UID/GID for the ID map.
                 type: int
               security.idmap.isolated:
-                description: Whether to use a unique ID map for the instance.
+                description: Unique ID map isolation.
                 type: bool
               security.idmap.size:
                 description: Size of the ID map range.
                 type: int
               security.iommu:
-                description: Whether to enable IOMMU for the instance.
+                description: IOMMU.
                 type: bool
               security.protection.delete:
-                description: Whether to prevent deletion of the instance.
+                description: Deletion protection.
                 type: bool
               security.protection.shift:
-                description: Whether to prevent UID/GID shifting.
+                description: UID/GID shift protection.
                 type: bool
               security.secureboot:
-                description: Whether to enable UEFI Secure Boot.
+                description: UEFI Secure Boot.
                 type: bool
               security.sev:
-                description: Whether to enable AMD SEV encryption.
+                description: AMD SEV encryption.
                 type: bool
               security.sev.policy.es:
-                description: Whether to enable SEV-ES for the instance.
+                description: SEV-ES.
                 type: bool
               security.sev.session.data:
                 description: SEV session data blob.
@@ -183,22 +183,22 @@ argument_specs:
                 description: Denied syscalls blacklist.
                 type: str
               security.syscalls.deny_compat:
-                description: Whether to block compat syscalls on amd64.
+                description: Compat syscall blocking on amd64.
                 type: bool
               security.syscalls.deny_default:
-                description: Whether to enable default syscall deny list.
+                description: Default syscall deny list.
                 type: bool
               security.syscalls.intercept.bpf:
-                description: Whether to intercept bpf syscalls.
+                description: BPF syscall interception.
                 type: bool
               security.syscalls.intercept.bpf.devices:
-                description: Whether to allow device-type BPF programs.
+                description: Device-type BPF program allowance.
                 type: bool
               security.syscalls.intercept.mknod:
-                description: Whether to intercept mknod syscalls.
+                description: Mknod syscall interception.
                 type: bool
               security.syscalls.intercept.mount:
-                description: Whether to intercept mount syscalls.
+                description: Mount syscall interception.
                 type: bool
               security.syscalls.intercept.mount.allowed:
                 description: Filesystems allowed for intercepted mounts.
@@ -207,22 +207,22 @@ argument_specs:
                 description: FUSE mounts to redirect intercepted mounts to.
                 type: str
               security.syscalls.intercept.mount.shift:
-                description: Whether to use ID-mapped mounts for intercepted mounts.
+                description: ID-mapped mount shifting for intercepted mounts.
                 type: bool
               security.syscalls.intercept.sched_setscheduler:
-                description: Whether to intercept sched_setscheduler syscalls.
+                description: Sched_setscheduler syscall interception.
                 type: bool
               security.syscalls.intercept.setxattr:
-                description: Whether to intercept setxattr syscalls.
+                description: Setxattr syscall interception.
                 type: bool
               security.syscalls.intercept.sysinfo:
-                description: Whether to intercept sysinfo syscalls.
+                description: Sysinfo syscall interception.
                 type: bool
               migration.stateful:
                 description: Allow stateful stop/start and snapshots.
                 type: bool
               migration.incremental.memory:
-                description: Whether to use incremental memory transfer.
+                description: Incremental memory transfer.
                 type: bool
               migration.incremental.memory.goal:
                 description: Target percentage of dirty memory for completion.
@@ -249,22 +249,22 @@ argument_specs:
                 description: Memory limit enforcement mode.
                 type: str
               limits.memory.hotplug:
-                description: Whether to enable memory hotplug.
+                description: Memory hotplug.
                 type: str
               limits.memory.hugepages:
-                description: Whether to back instance memory with huge pages.
+                description: Huge page memory backing.
                 type: bool
               limits.memory.oom_priority:
                 description: OOM killer priority for the instance.
                 type: int
               limits.memory.swap:
-                description: Whether to encourage or discourage swapping.
+                description: Swap encouragement or discouragement.
                 type: str
               limits.memory.swap.priority:
                 description: Swap priority compared to other instances.
                 type: int
               boot.autorestart:
-                description: Whether to restart the instance after a crash.
+                description: Auto-restart after crash.
                 type: bool
               boot.host_shutdown_action:
                 description: Action to take on host shutdown.
@@ -288,7 +288,7 @@ argument_specs:
                 description: Cron expression for automatic snapshots.
                 type: str
               snapshots.schedule.stopped:
-                description: Whether to snapshot stopped instances.
+                description: Stopped instance snapshots.
                 type: bool
               nvidia.driver.capabilities:
                 description: NVIDIA driver capabilities to expose.
@@ -358,7 +358,7 @@ argument_specs:
                 description: UID to run the OCI container as.
                 type: str
               environment_variables:
-                description: List of environment variables to set in the instance.
+                description: Environment variables to set.
                 type: list
                 elements: dict
                 options:
@@ -390,10 +390,10 @@ argument_specs:
                         required: true
                         type: str
                       dhcp4:
-                        description: Whether to enable DHCPv4.
+                        description: DHCPv4.
                         type: bool
                       dhcp6:
-                        description: Whether to enable DHCPv6.
+                        description: DHCPv6.
                         type: bool
                       gateway4:
                         description: Default IPv4 gateway address.
@@ -405,13 +405,13 @@ argument_specs:
                         description: Maximum transmission unit for the interface.
                         type: int
                       optional:
-                        description: Whether the interface is optional for boot.
+                        description: Optional boot interface.
                         type: bool
                       set-name:
                         description: Rename the interface to this name.
                         type: str
                       accept-ra:
-                        description: Whether to accept IPv6 Router Advertisements.
+                        description: IPv6 Router Advertisement acceptance.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -455,11 +455,11 @@ argument_specs:
                         type: dict
                         options:
                           addresses:
-                            description: List of DNS server addresses.
+                            description: DNS server addresses.
                             type: list
                             elements: str
                           search:
-                            description: List of DNS search domains.
+                            description: DNS search domains.
                             type: list
                             elements: str
                   bonds:
@@ -472,10 +472,10 @@ argument_specs:
                         required: true
                         type: str
                       dhcp4:
-                        description: Whether to enable DHCPv4.
+                        description: DHCPv4.
                         type: bool
                       dhcp6:
-                        description: Whether to enable DHCPv6.
+                        description: DHCPv6.
                         type: bool
                       gateway4:
                         description: Default IPv4 gateway address.
@@ -487,13 +487,13 @@ argument_specs:
                         description: Maximum transmission unit for the interface.
                         type: int
                       optional:
-                        description: Whether the interface is optional for boot.
+                        description: Optional boot interface.
                         type: bool
                       set-name:
                         description: Rename the interface to this name.
                         type: str
                       accept-ra:
-                        description: Whether to accept IPv6 Router Advertisements.
+                        description: IPv6 Router Advertisement acceptance.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -538,11 +538,11 @@ argument_specs:
                         type: dict
                         options:
                           addresses:
-                            description: List of DNS server addresses.
+                            description: DNS server addresses.
                             type: list
                             elements: str
                           search:
-                            description: List of DNS search domains.
+                            description: DNS search domains.
                             type: list
                             elements: str
                   bridges:
@@ -555,10 +555,10 @@ argument_specs:
                         required: true
                         type: str
                       dhcp4:
-                        description: Whether to enable DHCPv4.
+                        description: DHCPv4.
                         type: bool
                       dhcp6:
-                        description: Whether to enable DHCPv6.
+                        description: DHCPv6.
                         type: bool
                       gateway4:
                         description: Default IPv4 gateway address.
@@ -570,13 +570,13 @@ argument_specs:
                         description: Maximum transmission unit for the interface.
                         type: int
                       optional:
-                        description: Whether the interface is optional for boot.
+                        description: Optional boot interface.
                         type: bool
                       set-name:
                         description: Rename the interface to this name.
                         type: str
                       accept-ra:
-                        description: Whether to accept IPv6 Router Advertisements.
+                        description: IPv6 Router Advertisement acceptance.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -591,7 +591,7 @@ argument_specs:
                         type: dict
                         options:
                           stp:
-                            description: Whether to enable Spanning Tree Protocol.
+                            description: Spanning Tree Protocol.
                             type: bool
                           forward-delay:
                             description: Forwarding delay in seconds.
@@ -621,11 +621,11 @@ argument_specs:
                         type: dict
                         options:
                           addresses:
-                            description: List of DNS server addresses.
+                            description: DNS server addresses.
                             type: list
                             elements: str
                           search:
-                            description: List of DNS search domains.
+                            description: DNS search domains.
                             type: list
                             elements: str
                   vlans:
@@ -646,10 +646,10 @@ argument_specs:
                         required: true
                         type: str
                       dhcp4:
-                        description: Whether to enable DHCPv4.
+                        description: DHCPv4.
                         type: bool
                       dhcp6:
-                        description: Whether to enable DHCPv6.
+                        description: DHCPv6.
                         type: bool
                       gateway4:
                         description: Default IPv4 gateway address.
@@ -661,13 +661,13 @@ argument_specs:
                         description: Maximum transmission unit for the interface.
                         type: int
                       optional:
-                        description: Whether the interface is optional for boot.
+                        description: Optional boot interface.
                         type: bool
                       set-name:
                         description: Rename the interface to this name.
                         type: str
                       accept-ra:
-                        description: Whether to accept IPv6 Router Advertisements.
+                        description: IPv6 Router Advertisement acceptance.
                         type: bool
                       addresses:
                         description: Static addresses in CIDR notation.
@@ -698,11 +698,11 @@ argument_specs:
                         type: dict
                         options:
                           addresses:
-                            description: List of DNS server addresses.
+                            description: DNS server addresses.
                             type: list
                             elements: str
                           search:
-                            description: List of DNS search domains.
+                            description: DNS search domains.
                             type: list
                             elements: str
               cloud-init.user-data:
@@ -714,7 +714,7 @@ argument_specs:
                     type: list
                     elements: raw
                   users:
-                    description: List of users to create.
+                    description: Users to create.
                     type: list
                     elements: dict
                     options:
@@ -740,10 +740,10 @@ argument_specs:
                         type: list
                         elements: str
                       ssh_redirect_user:
-                        description: Whether to disable SSH login and redirect to default user.
+                        description: SSH login redirection to default user.
                         type: bool
                       lock_passwd:
-                        description: Whether to lock the user password.
+                        description: User password lock.
                         type: bool
                       passwd:
                         description: Hashed password for the user.
@@ -764,16 +764,16 @@ argument_specs:
                         description: Primary group for the user.
                         type: str
                       no_create_home:
-                        description: Whether to skip home directory creation.
+                        description: Home directory creation skip.
                         type: bool
                       no_user_group:
-                        description: Whether to skip user group creation.
+                        description: User group creation skip.
                         type: bool
                       no_log_init:
-                        description: Whether to skip logging of user initialization.
+                        description: User initialization log skip.
                         type: bool
                       create_groups:
-                        description: Whether to create specified groups for the user.
+                        description: User group creation.
                         type: bool
                       expiredate:
                         description: Account expiration date.
@@ -782,7 +782,7 @@ argument_specs:
                         description: Days after password expires until account is disabled.
                         type: str
                       system:
-                        description: Whether to create a system user.
+                        description: System user.
                         type: bool
                       uid:
                         description: Numeric user ID.
@@ -791,14 +791,14 @@ argument_specs:
                         description: Email for Snappy user creation.
                         type: str
                       doas:
-                        description: List of doas rules for the user.
+                        description: Doas rules for the user.
                         type: list
                         elements: str
                       selinux_user:
                         description: SELinux user for login mapping.
                         type: str
                   groups:
-                    description: List of groups to create.
+                    description: Groups to create.
                     type: list
                     elements: raw
                   user:
@@ -808,14 +808,14 @@ argument_specs:
                     description: Password for the default user.
                     type: str
                   ssh_pwauth:
-                    description: Whether to enable SSH password authentication.
+                    description: SSH password authentication.
                     type: bool
                   ssh_authorized_keys:
                     description: SSH public keys to add to the default user.
                     type: list
                     elements: str
                   ssh_deletekeys:
-                    description: Whether to delete default SSH host keys.
+                    description: Default SSH host key deletion.
                     type: bool
                   ssh_genkeytypes:
                     description: SSH key types to generate.
@@ -857,20 +857,20 @@ argument_specs:
                     type: dict
                     options:
                       enabled:
-                        description: Whether to publish host keys.
+                        description: Host key publishing.
                         type: bool
                       blacklist:
                         description: Key types to exclude from publishing.
                         type: list
                         elements: str
                   ssh_quiet_keygen:
-                    description: Whether to suppress SSH key generation output.
+                    description: SSH key generation output suppression.
                     type: bool
                   allow_public_ssh_keys:
-                    description: Whether to allow public SSH keys.
+                    description: Public SSH key allowance.
                     type: bool
                   disable_root:
-                    description: Whether to disable root login.
+                    description: Root login.
                     type: bool
                   disable_root_opts:
                     description: SSH options applied when root login is disabled.
@@ -880,10 +880,10 @@ argument_specs:
                     type: dict
                     options:
                       expire:
-                        description: Whether the password expires on first login.
+                        description: Password expiry on first login.
                         type: bool
                       users:
-                        description: List of users with password settings.
+                        description: Users with password settings.
                         type: list
                         elements: dict
                         options:
@@ -908,7 +908,7 @@ argument_specs:
                     description: System locale.
                     type: str
                   locale_configfile:
-                    description: Path to the locale configuration file.
+                    description: Locale configuration file path.
                     type: str
                   hostname:
                     description: System hostname.
@@ -917,19 +917,19 @@ argument_specs:
                     description: Fully qualified domain name.
                     type: str
                   prefer_fqdn_over_hostname:
-                    description: Whether to prefer FQDN over short hostname.
+                    description: FQDN preference over short hostname.
                     type: bool
                   manage_etc_hosts:
-                    description: Whether to manage /etc/hosts.
+                    description: /etc/hosts management.
                     type: bool
                   package_update:
-                    description: Whether to update package lists on first boot.
+                    description: First-boot package list update.
                     type: bool
                   package_upgrade:
-                    description: Whether to upgrade packages on first boot.
+                    description: First-boot package upgrade.
                     type: bool
                   package_reboot_if_required:
-                    description: Whether to reboot after package upgrade if required.
+                    description: Post-upgrade reboot.
                     type: bool
                   packages:
                     description: Packages to install on first boot.
@@ -943,7 +943,7 @@ argument_specs:
                         description: Custom sources.list content.
                         type: str
                       preserve_sources_list:
-                        description: Whether to preserve existing sources.list.
+                        description: Existing sources.list preservation.
                         type: bool
                       disable_suites:
                         description: APT suites to disable.
@@ -982,7 +982,7 @@ argument_specs:
                             description: Name of the source list file.
                             type: str
                           append:
-                            description: Whether to append to the source file.
+                            description: Source file append mode.
                             type: bool
                       conf:
                         description: APT configuration content.
@@ -1020,7 +1020,7 @@ argument_specs:
                     type: dict
                     options:
                       commands:
-                        description: List of snap commands to run.
+                        description: Snap commands to run.
                         type: list
                         elements: raw
                   growpart:
@@ -1040,7 +1040,7 @@ argument_specs:
                         type: list
                         elements: str
                       ignore_growroot_disabled:
-                        description: Whether to ignore growroot disabled marker.
+                        description: Growroot disabled marker bypass.
                         type: bool
                   disk_setup:
                     description: Disk partitioning configuration.
@@ -1061,7 +1061,7 @@ argument_specs:
                         description: Partition layout specification.
                         type: raw
                       overwrite:
-                        description: Whether to overwrite existing partition table.
+                        description: Existing partition table overwrite.
                         type: bool
                   fs_setup:
                     description: Filesystem setup configuration.
@@ -1081,10 +1081,10 @@ argument_specs:
                         description: Partition specification.
                         type: raw
                       overwrite:
-                        description: Whether to overwrite existing filesystem.
+                        description: Existing filesystem overwrite.
                         type: bool
                       replace_fs:
-                        description: Whether to replace existing filesystem.
+                        description: Existing filesystem replacement.
                         type: bool
                       extra_opts:
                         description: Extra options for mkfs.
@@ -1106,7 +1106,7 @@ argument_specs:
                     type: dict
                     options:
                       filename:
-                        description: Path to the swap file.
+                        description: Swap file path.
                         type: str
                       size:
                         description: Size of the swap file.
@@ -1119,22 +1119,22 @@ argument_specs:
                     type: dict
                     options:
                       enabled:
-                        description: Whether to enable NTP.
+                        description: NTP.
                         type: bool
                       servers:
-                        description: List of NTP servers.
+                        description: NTP servers.
                         type: list
                         elements: str
                       pools:
-                        description: List of NTP pools.
+                        description: NTP pools.
                         type: list
                         elements: str
                       peers:
-                        description: List of NTP peer nodes.
+                        description: NTP peer nodes.
                         type: list
                         elements: str
                       allow:
-                        description: List of network ranges to allow NTP access.
+                        description: Allowed NTP network ranges.
                         type: list
                         elements: str
                       ntp_client:
@@ -1145,7 +1145,7 @@ argument_specs:
                         type: dict
                         options:
                           confpath:
-                            description: Path to the NTP client configuration file.
+                            description: NTP client configuration file path.
                             type: str
                           check_exe:
                             description: Executable name for the NTP client.
@@ -1165,22 +1165,22 @@ argument_specs:
                     type: dict
                     options:
                       trusted:
-                        description: List of trusted CA certificates.
+                        description: Trusted CA certificates.
                         type: list
                         elements: str
                       remove_defaults:
-                        description: Whether to remove default CA certificates.
+                        description: Default CA certificate removal.
                         type: bool
                   resolv_conf:
                     description: Resolver configuration.
                     type: dict
                     options:
                       nameservers:
-                        description: List of DNS nameservers.
+                        description: DNS nameservers.
                         type: list
                         elements: str
                       searchdomains:
-                        description: List of DNS search domains.
+                        description: DNS search domains.
                         type: list
                         elements: str
                       domain:
@@ -1204,37 +1204,37 @@ argument_specs:
                             description: Number of resolver query attempts.
                             type: int
                           rotate:
-                            description: Whether to rotate among nameservers.
+                            description: Nameserver rotation.
                             type: bool
                           no-check-names:
-                            description: Whether to disable name checking.
+                            description: Name checking disabling.
                             type: bool
                           inet6:
-                            description: Whether to prefer IPv6 addresses.
+                            description: IPv6 address preference.
                             type: bool
                           edns0:
-                            description: Whether to enable EDNS0 extensions.
+                            description: EDNS0 extensions.
                             type: bool
                           single-request:
-                            description: Whether to send A and AAAA queries sequentially.
+                            description: Sequential A and AAAA queries.
                             type: bool
                           single-request-reopen:
-                            description: Whether to reopen socket for sequential queries.
+                            description: Socket reopen for sequential queries.
                             type: bool
                           no-tld-query:
-                            description: Whether to disable top-level domain queries.
+                            description: Top-level domain query disabling.
                             type: bool
                           use-vc:
-                            description: Whether to use TCP for DNS queries.
+                            description: TCP DNS queries.
                             type: bool
                           trust-ad:
-                            description: Whether to trust the AD flag from resolvers.
+                            description: Resolver AD flag trust.
                             type: bool
                           no-reload:
-                            description: Whether to disable automatic config reload.
+                            description: Automatic config reload disabling.
                             type: bool
                   manage_resolv_conf:
-                    description: Whether to manage /etc/resolv.conf.
+                    description: /etc/resolv.conf management.
                     type: bool
                   power_state:
                     description: Power state change after cloud-init completes.
@@ -1309,10 +1309,10 @@ argument_specs:
                           - gzip+base64
                           - text/plain
                       append:
-                        description: Whether to append to the file instead of overwriting.
+                        description: File append mode.
                         type: bool
                       defer:
-                        description: Whether to defer writing until after other modules.
+                        description: Deferred writing until after other modules.
                         type: bool
                   runcmd:
                     description: Commands to run after cloud-init completes.
@@ -1330,7 +1330,7 @@ argument_specs:
                         required: true
                         type: str
                       post:
-                        description: List of data items to send.
+                        description: Data items to send.
                         type: list
                         elements: str
                       tries:
@@ -1345,7 +1345,7 @@ argument_specs:
                     type: list
                     elements: raw
                   users:
-                    description: List of users to create.
+                    description: Users to create.
                     type: list
                     elements: dict
                     options:
@@ -1371,10 +1371,10 @@ argument_specs:
                         type: list
                         elements: str
                       ssh_redirect_user:
-                        description: Whether to disable SSH login and redirect to default user.
+                        description: SSH login redirection to default user.
                         type: bool
                       lock_passwd:
-                        description: Whether to lock the user password.
+                        description: User password lock.
                         type: bool
                       passwd:
                         description: Hashed password for the user.
@@ -1395,16 +1395,16 @@ argument_specs:
                         description: Primary group for the user.
                         type: str
                       no_create_home:
-                        description: Whether to skip home directory creation.
+                        description: Home directory creation skip.
                         type: bool
                       no_user_group:
-                        description: Whether to skip user group creation.
+                        description: User group creation skip.
                         type: bool
                       no_log_init:
-                        description: Whether to skip logging of user initialization.
+                        description: User initialization log skip.
                         type: bool
                       create_groups:
-                        description: Whether to create specified groups for the user.
+                        description: User group creation.
                         type: bool
                       expiredate:
                         description: Account expiration date.
@@ -1413,7 +1413,7 @@ argument_specs:
                         description: Days after password expires until account is disabled.
                         type: str
                       system:
-                        description: Whether to create a system user.
+                        description: System user.
                         type: bool
                       uid:
                         description: Numeric user ID.
@@ -1422,14 +1422,14 @@ argument_specs:
                         description: Email for Snappy user creation.
                         type: str
                       doas:
-                        description: List of doas rules for the user.
+                        description: Doas rules for the user.
                         type: list
                         elements: str
                       selinux_user:
                         description: SELinux user for login mapping.
                         type: str
                   groups:
-                    description: List of groups to create.
+                    description: Groups to create.
                     type: list
                     elements: raw
                   user:
@@ -1439,14 +1439,14 @@ argument_specs:
                     description: Password for the default user.
                     type: str
                   ssh_pwauth:
-                    description: Whether to enable SSH password authentication.
+                    description: SSH password authentication.
                     type: bool
                   ssh_authorized_keys:
                     description: SSH public keys to add to the default user.
                     type: list
                     elements: str
                   ssh_deletekeys:
-                    description: Whether to delete default SSH host keys.
+                    description: Default SSH host key deletion.
                     type: bool
                   ssh_genkeytypes:
                     description: SSH key types to generate.
@@ -1488,20 +1488,20 @@ argument_specs:
                     type: dict
                     options:
                       enabled:
-                        description: Whether to publish host keys.
+                        description: Host key publishing.
                         type: bool
                       blacklist:
                         description: Key types to exclude from publishing.
                         type: list
                         elements: str
                   ssh_quiet_keygen:
-                    description: Whether to suppress SSH key generation output.
+                    description: SSH key generation output suppression.
                     type: bool
                   allow_public_ssh_keys:
-                    description: Whether to allow public SSH keys.
+                    description: Public SSH key allowance.
                     type: bool
                   disable_root:
-                    description: Whether to disable root login.
+                    description: Root login.
                     type: bool
                   disable_root_opts:
                     description: SSH options applied when root login is disabled.
@@ -1511,10 +1511,10 @@ argument_specs:
                     type: dict
                     options:
                       expire:
-                        description: Whether the password expires on first login.
+                        description: Password expiry on first login.
                         type: bool
                       users:
-                        description: List of users with password settings.
+                        description: Users with password settings.
                         type: list
                         elements: dict
                         options:
@@ -1539,7 +1539,7 @@ argument_specs:
                     description: System locale.
                     type: str
                   locale_configfile:
-                    description: Path to the locale configuration file.
+                    description: Locale configuration file path.
                     type: str
                   hostname:
                     description: System hostname.
@@ -1548,19 +1548,19 @@ argument_specs:
                     description: Fully qualified domain name.
                     type: str
                   prefer_fqdn_over_hostname:
-                    description: Whether to prefer FQDN over short hostname.
+                    description: FQDN preference over short hostname.
                     type: bool
                   manage_etc_hosts:
-                    description: Whether to manage /etc/hosts.
+                    description: /etc/hosts management.
                     type: bool
                   package_update:
-                    description: Whether to update package lists on first boot.
+                    description: First-boot package list update.
                     type: bool
                   package_upgrade:
-                    description: Whether to upgrade packages on first boot.
+                    description: First-boot package upgrade.
                     type: bool
                   package_reboot_if_required:
-                    description: Whether to reboot after package upgrade if required.
+                    description: Post-upgrade reboot.
                     type: bool
                   packages:
                     description: Packages to install on first boot.
@@ -1574,7 +1574,7 @@ argument_specs:
                         description: Custom sources.list content.
                         type: str
                       preserve_sources_list:
-                        description: Whether to preserve existing sources.list.
+                        description: Existing sources.list preservation.
                         type: bool
                       disable_suites:
                         description: APT suites to disable.
@@ -1613,7 +1613,7 @@ argument_specs:
                             description: Name of the source list file.
                             type: str
                           append:
-                            description: Whether to append to the source file.
+                            description: Source file append mode.
                             type: bool
                       conf:
                         description: APT configuration content.
@@ -1651,7 +1651,7 @@ argument_specs:
                     type: dict
                     options:
                       commands:
-                        description: List of snap commands to run.
+                        description: Snap commands to run.
                         type: list
                         elements: raw
                   growpart:
@@ -1671,7 +1671,7 @@ argument_specs:
                         type: list
                         elements: str
                       ignore_growroot_disabled:
-                        description: Whether to ignore growroot disabled marker.
+                        description: Growroot disabled marker bypass.
                         type: bool
                   disk_setup:
                     description: Disk partitioning configuration.
@@ -1692,7 +1692,7 @@ argument_specs:
                         description: Partition layout specification.
                         type: raw
                       overwrite:
-                        description: Whether to overwrite existing partition table.
+                        description: Existing partition table overwrite.
                         type: bool
                   fs_setup:
                     description: Filesystem setup configuration.
@@ -1712,10 +1712,10 @@ argument_specs:
                         description: Partition specification.
                         type: raw
                       overwrite:
-                        description: Whether to overwrite existing filesystem.
+                        description: Existing filesystem overwrite.
                         type: bool
                       replace_fs:
-                        description: Whether to replace existing filesystem.
+                        description: Existing filesystem replacement.
                         type: bool
                       extra_opts:
                         description: Extra options for mkfs.
@@ -1737,7 +1737,7 @@ argument_specs:
                     type: dict
                     options:
                       filename:
-                        description: Path to the swap file.
+                        description: Swap file path.
                         type: str
                       size:
                         description: Size of the swap file.
@@ -1750,22 +1750,22 @@ argument_specs:
                     type: dict
                     options:
                       enabled:
-                        description: Whether to enable NTP.
+                        description: NTP.
                         type: bool
                       servers:
-                        description: List of NTP servers.
+                        description: NTP servers.
                         type: list
                         elements: str
                       pools:
-                        description: List of NTP pools.
+                        description: NTP pools.
                         type: list
                         elements: str
                       peers:
-                        description: List of NTP peer nodes.
+                        description: NTP peer nodes.
                         type: list
                         elements: str
                       allow:
-                        description: List of network ranges to allow NTP access.
+                        description: Allowed NTP network ranges.
                         type: list
                         elements: str
                       ntp_client:
@@ -1776,7 +1776,7 @@ argument_specs:
                         type: dict
                         options:
                           confpath:
-                            description: Path to the NTP client configuration file.
+                            description: NTP client configuration file path.
                             type: str
                           check_exe:
                             description: Executable name for the NTP client.
@@ -1796,22 +1796,22 @@ argument_specs:
                     type: dict
                     options:
                       trusted:
-                        description: List of trusted CA certificates.
+                        description: Trusted CA certificates.
                         type: list
                         elements: str
                       remove_defaults:
-                        description: Whether to remove default CA certificates.
+                        description: Default CA certificate removal.
                         type: bool
                   resolv_conf:
                     description: Resolver configuration.
                     type: dict
                     options:
                       nameservers:
-                        description: List of DNS nameservers.
+                        description: DNS nameservers.
                         type: list
                         elements: str
                       searchdomains:
-                        description: List of DNS search domains.
+                        description: DNS search domains.
                         type: list
                         elements: str
                       domain:
@@ -1835,37 +1835,37 @@ argument_specs:
                             description: Number of resolver query attempts.
                             type: int
                           rotate:
-                            description: Whether to rotate among nameservers.
+                            description: Nameserver rotation.
                             type: bool
                           no-check-names:
-                            description: Whether to disable name checking.
+                            description: Name checking disabling.
                             type: bool
                           inet6:
-                            description: Whether to prefer IPv6 addresses.
+                            description: IPv6 address preference.
                             type: bool
                           edns0:
-                            description: Whether to enable EDNS0 extensions.
+                            description: EDNS0 extensions.
                             type: bool
                           single-request:
-                            description: Whether to send A and AAAA queries sequentially.
+                            description: Sequential A and AAAA queries.
                             type: bool
                           single-request-reopen:
-                            description: Whether to reopen socket for sequential queries.
+                            description: Socket reopen for sequential queries.
                             type: bool
                           no-tld-query:
-                            description: Whether to disable top-level domain queries.
+                            description: Top-level domain query disabling.
                             type: bool
                           use-vc:
-                            description: Whether to use TCP for DNS queries.
+                            description: TCP DNS queries.
                             type: bool
                           trust-ad:
-                            description: Whether to trust the AD flag from resolvers.
+                            description: Resolver AD flag trust.
                             type: bool
                           no-reload:
-                            description: Whether to disable automatic config reload.
+                            description: Automatic config reload disabling.
                             type: bool
                   manage_resolv_conf:
-                    description: Whether to manage /etc/resolv.conf.
+                    description: /etc/resolv.conf management.
                     type: bool
                   power_state:
                     description: Power state change after cloud-init completes.
@@ -1940,10 +1940,10 @@ argument_specs:
                           - gzip+base64
                           - text/plain
                       append:
-                        description: Whether to append to the file instead of overwriting.
+                        description: File append mode.
                         type: bool
                       defer:
-                        description: Whether to defer writing until after other modules.
+                        description: Deferred writing until after other modules.
                         type: bool
                   runcmd:
                     description: Commands to run after cloud-init completes.
@@ -1961,7 +1961,7 @@ argument_specs:
                         required: true
                         type: str
                       post:
-                        description: List of data items to send.
+                        description: Data items to send.
                         type: list
                         elements: str
                       tries:
@@ -1995,7 +1995,7 @@ argument_specs:
                   - proxy
               # shared
               attached:
-                description: Whether the device is attached or ejected.
+                description: Attached or ejected state.
                 type: bool
               boot.priority:
                 description: Boot priority for VMs.
@@ -2022,7 +2022,7 @@ argument_specs:
                 description: Product ID of the parent host device.
                 type: str
               required:
-                description: Whether to fail if the source does not exist.
+                description: Source existence requirement.
                 type: bool
               source:
                 description: Source of a file system, block device, or host device path.
@@ -2071,13 +2071,13 @@ argument_specs:
                 description: File system specific mount options.
                 type: str
               readonly:
-                description: Whether to make the mount read-only.
+                description: Read-only mount.
                 type: bool
               recursive:
-                description: Whether to recursively mount the source path.
+                description: Recursive source mount.
                 type: bool
               shift:
-                description: Whether to set up a shifting overlay to translate UID/GID.
+                description: UID/GID shifting overlay.
                 type: bool
               size:
                 description: Disk size limit.
@@ -2086,14 +2086,14 @@ argument_specs:
                 description: Size for the VM runtime state file system.
                 type: str
               wwn:
-                description: Whether to set a World Wide Name for the disk.
+                description: World Wide Name assignment.
                 type: bool
               # nic
               acceleration:
                 description: Enable hardware offloading (none/sriov/vdpa).
                 type: str
               connected:
-                description: Whether the NIC is connected to the host network.
+                description: Host network connection state.
                 type: bool
               gvrp:
                 description: Register VLAN using GARP VLAN Registration Protocol.
@@ -2120,7 +2120,7 @@ argument_specs:
                 description: Comma-separated routing table IDs for IPv4 routes.
                 type: str
               ipv4.neighbor_probe:
-                description: Whether to probe the parent network for IP availability.
+                description: Parent network IP availability probe.
                 type: bool
               ipv4.routes:
                 description: Comma-delimited IPv4 static routes to add on the host.
@@ -2147,7 +2147,7 @@ argument_specs:
                 description: Comma-separated routing table IDs for IPv6 routes.
                 type: str
               ipv6.neighbor_probe:
-                description: Whether to probe the parent network for IP availability.
+                description: Parent network IP availability probe.
                 type: bool
               ipv6.routes:
                 description: Comma-delimited IPv6 static routes to add on the host.
@@ -2180,31 +2180,31 @@ argument_specs:
                 description: Default action for egress traffic not matching any ACL rule.
                 type: str
               security.acls.default.egress.logged:
-                description: Whether to log egress traffic not matching any ACL rule.
+                description: Unmatched egress traffic logging.
                 type: bool
               security.acls.default.ingress.action:
                 description: Default action for ingress traffic not matching any ACL rule.
                 type: str
               security.acls.default.ingress.logged:
-                description: Whether to log ingress traffic not matching any ACL rule.
+                description: Unmatched ingress traffic logging.
                 type: bool
               security.ipv4_filtering:
-                description: Whether to prevent IPv4 address spoofing.
+                description: IPv4 address spoofing prevention.
                 type: bool
               security.ipv6_filtering:
-                description: Whether to prevent IPv6 address spoofing.
+                description: IPv6 address spoofing prevention.
                 type: bool
               security.mac_filtering:
-                description: Whether to prevent MAC address spoofing.
+                description: MAC address spoofing prevention.
                 type: bool
               security.port_isolation:
-                description: Whether to prevent communication with other isolated NICs.
+                description: NIC port isolation.
                 type: bool
               security.promiscuous:
-                description: Whether to send unknown traffic to this interface.
+                description: Promiscuous mode for unknown traffic.
                 type: bool
               security.trusted:
-                description: Whether to allow the instance to configure the NIC unsafely.
+                description: Trusted NIC configuration.
                 type: bool
               vlan:
                 description: VLAN ID to attach to.
@@ -2226,10 +2226,10 @@ argument_specs:
                 description: Address and port to bind and listen on.
                 type: str
               nat:
-                description: Whether to use NAT-based proxying.
+                description: NAT-based proxying.
                 type: bool
               proxy_protocol:
-                description: Whether to use the HAProxy PROXY protocol to transmit sender information.
+                description: HAProxy PROXY protocol for sender information.
                 type: bool
               security.gid:
                 description: GID to drop privilege to.
@@ -2277,7 +2277,7 @@ argument_specs:
                 description: PCI address of the device.
                 type: str
               firmware:
-                description: Whether to expose the device's option ROM to the VM.
+                description: Device option ROM exposure.
                 type: bool
               # usb
               busnum:
@@ -2293,13 +2293,13 @@ argument_specs:
             description: Cluster member to place the instance on.
             type: str
           ephemeral:
-            description: Whether the instance is ephemeral.
+            description: Ephemeral instance.
             type: bool
           project:
             description: Incus project to scope the instance to.
             type: str
           profiles:
-            description: List of profiles to apply to the instance.
+            description: Profiles to apply.
             type: list
             elements: str
           state:
@@ -2311,7 +2311,7 @@ argument_specs:
               - restarted
               - absent
       incus_instances_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_instances_url:
         description: URL of the Incus server API.
@@ -2326,19 +2326,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_instances_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_instances_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_instances_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_instances_token:
         description: Authentication token for the Incus API.
         type: str
       incus_instances_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_instances_type:
         description: Instance type.
@@ -2350,11 +2350,11 @@ argument_specs:
         description: Incus project to scope instances to.
         type: str
       incus_instances_profiles:
-        description: List of profiles to apply to instances.
+        description: Profiles to apply.
         type: list
         elements: str
       incus_instances_ephemeral:
-        description: Whether instances are ephemeral.
+        description: Ephemeral instances.
         type: bool
       incus_instances_state:
         description: Desired state of the instances.

@@ -34,20 +34,20 @@ argument_specs:
                     - name: node2.example.com
     options:
       incus_storage_volumes:
-        description: List of storage volumes to ensure.
+        description: Storage volumes to ensure.
         type: list
         elements: dict
         options:
           name:
-            description: Name of the storage volume.
+            description: Storage volume name.
             required: true
             type: str
           pool:
-            description: Name of the storage pool containing the volume.
+            description: Storage pool name.
             required: true
             type: str
           content_type:
-            description: Content type of the storage volume.
+            description: Storage volume content type.
             type: str
             choices:
               - filesystem
@@ -56,14 +56,14 @@ argument_specs:
             description: Storage volume description.
             type: str
           project:
-            description: Project to scope the storage volume to.
+            description: Incus project scope.
             type: str
           config:
             description: Storage volume configuration options.
             type: dict
             options:
               size:
-                description: Size of the storage volume.
+                description: Storage volume size.
                 type: str
               snapshots.expiry:
                 description: Automatic expiry time for snapshots.
@@ -81,24 +81,24 @@ argument_specs:
                 description: Mount options for block volumes.
                 type: str
               zfs.blocksize:
-                description: Block size for the ZFS volume.
+                description: ZFS volume block size.
                 type: str
               zfs.block_mode:
-                description: Whether to use a ZFS volume as a block device.
+                description: ZFS volume block device mode.
                 type: bool
               zfs.delegate:
-                description: Whether to delegate ZFS dataset to the instance.
+                description: ZFS dataset delegation to instance.
                 type: bool
               zfs.remove_snapshots:
-                description: Whether to remove snapshots on volume removal.
+                description: Snapshot removal on volume removal.
                 type: bool
           targets:
-            description: List of cluster members to create the storage volume on.
+            description: Cluster member targets for storage volume creation.
             type: list
             elements: dict
             options:
               name:
-                description: Name of the cluster member.
+                description: Cluster member name.
                 required: true
                 type: str
               config:
@@ -106,19 +106,19 @@ argument_specs:
                 type: dict
                 options:
                   size:
-                    description: Size of the storage volume.
+                    description: Storage volume size.
                     type: str
           state:
-            description: Desired state of the storage volume.
+            description: Storage volume desired state.
             type: str
             choices:
               - present
               - absent
       incus_storage_volumes_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_storage_volumes_url:
-        description: URL of the Incus server API.
+        description: Incus server API URL.
         type: str
       incus_storage_volumes_client_cert:
         description: Client certificate content for API authentication.
@@ -130,25 +130,25 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_storage_volumes_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_storage_volumes_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_storage_volumes_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_storage_volumes_token:
-        description: Authentication token for the Incus API.
+        description: Incus API authentication token.
         type: str
       incus_storage_volumes_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_storage_volumes_project:
-        description: Incus project to scope storage volumes to.
+        description: Incus project scope.
         type: str
       incus_storage_volumes_state:
-        description: Desired state of the storage volumes.
+        description: Storage volumes desired state.
         type: str
         choices:
           - present

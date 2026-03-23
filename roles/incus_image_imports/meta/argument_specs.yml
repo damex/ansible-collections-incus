@@ -27,26 +27,26 @@ argument_specs:
                     description: Custom OS Image
     options:
       incus_image_imports:
-        description: List of image imports to ensure.
+        description: Image imports to ensure.
         type: list
         elements: dict
         options:
           alias:
-            description: Primary alias for the image.
+            description: Primary image alias.
             required: true
             type: str
           aliases:
-            description: Additional aliases to assign to the image.
+            description: Additional image aliases.
             type: list
             elements: str
           source:
-            description: Path to a local image file or URL to download from.
+            description: Local image file path or download URL.
             type: str
           architecture:
             description: Image architecture identifier.
             type: str
           properties:
-            description: Image properties included in the metadata.
+            description: Image metadata properties.
             type: dict
             options:
               os:
@@ -68,7 +68,7 @@ argument_specs:
                 description: Image name.
                 type: str
           checksum:
-            description: Expected checksum of the source file for verification.
+            description: Expected source file checksum.
             type: str
           checksum_algorithm:
             description: Hash algorithm used for checksum verification.
@@ -79,28 +79,28 @@ argument_specs:
               - sha384
               - md5
           public:
-            description: Whether to make the image available to unauthenticated users.
+            description: Unauthenticated user image access.
             type: bool
           force:
-            description: Whether to delete and re-import the image even when the alias already exists.
+            description: Force re-import when alias exists.
             type: bool
           timeout:
-            description: Timeout in seconds for downloading the source file from a URL.
+            description: Source file download timeout in seconds.
             type: int
           project:
-            description: Incus project to scope the image to.
+            description: Incus project scope.
             type: str
           state:
-            description: Desired state of the image.
+            description: Image desired state.
             type: str
             choices:
               - present
               - absent
       incus_image_imports_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_image_imports_url:
-        description: URL of the Incus server API.
+        description: Incus server API URL.
         type: str
       incus_image_imports_client_cert:
         description: Client certificate content for API authentication.
@@ -112,19 +112,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_image_imports_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_image_imports_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_image_imports_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_image_imports_token:
-        description: Authentication token for the Incus API.
+        description: Incus API authentication token.
         type: str
       incus_image_imports_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_image_imports_architecture:
         description: Image architecture identifier.
@@ -138,19 +138,19 @@ argument_specs:
           - sha384
           - md5
       incus_image_imports_public:
-        description: Whether to make images available to unauthenticated users.
+        description: Unauthenticated user image access.
         type: bool
       incus_image_imports_force:
-        description: Whether to delete and re-import images even when the alias already exists.
+        description: Force re-import when alias exists.
         type: bool
       incus_image_imports_timeout:
-        description: Timeout in seconds for downloading the source file from a URL.
+        description: Source file download timeout in seconds.
         type: int
       incus_image_imports_project:
-        description: Incus project to scope images to.
+        description: Incus project scope.
         type: str
       incus_image_imports_state:
-        description: Desired state of the images.
+        description: Images desired state.
         type: str
         choices:
           - present

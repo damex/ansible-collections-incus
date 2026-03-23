@@ -27,7 +27,7 @@ argument_specs:
                       value: 10.0.0.10
     options:
       incus_network_zone_records:
-        description: List of Incus network zone records to ensure.
+        description: Incus network zone records to ensure.
         type: list
         elements: dict
         options:
@@ -45,7 +45,7 @@ argument_specs:
             description: Network zone record configuration key-value pairs.
             type: dict
           entries:
-            description: List of DNS entries for the record.
+            description: DNS entries for the record.
             type: list
             elements: dict
             options:
@@ -73,7 +73,7 @@ argument_specs:
         description: Default network zone for network zone records.
         type: str
       incus_network_zone_records_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_network_zone_records_url:
         description: URL of the Incus server API.
@@ -88,19 +88,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_network_zone_records_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_network_zone_records_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_network_zone_records_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_network_zone_records_token:
         description: Authentication token for the Incus API.
         type: str
       incus_network_zone_records_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_network_zone_records_project:
         description: Default Incus project for network zone records.

@@ -22,7 +22,7 @@ argument_specs:
     options:
       incus_cluster_socket_path:
         type: path
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
       incus_cluster_url:
         type: str
         description: URL of the Incus REST API endpoint.
@@ -37,19 +37,19 @@ argument_specs:
         description: Server certificate content for API verification.
       incus_cluster_client_cert_path:
         type: path
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
       incus_cluster_client_key_path:
         type: path
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
       incus_cluster_server_cert_path:
         type: path
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
       incus_cluster_token:
         type: str
         description: Authentication token for the Incus API.
       incus_cluster_validate_certs:
         type: bool
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
       incus_cluster_primary:
         required: true
         type: str
@@ -80,7 +80,7 @@ argument_specs:
             description: Address to bind the HTTPS API server to.
           core.https_allowed_credentials:
             type: bool
-            description: Whether to set Access-Control-Allow-Credentials.
+            description: Access-Control-Allow-Credentials.
           core.https_allowed_headers:
             type: str
             description: Access-Control-Allow-Headers header value.
@@ -98,7 +98,7 @@ argument_specs:
             description: Address to bind the metrics server to.
           core.metrics_authentication:
             type: bool
-            description: Whether to require authentication for metrics.
+            description: Metrics authentication requirement.
           core.proxy_http:
             type: str
             description: HTTP proxy for the server to use.
@@ -119,10 +119,10 @@ argument_specs:
             description: Address to bind the storage buckets server to.
           core.syslog_socket:
             type: bool
-            description: Whether to enable the syslog Unix socket listener.
+            description: Syslog Unix socket listener.
           core.trust_ca_certificates:
             type: bool
-            description: Whether to trust CA-signed client certificates.
+            description: CA-signed client certificate trust.
           acme.agree_tos:
             type: bool
             description: Agree to ACME terms of service.
@@ -188,7 +188,7 @@ argument_specs:
             description: Percentage threshold to trigger rebalancing.
           images.auto_update_cached:
             type: bool
-            description: Whether to auto-update cached images.
+            description: Cached image auto-update.
           images.auto_update_interval:
             type: int
             description: Interval in hours between image update checks.
@@ -233,7 +233,7 @@ argument_specs:
             description: Compression algorithm for backups.
           instances.lxcfs.per_instance:
             type: bool
-            description: Whether to run a separate LXCFS per instance.
+            description: Separate LXCFS per instance.
           instances.nic.host_name:
             type: str
             description: Template for host-side veth interface names.
@@ -285,7 +285,7 @@ argument_specs:
           logging:
             type: list
             elements: dict
-            description: List of logging targets.
+            description: Logging targets.
             options:
               name:
                 required: true
@@ -343,7 +343,7 @@ argument_specs:
         options:
           enabled:
             type: bool
-            description: Whether clustering is enabled.
+            description: Clustering.
           server_name:
             required: true
             type: str
@@ -382,7 +382,7 @@ argument_specs:
                 type: str
                 description: Value for the configuration key.
       incus_cluster_members:
-        description: List of Incus cluster members to ensure.
+        description: Incus cluster members to ensure.
         type: list
         elements: dict
         options:
@@ -405,11 +405,11 @@ argument_specs:
                   - manual
                   - group
           roles:
-            description: List of roles assigned to the cluster member.
+            description: Roles assigned to the cluster member.
             type: list
             elements: str
           groups:
-            description: List of cluster groups for the member.
+            description: Cluster groups for the member.
             type: list
             elements: str
           failure_domain:

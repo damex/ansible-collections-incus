@@ -20,7 +20,7 @@ argument_specs:
                     user.note: Internal zone
     options:
       incus_network_zones:
-        description: List of Incus network zones to ensure.
+        description: Incus network zones to ensure.
         type: list
         elements: dict
         options:
@@ -44,7 +44,7 @@ argument_specs:
               - present
               - absent
       incus_network_zones_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_network_zones_url:
         description: URL of the Incus server API.
@@ -59,19 +59,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_network_zones_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_network_zones_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_network_zones_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_network_zones_token:
         description: Authentication token for the Incus API.
         type: str
       incus_network_zones_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_network_zones_project:
         description: Default Incus project for network zones.

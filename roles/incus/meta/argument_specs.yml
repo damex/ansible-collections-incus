@@ -24,64 +24,64 @@ argument_specs:
     options:
       incus_package_name:
         type: str
-        description: Name of the Incus server package.
+        description: Incus server package name.
       incus_package_version:
         type: str
-        description: Version of the Incus server package to install.
+        description: Incus server package version.
       incus_package_state:
         type: str
-        description: Desired state of the Incus server package.
+        description: Incus server package state.
         choices:
           - present
           - absent
       incus_service_name:
         type: str
-        description: Name of the Incus systemd service.
+        description: Incus systemd service name.
       incus_service_state:
         type: str
-        description: Desired state of the Incus systemd service.
+        description: Incus systemd service state.
         choices:
           - started
           - stopped
       incus_socket_name:
         type: str
-        description: Name of the Incus systemd socket unit.
+        description: Incus systemd socket unit name.
       incus_socket_state:
         type: str
-        description: Desired state of the Incus systemd socket unit.
+        description: Incus systemd socket unit state.
         choices:
           - started
           - stopped
       incus_socket_path:
         type: str
-        description: Path to the Incus Unix socket file.
+        description: Incus Unix socket file path.
       incus_user_service_name:
         type: str
-        description: Name of the Incus user systemd service.
+        description: Incus user systemd service name.
       incus_user_service_state:
         type: str
-        description: Desired state of the Incus user systemd service.
+        description: Incus user systemd service state.
         choices:
           - started
           - stopped
       incus_user_socket_name:
         type: str
-        description: Name of the Incus user systemd socket unit.
+        description: Incus user systemd socket unit name.
       incus_user_socket_state:
         type: str
-        description: Desired state of the Incus user systemd socket unit.
+        description: Incus user systemd socket unit state.
         choices:
           - started
           - stopped
       incus_user_socket_path:
         type: str
-        description: Path to the Incus user Unix socket file.
+        description: Incus user Unix socket file path.
       incus_apt_preference_name:
         type: str
-        description: Name of the APT pinning preference file.
+        description: APT pinning preference file name.
       incus_apt_preference_pin:
         type: str
-        description: APT pin specification for package priority.
+        description: APT pin specification.
       incus_apt_preference_pin_priority:
         type: int
-        description: APT pin priority value for the Incus repository.
+        description: APT pin priority value.

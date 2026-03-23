@@ -22,168 +22,168 @@ argument_specs:
                 - name: staging
     options:
       incus_projects:
-        description: List of Incus projects to ensure.
+        description: Incus projects to ensure.
         type: list
         elements: dict
         options:
           name:
-            description: Name of the project.
+            description: Project name.
             required: true
             type: str
           description:
-            description: Description of the project.
+            description: Project description.
             type: str
           config:
             description: Project configuration keys.
             type: dict
             options:
               features.images:
-                description: Enable separate image store for the project.
+                description: Separate image store.
                 type: bool
               features.networks:
-                description: Enable separate network management for the project.
+                description: Separate network management.
                 type: bool
               features.networks.zones:
-                description: Enable separate network zone management for the project.
+                description: Separate network zone management.
                 type: bool
               features.profiles:
-                description: Enable separate profile store for the project.
+                description: Separate profile store.
                 type: bool
               features.storage.buckets:
-                description: Enable separate storage bucket management for the project.
+                description: Separate storage bucket management.
                 type: bool
               features.storage.volumes:
-                description: Enable separate storage volume management for the project.
+                description: Separate storage volume management.
                 type: bool
               limits.containers:
-                description: Maximum number of containers in the project.
+                description: Maximum container count.
                 type: int
               limits.cpu:
-                description: Maximum number of CPUs allocated to the project.
+                description: Maximum CPU count.
                 type: int
               limits.disk:
-                description: Maximum disk space used by the project.
+                description: Maximum disk space.
                 type: str
               limits.instances:
-                description: Maximum number of instances in the project.
+                description: Maximum instance count.
                 type: int
               limits.memory:
-                description: Maximum memory used by the project.
+                description: Maximum memory.
                 type: str
               limits.networks:
-                description: Maximum number of networks in the project.
+                description: Maximum network count.
                 type: int
               limits.processes:
-                description: Maximum number of processes in the project.
+                description: Maximum process count.
                 type: int
               limits.virtual-machines:
-                description: Maximum number of virtual machines in the project.
+                description: Maximum virtual machine count.
                 type: int
               restricted:
-                description: Whether to block access to security-sensitive features.
+                description: Security-sensitive feature restriction.
                 type: bool
               restricted.backups:
-                description: Prevent instance or volume backups.
+                description: Instance and volume backup restriction.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.cluster.groups:
-                description: Comma-separated list of allowed cluster groups.
+                description: Allowed cluster groups, comma-separated.
                 type: str
               restricted.cluster.target:
-                description: Whether to allow targeting cluster members.
+                description: Cluster member targeting.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.containers.interception:
-                description: Whether to allow system call interception in containers.
+                description: Container system call interception.
                 type: str
                 choices:
                   - allow
                   - block
                   - full
               restricted.containers.lowlevel:
-                description: Whether to allow low-level container options.
+                description: Low-level container options.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.containers.nesting:
-                description: Whether to allow nesting in containers.
+                description: Container nesting.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.containers.privilege:
-                description: Control privileged container settings.
+                description: Privileged container settings.
                 type: str
                 choices:
                   - unprivileged
                   - isolated
                   - allow
               restricted.devices.disk:
-                description: Control which disk devices can be used.
+                description: Disk device restriction.
                 type: str
                 choices:
                   - allow
                   - block
                   - managed
               restricted.devices.disk.paths:
-                description: Comma-separated list of allowed disk source paths.
+                description: Allowed disk source paths, comma-separated.
                 type: str
               restricted.devices.gpu:
-                description: Whether to allow GPU devices in the project.
+                description: GPU device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.infiniband:
-                description: Whether to allow InfiniBand devices in the project.
+                description: InfiniBand device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.nic:
-                description: Control which network devices can be used.
+                description: Network device restriction.
                 type: str
                 choices:
                   - allow
                   - block
                   - managed
               restricted.devices.pci:
-                description: Whether to allow PCI devices in the project.
+                description: PCI device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.proxy:
-                description: Whether to allow proxy devices in the project.
+                description: Proxy device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.unix-block:
-                description: Whether to allow Unix block devices in the project.
+                description: Unix block device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.unix-char:
-                description: Whether to allow Unix character devices in the project.
+                description: Unix character device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.unix-hotplug:
-                description: Whether to allow Unix hotplug devices in the project.
+                description: Unix hotplug device allowance.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.devices.usb:
-                description: Whether to allow USB devices in the project.
+                description: USB device allowance.
                 type: str
                 choices:
                   - allow
@@ -195,28 +195,28 @@ argument_specs:
                 description: Allowed host UID ranges for raw.idmap.
                 type: str
               restricted.networks.access:
-                description: Comma-separated list of allowed networks for access.
+                description: Allowed networks for access, comma-separated.
                 type: str
               restricted.networks.integrations:
-                description: Comma-separated list of allowed network integrations.
+                description: Allowed network integrations, comma-separated.
                 type: str
               restricted.networks.subnets:
-                description: Comma-separated list of allowed network subnets.
+                description: Allowed network subnets, comma-separated.
                 type: str
               restricted.networks.uplinks:
-                description: Comma-separated list of allowed network uplinks.
+                description: Allowed network uplinks, comma-separated.
                 type: str
               restricted.networks.zones:
-                description: Comma-separated list of allowed network zones.
+                description: Allowed network zones, comma-separated.
                 type: str
               restricted.snapshots:
-                description: Prevent instance or volume snapshots.
+                description: Instance and volume snapshot restriction.
                 type: str
                 choices:
                   - allow
                   - block
               restricted.virtual-machines.lowlevel:
-                description: Whether to allow low-level virtual machine options.
+                description: Low-level virtual machine options.
                 type: str
                 choices:
                   - allow
@@ -233,10 +233,10 @@ argument_specs:
                   - zstd
                   - none
               images.auto_update_cached:
-                description: Whether to auto-update cached images.
+                description: Cached image auto-update.
                 type: bool
               images.auto_update_interval:
-                description: Interval in hours between image auto-updates.
+                description: Image auto-update interval in hours.
                 type: int
               images.compression_algorithm:
                 description: Compression algorithm for images.
@@ -253,22 +253,22 @@ argument_specs:
                 description: Default architecture for images.
                 type: str
               images.remote_cache_expiry:
-                description: Number of days before cached remote images expire.
+                description: Cached remote image expiry in days.
                 type: int
               network.hwaddr_pattern:
-                description: Pattern for automatically generated MAC addresses.
+                description: Auto-generated MAC address pattern.
                 type: str
           state:
-            description: Desired state of the project.
+            description: Project desired state.
             type: str
             choices:
               - present
               - absent
       incus_projects_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_projects_url:
-        description: URL of the Incus server API.
+        description: Incus server API URL.
         type: str
       incus_projects_client_cert:
         description: Client certificate content for API authentication.
@@ -280,22 +280,22 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_projects_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_projects_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_projects_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_projects_token:
-        description: Authentication token for the Incus API.
+        description: Incus API authentication token.
         type: str
       incus_projects_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_projects_state:
-        description: Desired state of the projects.
+        description: Projects desired state.
         type: str
         choices:
           - present

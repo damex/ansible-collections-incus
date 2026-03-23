@@ -16,7 +16,7 @@ argument_specs:
                 core.https_address: :8443
     options:
       incus_server_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_server_url:
         description: URL of the Incus server API.
@@ -31,19 +31,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_server_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_server_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_server_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_server_token:
         description: Authentication token for the Incus API.
         type: str
       incus_server_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_server_cluster:
         type: dict
@@ -51,7 +51,7 @@ argument_specs:
         options:
           enabled:
             type: bool
-            description: Whether clustering is enabled.
+            description: Clustering.
           server_name:
             type: str
             description: Name of the cluster member.
@@ -125,7 +125,7 @@ argument_specs:
             description: Address to bind the remote API to.
           core.https_allowed_credentials:
             type: bool
-            description: Whether to set Access-Control-Allow-Credentials.
+            description: Access-Control-Allow-Credentials.
           core.https_allowed_headers:
             type: str
             description: Access-Control-Allow-Headers header value.
@@ -143,7 +143,7 @@ argument_specs:
             description: Address to bind the metrics server to.
           core.metrics_authentication:
             type: bool
-            description: Whether to enforce authentication on the metrics endpoint.
+            description: Metrics endpoint authentication.
           core.proxy_http:
             type: str
             description: HTTP proxy to use.
@@ -164,10 +164,10 @@ argument_specs:
             description: Address to bind the storage buckets API to.
           core.syslog_socket:
             type: bool
-            description: Whether to enable the syslog socket listener.
+            description: Syslog socket listener.
           core.trust_ca_certificates:
             type: bool
-            description: Whether to trust CA-signed client certificates.
+            description: CA-signed client certificate trust.
           acme.agree_tos:
             type: bool
             description: Agree to ACME terms of service.
@@ -233,7 +233,7 @@ argument_specs:
             description: Percentage threshold to trigger instance rebalancing.
           images.auto_update_cached:
             type: bool
-            description: Whether to auto-update cached images.
+            description: Cached image auto-update.
           images.auto_update_interval:
             type: int
             description: Interval in hours between image auto-update checks.
@@ -278,7 +278,7 @@ argument_specs:
             description: Compression algorithm to use for backups.
           instances.lxcfs.per_instance:
             type: bool
-            description: Whether to use a per-instance LXCFS process.
+            description: Per-instance LXCFS process.
           instances.nic.host_name:
             type: str
             description: How to set the host name for a NIC.
@@ -330,7 +330,7 @@ argument_specs:
           logging:
             type: list
             elements: dict
-            description: List of logging targets.
+            description: Logging targets.
             options:
               name:
                 required: true

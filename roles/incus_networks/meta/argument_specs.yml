@@ -52,7 +52,7 @@ argument_specs:
                         id: 100
     options:
       incus_networks:
-        description: List of networks to ensure.
+        description: Networks to ensure.
         type: list
         elements: dict
         options:
@@ -74,7 +74,7 @@ argument_specs:
             description: Network description.
             type: str
           targets:
-            description: List of cluster members to create the network on.
+            description: Cluster members to create the network on.
             type: list
             elements: dict
             options:
@@ -155,7 +155,7 @@ argument_specs:
                 description: IPv4 address for the bridge (use none or auto).
                 type: str
               ipv4.dhcp:
-                description: Whether to allocate addresses via DHCP.
+                description: DHCP address allocation.
                 type: bool
               ipv4.dhcp.expiry:
                 description: DHCP lease expiry time.
@@ -170,7 +170,7 @@ argument_specs:
                 description: Additional IPv4 routes to advertise via DHCP.
                 type: str
               ipv4.firewall:
-                description: Whether to generate filtering firewall rules.
+                description: Filtering firewall rule generation.
                 type: bool
               ipv4.gateway:
                 description: Override gateway for the subnet.
@@ -179,13 +179,13 @@ argument_specs:
                 description: MAC address of the gateway.
                 type: str
               ipv4.nat:
-                description: Whether to NAT IPv4 traffic.
+                description: IPv4 NAT.
                 type: bool
               ipv4.nat.address:
                 description: Source address for outbound IPv4 NAT.
                 type: str
               ipv4.nat.order:
-                description: Whether to add NAT rules before or after pre-existing rules.
+                description: NAT rule placement relative to pre-existing rules.
                 type: str
                 choices:
                   - before
@@ -194,16 +194,16 @@ argument_specs:
                 description: Comma-separated list of additional IPv4 CIDR subnets to route to the bridge.
                 type: str
               ipv4.routes.anycast:
-                description: Whether to allow overlapping routes on multiple networks.
+                description: Overlapping route allowance on multiple networks.
                 type: bool
               ipv4.routing:
-                description: Whether to route IPv4 traffic in and out of the bridge.
+                description: IPv4 bridge traffic routing.
                 type: bool
               ipv6.address:
                 description: IPv6 address for the bridge (use none or auto).
                 type: str
               ipv6.dhcp:
-                description: Whether to provide additional network configuration via DHCPv6.
+                description: Additional DHCPv6 network configuration.
                 type: bool
               ipv6.dhcp.expiry:
                 description: DHCPv6 lease expiry time.
@@ -212,10 +212,10 @@ argument_specs:
                 description: Comma-separated list of IPv6 DHCP ranges.
                 type: str
               ipv6.dhcp.stateful:
-                description: Whether to enable stateful DHCPv6 address allocation.
+                description: Stateful DHCPv6 address allocation.
                 type: bool
               ipv6.firewall:
-                description: Whether to generate filtering firewall rules.
+                description: Filtering firewall rule generation.
                 type: bool
               ipv6.gateway:
                 description: Override gateway for the subnet.
@@ -224,13 +224,13 @@ argument_specs:
                 description: MAC address of the gateway.
                 type: str
               ipv6.nat:
-                description: Whether to NAT IPv6 traffic.
+                description: IPv6 NAT.
                 type: bool
               ipv6.nat.address:
                 description: Source address for outbound IPv6 NAT.
                 type: str
               ipv6.nat.order:
-                description: Whether to add NAT rules before or after pre-existing rules.
+                description: NAT rule placement relative to pre-existing rules.
                 type: str
                 choices:
                   - before
@@ -239,10 +239,10 @@ argument_specs:
                 description: Comma-separated list of additional IPv6 CIDR subnets to route to the bridge.
                 type: str
               ipv6.routes.anycast:
-                description: Whether to allow overlapping routes on multiple networks.
+                description: Overlapping route allowance on multiple networks.
                 type: bool
               ipv6.routing:
-                description: Whether to route IPv6 traffic in and out of the bridge.
+                description: IPv6 bridge traffic routing.
                 type: bool
               raw.dnsmasq:
                 description: Additional dnsmasq configuration to append.
@@ -258,7 +258,7 @@ argument_specs:
                   - reject
                   - drop
               security.acls.default.egress.logged:
-                description: Whether to log default egress actions.
+                description: Default egress action logging.
                 type: bool
               security.acls.default.ingress.action:
                 description: Default action for ingress traffic not matching any ACL rule.
@@ -268,7 +268,7 @@ argument_specs:
                   - reject
                   - drop
               security.acls.default.ingress.logged:
-                description: Whether to log default ingress actions.
+                description: Default ingress action logging.
                 type: bool
               bgp.ipv4.nexthop:
                 description: Override the next-hop for advertised IPv4 prefixes.
@@ -277,7 +277,7 @@ argument_specs:
                 description: Override the next-hop for advertised IPv6 prefixes.
                 type: str
               gvrp:
-                description: Whether to register VLAN via GARP VLAN Registration Protocol.
+                description: GARP VLAN Registration Protocol.
                 type: bool
               mtu:
                 description: MTU of the network interface.
@@ -292,7 +292,7 @@ argument_specs:
                 description: Comma-separated list of VLAN IDs to join for tagged traffic.
                 type: str
               bgp_peers:
-                description: List of BGP peers for OVN downstream networks.
+                description: BGP peers for OVN downstream networks.
                 type: list
                 elements: dict
                 options:
@@ -315,7 +315,7 @@ argument_specs:
                     description: Password for the BGP session.
                     type: str
               tunnels:
-                description: List of tunnels for bridge networks.
+                description: Tunnels for bridge networks.
                 type: list
                 elements: dict
                 options:
@@ -358,7 +358,7 @@ argument_specs:
               - present
               - absent
       incus_networks_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_networks_url:
         description: URL of the Incus server API.
@@ -373,19 +373,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_networks_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_networks_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_networks_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_networks_token:
         description: Authentication token for the Incus API.
         type: str
       incus_networks_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_networks_project:
         description: Incus project to scope networks to.

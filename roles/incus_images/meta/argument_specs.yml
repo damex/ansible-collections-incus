@@ -25,56 +25,56 @@ argument_specs:
       incus_images:
         type: list
         elements: dict
-        description: List of images to ensure.
+        description: Images to ensure.
         options:
           source:
             required: true
             type: str
-            description: Remote source identifier for the image.
+            description: Remote source identifier.
           type:
             type: str
-            description: Instance type for the image.
+            description: Image instance type.
             choices:
               - container
               - virtual-machine
           alias:
             required: true
             type: str
-            description: Local alias to assign to the image.
+            description: Local image alias.
           copy_aliases:
             type: bool
-            description: Whether to copy aliases from the source.
+            description: Source alias copying.
           auto_update:
             type: bool
-            description: Whether to automatically update the image when a new build is available.
+            description: Automatic image update on new build.
           public:
             type: bool
-            description: Whether to make the image available to unauthenticated users.
+            description: Unauthenticated user image access.
           source_server:
             type: str
-            description: URL of the remote image server.
+            description: Remote image server URL.
           source_protocol:
             type: str
-            description: Protocol to use for the remote image server.
+            description: Remote image server protocol.
             choices:
               - simplestreams
               - incus
               - oci
           project:
             type: str
-            description: Incus project to scope the image to.
+            description: Incus project scope.
           state:
             type: str
-            description: Desired state of the image.
+            description: Image desired state.
             choices:
               - present
               - absent
       incus_images_socket_path:
         type: path
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
       incus_images_url:
         type: str
-        description: URL of the Incus server API.
+        description: Incus server API URL.
       incus_images_client_cert:
         type: str
         description: Client certificate content for API authentication.
@@ -86,49 +86,49 @@ argument_specs:
         description: Server certificate content for API verification.
       incus_images_client_cert_path:
         type: path
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
       incus_images_client_key_path:
         type: path
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
       incus_images_server_cert_path:
         type: path
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
       incus_images_token:
         type: str
-        description: Authentication token for the Incus API.
+        description: Incus API authentication token.
       incus_images_validate_certs:
         type: bool
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
       incus_images_type:
         type: str
-        description: Instance type for the images.
+        description: Image instance type.
         choices:
           - container
           - virtual-machine
       incus_images_copy_aliases:
         type: bool
-        description: Whether to copy aliases from the source.
+        description: Source alias copying.
       incus_images_auto_update:
         type: bool
-        description: Whether to automatically update images when a new build is available.
+        description: Automatic image update on new build.
       incus_images_public:
         type: bool
-        description: Whether to make images available to unauthenticated users.
+        description: Unauthenticated user image access.
       incus_images_source_server:
         type: str
-        description: URL of the remote image server.
+        description: Remote image server URL.
       incus_images_source_protocol:
         type: str
-        description: Protocol to use for the remote image server.
+        description: Remote image server protocol.
         choices:
           - simplestreams
           - incus
       incus_images_project:
         type: str
-        description: Incus project to scope images to.
+        description: Incus project scope.
       incus_images_state:
         type: str
-        description: Desired state of the images.
+        description: Images desired state.
         choices:
           - present
           - absent

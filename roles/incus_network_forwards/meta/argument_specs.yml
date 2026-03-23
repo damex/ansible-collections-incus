@@ -27,7 +27,7 @@ argument_specs:
                     target_address: 10.0.0.10
     options:
       incus_network_forwards:
-        description: List of Incus network forwards to ensure.
+        description: Incus network forwards to ensure.
         type: list
         elements: dict
         options:
@@ -49,7 +49,7 @@ argument_specs:
                 description: Default target address for traffic not matching any port rule.
                 type: str
           ports:
-            description: List of port forwarding rules.
+            description: Port forwarding rules.
             type: list
             elements: dict
             options:
@@ -75,7 +75,7 @@ argument_specs:
                 description: Description of the port rule.
                 type: str
               snat:
-                description: Whether to rewrite traffic source address.
+                description: Traffic source address rewriting.
                 type: bool
           project:
             description: Incus project for the network forward.
@@ -90,7 +90,7 @@ argument_specs:
         description: Default network for network forwards.
         type: str
       incus_network_forwards_socket_path:
-        description: Path to the Incus Unix socket.
+        description: Incus Unix socket path.
         type: path
       incus_network_forwards_url:
         description: URL of the Incus server API.
@@ -105,19 +105,19 @@ argument_specs:
         description: Server certificate content for API verification.
         type: str
       incus_network_forwards_client_cert_path:
-        description: Path to the TLS client certificate for API authentication.
+        description: TLS client certificate path for API authentication.
         type: path
       incus_network_forwards_client_key_path:
-        description: Path to the TLS client key for API authentication.
+        description: TLS client key path for API authentication.
         type: path
       incus_network_forwards_server_cert_path:
-        description: Path to the TLS server certificate for API verification.
+        description: TLS server certificate path for API verification.
         type: path
       incus_network_forwards_token:
         description: Authentication token for the Incus API.
         type: str
       incus_network_forwards_validate_certs:
-        description: Whether to validate TLS certificates.
+        description: TLS certificate validation.
         type: bool
       incus_network_forwards_project:
         description: Default Incus project for network forwards.
