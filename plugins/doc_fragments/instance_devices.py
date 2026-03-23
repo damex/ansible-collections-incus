@@ -34,7 +34,7 @@ options:
         required: true
       # shared
       attached:
-        description: Whether the device is attached or ejected (disk, nic).
+        description: Attached or ejected state (disk, nic).
         type: bool
       boot.priority:
         description: Boot priority for VMs (disk, nic).
@@ -61,7 +61,7 @@ options:
         description: Product ID of the parent host device (nic SR-IOV, unix-hotplug).
         type: str
       required:
-        description: Whether to fail if the source does not exist (disk, unix-char, unix-block, unix-hotplug).
+        description: Source existence requirement (disk, unix-char, unix-block, unix-hotplug).
         type: bool
       source:
         description: Source of a file system, block device, or host device path (disk, unix-char, unix-block).
@@ -110,13 +110,13 @@ options:
         description: File system specific mount options (disk only).
         type: str
       readonly:
-        description: Whether to make the mount read-only (disk only).
+        description: Read-only mount (disk only).
         type: bool
       recursive:
-        description: Whether to recursively mount the source path (disk only).
+        description: Recursive source mount (disk only).
         type: bool
       shift:
-        description: Whether to set up a shifting overlay to translate the source UID/GID (disk, containers only).
+        description: UID/GID shifting overlay (disk, containers only).
         type: bool
       size:
         description: Disk size limit, e.g. C(20GiB) (disk only).
@@ -125,14 +125,14 @@ options:
         description: Size for the VM runtime state file system (disk, VMs only).
         type: str
       wwn:
-        description: Whether to set a World Wide Name for the disk (disk, VMs only).
+        description: World Wide Name assignment (disk, VMs only).
         type: bool
       # nic
       acceleration:
         description: Enable hardware offloading (none/sriov/vdpa) (nic, OVN only).
         type: str
       connected:
-        description: Whether the NIC is connected to the host network (nic only).
+        description: Host network connection state (nic only).
         type: bool
       gvrp:
         description: Register VLAN using GARP VLAN Registration Protocol (nic only).
@@ -159,7 +159,7 @@ options:
         description: Comma-separated routing table IDs for IPv4 routes (nic, routed only).
         type: str
       ipv4.neighbor_probe:
-        description: Whether to probe the parent network for IP availability (nic, routed only).
+        description: Parent network IP availability probe (nic, routed only).
         type: bool
       ipv4.routes:
         description: Comma-delimited IPv4 static routes to add on the host (nic only).
@@ -186,7 +186,7 @@ options:
         description: Comma-separated routing table IDs for IPv6 routes (nic, routed only).
         type: str
       ipv6.neighbor_probe:
-        description: Whether to probe the parent network for IP availability (nic, routed only).
+        description: Parent network IP availability probe (nic, routed only).
         type: bool
       ipv6.routes:
         description: Comma-delimited IPv6 static routes to add on the host (nic only).
@@ -219,31 +219,31 @@ options:
         description: Default action for egress traffic not matching any ACL rule (nic only).
         type: str
       security.acls.default.egress.logged:
-        description: Whether to log egress traffic not matching any ACL rule (nic only).
+        description: Unmatched egress traffic logging (nic only).
         type: bool
       security.acls.default.ingress.action:
         description: Default action for ingress traffic not matching any ACL rule (nic only).
         type: str
       security.acls.default.ingress.logged:
-        description: Whether to log ingress traffic not matching any ACL rule (nic only).
+        description: Unmatched ingress traffic logging (nic only).
         type: bool
       security.ipv4_filtering:
-        description: Whether to prevent IPv4 address spoofing (nic, bridged only).
+        description: IPv4 address spoofing prevention (nic, bridged only).
         type: bool
       security.ipv6_filtering:
-        description: Whether to prevent IPv6 address spoofing (nic, bridged only).
+        description: IPv6 address spoofing prevention (nic, bridged only).
         type: bool
       security.mac_filtering:
-        description: Whether to prevent MAC address spoofing (nic only).
+        description: MAC address spoofing prevention (nic only).
         type: bool
       security.port_isolation:
-        description: Whether to prevent the NIC from communicating with other isolated NICs (nic, bridged only).
+        description: NIC port isolation (nic, bridged only).
         type: bool
       security.promiscuous:
-        description: Whether to send unknown traffic to this interface (nic, OVN only).
+        description: Promiscuous mode for unknown traffic (nic, OVN only).
         type: bool
       security.trusted:
-        description: Whether to allow the instance to configure the NIC in potentially unsafe ways (nic, SR-IOV only).
+        description: Trusted NIC configuration (nic, SR-IOV only).
         type: bool
       vlan:
         description: VLAN ID to attach to (nic only).
@@ -265,10 +265,10 @@ options:
         description: Address and port to bind and listen on (proxy only).
         type: str
       nat:
-        description: Whether to use NAT-based proxying (proxy only).
+        description: NAT-based proxying (proxy only).
         type: bool
       proxy_protocol:
-        description: Whether to use the HAProxy PROXY protocol to transmit sender information (proxy only).
+        description: HAProxy PROXY protocol for sender information (proxy only).
         type: bool
       security.gid:
         description: GID to drop privilege to (proxy only).
@@ -312,7 +312,7 @@ options:
         description: PCI address of the device (pci only, VMs only).
         type: str
       firmware:
-        description: Whether to expose the device's option ROM to the VM (pci only).
+        description: Device option ROM exposure (pci only).
         type: bool
       # usb
       busnum:

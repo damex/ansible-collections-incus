@@ -16,12 +16,12 @@ class ModuleDocFragment:  # pylint: disable=too-few-public-methods
 options:
   socket_path:
     description:
-      - Path to the Incus Unix socket for local connections.
+      - Incus Unix socket path for local connections.
     type: str
     default: /var/lib/incus/unix.socket
   url:
     description:
-      - URL of the remote Incus server (e.g. https://host:8443).
+      - Remote Incus server URL (e.g. https://host:8443).
       - If specified, connects via HTTPS instead of Unix socket.
     type: str
   client_cert:
@@ -41,17 +41,17 @@ options:
     type: str
   client_cert_path:
     description:
-      - Path to the client certificate for remote authentication.
+      - Client certificate path for remote authentication.
       - Requires O(url) and O(client_key_path). Mutually exclusive with O(token) and O(client_cert).
     type: str
   client_key_path:
     description:
-      - Path to the client key for remote authentication.
+      - Client key path for remote authentication.
       - Requires O(url) and O(client_cert_path). Mutually exclusive with O(client_key).
     type: str
   server_cert_path:
     description:
-      - Path to the server certificate for remote verification.
+      - Server certificate path for remote verification.
       - Requires O(url). Mutually exclusive with O(server_cert).
     type: str
   token:
@@ -61,7 +61,7 @@ options:
     type: str
   validate_certs:
     description:
-      - Whether to validate the server TLS certificate.
+      - Server TLS certificate validation.
     type: bool
     default: true
 """
@@ -80,7 +80,7 @@ options:
   source:
     description:
       - Image reference to copy from, e.g. C(images:debian/13), C(ubuntu/24.04), or C(docker:library/nginx).
-      - The C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily), C(docker)).
+      - C(remote:alias) format auto-resolves well-known remotes (C(images), C(ubuntu), C(ubuntu-daily), C(docker)).
     type: str
   source_server:
     description:
@@ -99,7 +99,7 @@ options:
 options:
   wait:
     description:
-      - Whether to wait for async operations to complete before returning.
+      - Async operation completion wait.
       - Set to C(false) for fire-and-forget behaviour.
     type: bool
     default: true
