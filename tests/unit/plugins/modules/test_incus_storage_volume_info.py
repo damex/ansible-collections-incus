@@ -23,6 +23,7 @@ __all__ = [
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage_volume_info'
+UTILS = 'ansible_collections.damex.incus.plugins.module_utils.incus'
 
 
 def _mock_module(name: str | None = None) -> MagicMock:
@@ -32,24 +33,14 @@ def _mock_module(name: str | None = None) -> MagicMock:
         'pool': 'default',
         'name': name,
         'project': 'default',
-        'socket_path': '/var/lib/incus/unix.socket',
-        'url': None,
-        'client_cert': None,
-        'client_key': None,
-        'server_cert': None,
-        'client_cert_path': None,
-        'client_key_path': None,
-        'server_cert_path': None,
-        'token': None,
-        'validate_certs': True,
     }
     return module
 
 
 def _run_info(module: MagicMock, client: MagicMock) -> None:
     """Patch module creation and run main."""
-    with patch(f'{MODULE}.AnsibleModule', return_value=module), \
-         patch(f'{MODULE}.incus_create_client', return_value=client):
+    with patch(f'{MODULE}.incus_create_info_module', return_value=module), \
+         patch(f'{UTILS}.incus_create_client', return_value=client):
         main()
 
 
