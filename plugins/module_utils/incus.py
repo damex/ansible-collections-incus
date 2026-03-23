@@ -132,17 +132,17 @@ def incus_stringify_instance_config(config: dict[str, Any] | None) -> dict[str, 
     {'limits.cpu': '2', 'boot.autostart': 'true'}
     """
     result = {}
-    for key, value in (config or {}).items():
-        if value is None:
+    for config_key, config_value in (config or {}).items():
+        if config_value is None:
             continue
-        if isinstance(value, (dict, list)):
-            cleaned = incus_common_strip_none(value)
-            if isinstance(cleaned, dict) and key in CLOUD_INIT_ALL_KEYS:
+        if isinstance(config_value, (dict, list)):
+            cleaned = incus_common_strip_none(config_value)
+            if isinstance(cleaned, dict) and config_key in CLOUD_INIT_ALL_KEYS:
                 cleaned = cloud_init_data_lists_to_dicts(cleaned)
-            prefix = '#cloud-config\n' if key in CLOUD_INIT_USER_KEYS else ''
-            result[key] = prefix + yaml.dump(cleaned, default_flow_style=False)
+            prefix = '#cloud-config\n' if config_key in CLOUD_INIT_USER_KEYS else ''
+            result[config_key] = prefix + yaml.dump(cleaned, default_flow_style=False)
         else:
-            result[key] = incus_common_stringify_value(value)
+            result[config_key] = incus_common_stringify_value(config_value)
     return result
 
 
@@ -165,7 +165,11 @@ def incus_build_desired(
     if config_key_values:
         list_keys.update(config_key_values)
     if list_keys:
-        config = {key: value for key, value in config.items() if key not in list_keys}
+        config = {
+            config_key: config_value
+            for config_key, config_value in config.items()
+            if config_key not in list_keys
+        }
     desired: dict[str, Any] = {
         'description': module.params['description'],
         'config': incus_stringify_instance_config(config) if has_devices
@@ -175,20 +179,20 @@ def incus_build_desired(
         desired['devices'] = devices_to_api(module.params['devices'])
     raw_config = module.params['config'] or {}
     if config_lists:
-        for key, prefix in config_lists.items():
-            items = raw_config.get(key)
+        for list_key, list_prefix in config_lists.items():
+            items = raw_config.get(list_key)
             if items:
                 for config_key, config_value in incus_common_flatten_to_config(
-                    prefix,
+                    list_prefix,
                     incus_common_named_list_to_dict(items),
                 ).items():
                     desired['config'][config_key] = config_value
     if config_key_values:
-        for key, prefix in config_key_values.items():
-            items = raw_config.get(key)
+        for key_value_key, key_value_prefix in config_key_values.items():
+            items = raw_config.get(key_value_key)
             if items:
                 for config_key, config_value in incus_common_flatten_key_value_to_config(
-                    prefix,
+                    key_value_prefix,
                     items,
                 ).items():
                     desired['config'][config_key] = config_value
@@ -208,10 +212,10 @@ def _incus_desired_matches_current(
     ... )
     True
     """
-    for key, desired_value in desired.items():
-        if key not in current:
+    for desired_key, desired_value in desired.items():
+        if desired_key not in current:
             return False
-        if current[key] != desired_value:
+        if current[desired_key] != desired_value:
             return False
     return True
 
@@ -294,12 +298,12 @@ def _incus_build_effective_desired(
     current_config = current.get('config', {})
     desired_config = desired.get('config', {})
     preserved = {
-        key: value
-        for key, value in current_config.items()
-        if key not in desired_config
-        and (key in global_config_keys
-             or key.startswith('volatile.')
-             or key in immutable_config_keys)
+        config_key: config_value
+        for config_key, config_value in current_config.items()
+        if config_key not in desired_config
+        and (config_key in global_config_keys
+             or config_key.startswith('volatile.')
+             or config_key in immutable_config_keys)
     }
     has_absent_immutable = any(
         config_key in immutable_config_keys and config_key not in current_config
