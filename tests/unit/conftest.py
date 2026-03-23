@@ -180,7 +180,8 @@ def assert_info_not_found(
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
         main_func()
-    module.exit_json.assert_called_once_with(**{return_key: []})
+    module.exit_json.assert_called_once()
+    assert module.exit_json.call_args.kwargs == {return_key: []}
 
 
 def assert_info_all(

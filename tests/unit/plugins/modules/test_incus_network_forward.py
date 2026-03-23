@@ -39,16 +39,14 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_network_forward'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': '192.168.1.100',
-        'network': 'incusbr0',
-        'state': state,
-        'project': 'default',
-        'description': '',
-        'config': {},
-        'ports': [],
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = '192.168.1.100'
+    module.params['network'] = 'incusbr0'
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['description'] = ''
+    module.params['config'] = {}
+    module.params['ports'] = []
     module.check_mode = check_mode
     return module
 

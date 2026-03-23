@@ -40,17 +40,15 @@ UTILS = 'ansible_collections.damex.incus.plugins.module_utils.incus'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'node2',
-        'state': state,
-        'description': '',
-        'config': {},
-        'roles': None,
-        'groups': None,
-        'failure_domain': None,
-        'target': None,
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'node2'
+    module.params['state'] = state
+    module.params['description'] = ''
+    module.params['config'] = {}
+    module.params['roles'] = None
+    module.params['groups'] = None
+    module.params['failure_domain'] = None
+    module.params['target'] = None
     module.check_mode = check_mode
     return module
 
@@ -148,8 +146,10 @@ def test_update_member_config() -> None:
     module = _mock_module()
     module.params['config'] = {'scheduler.instance': 'manual'}
     client = mock_incus_client()
+    member_with_config = MEMBER_DEFAULT.copy()
+    member_with_config['config'] = {'scheduler.instance': 'all'}
     client.get.side_effect = [
-        {'metadata': {**MEMBER_DEFAULT, 'config': {'scheduler.instance': 'all'}}},
+        {'metadata': member_with_config},
         MULTI_NODE,
     ]
     client.put.return_value = {'type': 'sync'}
@@ -164,8 +164,10 @@ def test_update_member_roles() -> None:
     module = _mock_module()
     module.params['roles'] = ['event-hub']
     client = mock_incus_client()
+    member_with_roles = MEMBER_DEFAULT.copy()
+    member_with_roles['roles'] = ['database']
     client.get.side_effect = [
-        {'metadata': {**MEMBER_DEFAULT, 'roles': ['database']}},
+        {'metadata': member_with_roles},
         MULTI_NODE,
     ]
     client.put.return_value = {'type': 'sync'}

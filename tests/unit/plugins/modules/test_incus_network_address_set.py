@@ -38,15 +38,13 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_network_address_
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'web_servers',
-        'state': state,
-        'project': 'default',
-        'description': '',
-        'config': {},
-        'addresses': [],
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'web_servers'
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['description'] = ''
+    module.params['config'] = {}
+    module.params['addresses'] = []
     module.check_mode = check_mode
     return module
 

@@ -41,13 +41,11 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_cluster_group'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'dpu',
-        'state': state,
-        'description': '',
-        'members': [],
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'dpu'
+    module.params['state'] = state
+    module.params['description'] = ''
+    module.params['members'] = []
     module.check_mode = check_mode
     return module
 

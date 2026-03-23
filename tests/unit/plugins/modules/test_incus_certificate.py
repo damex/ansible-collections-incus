@@ -45,15 +45,13 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
                  certificate: str | None = 'PEM_DATA') -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'ansible',
-        'state': state,
-        'certificate': certificate,
-        'type': 'client',
-        'restricted': False,
-        'projects': [],
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'ansible'
+    module.params['state'] = state
+    module.params['certificate'] = certificate
+    module.params['type'] = 'client'
+    module.params['restricted'] = False
+    module.params['projects'] = []
     module.check_mode = check_mode
     return module
 
@@ -106,7 +104,8 @@ def test_update_projects() -> None:
     """Update certificate project list."""
     module = _mock_module()
     module.params['projects'] = ['staging']
-    current = {**EXISTING_CERT, 'projects': ['default']}
+    current = EXISTING_CERT.copy()
+    current['projects'] = ['default']
     assert_write_update(main, MODULE, module, [{'metadata': [current]}])
 
 

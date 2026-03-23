@@ -37,17 +37,15 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage_volume'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'data',
-        'pool': 'default',
-        'state': state,
-        'project': 'default',
-        'target': None,
-        'content_type': 'filesystem',
-        'description': '',
-        'config': {},
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'data'
+    module.params['pool'] = 'default'
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['target'] = None
+    module.params['content_type'] = 'filesystem'
+    module.params['description'] = ''
+    module.params['config'] = {}
     module.check_mode = check_mode
     return module
 

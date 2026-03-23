@@ -42,19 +42,17 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
                  source: str | None = 'images:debian/13') -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'alias': 'debian/13',
-        'state': state,
-        'project': 'default',
-        'type': 'container',
-        'source': source,
-        'source_protocol': 'simplestreams',
-        'source_server': None,
-        'copy_aliases': False,
-        'auto_update': False,
-        'public': False,
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['alias'] = 'debian/13'
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['type'] = 'container'
+    module.params['source'] = source
+    module.params['source_protocol'] = 'simplestreams'
+    module.params['source_server'] = None
+    module.params['copy_aliases'] = False
+    module.params['auto_update'] = False
+    module.params['public'] = False
     module.check_mode = check_mode
     return module
 

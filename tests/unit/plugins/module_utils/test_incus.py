@@ -476,7 +476,9 @@ def test_run_write_module_client_exception() -> None:
 def _info_module(name: str | None = None, project: str | None = None) -> MagicMock:
     """Build mock info module."""
     module = MagicMock()
-    module.params = {**CONNECTION_PARAMS, 'name': name, 'project': project}
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = name
+    module.params['project'] = project
     return module
 
 

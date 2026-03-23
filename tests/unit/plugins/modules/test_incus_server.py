@@ -45,12 +45,10 @@ def _mock_module(
 ) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'init': init,
-        'cluster': cluster,
-        'config': config or {},
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['init'] = init
+    module.params['cluster'] = cluster
+    module.params['config'] = config or {}
     module.check_mode = check_mode
     return module
 

@@ -57,12 +57,10 @@ def _ensure_module(
 ) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': name,
-        'state': state,
-        'target': target,
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = name
+    module.params['state'] = state
+    module.params['target'] = target
     if project:
         module.params['project'] = project
     module.check_mode = check_mode

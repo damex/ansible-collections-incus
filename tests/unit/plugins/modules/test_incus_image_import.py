@@ -96,25 +96,23 @@ def _mock_module(state: str = 'present', check_mode: bool = False,
                  force: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'alias': 'chr/7.22',
-        'aliases': None,
-        'state': state,
-        'project': 'default',
-        'source': source,
-        'checksum': None,
-        'checksum_algorithm': 'sha256',
-        'architecture': 'x86_64',
-        'properties': {
-            'os': 'RouterOS',
-            'release': '7.22',
-            'description': 'MikroTik CHR 7.22',
-        },
-        'public': False,
-        'force': force,
-        'timeout': 300,
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['alias'] = 'chr/7.22'
+    module.params['aliases'] = None
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['source'] = source
+    module.params['checksum'] = None
+    module.params['checksum_algorithm'] = 'sha256'
+    module.params['architecture'] = 'x86_64'
+    module.params['properties'] = {
+        'os': 'RouterOS',
+        'release': '7.22',
+        'description': 'MikroTik CHR 7.22',
     }
+    module.params['public'] = False
+    module.params['force'] = force
+    module.params['timeout'] = 300
     module.check_mode = check_mode
     return module
 

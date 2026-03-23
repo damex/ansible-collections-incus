@@ -35,14 +35,12 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'tank',
-        'state': state,
-        'description': '',
-        'config': {},
-        'driver': 'zfs',
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'tank'
+    module.params['state'] = state
+    module.params['description'] = ''
+    module.params['config'] = {}
+    module.params['driver'] = 'zfs'
     module.check_mode = check_mode
     return module
 

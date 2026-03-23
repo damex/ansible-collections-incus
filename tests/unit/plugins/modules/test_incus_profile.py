@@ -36,15 +36,13 @@ MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_profile'
 def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     """Build mock module."""
     module = MagicMock()
-    module.params = {
-        **CONNECTION_PARAMS,
-        'name': 'base',
-        'state': state,
-        'project': 'default',
-        'devices': [],
-        'config': {},
-        'description': '',
-    }
+    module.params = CONNECTION_PARAMS.copy()
+    module.params['name'] = 'base'
+    module.params['state'] = state
+    module.params['project'] = 'default'
+    module.params['devices'] = []
+    module.params['config'] = {}
+    module.params['description'] = ''
     module.check_mode = check_mode
     return module
 
