@@ -1,0 +1,64 @@
+---
+- name: Ensure incus network acl is created
+  damex.incus.incus_network_acl:
+    name: test-acl
+    description: test acl
+    ingress:
+      - action: allow
+        source: 10.0.0.0/24
+        destination: 10.0.0.0/24
+        protocol: tcp
+        state: enabled
+    egress:
+      - action: allow
+        state: enabled
+    state: present
+  register: incus_network_acl_present_state
+
+- name: Ensure incus network acl is created
+  ansible.builtin.assert:
+    that:
+      - incus_network_acl_present_state is changed
+
+- name: Ensure incus network acl is idempotent
+  damex.incus.incus_network_acl:
+    name: test-acl
+    description: test acl
+    ingress:
+      - action: allow
+        source: 10.0.0.0/24
+        destination: 10.0.0.0/24
+        protocol: tcp
+        state: enabled
+    egress:
+      - action: allow
+        state: enabled
+    state: present
+  register: incus_network_acl_idempotent_state
+
+- name: Ensure incus network acl is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_acl_idempotent_state is not changed
+
+- name: Ensure incus network acl info
+  damex.incus.incus_network_acl_info: {}
+  register: incus_network_acl_info_state
+
+- name: Ensure incus network acl info
+  ansible.builtin.assert:
+    that:
+      - incus_network_acl_info_state.network_acls is defined
+      - "'test-acl' in incus_network_acl_info_state.network_acls | map(attribute='name')"
+
+- name: Ensure incus network acl is updated
+  damex.incus.incus_network_acl:
+    name: test-acl
+    description: updated acl
+    state: present
+  register: incus_network_acl_updated_state
+
+- name: Ensure incus network acl is updated
+  ansible.builtin.assert:
+    that:
+      - incus_network_acl_updated_state is changed
