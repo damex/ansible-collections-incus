@@ -1,0 +1,5 @@
+---
+- name: Ensure incus network zone record cleanup
+  damex.incus.incus_network_zone:
+    name: records.example.com
+    state: absent

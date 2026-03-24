@@ -1,0 +1,18 @@
+---
+- name: Ensure incus network zone record
+  block:
+    - name: Ensure incus network zone record setup
+      ansible.builtin.import_tasks: setup.yml
+
+    - name: Ensure incus network zone record present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus network zone record absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+
+    - name: Ensure incus network zone record present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus network zone record absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml
+  always:
+    - name: Ensure incus network zone record cleanup
+      ansible.builtin.import_tasks: cleanup.yml

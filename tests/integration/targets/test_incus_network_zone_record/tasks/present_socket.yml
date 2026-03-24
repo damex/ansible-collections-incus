@@ -1,0 +1,59 @@
+---
+- name: Ensure incus network zone record is created
+  damex.incus.incus_network_zone_record:
+    zone: records.example.com
+    name: test-record
+    description: test record
+    entries:
+      - type: A
+        value: 10.0.0.1
+    state: present
+  register: incus_network_zone_record_present_state
+
+- name: Ensure incus network zone record is created
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_record_present_state is changed
+
+- name: Ensure incus network zone record is idempotent
+  damex.incus.incus_network_zone_record:
+    zone: records.example.com
+    name: test-record
+    description: test record
+    entries:
+      - type: A
+        value: 10.0.0.1
+    state: present
+  register: incus_network_zone_record_idempotent_state
+
+- name: Ensure incus network zone record is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_record_idempotent_state is not changed
+
+- name: Ensure incus network zone record info
+  damex.incus.incus_network_zone_record_info:
+    zone: records.example.com
+  register: incus_network_zone_record_info_state
+
+- name: Ensure incus network zone record info
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_record_info_state.network_zone_records is defined
+      - "'test-record' in incus_network_zone_record_info_state.network_zone_records | map(attribute='name')"
+
+- name: Ensure incus network zone record is updated
+  damex.incus.incus_network_zone_record:
+    zone: records.example.com
+    name: test-record
+    description: updated record
+    entries:
+      - type: A
+        value: 10.0.0.2
+    state: present
+  register: incus_network_zone_record_updated_state
+
+- name: Ensure incus network zone record is updated
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_record_updated_state is changed

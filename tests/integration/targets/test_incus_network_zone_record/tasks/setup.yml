@@ -1,0 +1,6 @@
+---
+- name: Ensure incus network zone for records
+  damex.incus.incus_network_zone:
+    name: records.example.com
+    description: zone for record tests
+    state: present
