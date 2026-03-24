@@ -1,0 +1,31 @@
+---
+- name: Ensure incus network zone is deleted
+  damex.incus.incus_network_zone:
+    name: test.example.com
+    state: absent
+  register: incus_network_zone_absent_state
+
+- name: Ensure incus network zone is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_absent_state is changed
+
+- name: Ensure incus network zone deletion is idempotent
+  damex.incus.incus_network_zone:
+    name: test.example.com
+    state: absent
+  register: incus_network_zone_absent_idempotent_state
+
+- name: Ensure incus network zone deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_absent_idempotent_state is not changed
+
+- name: Ensure incus network zone info after deletion
+  damex.incus.incus_network_zone_info: {}
+  register: incus_network_zone_info_after_state
+
+- name: Ensure incus network zone info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test.example.com' not in incus_network_zone_info_after_state.network_zones | map(attribute='name')"

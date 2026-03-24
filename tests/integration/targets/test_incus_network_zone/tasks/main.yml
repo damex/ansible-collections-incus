@@ -1,0 +1,12 @@
+---
+- name: Ensure incus network zone
+  block:
+    - name: Ensure incus network zone present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus network zone absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+
+    - name: Ensure incus network zone present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus network zone absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

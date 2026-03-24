@@ -1,0 +1,46 @@
+---
+- name: Ensure incus network zone is created
+  damex.incus.incus_network_zone:
+    name: test.example.com
+    description: test zone
+    state: present
+  register: incus_network_zone_present_state
+
+- name: Ensure incus network zone is created
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_present_state is changed
+
+- name: Ensure incus network zone is idempotent
+  damex.incus.incus_network_zone:
+    name: test.example.com
+    description: test zone
+    state: present
+  register: incus_network_zone_idempotent_state
+
+- name: Ensure incus network zone is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_idempotent_state is not changed
+
+- name: Ensure incus network zone info
+  damex.incus.incus_network_zone_info: {}
+  register: incus_network_zone_info_state
+
+- name: Ensure incus network zone info
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_info_state.network_zones is defined
+      - "'test.example.com' in incus_network_zone_info_state.network_zones | map(attribute='name')"
+
+- name: Ensure incus network zone is updated
+  damex.incus.incus_network_zone:
+    name: test.example.com
+    description: updated zone
+    state: present
+  register: incus_network_zone_updated_state
+
+- name: Ensure incus network zone is updated
+  ansible.builtin.assert:
+    that:
+      - incus_network_zone_updated_state is changed
