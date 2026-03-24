@@ -134,18 +134,24 @@ INCUS_NETWORK_ZONE_RECORD_ENTRY_OPTIONS = {
 
 def _normalize_entries(entries: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     """
-    Normalize entries with defaults and stable sort.
+    Normalize entries with stable sort, omitting zero-value ttl.
 
     >>> _normalize_entries([{'type': 'A', 'value': '10.0.0.1'}])
-    [{'type': 'A', 'value': '10.0.0.1', 'ttl': 0}]
+    [{'type': 'A', 'value': '10.0.0.1'}]
+
+    >>> _normalize_entries([{'type': 'A', 'value': '10.0.0.1', 'ttl': 300}])
+    [{'type': 'A', 'value': '10.0.0.1', 'ttl': 300}]
     """
     normalized = []
     for entry in (entries or []):
-        normalized.append({
+        normalized_entry: dict[str, Any] = {
             'type': entry['type'],
             'value': entry['value'],
-            'ttl': entry.get('ttl') or 0,
-        })
+        }
+        ttl = entry.get('ttl')
+        if ttl:
+            normalized_entry['ttl'] = ttl
+        normalized.append(normalized_entry)
     normalized.sort(key=lambda e: (e['type'], e['value']))
     return normalized
 
@@ -185,11 +191,13 @@ def main() -> None:
     module = incus_create_write_module(argument_spec)
     encoded_zone = quote(module.params['zone'], safe='')
     resource = f'network-zones/{encoded_zone}/records'
+    config = incus_common_flatten_key_value_to_config('user', module.params.get('config'))
     desired: dict[str, Any] = {
         'description': module.params['description'],
-        'config': incus_common_flatten_key_value_to_config('user', module.params.get('config')),
         'entries': _normalize_entries(module.params.get('entries')),
     }
+    if config:
+        desired['config'] = config
     incus_run_write_module(module, lambda: incus_ensure_resource(module, resource, desired))
 
 

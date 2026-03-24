@@ -191,6 +191,6 @@ def test_entries_normalized_with_defaults() -> None:
     client = assert_write_create(main, MODULE, module)
     post_data = client.post.call_args[0][1]
     entry = post_data['entries'][0]
-    assert not entry['ttl']
+    assert 'ttl' not in entry
     assert entry['type'] == 'A'
     assert entry['value'] == '10.0.0.5'

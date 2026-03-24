@@ -344,12 +344,14 @@ def main() -> None:
     for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
         argument_spec[spec_key] = spec_value
     module = incus_create_write_module(argument_spec)
+    config = incus_common_flatten_key_value_to_config('user', module.params.get('config'))
     desired: dict[str, Any] = {
         'description': module.params['description'],
-        'config': incus_common_flatten_key_value_to_config('user', module.params.get('config')),
         'ingress': _normalize_rules(module.params.get('ingress')),
         'egress': _normalize_rules(module.params.get('egress')),
     }
+    if config:
+        desired['config'] = config
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'network-acls', desired))
 
 
