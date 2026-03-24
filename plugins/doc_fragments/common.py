@@ -104,3 +104,26 @@ options:
     type: bool
     default: true
 """
+
+    WRITE_RETURN = r"""
+changed:
+  description: Resource state change indicator.
+  type: bool
+  returned: always
+changed_keys:
+  description: Configuration keys that changed.
+  type: list
+  elements: str
+  returned: always
+diff:
+  description: Before and after state for diff mode.
+  type: dict
+  returned: changed
+  contains:
+    before:
+      description: State before the change.
+      type: dict
+    after:
+      description: State after the change.
+      type: dict
+"""

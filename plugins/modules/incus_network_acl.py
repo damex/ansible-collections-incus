@@ -205,6 +205,8 @@ EXAMPLES = r"""
 """
 
 RETURN = r"""
+extends_documentation_fragment:
+  - damex.incus.common.write_return
 """
 
 from typing import Any
