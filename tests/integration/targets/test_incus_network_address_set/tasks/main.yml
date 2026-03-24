@@ -1,0 +1,12 @@
+---
+- name: Ensure incus network address set
+  block:
+    - name: Ensure incus network address set present (socket)
+      ansible.builtin.import_tasks: present_socket.yml
+    - name: Ensure incus network address set absent (socket)
+      ansible.builtin.import_tasks: absent_socket.yml
+
+    - name: Ensure incus network address set present (tls)
+      ansible.builtin.import_tasks: present_tls.yml
+    - name: Ensure incus network address set absent (tls)
+      ansible.builtin.import_tasks: absent_tls.yml

@@ -1,0 +1,31 @@
+---
+- name: Ensure incus network address set is deleted
+  damex.incus.incus_network_address_set:
+    name: test-address-set
+    state: absent
+  register: incus_network_address_set_absent_state
+
+- name: Ensure incus network address set is deleted
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_absent_state is changed
+
+- name: Ensure incus network address set deletion is idempotent
+  damex.incus.incus_network_address_set:
+    name: test-address-set
+    state: absent
+  register: incus_network_address_set_absent_idempotent_state
+
+- name: Ensure incus network address set deletion is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_absent_idempotent_state is not changed
+
+- name: Ensure incus network address set info after deletion
+  damex.incus.incus_network_address_set_info: {}
+  register: incus_network_address_set_info_after_state
+
+- name: Ensure incus network address set info after deletion
+  ansible.builtin.assert:
+    that:
+      - "'test-address-set' not in incus_network_address_set_info_after_state.network_address_sets | map(attribute='name')"

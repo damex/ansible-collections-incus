@@ -1,0 +1,55 @@
+---
+- name: Ensure incus network address set is created
+  damex.incus.incus_network_address_set:
+    name: test-address-set
+    description: test address set
+    addresses:
+      - 10.0.0.0/24
+      - 192.168.1.0/24
+    state: present
+  register: incus_network_address_set_present_state
+
+- name: Ensure incus network address set is created
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_present_state is changed
+
+- name: Ensure incus network address set is idempotent
+  damex.incus.incus_network_address_set:
+    name: test-address-set
+    description: test address set
+    addresses:
+      - 10.0.0.0/24
+      - 192.168.1.0/24
+    state: present
+  register: incus_network_address_set_idempotent_state
+
+- name: Ensure incus network address set is idempotent
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_idempotent_state is not changed
+
+- name: Ensure incus network address set info
+  damex.incus.incus_network_address_set_info: {}
+  register: incus_network_address_set_info_state
+
+- name: Ensure incus network address set info
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_info_state.network_address_sets is defined
+      - "'test-address-set' in incus_network_address_set_info_state.network_address_sets | map(attribute='name')"
+
+- name: Ensure incus network address set is updated
+  damex.incus.incus_network_address_set:
+    name: test-address-set
+    description: updated address set
+    addresses:
+      - 10.0.0.0/24
+      - 172.16.0.0/16
+    state: present
+  register: incus_network_address_set_updated_state
+
+- name: Ensure incus network address set is updated
+  ansible.builtin.assert:
+    that:
+      - incus_network_address_set_updated_state is changed
