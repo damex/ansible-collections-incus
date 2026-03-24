@@ -528,7 +528,7 @@ def incus_find_certificate(
     {'name': 'my-cert', 'type': 'client', 'fingerprint': 'abc123...'}
     """
     query = incus_build_query(recursion=1)
-    certificates = client.get(f'/1.0/certificates{query}').get('metadata') or []
+    certificates: list[dict[str, Any]] = client.get(f'/1.0/certificates{query}').get('metadata') or []
     for certificate in certificates:
         if certificate.get('name') == name:
             return certificate
