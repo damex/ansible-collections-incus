@@ -95,8 +95,8 @@ def incus_common_flatten_to_config(
     """
     config: dict[str, str] = {}
     for name, properties in data.items():
-        for key, value in properties.items():
-            config[f'{prefix}.{name}.{key}'] = incus_common_stringify_value(value)
+        for property_key, property_value in properties.items():
+            config[f'{prefix}.{name}.{property_key}'] = incus_common_stringify_value(property_value)
     return config
 
 
@@ -109,7 +109,11 @@ def incus_common_strip_none(data: Any) -> Any:
     """
     match data:
         case dict():
-            return {key: incus_common_strip_none(value) for key, value in data.items() if value is not None}
+            return {
+                data_key: incus_common_strip_none(data_value)
+                for data_key, data_value in data.items()
+                if data_value is not None
+            }
         case list():
             return [incus_common_strip_none(item) for item in data if item is not None]
         case _:
