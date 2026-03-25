@@ -32,27 +32,27 @@ __all__ = [
 ]
 
 
-def test_build_query_empty():
+def test_build_query_empty() -> None:
     """Verify empty string when no parameters provided."""
-    assert incus_build_query() == ''
+    assert not incus_build_query()
 
 
-def test_build_query_project_only():
+def test_build_query_project_only() -> None:
     """Verify query with project parameter."""
     assert incus_build_query(project='default') == '?project=default'
 
 
-def test_build_query_target_only():
+def test_build_query_target_only() -> None:
     """Verify query with target parameter."""
     assert incus_build_query(target='node01') == '?target=node01'
 
 
-def test_build_query_recursion_only():
+def test_build_query_recursion_only() -> None:
     """Verify query with recursion parameter."""
     assert incus_build_query(recursion=1) == '?recursion=1'
 
 
-def test_build_query_all_parameters():
+def test_build_query_all_parameters() -> None:
     """Verify query with all parameters combined."""
     result = incus_build_query(
         project='myproject',
@@ -62,19 +62,19 @@ def test_build_query_all_parameters():
     assert result == '?project=myproject&target=node01&recursion=1'
 
 
-def test_build_query_project_url_encoded():
+def test_build_query_project_url_encoded() -> None:
     """Verify project name with special characters is URL-encoded."""
     result = incus_build_query(project='my project/test')
     assert result == '?project=my%20project%2Ftest'
 
 
-def test_build_query_target_url_encoded():
+def test_build_query_target_url_encoded() -> None:
     """Verify target name with special characters is URL-encoded."""
     result = incus_build_query(target='node/01')
     assert result == '?target=node%2F01'
 
 
-def test_build_source_plain_alias():
+def test_build_source_plain_alias() -> None:
     """Verify plain alias without remote prefix."""
     module = MagicMock()
     module.params = {
@@ -86,7 +86,7 @@ def test_build_source_plain_alias():
     assert result == {'type': 'image', 'alias': 'debian/13'}
 
 
-def test_build_source_images_remote():
+def test_build_source_images_remote() -> None:
     """Verify images: remote resolves to linuxcontainers.org."""
     module = MagicMock()
     module.params = {
@@ -103,7 +103,7 @@ def test_build_source_images_remote():
     }
 
 
-def test_build_source_ubuntu_remote():
+def test_build_source_ubuntu_remote() -> None:
     """Verify ubuntu: remote resolves to cloud-images releases."""
     module = MagicMock()
     module.params = {
@@ -120,7 +120,7 @@ def test_build_source_ubuntu_remote():
     }
 
 
-def test_build_source_ubuntu_daily_remote():
+def test_build_source_ubuntu_daily_remote() -> None:
     """Verify ubuntu-daily: remote resolves to cloud-images daily."""
     module = MagicMock()
     module.params = {
@@ -137,7 +137,7 @@ def test_build_source_ubuntu_daily_remote():
     }
 
 
-def test_build_source_docker_remote():
+def test_build_source_docker_remote() -> None:
     """Verify docker: remote resolves to docker.io with oci protocol."""
     module = MagicMock()
     module.params = {
@@ -154,7 +154,7 @@ def test_build_source_docker_remote():
     }
 
 
-def test_build_source_explicit_server():
+def test_build_source_explicit_server() -> None:
     """Verify explicit server used when no remote prefix."""
     module = MagicMock()
     module.params = {
@@ -171,7 +171,7 @@ def test_build_source_explicit_server():
     }
 
 
-def test_build_source_explicit_server_overrides_remote():
+def test_build_source_explicit_server_overrides_remote() -> None:
     """Verify explicit server prevents remote resolution."""
     module = MagicMock()
     module.params = {
@@ -188,7 +188,7 @@ def test_build_source_explicit_server_overrides_remote():
     }
 
 
-def test_build_source_unknown_remote_fails():
+def test_build_source_unknown_remote_fails() -> None:
     """Verify unknown remote prefix triggers fail_json."""
     module = MagicMock()
     module.params = {

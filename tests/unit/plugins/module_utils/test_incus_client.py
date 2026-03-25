@@ -267,7 +267,7 @@ def test_client_patch_sends_json_body() -> None:
     client = IncusClient()
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.patch('/1.0/instances/web', {'description': 'patched'})
-        method, path, body, _ = mock_exec.call_args[0]
+        method, _, body, _ = mock_exec.call_args[0]
         assert method == 'PATCH'
         assert body == '{"description": "patched"}'
 
@@ -340,9 +340,10 @@ def test_client_context_manager_closes() -> None:
 def test_client_close_removes_temp_files() -> None:
     """Verify close removes temporary files."""
     client = IncusClient()
-    client._temp_files = ['/tmp/fake1.pem', '/tmp/fake2.pem']
+    temp_files = ['/tmp/fake1.pem', '/tmp/fake2.pem']
+    setattr(client, '_temp_files', temp_files)
     with patch.object(client, '_close'), \
          patch('os.unlink') as mock_unlink:
         client.close()
         assert mock_unlink.call_count == 2
-    assert client._temp_files == []
+    assert not getattr(client, '_temp_files')

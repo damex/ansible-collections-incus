@@ -180,7 +180,7 @@ def test_extract_zip_single_file() -> None:
         module = MagicMock()
         result = _incus_image_import_extract_zip(module, zip_path, tmp_dir)
         assert result == os.path.join(tmp_dir, inner_name)
-        with open(result) as file_handle:
+        with open(result, encoding='utf-8') as file_handle:
             assert file_handle.read() == 'fake image'
 
 
