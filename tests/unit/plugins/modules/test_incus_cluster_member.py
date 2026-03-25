@@ -28,6 +28,10 @@ __all__ = [
     'test_update_member_description',
     'test_update_member_config',
     'test_update_member_roles',
+    'test_update_member_groups',
+    'test_update_member_failure_domain',
+    'test_skip_update_single_node_cluster',
+    'test_present_nonexistent_member_unchanged',
     'test_delete_existing_member',
     'test_delete_nonexistent_member',
     'test_fail_on_exception',
@@ -176,6 +180,62 @@ def test_update_member_roles() -> None:
     put_data = client.put.call_args[0][1]
     assert 'database' in put_data['roles']
     assert 'event-hub' in put_data['roles']
+
+
+def test_update_member_groups() -> None:
+    """Update member groups."""
+    module = _mock_module()
+    module.params['groups'] = ['gpu-nodes', 'storage']
+    client = mock_incus_client()
+    client.get.side_effect = [
+        {'metadata': MEMBER_DEFAULT},
+        MULTI_NODE,
+    ]
+    client.put.return_value = {'type': 'sync'}
+    _run_main(module, client)
+    assert_exit_changed(module, True)
+    put_data = client.put.call_args[0][1]
+    assert put_data['groups'] == ['gpu-nodes', 'storage']
+
+
+def test_update_member_failure_domain() -> None:
+    """Update member failure domain."""
+    module = _mock_module()
+    module.params['failure_domain'] = 'rack-a'
+    client = mock_incus_client()
+    client.get.side_effect = [
+        {'metadata': MEMBER_DEFAULT},
+        MULTI_NODE,
+    ]
+    client.put.return_value = {'type': 'sync'}
+    _run_main(module, client)
+    assert_exit_changed(module, True)
+    put_data = client.put.call_args[0][1]
+    assert put_data['failure_domain'] == 'rack-a'
+
+
+def test_skip_update_single_node_cluster() -> None:
+    """Skip update on single-node cluster even when values differ."""
+    module = _mock_module()
+    module.params['description'] = 'Changed description'
+    client = mock_incus_client()
+    single_node = {'metadata': ['/1.0/cluster/members/node2']}
+    client.get.side_effect = [
+        {'metadata': MEMBER_DEFAULT},
+        single_node,
+    ]
+    _run_main(module, client)
+    assert_exit_changed(module, False)
+    client.put.assert_not_called()
+
+
+def test_present_nonexistent_member_unchanged() -> None:
+    """Return unchanged when member does not exist in present state."""
+    module = _mock_module()
+    client = mock_incus_client()
+    client.get.side_effect = IncusNotFoundException('not found')
+    _run_main(module, client)
+    assert_exit_changed(module, False)
 
 
 def test_delete_existing_member() -> None:
