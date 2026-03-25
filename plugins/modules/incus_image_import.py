@@ -298,7 +298,7 @@ def _incus_image_import_extract_zip(
             return os.path.join(temp_directory, first_name)
     except zipfile.BadZipFile as exception:
         module.fail_json(msg=f"Invalid ZIP archive: {exception}")
-    return file_path
+        return file_path
 
 
 def _incus_image_import_is_xz(file_path: str) -> bool:
@@ -357,7 +357,7 @@ def _incus_image_import_detect_format(
         return image_format
     except (ValueError, KeyError) as exception:
         module.fail_json(msg=f"Failed parsing qemu-img output: {exception}")
-    return 'raw'
+        return 'raw'
 
 
 def _incus_image_import_convert_to_qcow2(
