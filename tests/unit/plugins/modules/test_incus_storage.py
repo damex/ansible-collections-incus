@@ -23,6 +23,9 @@ __all__ = [
     'test_create_storage_with_driver',
     'test_skip_matching_storage',
     'test_update_storage_config',
+    'test_update_preserves_immutable_source',
+    'test_update_preserves_immutable_zfs_pool_name',
+    'test_update_drops_absent_immutable_key',
     'test_delete_existing_storage',
     'test_delete_existing_storage_per_target',
     'test_delete_nonexistent_storage',
@@ -61,6 +64,45 @@ def test_update_storage_config() -> None:
     module = _mock_module()
     module.params['config'] = {'size': '100GB'}
     assert_write_update(main, MODULE, module, {'description': '', 'config': {}})
+
+
+def test_update_preserves_immutable_source() -> None:
+    """Preserve immutable source from current when not in desired."""
+    module = _mock_module()
+    module.params['config'] = {'size': '200GB'}
+    current = {
+        'description': '',
+        'config': {'source': '/dev/sda'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['source'] == '/dev/sda'
+    assert put_data['config']['size'] == '200GB'
+
+
+def test_update_preserves_immutable_zfs_pool_name() -> None:
+    """Preserve driver-specific immutable zfs.pool_name when not in desired."""
+    module = _mock_module()
+    module.params['config'] = {'size': '200GB'}
+    current = {
+        'description': '',
+        'config': {'zfs.pool_name': 'tank'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['zfs.pool_name'] == 'tank'
+    assert put_data['config']['size'] == '200GB'
+
+
+def test_update_drops_absent_immutable_key() -> None:
+    """Drop immutable key from desired when absent from current."""
+    module = _mock_module()
+    module.params['config'] = {'size': '100GB', 'source': '/dev/sdb'}
+    current = {
+        'description': '',
+        'config': {},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert 'source' not in put_data['config']
+    assert put_data['config']['size'] == '100GB'
 
 
 def test_delete_existing_storage() -> None:
