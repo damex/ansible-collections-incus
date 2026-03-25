@@ -37,6 +37,16 @@ __all__ = [
     'test_client_retry_fails_with_exception',
     'test_client_retry_fails_with_client_exception',
     'test_client_no_retry_on_non_socket_error',
+    'test_client_post_sends_json_body',
+    'test_client_post_without_data',
+    'test_client_put_sends_json_body',
+    'test_client_patch_sends_json_body',
+    'test_client_delete_sends_no_body',
+    'test_client_post_file_sends_binary',
+    'test_client_post_file_public_header',
+    'test_client_post_file_token_header',
+    'test_client_context_manager_closes',
+    'test_client_close_removes_temp_files',
 ]
 
 
@@ -218,3 +228,121 @@ def test_client_no_retry_on_non_socket_error() -> None:
          pytest.raises(IncusClientException, match='bad data'):
         client.get('/1.0/test')
     mock_close.assert_called_once()
+
+
+def test_client_post_sends_json_body() -> None:
+    """Verify POST serializes data as JSON."""
+    client = IncusClient()
+    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        client.post('/1.0/instances', {'name': 'web'})
+        mock_exec.assert_called_once()
+        method, path, body, _ = mock_exec.call_args[0]
+        assert method == 'POST'
+        assert path == '/1.0/instances'
+        assert body == '{"name": "web"}'
+
+
+def test_client_post_without_data() -> None:
+    """Verify POST with no data sends null body."""
+    client = IncusClient()
+    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        client.post('/1.0/instances')
+        _, _, body, _ = mock_exec.call_args[0]
+        assert body is None
+
+
+def test_client_put_sends_json_body() -> None:
+    """Verify PUT serializes data as JSON."""
+    client = IncusClient()
+    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        client.put('/1.0/instances/web', {'description': 'updated'})
+        method, path, body, _ = mock_exec.call_args[0]
+        assert method == 'PUT'
+        assert path == '/1.0/instances/web'
+        assert body == '{"description": "updated"}'
+
+
+def test_client_patch_sends_json_body() -> None:
+    """Verify PATCH serializes data as JSON."""
+    client = IncusClient()
+    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        client.patch('/1.0/instances/web', {'description': 'patched'})
+        method, path, body, _ = mock_exec.call_args[0]
+        assert method == 'PATCH'
+        assert body == '{"description": "patched"}'
+
+
+def test_client_delete_sends_no_body() -> None:
+    """Verify DELETE sends no body."""
+    client = IncusClient()
+    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        client.delete('/1.0/instances/web')
+        method, path, body, _ = mock_exec.call_args[0]
+        assert method == 'DELETE'
+        assert path == '/1.0/instances/web'
+        assert body is None
+
+
+def test_client_post_file_sends_binary() -> None:
+    """Verify post_file reads file and sends as octet-stream."""
+    client = IncusClient()
+    file_content = b'fake image data'
+    with patch('builtins.open', return_value=MagicMock(
+        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=file_content))),
+        __exit__=MagicMock(return_value=False),
+    )):
+        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+            client.post_file('/1.0/images', '/tmp/image.tar.gz')
+            method, path, body, headers = mock_exec.call_args[0]
+            assert method == 'POST'
+            assert path == '/1.0/images'
+            assert body == file_content
+            assert headers['Content-Type'] == 'application/octet-stream'
+            assert headers['X-Incus-filename'] == 'image.tar.gz'
+            assert 'X-Incus-public' not in headers
+
+
+def test_client_post_file_public_header() -> None:
+    """Verify post_file adds public header when requested."""
+    client = IncusClient()
+    with patch('builtins.open', return_value=MagicMock(
+        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
+        __exit__=MagicMock(return_value=False),
+    )):
+        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+            client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
+            _, _, _, headers = mock_exec.call_args[0]
+            assert headers['X-Incus-public'] == '1'
+
+
+def test_client_post_file_token_header() -> None:
+    """Verify post_file includes Bearer token."""
+    client = IncusClient(IncusConnectionParameters(token='secret'))
+    with patch('builtins.open', return_value=MagicMock(
+        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
+        __exit__=MagicMock(return_value=False),
+    )):
+        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+            client.post_file('/1.0/images', '/tmp/image.tar.gz')
+            _, _, _, headers = mock_exec.call_args[0]
+            assert headers['Authorization'] == 'Bearer secret'
+
+
+def test_client_context_manager_closes() -> None:
+    """Verify context manager calls close on exit."""
+    client = IncusClient()
+    with patch.object(client, 'close') as mock_close:
+        with client:
+            pass
+        mock_close.assert_called_once()
+
+
+def test_client_close_removes_temp_files() -> None:
+    """Verify close removes temporary files."""
+    client = IncusClient()
+    client._temp_files = ['/tmp/fake1.pem', '/tmp/fake2.pem']
+    with patch.object(client, '_close'), \
+         patch('os.unlink') as mock_unlink:
+        client.close()
+        assert mock_unlink.call_count == 2
+    assert client._temp_files == []
