@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusNotFoundException
 from ansible_collections.damex.incus.plugins.modules.incus_instance import (
+    _build_config,
     _get_instance,
     _create_instance,
     _update_instance,
@@ -33,6 +34,8 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
 )
 
 __all__ = [
+    'test_build_config_merges_preserved_and_desired',
+    'test_build_config_desired_overrides_preserved',
     'test_get_instance_found',
     'test_get_instance_not_found',
     'test_create_instance',
@@ -61,6 +64,29 @@ __all__ = [
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_instance'
+
+
+def test_build_config_merges_preserved_and_desired() -> None:
+    """Merge preserved volatile keys with desired config."""
+    result = _build_config(
+        {'volatile.uuid': 'abc', 'volatile.eth0.hwaddr': 'aa:bb:cc'},
+        {'limits.cpu': '2', 'limits.memory': '4GB'},
+    )
+    assert result == {
+        'volatile.uuid': 'abc',
+        'volatile.eth0.hwaddr': 'aa:bb:cc',
+        'limits.cpu': '2',
+        'limits.memory': '4GB',
+    }
+
+
+def test_build_config_desired_overrides_preserved() -> None:
+    """Desired config takes precedence over preserved for same key."""
+    result = _build_config(
+        {'limits.cpu': '1'},
+        {'limits.cpu': '4'},
+    )
+    assert result == {'limits.cpu': '4'}
 
 
 def test_get_instance_found() -> None:
