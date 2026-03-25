@@ -28,6 +28,8 @@ __all__ = [
     'test_delete_existing_certificate',
     'test_delete_missing_certificate',
     'test_check_mode_create_certificate',
+    'test_check_mode_update_certificate',
+    'test_check_mode_delete_certificate',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_certificate'
@@ -131,10 +133,32 @@ def test_delete_missing_certificate() -> None:
 
 
 def test_check_mode_create_certificate() -> None:
-    """Skip API calls in check mode."""
+    """Skip API calls in check mode for create."""
     module = _mock_module(check_mode=True)
     client = mock_incus_client()
     client.get.return_value = {'metadata': []}
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.post.assert_not_called()
+
+
+def test_check_mode_update_certificate() -> None:
+    """Skip API calls in check mode for update."""
+    module = _mock_module(check_mode=True)
+    module.params['restricted'] = True
+    module.params['projects'] = ['default']
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': [EXISTING_CERT]}
+    run_module_main(MODULE, module, client, main)
+    assert_exit_changed(module, True)
+    client.put.assert_not_called()
+
+
+def test_check_mode_delete_certificate() -> None:
+    """Skip API calls in check mode for delete."""
+    module = _mock_module(state='absent', check_mode=True)
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': [EXISTING_CERT]}
+    run_module_main(MODULE, module, client, main)
+    assert_exit_changed(module, True)
+    client.delete.assert_not_called()
