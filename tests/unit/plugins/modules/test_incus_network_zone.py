@@ -21,8 +21,11 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
 
 __all__ = [
     'test_create_network_zone',
+    'test_create_network_zone_with_config',
+    'test_skip_matching_network_zone_with_config',
     'test_skip_matching_network_zone',
     'test_update_network_zone_description',
+    'test_update_network_zone_config',
     'test_delete_existing_network_zone',
     'test_delete_nonexistent_network_zone',
     'test_network_zone_check_mode',
@@ -49,6 +52,29 @@ def test_create_network_zone() -> None:
     assert_write_create(main, MODULE, _mock_module())
 
 
+def test_create_network_zone_with_config() -> None:
+    """Create network zone with user config key-value pairs."""
+    module = _mock_module()
+    module.params['config'] = [
+        {'name': 'dns.nameservers', 'value': 'ns1.example.com'},
+    ]
+    client = assert_write_create(main, MODULE, module)
+    post_data = client.post.call_args[0][1]
+    assert post_data['config']['user.dns.nameservers'] == 'ns1.example.com'
+
+
+def test_skip_matching_network_zone_with_config() -> None:
+    """Skip matching network zone with user config."""
+    module = _mock_module()
+    module.params['config'] = [
+        {'name': 'contact', 'value': 'admin@example.com'},
+    ]
+    assert_write_skip(main, MODULE, module, {
+        'description': '',
+        'config': {'user.contact': 'admin@example.com'},
+    })
+
+
 def test_skip_matching_network_zone() -> None:
     """Skip matching network zone."""
     assert_write_skip(main, MODULE, _mock_module(), {
@@ -65,6 +91,19 @@ def test_update_network_zone_description() -> None:
         'description': 'Old zone',
         'config': {},
     })
+
+
+def test_update_network_zone_config() -> None:
+    """Update network zone user config."""
+    module = _mock_module()
+    module.params['config'] = [
+        {'name': 'contact', 'value': 'new@example.com'},
+    ]
+    put_data = assert_write_update(main, MODULE, module, {
+        'description': '',
+        'config': {'user.contact': 'old@example.com'},
+    })
+    assert put_data['config']['user.contact'] == 'new@example.com'
 
 
 def test_delete_existing_network_zone() -> None:
