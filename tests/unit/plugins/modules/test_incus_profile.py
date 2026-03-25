@@ -25,6 +25,7 @@ __all__ = [
     'test_update_profile_description',
     'test_update_profile_config',
     'test_update_profile_devices',
+    'test_update_profile_all_fields',
     'test_delete_existing_profile',
     'test_delete_nonexistent_profile',
     'test_profile_check_mode',
@@ -85,6 +86,23 @@ def test_update_profile_devices() -> None:
         'description': '', 'config': {},
         'devices': {'root': {'type': 'disk', 'path': '/', 'pool': 'default'}},
     })
+
+
+def test_update_profile_all_fields() -> None:
+    """Update profile with description, config, and devices simultaneously."""
+    module = _mock_module()
+    module.params['description'] = 'updated profile'
+    module.params['config'] = {'limits.cpu': '8', 'limits.memory': '4GB'}
+    module.params['devices'] = [{'name': 'root', 'type': 'disk', 'path': '/', 'pool': 'fast'}]
+    put_data = assert_write_update(main, MODULE, module, {
+        'description': 'old profile',
+        'config': {'limits.cpu': '2'},
+        'devices': {'root': {'type': 'disk', 'path': '/', 'pool': 'default'}},
+    })
+    assert put_data['description'] == 'updated profile'
+    assert put_data['config']['limits.cpu'] == '8'
+    assert put_data['config']['limits.memory'] == '4GB'
+    assert put_data['devices']['root']['pool'] == 'fast'
 
 
 def test_delete_existing_profile() -> None:
