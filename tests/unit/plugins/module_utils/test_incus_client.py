@@ -39,13 +39,11 @@ __all__ = [
     'test_client_retry_fails_with_exception',
     'test_client_retry_fails_with_client_exception',
     'test_client_no_retry_on_non_socket_error',
-    'test_client_request_serializes_json',
-    'test_client_request_none_body',
-    'test_client_post_sends_data',
+    'test_client_post_serializes_json',
     'test_client_post_without_data',
-    'test_client_put_sends_data',
-    'test_client_patch_sends_data',
-    'test_client_delete_sends_no_data',
+    'test_client_put_serializes_json',
+    'test_client_patch_serializes_json',
+    'test_client_delete_sends_no_body',
     'test_client_post_file_sends_binary',
     'test_client_post_file_public_header',
     'test_client_post_file_token_header',
@@ -258,62 +256,56 @@ def _capture_execute() -> tuple[dict[str, Any], collections.abc.Callable[..., di
     return captured, side_effect
 
 
-def test_client_request_serializes_json() -> None:
-    """Verify _request serializes data dict as JSON string."""
+def test_client_post_serializes_json() -> None:
+    """Verify POST serializes data as JSON body."""
     client = IncusClient()
     captured, side_effect = _capture_execute()
     with patch.object(client, '_execute', side_effect=side_effect):
-        client._request('POST', '/1.0/test', {'name': 'web'})
+        client.post('/1.0/instances', {'name': 'web'})
+        assert captured['method'] == 'POST'
+        assert captured['path'] == '/1.0/instances'
         assert captured['body'] == '{"name": "web"}'
 
 
-def test_client_request_none_body() -> None:
-    """Verify _request sends None body when no data provided."""
+def test_client_post_without_data() -> None:
+    """Verify POST sends None body when no data provided."""
     client = IncusClient()
     captured, side_effect = _capture_execute()
     with patch.object(client, '_execute', side_effect=side_effect):
-        client._request('GET', '/1.0/test')
+        client.post('/1.0/instances')
         assert captured['body'] is None
 
 
-def test_client_post_sends_data() -> None:
-    """Verify POST delegates with correct method and data."""
+def test_client_put_serializes_json() -> None:
+    """Verify PUT serializes data as JSON body."""
     client = IncusClient()
-    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
-        client.post('/1.0/instances', {'name': 'web'})
-        mock_request.assert_called_once_with('POST', '/1.0/instances', {'name': 'web'})
-
-
-def test_client_post_without_data() -> None:
-    """Verify POST with no data sends None."""
-    client = IncusClient()
-    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
-        client.post('/1.0/instances')
-        mock_request.assert_called_once_with('POST', '/1.0/instances', None)
-
-
-def test_client_put_sends_data() -> None:
-    """Verify PUT delegates with correct method and data."""
-    client = IncusClient()
-    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
+    captured, side_effect = _capture_execute()
+    with patch.object(client, '_execute', side_effect=side_effect):
         client.put('/1.0/instances/web', {'description': 'updated'})
-        mock_request.assert_called_once_with('PUT', '/1.0/instances/web', {'description': 'updated'})
+        assert captured['method'] == 'PUT'
+        assert captured['path'] == '/1.0/instances/web'
+        assert captured['body'] == '{"description": "updated"}'
 
 
-def test_client_patch_sends_data() -> None:
-    """Verify PATCH delegates with correct method and data."""
+def test_client_patch_serializes_json() -> None:
+    """Verify PATCH serializes data as JSON body."""
     client = IncusClient()
-    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
+    captured, side_effect = _capture_execute()
+    with patch.object(client, '_execute', side_effect=side_effect):
         client.patch('/1.0/instances/web', {'description': 'patched'})
-        mock_request.assert_called_once_with('PATCH', '/1.0/instances/web', {'description': 'patched'})
+        assert captured['method'] == 'PATCH'
+        assert captured['body'] == '{"description": "patched"}'
 
 
-def test_client_delete_sends_no_data() -> None:
-    """Verify DELETE delegates with no data."""
+def test_client_delete_sends_no_body() -> None:
+    """Verify DELETE sends no body."""
     client = IncusClient()
-    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
+    captured, side_effect = _capture_execute()
+    with patch.object(client, '_execute', side_effect=side_effect):
         client.delete('/1.0/instances/web')
-        mock_request.assert_called_once_with('DELETE', '/1.0/instances/web')
+        assert captured['method'] == 'DELETE'
+        assert captured['path'] == '/1.0/instances/web'
+        assert captured['body'] is None
 
 
 def test_client_post_file_sends_binary() -> None:
