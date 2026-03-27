@@ -5,7 +5,7 @@
   vars:
     yum_repositories: # noqa: var-naming[no-role-prefix]
       - name: "{{ incus_repository_yum_repository_name }}"
-        baseurl: "{{ incus_repository_yum_repository_baseurl }}"
+        baseurl: "{{ incus_repository_yum_repository_baseurl | default('https://yum-repositories.damex.org/incus/' ~ incus_repository_yum_distribution_type ~ '/$releasever/$basearch') }}"
         gpgcheck: "{{ incus_repository_yum_repository_gpgcheck }}"
         gpgkey: "{{ incus_repository_yum_repository_gpgkey }}"
   when: ansible_facts['pkg_mgr'] in ["dnf", "dnf5"]

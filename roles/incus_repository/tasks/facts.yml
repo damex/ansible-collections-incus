@@ -4,3 +4,7 @@
     gather_subset:
       - pkg_mgr
       - distribution
+
+- name: Ensure incus repository yum distribution type
+  ansible.builtin.set_fact:
+    incus_repository_yum_distribution_type: "{{ 'fc' if ansible_facts['distribution'] == 'Fedora' else 'el' }}"
