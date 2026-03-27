@@ -236,10 +236,10 @@ def test_client_post_sends_json_body() -> None:
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.post('/1.0/instances', {'name': 'web'})
         mock_exec.assert_called_once()
-        method, path, body, _ = mock_exec.call_args[0]
-        assert method == 'POST'
-        assert path == '/1.0/instances'
-        assert body == '{"name": "web"}'
+        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+        assert call_method == 'POST'
+        assert call_path == '/1.0/instances'
+        assert call_body == '{"name": "web"}'
 
 
 def test_client_post_without_data() -> None:
@@ -247,8 +247,8 @@ def test_client_post_without_data() -> None:
     client = IncusClient()
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.post('/1.0/instances')
-        _, _, body, _ = mock_exec.call_args[0]
-        assert body is None
+        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+        assert call_body is None
 
 
 def test_client_put_sends_json_body() -> None:
@@ -256,10 +256,10 @@ def test_client_put_sends_json_body() -> None:
     client = IncusClient()
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.put('/1.0/instances/web', {'description': 'updated'})
-        method, path, body, _ = mock_exec.call_args[0]
-        assert method == 'PUT'
-        assert path == '/1.0/instances/web'
-        assert body == '{"description": "updated"}'
+        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+        assert call_method == 'PUT'
+        assert call_path == '/1.0/instances/web'
+        assert call_body == '{"description": "updated"}'
 
 
 def test_client_patch_sends_json_body() -> None:
@@ -267,9 +267,9 @@ def test_client_patch_sends_json_body() -> None:
     client = IncusClient()
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.patch('/1.0/instances/web', {'description': 'patched'})
-        method, _, body, _ = mock_exec.call_args[0]
-        assert method == 'PATCH'
-        assert body == '{"description": "patched"}'
+        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+        assert call_method == 'PATCH'
+        assert call_body == '{"description": "patched"}'
 
 
 def test_client_delete_sends_no_body() -> None:
@@ -277,10 +277,10 @@ def test_client_delete_sends_no_body() -> None:
     client = IncusClient()
     with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
         client.delete('/1.0/instances/web')
-        method, path, body, _ = mock_exec.call_args[0]
-        assert method == 'DELETE'
-        assert path == '/1.0/instances/web'
-        assert body is None
+        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+        assert call_method == 'DELETE'
+        assert call_path == '/1.0/instances/web'
+        assert call_body is None
 
 
 def test_client_post_file_sends_binary() -> None:
@@ -311,8 +311,8 @@ def test_client_post_file_public_header() -> None:
     )):
         with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
             client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
-            _, _, _, headers = mock_exec.call_args[0]
-            assert headers['X-Incus-public'] == '1'
+            call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+            assert call_headers['X-Incus-public'] == '1'
 
 
 def test_client_post_file_token_header() -> None:
@@ -324,8 +324,8 @@ def test_client_post_file_token_header() -> None:
     )):
         with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
             client.post_file('/1.0/images', '/tmp/image.tar.gz')
-            _, _, _, headers = mock_exec.call_args[0]
-            assert headers['Authorization'] == 'Bearer secret'
+            call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
+            assert call_headers['Authorization'] == 'Bearer secret'
 
 
 def test_client_context_manager_closes() -> None:
