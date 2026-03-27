@@ -2,8 +2,8 @@
 - name: Ensure tls client private key is generated
   community.crypto.openssl_privatekey:
     path: /tmp/tls-client.key
-    type: ECC
-    curve: secp256r1
+    type: RSA
+    size: 2048
 
 - name: Ensure tls client certificate is generated
   community.crypto.x509_certificate:
