@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import collections.abc
 import http.client
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -37,11 +39,13 @@ __all__ = [
     'test_client_retry_fails_with_exception',
     'test_client_retry_fails_with_client_exception',
     'test_client_no_retry_on_non_socket_error',
-    'test_client_post_sends_json_body',
+    'test_client_request_serializes_json',
+    'test_client_request_none_body',
+    'test_client_post_sends_data',
     'test_client_post_without_data',
-    'test_client_put_sends_json_body',
-    'test_client_patch_sends_json_body',
-    'test_client_delete_sends_no_body',
+    'test_client_put_sends_data',
+    'test_client_patch_sends_data',
+    'test_client_delete_sends_no_data',
     'test_client_post_file_sends_binary',
     'test_client_post_file_public_header',
     'test_client_post_file_token_header',
@@ -230,102 +234,131 @@ def test_client_no_retry_on_non_socket_error() -> None:
     mock_close.assert_called_once()
 
 
-def test_client_post_sends_json_body() -> None:
-    """Verify POST serializes data as JSON."""
+def _capture_execute() -> tuple[dict[str, Any], collections.abc.Callable[..., dict[str, Any]]]:
+    """
+    Build capture dict and side_effect for _execute calls.
+
+    >>> _capture_execute()
+    """
+    captured: dict[str, Any] = {}
+
+    def side_effect(
+        method: str,
+        path: str,
+        body: str | bytes | None,
+        headers: dict[str, str],
+    ) -> dict[str, Any]:
+        """Capture execute arguments."""
+        captured['method'] = method
+        captured['path'] = path
+        captured['body'] = body
+        captured['headers'] = headers
+        return {'type': 'sync'}
+
+    return captured, side_effect
+
+
+def test_client_request_serializes_json() -> None:
+    """Verify _request serializes data dict as JSON string."""
     client = IncusClient()
-    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+    captured, side_effect = _capture_execute()
+    with patch.object(client, '_execute', side_effect=side_effect):
+        client._request('POST', '/1.0/test', {'name': 'web'})
+        assert captured['body'] == '{"name": "web"}'
+
+
+def test_client_request_none_body() -> None:
+    """Verify _request sends None body when no data provided."""
+    client = IncusClient()
+    captured, side_effect = _capture_execute()
+    with patch.object(client, '_execute', side_effect=side_effect):
+        client._request('GET', '/1.0/test')
+        assert captured['body'] is None
+
+
+def test_client_post_sends_data() -> None:
+    """Verify POST delegates with correct method and data."""
+    client = IncusClient()
+    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
         client.post('/1.0/instances', {'name': 'web'})
-        mock_exec.assert_called_once()
-        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-        assert call_method == 'POST'
-        assert call_path == '/1.0/instances'
-        assert call_body == '{"name": "web"}'
+        mock_request.assert_called_once_with('POST', '/1.0/instances', {'name': 'web'})
 
 
 def test_client_post_without_data() -> None:
-    """Verify POST with no data sends null body."""
+    """Verify POST with no data sends None."""
     client = IncusClient()
-    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
         client.post('/1.0/instances')
-        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-        assert call_body is None
+        mock_request.assert_called_once_with('POST', '/1.0/instances', None)
 
 
-def test_client_put_sends_json_body() -> None:
-    """Verify PUT serializes data as JSON."""
+def test_client_put_sends_data() -> None:
+    """Verify PUT delegates with correct method and data."""
     client = IncusClient()
-    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
         client.put('/1.0/instances/web', {'description': 'updated'})
-        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-        assert call_method == 'PUT'
-        assert call_path == '/1.0/instances/web'
-        assert call_body == '{"description": "updated"}'
+        mock_request.assert_called_once_with('PUT', '/1.0/instances/web', {'description': 'updated'})
 
 
-def test_client_patch_sends_json_body() -> None:
-    """Verify PATCH serializes data as JSON."""
+def test_client_patch_sends_data() -> None:
+    """Verify PATCH delegates with correct method and data."""
     client = IncusClient()
-    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
         client.patch('/1.0/instances/web', {'description': 'patched'})
-        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-        assert call_method == 'PATCH'
-        assert call_body == '{"description": "patched"}'
+        mock_request.assert_called_once_with('PATCH', '/1.0/instances/web', {'description': 'patched'})
 
 
-def test_client_delete_sends_no_body() -> None:
-    """Verify DELETE sends no body."""
+def test_client_delete_sends_no_data() -> None:
+    """Verify DELETE delegates with no data."""
     client = IncusClient()
-    with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+    with patch.object(client, '_request', return_value={'type': 'sync'}) as mock_request:
         client.delete('/1.0/instances/web')
-        call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-        assert call_method == 'DELETE'
-        assert call_path == '/1.0/instances/web'
-        assert call_body is None
+        mock_request.assert_called_once_with('DELETE', '/1.0/instances/web')
 
 
 def test_client_post_file_sends_binary() -> None:
     """Verify post_file reads file and sends as octet-stream."""
     client = IncusClient()
     file_content = b'fake image data'
+    captured, side_effect = _capture_execute()
     with patch('builtins.open', return_value=MagicMock(
         __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=file_content))),
         __exit__=MagicMock(return_value=False),
     )):
-        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        with patch.object(client, '_execute', side_effect=side_effect):
             client.post_file('/1.0/images', '/tmp/image.tar.gz')
-            method, path, body, headers = mock_exec.call_args[0]
-            assert method == 'POST'
-            assert path == '/1.0/images'
-            assert body == file_content
-            assert headers['Content-Type'] == 'application/octet-stream'
-            assert headers['X-Incus-filename'] == 'image.tar.gz'
-            assert 'X-Incus-public' not in headers
+            assert captured['method'] == 'POST'
+            assert captured['path'] == '/1.0/images'
+            assert captured['body'] == file_content
+            assert captured['headers']['Content-Type'] == 'application/octet-stream'
+            assert captured['headers']['X-Incus-filename'] == 'image.tar.gz'
+            assert 'X-Incus-public' not in captured['headers']
 
 
 def test_client_post_file_public_header() -> None:
     """Verify post_file adds public header when requested."""
     client = IncusClient()
+    captured, side_effect = _capture_execute()
     with patch('builtins.open', return_value=MagicMock(
         __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
         __exit__=MagicMock(return_value=False),
     )):
-        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        with patch.object(client, '_execute', side_effect=side_effect):
             client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
-            call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-            assert call_headers['X-Incus-public'] == '1'
+            assert captured['headers']['X-Incus-public'] == '1'
 
 
 def test_client_post_file_token_header() -> None:
     """Verify post_file includes Bearer token."""
     client = IncusClient(IncusConnectionParameters(token='secret'))
+    captured, side_effect = _capture_execute()
     with patch('builtins.open', return_value=MagicMock(
         __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
         __exit__=MagicMock(return_value=False),
     )):
-        with patch.object(client, '_execute', return_value={'type': 'sync'}) as mock_exec:
+        with patch.object(client, '_execute', side_effect=side_effect):
             client.post_file('/1.0/images', '/tmp/image.tar.gz')
-            call_method, call_path, call_body, call_headers = mock_exec.call_args[0]
-            assert call_headers['Authorization'] == 'Bearer secret'
+            assert captured['headers']['Authorization'] == 'Bearer secret'
 
 
 def test_client_context_manager_closes() -> None:
