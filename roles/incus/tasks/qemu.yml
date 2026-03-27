@@ -5,11 +5,20 @@
     - ansible_facts['distribution'] != "Fedora"
   become: true
   block:
-    - name: Ensure incus qemu binary symlink
-      ansible.builtin.file:
-        src: /usr/libexec/qemu-kvm
-        dest: /usr/bin/qemu-system-{{ ansible_facts['architecture'] }}
-        state: link
+    - name: Ensure incus qemu wrapper
+      ansible.builtin.copy:
+        dest: /usr/local/bin/qemu-system-{{ ansible_facts['architecture'] }}
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          args=()
+          skip=false
+          for arg in "$@"; do
+            if $skip; then skip=false; continue; fi
+            if [[ "$arg" == "-spice" ]]; then skip=true; continue; fi
+            args+=("$arg")
+          done
+          exec -a "qemu-system-{{ ansible_facts['architecture'] }}" /usr/libexec/qemu-kvm "${args[@]}"
       when: "'qemu-kvm-core' in ansible_facts.packages"
 
     - name: Ensure incus seabios symlink
