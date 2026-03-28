@@ -59,6 +59,7 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'parent': {'type': 'str'},
     'vendorid': {'type': 'str'},
     # disk
+    'dependent': {'type': 'bool'},
     'ceph.cluster_name': {'type': 'str'},
     'ceph.user_name': {'type': 'str'},
     'io.cache': {'type': 'str'},

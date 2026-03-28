@@ -2046,6 +2046,9 @@ argument_specs:
                 description: Vendor ID of the parent host device.
                 type: str
               # disk
+              dependent:
+                description: Instance dependent disk.
+                type: bool
               ceph.cluster_name:
                 description: Ceph cluster name.
                 type: str

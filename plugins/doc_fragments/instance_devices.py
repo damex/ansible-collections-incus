@@ -85,6 +85,9 @@ options:
         description: Vendor ID of the parent host device (nic SR-IOV, unix-hotplug).
         type: str
       # disk
+      dependent:
+        description: Instance dependent disk (disk only).
+        type: bool
       ceph.cluster_name:
         description: Ceph cluster name (disk only).
         type: str
