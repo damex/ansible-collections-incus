@@ -332,6 +332,10 @@ options:
         description:
           - Starlark scriptlet for custom instance placement.
         type: str
+      network.hwaddr_pattern:
+        description:
+          - MAC address template for the cluster.
+        type: str
       network.ovn.ca_cert:
         description:
           - CA certificate for the OVN northbound connection.
@@ -599,6 +603,7 @@ INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {
     'instances.lxcfs.per_instance': {'type': 'bool'},
     'instances.nic.host_name': {'type': 'str'},
     'instances.placement.scriptlet': {'type': 'str'},
+    'network.hwaddr_pattern': {'type': 'str'},
     'network.ovn.ca_cert': {'type': 'str'},
     'network.ovn.client_cert': {'type': 'str'},
     'network.ovn.client_key': {'type': 'str', 'no_log': True},

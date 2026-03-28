@@ -285,6 +285,9 @@ argument_specs:
           instances.placement.scriptlet:
             type: str
             description: Starlark scriptlet for custom instance placement.
+          network.hwaddr_pattern:
+            type: str
+            description: MAC address template for the cluster.
           network.ovn.ca_cert:
             type: str
             description: CA certificate for the OVN northbound connection.
