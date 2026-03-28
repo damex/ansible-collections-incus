@@ -526,6 +526,10 @@ from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_named_list_to_dict,
     incus_common_stringify_dict,
 )
+from ansible_collections.damex.incus.plugins.module_utils.scriptlet import (
+    INCUS_SCRIPTLET_FUNCTIONS,
+    incus_scriptlet_validate,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -694,6 +698,18 @@ def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> dict[s
     >>> _ensure_server_config(module, {'core.https_address': ':8443'})
     {'changed': True, 'changed_keys': ['core.https_address']}
     """
+    for scriptlet_key in INCUS_SCRIPTLET_FUNCTIONS:
+        scriptlet_content = desired_config.get(scriptlet_key)
+        if scriptlet_content:
+            validation_error = incus_scriptlet_validate(
+                scriptlet_key,
+                scriptlet_content,
+            )
+            if validation_error:
+                module.fail_json(
+                    msg=f"Scriptlet {scriptlet_key} validation failed: {validation_error}",
+                )
+
     if module.params.get('init'):
         return incus_build_result(
             _preseed_init(module, desired_config),
