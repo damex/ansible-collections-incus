@@ -25,6 +25,7 @@ INCUS_KNOWN_REMOTES = {
     'ubuntu': ('https://cloud-images.ubuntu.com/releases', 'simplestreams'),
     'ubuntu-daily': ('https://cloud-images.ubuntu.com/daily', 'simplestreams'),
     'docker': ('https://docker.io', 'oci'),
+    'ghcr': ('https://ghcr.io', 'oci'),
 }
 
 INCUS_SOURCE_ARGS = {
