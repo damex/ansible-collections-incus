@@ -559,7 +559,6 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
             },
             'protocol': {
                 'type': 'str',
-                'required': True,
                 'choices': [
                     'vxlan',
                     'gre',
