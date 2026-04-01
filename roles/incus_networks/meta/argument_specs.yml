@@ -98,6 +98,21 @@ argument_specs:
                   bgp.ipv6.nexthop:
                     description: Override the next-hop for advertised IPv6 prefixes.
                     type: str
+                  tunnels:
+                    description: Per-member tunnel configuration.
+                    type: list
+                    elements: dict
+                    options:
+                      name:
+                        description: Tunnel name identifier.
+                        required: true
+                        type: str
+                      interface:
+                        description: Host interface for tunnel.
+                        type: str
+                      local:
+                        description: Local address for tunnel.
+                        type: str
               state:
                 description: Desired state of this cluster member's network entry.
                 type: str
