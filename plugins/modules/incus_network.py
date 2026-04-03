@@ -325,7 +325,6 @@ options:
             description:
               - Tunneling protocol.
             type: str
-            required: true
             choices: [vxlan, gre]
           local:
             description:
