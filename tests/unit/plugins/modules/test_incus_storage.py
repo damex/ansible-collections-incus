@@ -30,6 +30,9 @@ __all__ = [
     'test_delete_existing_storage_per_target',
     'test_delete_nonexistent_storage',
     'test_storage_check_mode',
+    'test_create_storage_with_target_filters_config',
+    'test_update_storage_with_target',
+    'test_skip_matching_storage_with_target',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage'
@@ -126,3 +129,50 @@ def test_delete_nonexistent_storage() -> None:
 def test_storage_check_mode() -> None:
     """Skip API calls in check mode."""
     assert_write_check_mode(main, MODULE, _mock_module(check_mode=True))
+
+
+def test_create_storage_with_target_filters_config() -> None:
+    """Create storage with target keeps only node-specific config."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {
+        'source': '/dev/sda',
+        'size': '100GB',
+        'rsync.bwlimit': '100',
+    }
+    client = assert_write_create(main, MODULE, module)
+    post_url, post_data = client.post.call_args.args
+    assert post_data['config']['source'] == '/dev/sda'
+    assert post_data['config']['size'] == '100GB'
+    assert 'rsync.bwlimit' not in post_data['config']
+    assert not post_data['description']
+    assert 'target=node1' in post_url
+
+
+def test_update_storage_with_target() -> None:
+    """Update node-specific storage config with target."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {
+        'source': '/dev/sdb',
+        'rsync.bwlimit': '100',
+    }
+    current = {
+        'description': '',
+        'config': {'source': '/dev/sda'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['source'] == '/dev/sdb'
+    assert 'rsync.bwlimit' not in put_data['config']
+
+
+def test_skip_matching_storage_with_target() -> None:
+    """Skip update when node-specific config matches with target."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {'source': '/dev/sda'}
+    current = {
+        'description': '',
+        'config': {'source': '/dev/sda'},
+    }
+    assert_write_skip(main, MODULE, module, current)

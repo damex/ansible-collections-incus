@@ -262,6 +262,7 @@ class IncusResourceOptions(NamedTuple):
     create_only_params: list[str] | None = None
     name_key: str = 'name'
     immutable_config_keys: frozenset[str] = frozenset()
+    is_node_specific: collections.abc.Callable[[str], bool] | None = None
 
 
 class IncusResourceState(NamedTuple):
@@ -321,6 +322,17 @@ def _incus_build_effective_desired(
     result = desired.copy()
     result['config'] = combined_config
     return result
+
+
+def _incus_check_server_clustered(client: IncusClient) -> bool:
+    """
+    Check server is clustered.
+
+    >>> _incus_check_server_clustered(client)
+    False
+    """
+    server_environment = client.get('/1.0').get('metadata', {}).get('environment', {})
+    return bool(server_environment.get('server_clustered', False))
 
 
 def _incus_check_target_creation(
@@ -402,6 +414,29 @@ def incus_build_result(
     return result
 
 
+def _incus_build_node_specific_desired(
+    desired: dict[str, Any],
+    is_node_specific: collections.abc.Callable[[str], bool],
+) -> dict[str, Any]:
+    """
+    Build node-specific desired state.
+
+    >>> _incus_build_node_specific_desired(
+    ...     {'description': 'net', 'config': {'parent': 'eth0', 'ipv4.address': '10.0.0.1/24'}},
+    ...     lambda config_key: config_key == 'parent',
+    ... )
+    {'description': '', 'config': {'parent': 'eth0'}}
+    """
+    filtered = desired.copy()
+    filtered['config'] = {
+        config_key: config_value
+        for config_key, config_value in desired.get('config', {}).items()
+        if is_node_specific(config_key)
+    }
+    filtered['description'] = ''
+    return filtered
+
+
 def _incus_ensure_present(
     module: AnsibleModule,
     client: IncusClient,
@@ -422,10 +457,16 @@ def _incus_ensure_present(
         project = module.params.get('project')
         if target and not _incus_check_target_creation(module, client, resource, encoded_name, project):
             return incus_build_result(False)
+        create_desired = state.desired
+        if target and options.is_node_specific:
+            create_desired = _incus_build_node_specific_desired(
+                state.desired,
+                options.is_node_specific,
+            )
         create_data = _build_create_data(
             module,
             module.params['name'],
-            state.desired,
+            create_desired,
             options.create_only_params,
             require=not state.exists,
         )
@@ -437,15 +478,38 @@ def _incus_ensure_present(
                 client,
                 client.post(f'/1.0/{resource}{query}', create_data),
             )
-        return incus_build_result(True, before={}, after=state.desired)
-    if target:
+        return incus_build_result(True, before={}, after=create_desired)
+    if target and not options.is_node_specific:
         return incus_build_result(False)
-    effective = _incus_build_effective_desired(
-        state.desired,
-        state.current,
-        options.immutable_config_keys,
-        frozenset(),
-    )
+    if target and options.is_node_specific:
+        effective = _incus_build_effective_desired(
+            _incus_build_node_specific_desired(
+                state.desired,
+                options.is_node_specific,
+            ),
+            state.current,
+            options.immutable_config_keys,
+            frozenset(
+                config_key
+                for config_key in state.current.get('config', {})
+                if not options.is_node_specific(config_key)
+            ),
+        )
+    else:
+        cluster_wide_desired = state.desired
+        if options.is_node_specific and _incus_check_server_clustered(client):
+            cluster_wide_desired = state.desired.copy()
+            cluster_wide_desired['config'] = {
+                config_key: config_value
+                for config_key, config_value in state.desired.get('config', {}).items()
+                if not options.is_node_specific(config_key)
+            }
+        effective = _incus_build_effective_desired(
+            cluster_wide_desired,
+            state.current,
+            options.immutable_config_keys,
+            frozenset(),
+        )
     changed = not _incus_desired_matches_current(effective, state.current)
     if changed and not module.check_mode:
         incus_wait(

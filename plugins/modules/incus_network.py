@@ -429,6 +429,9 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_ensure_resource,
     incus_run_write_module,
 )
+from ansible_collections.damex.incus.plugins.module_utils.incus_target import (
+    incus_is_network_node_specific,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -607,7 +610,15 @@ def main() -> None:
     desired = incus_build_desired(module, config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'})
     incus_run_write_module(
         module,
-        lambda: incus_ensure_resource(module, 'networks', desired, IncusResourceOptions(create_only_params=['type'])),
+        lambda: incus_ensure_resource(
+            module,
+            'networks',
+            desired,
+            IncusResourceOptions(
+                create_only_params=['type'],
+                is_node_specific=incus_is_network_node_specific,
+            ),
+        ),
     )
 
 

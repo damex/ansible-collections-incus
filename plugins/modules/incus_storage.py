@@ -314,6 +314,9 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_ensure_resource,
     incus_run_write_module,
 )
+from ansible_collections.damex.incus.plugins.module_utils.incus_target import (
+    incus_is_storage_node_specific,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -429,6 +432,10 @@ def main() -> None:
         create_only_params=['driver'],
         immutable_config_keys=INCUS_STORAGE_IMMUTABLE_UNIVERSAL.union(
             INCUS_STORAGE_IMMUTABLE_CONFIG.get(driver, frozenset()),
+        ),
+        is_node_specific=lambda config_key: incus_is_storage_node_specific(
+            config_key,
+            driver,
         ),
     )
     incus_run_write_module(

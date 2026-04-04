@@ -32,6 +32,10 @@ __all__ = [
     'test_create_network_with_tunnels',
     'test_update_network_with_tunnels',
     'test_skip_matching_network_with_tunnels',
+    'test_create_network_with_target_filters_config',
+    'test_update_network_with_target',
+    'test_skip_matching_network_with_target',
+    'test_create_network_with_target_filters_tunnel_keys',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_network'
@@ -174,3 +178,76 @@ def test_skip_matching_network_with_tunnels() -> None:
         },
     }
     assert_write_skip(main, MODULE, module, current)
+
+
+def test_create_network_with_target_filters_config() -> None:
+    """Create network with target keeps only node-specific config."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {
+        'parent': 'eth0',
+        'ipv4.address': '10.0.0.1/24',
+    }
+    client = assert_write_create(main, MODULE, module)
+    post_url, post_data = client.post.call_args.args
+    assert post_data['config']['parent'] == 'eth0'
+    assert 'ipv4.address' not in post_data['config']
+    assert not post_data['description']
+    assert 'target=node1' in post_url
+
+
+def test_update_network_with_target() -> None:
+    """Update node-specific network config with target."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {
+        'parent': 'eth1',
+        'ipv4.address': '10.0.0.1/24',
+    }
+    current = {
+        'description': '',
+        'config': {'parent': 'eth0'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['parent'] == 'eth1'
+    assert 'ipv4.address' not in put_data['config']
+
+
+def test_skip_matching_network_with_target() -> None:
+    """Skip update when node-specific config matches with target."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {'parent': 'eth0'}
+    current = {
+        'description': '',
+        'config': {'parent': 'eth0'},
+    }
+    assert_write_skip(main, MODULE, module, current)
+
+
+def test_create_network_with_target_filters_tunnel_keys() -> None:
+    """Create network with target keeps only node-specific tunnel keys."""
+    module = _mock_module()
+    module.params['target'] = 'node1'
+    module.params['config'] = {
+        'tunnels': [
+            {
+                'name': 'site2',
+                'protocol': 'vxlan',
+                'local': '192.168.1.1',
+                'remote': '192.168.1.2',
+                'id': None,
+                'group': None,
+                'port': None,
+                'interface': 'tun0',
+                'ttl': None,
+            },
+        ],
+    }
+    client = assert_write_create(main, MODULE, module)
+    post_url, post_data = client.post.call_args.args
+    assert 'target=node1' in post_url
+    assert post_data['config']['tunnel.site2.local'] == '192.168.1.1'
+    assert post_data['config']['tunnel.site2.interface'] == 'tun0'
+    assert 'tunnel.site2.protocol' not in post_data['config']
+    assert 'tunnel.site2.remote' not in post_data['config']
