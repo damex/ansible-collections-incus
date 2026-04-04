@@ -537,6 +537,16 @@ from ansible_collections.damex.incus.plugins.module_utils.scriptlet import (
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
+INCUS_SERVER_RESTART_CONFIG_KEYS = frozenset({
+    'cluster.https_address',
+    'core.bgp_address',
+    'core.debug_address',
+    'core.dns_address',
+    'core.https_address',
+    'core.metrics_address',
+    'core.storage_buckets_address',
+})
+
 INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {
     'core.bgp_address': {'type': 'str'},
     'core.bgp_asn': {'type': 'str'},
@@ -696,6 +706,20 @@ def _preseed_init(module: Any, desired_config: dict[str, str]) -> bool:
     return True
 
 
+def _incus_warning_restart_required(
+    module: Any,
+    result: dict[str, Any],
+) -> None:
+    """
+    Warning when changed keys require restart.
+
+    >>> _incus_warning_restart_required(module, {'changed_keys': ['core.https_address']})
+    """
+    for changed_key in result.get('changed_keys', []):
+        if changed_key in INCUS_SERVER_RESTART_CONFIG_KEYS:
+            module.warn(f'{changed_key} changed, daemon restart required to rebind listener')
+
+
 def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> dict[str, Any]:
     """
     Ensure server config matches desired state.
@@ -716,22 +740,26 @@ def _ensure_server_config(module: Any, desired_config: dict[str, str]) -> dict[s
                 )
 
     if module.params.get('init'):
-        return incus_build_result(
+        result = incus_build_result(
             _preseed_init(module, desired_config),
             before={},
             after=desired_config,
         )
+        _incus_warning_restart_required(module, result)
+        return result
     with incus_create_client(module) as client:
         current = client.get('/1.0').get('metadata', {}).get('config', {})
         if current == desired_config:
             return incus_build_result(False)
         if not module.check_mode:
             client.put('/1.0', {'config': desired_config})
-        return incus_build_result(
+        result = incus_build_result(
             True,
             before=current,
             after=desired_config,
         )
+        _incus_warning_restart_required(module, result)
+        return result
 
 
 def main() -> None:
