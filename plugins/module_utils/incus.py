@@ -225,7 +225,6 @@ def _build_create_data(
     name: str,
     desired: dict[str, Any],
     create_only_params: list[str] | None,
-    *,
     require: bool = True,
 ) -> dict[str, Any]:
     """
@@ -705,7 +704,6 @@ def incus_run_info_module(
 def incus_ensure_info(
     resource: str,
     return_key: str,
-    *,
     project_scoped: bool = False,
 ) -> None:
     """
@@ -744,7 +742,6 @@ def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:
 
 def incus_create_write_module(
     argument_spec: dict[str, Any],
-    *,
     require_yaml: bool = False,
 ) -> AnsibleModule:
     """
