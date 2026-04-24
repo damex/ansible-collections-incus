@@ -309,7 +309,11 @@ def _incus_build_effective_desired(
         config_key in immutable_config_keys and config_key not in current_config
         for config_key in desired_config
     )
-    if not preserved and not has_absent_immutable:
+    has_present_immutable = any(
+        config_key in immutable_config_keys and config_key in current_config
+        for config_key in desired_config
+    )
+    if not preserved and not has_absent_immutable and not has_present_immutable:
         return desired
     combined_config: dict[str, Any] = {}
     for config_key, config_value in preserved.items():
@@ -317,7 +321,10 @@ def _incus_build_effective_desired(
     for config_key, config_value in desired_config.items():
         if config_key in immutable_config_keys and config_key not in current_config:
             continue
-        combined_config[config_key] = config_value
+        if config_key in immutable_config_keys and config_key in current_config:
+            combined_config[config_key] = current_config[config_key]
+        else:
+            combined_config[config_key] = config_value
     result = desired.copy()
     result['config'] = combined_config
     return result
