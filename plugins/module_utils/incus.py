@@ -494,7 +494,7 @@ def _incus_ensure_present(
                 options.is_node_specific,
             ),
             state.current,
-            options.immutable_config_keys,
+            frozenset(),
             frozenset(
                 config_key
                 for config_key in state.current.get('config', {})
