@@ -87,6 +87,9 @@ argument_specs:
               value:
                 type: str
                 description: Value for the configuration key.
+      incus_server_restart:
+        description: Restart daemon when changed keys require it.
+        type: bool
       incus_server_restart_keys:
         description: Config keys that require daemon restart when changed.
         type: list
