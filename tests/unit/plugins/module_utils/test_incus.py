@@ -89,7 +89,7 @@ __all__ = [
     'test_resolve_image_alias_encodes_name',
     'test_effective_desired_preserves_immutable_keys',
     'test_effective_desired_no_matching_keys',
-    'test_effective_desired_desired_wins',
+    'test_effective_desired_immutable_key_uses_current_value',
     'test_effective_desired_preserves_volatile_keys',
     'test_effective_desired_targeted_preserves_global_keys',
     'test_effective_desired_non_targeted_removes_extra_keys',
@@ -658,14 +658,14 @@ def test_effective_desired_no_matching_keys() -> None:
     assert result is desired
 
 
-def test_effective_desired_desired_wins() -> None:
-    """Desired config takes precedence over preserved keys."""
+def test_effective_desired_immutable_key_uses_current_value() -> None:
+    """Immutable key present in both desired and current uses current value."""
     desired = {'description': '', 'config': {'zfs.pool_name': 'custom'}}
     current = {'config': {'zfs.pool_name': 'system/incus'}}
     result = _incus_build_effective_desired(
         desired, current, frozenset({'zfs.pool_name'}), frozenset(),
     )
-    assert result['config']['zfs.pool_name'] == 'custom'
+    assert result['config']['zfs.pool_name'] == 'system/incus'
 
 
 def test_effective_desired_preserves_volatile_keys() -> None:
