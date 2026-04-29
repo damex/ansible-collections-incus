@@ -413,7 +413,7 @@ def incus_build_result(
     >>> incus_build_result(True, {'description': ''}, {'description': 'new'})['changed']
     True
     """
-    result: dict[str, Any] = {'changed': changed, 'changed_keys': []}
+    result: dict[str, Any] = {'changed': changed, 'changed_keys': [], 'restart_required': False}
     if changed and before is not None and after is not None:
         result['diff'] = {'before': before, 'after': after}
         result['changed_keys'] = _incus_build_changed_keys(before, after)
@@ -646,22 +646,26 @@ def incus_run_write_module(
         if isinstance(result, dict):
             changed = result['changed']
             changed_keys = result.get('changed_keys', [])
+            restart_required = result.get('restart_required', False)
             diff = result.get('diff')
             if diff:
                 module.exit_json(
                     changed=changed,
                     diff=diff,
                     changed_keys=changed_keys,
+                    restart_required=restart_required,
                 )
             else:
                 module.exit_json(
                     changed=changed,
                     changed_keys=changed_keys,
+                    restart_required=restart_required,
                 )
         else:
             module.exit_json(
                 changed=result,
                 changed_keys=[],
+                restart_required=False,
             )
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))

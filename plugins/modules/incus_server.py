@@ -717,6 +717,7 @@ def _incus_warning_restart_required(
     """
     for changed_key in result.get('changed_keys', []):
         if changed_key in INCUS_SERVER_RESTART_CONFIG_KEYS:
+            result['restart_required'] = True
             module.warn(f'{changed_key} changed, daemon restart required to rebind listener')
 
 
