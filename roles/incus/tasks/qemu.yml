@@ -1,29 +1,11 @@
 ---
-- name: Ensure incus qemu workarounds
+- name: Ensure incus qemu symlink
+  ansible.builtin.file:
+    src: /usr/libexec/qemu-kvm
+    dest: /usr/local/bin/qemu-system-{{ ansible_facts['architecture'] }}
+    state: link
+  become: true
   when:
     - ansible_facts['os_family'] == "RedHat"
     - ansible_facts['distribution'] != "Fedora"
-  become: true
-  block:
-    - name: Ensure incus qemu wrapper
-      ansible.builtin.copy:
-        dest: /usr/local/bin/qemu-system-{{ ansible_facts['architecture'] }}
-        mode: "0755"
-        content: |
-          #!/usr/bin/env bash
-          args=()
-          skip=false
-          for arg in "$@"; do
-            if $skip; then skip=false; continue; fi
-            if [[ "$arg" == "-spice" ]]; then skip=true; continue; fi
-            args+=("$arg")
-          done
-          exec -a "qemu-system-{{ ansible_facts['architecture'] }}" /usr/libexec/qemu-kvm "${args[@]}"
-      when: "'qemu-kvm-core' in ansible_facts.packages"
-
-    - name: Ensure incus seabios symlink
-      ansible.builtin.file:
-        src: bios-256k.bin
-        dest: /usr/share/seabios/bios.bin
-        state: link
-      when: "'seabios-bin' in ansible_facts.packages"
+    - "'qemu-kvm-core' in ansible_facts.packages"
