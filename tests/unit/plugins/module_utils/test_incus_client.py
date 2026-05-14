@@ -374,11 +374,12 @@ def test_client_post_file_streams_handle() -> None:
 def test_client_post_file_public_header() -> None:
     """Verify post_file adds public header when requested."""
     client = IncusClient()
-    captured, side_effect = _capture_execute()
-    with patch('builtins.open', return_value=MagicMock(
+    open_mock = MagicMock(
         __enter__=MagicMock(return_value=MagicMock()),
         __exit__=MagicMock(return_value=False),
-    )), \
+    )
+    captured, side_effect = _capture_execute()
+    with patch('builtins.open', return_value=open_mock), \
          patch('os.path.getsize', return_value=1), \
          patch.object(client, '_execute', side_effect=side_effect):
         client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
@@ -388,11 +389,12 @@ def test_client_post_file_public_header() -> None:
 def test_client_post_file_token_header() -> None:
     """Verify post_file includes Bearer token."""
     client = IncusClient(IncusConnectionParameters(token='secret'))
-    captured, side_effect = _capture_execute()
-    with patch('builtins.open', return_value=MagicMock(
+    open_mock = MagicMock(
         __enter__=MagicMock(return_value=MagicMock()),
         __exit__=MagicMock(return_value=False),
-    )), \
+    )
+    captured, side_effect = _capture_execute()
+    with patch('builtins.open', return_value=open_mock), \
          patch('os.path.getsize', return_value=1), \
          patch.object(client, '_execute', side_effect=side_effect):
         client.post_file('/1.0/images', '/tmp/image.tar.gz')
