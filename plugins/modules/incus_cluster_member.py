@@ -206,7 +206,7 @@ def _ensure_cluster_member_present(
         'failure_domain': current.get('failure_domain', ''),
     }
     if module.params.get('roles') is not None:
-        current_immutable = [r for r in current.get('roles', []) if r in _IMMUTABLE_ROLES]
+        current_immutable = [role for role in current.get('roles', []) if role in _IMMUTABLE_ROLES]
         desired['roles'] = sorted(set(module.params['roles']) | set(current_immutable))
     if module.params.get('groups') is not None:
         desired['groups'] = sorted(module.params['groups'])

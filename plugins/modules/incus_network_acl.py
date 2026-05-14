@@ -296,13 +296,13 @@ def _normalize_rules(rules: list[dict[str, Any]] | None) -> list[dict[str, Any]]
             if value:
                 entry[field] = value
         normalized.append(entry)
-    normalized.sort(key=lambda r: (
-        _ACTION_ORDER.get(r['action'], 99),
-        r.get('source', ''),
-        r.get('destination', ''),
-        r.get('protocol', ''),
-        r.get('source_port', ''),
-        r.get('destination_port', ''),
+    normalized.sort(key=lambda rule: (
+        _ACTION_ORDER.get(rule['action'], 99),
+        rule.get('source', ''),
+        rule.get('destination', ''),
+        rule.get('protocol', ''),
+        rule.get('source_port', ''),
+        rule.get('destination_port', ''),
     ))
     return normalized
 
