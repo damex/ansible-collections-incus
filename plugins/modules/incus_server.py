@@ -544,6 +544,7 @@ INCUS_SERVER_RESTART_CONFIG_KEYS = frozenset({
     'core.https_address',
     'core.metrics_address',
     'core.storage_buckets_address',
+    'core.syslog_socket',
 })
 
 INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {

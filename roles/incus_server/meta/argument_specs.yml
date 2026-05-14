@@ -90,19 +90,6 @@ argument_specs:
       incus_server_restart:
         description: Restart daemon when changed keys require it.
         type: bool
-      incus_server_restart_keys:
-        description: Config keys that require daemon restart when changed.
-        type: list
-        elements: str
-        choices:
-          - core.https_address
-          - cluster.https_address
-          - core.bgp_address
-          - core.dns_address
-          - core.metrics_address
-          - core.storage_buckets_address
-          - core.debug_address
-          - core.syslog_socket
       incus_server_config:
         required: true
         type: dict
