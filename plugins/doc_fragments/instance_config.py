@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Roman Kuzmitskii <ansible@damex.org>
 # SPDX-License-Identifier: GPL-3.0-or-later
 # pylint: disable=too-many-lines
