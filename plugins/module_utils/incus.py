@@ -673,16 +673,15 @@ def incus_run_write_module(
 def incus_run_info_module(
     module: AnsibleModule,
     resource: str,
-    return_key: str,
-) -> None:
+) -> list[Any]:
     """
-    Execute info module.
+    Fetch info resource list.
 
     >>> incus_run_info_module(
     ...     module,
     ...     'instances',
-    ...     'instances',
     ... )
+    [{'name': 'web', 'status': 'Running'}]
     """
     name = module.params.get('name')
     project = module.params.get('project')
@@ -708,27 +707,24 @@ def incus_run_info_module(
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))
 
-    module.exit_json(**{return_key: result})
+    return result
 
 
 def incus_ensure_info(
     resource: str,
-    return_key: str,
     project_scoped: bool = False,
-) -> None:
+) -> tuple[AnsibleModule, list[Any]]:
     """
-    Execute info module.
+    Build info module and fetch resource list.
 
-    >>> incus_ensure_info(
-    ...     'instances',
-    ...     'instances',
-    ... )
+    >>> incus_ensure_info('instances', project_scoped=True)
+    (<AnsibleModule ...>, [{'name': 'web', 'status': 'Running'}])
     """
     args: dict[str, Any] = {'name': {'type': 'str'}}
     if project_scoped:
         args['project'] = {'type': 'str', 'default': 'default'}
     module = incus_create_info_module(args)
-    incus_run_info_module(module, resource, return_key)
+    return module, incus_run_info_module(module, resource)
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:

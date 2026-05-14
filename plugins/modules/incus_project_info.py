@@ -77,7 +77,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('projects', 'projects')
+    module, result = incus_ensure_info('projects')
+    module.exit_json(projects=result)
 
 
 if __name__ == '__main__':

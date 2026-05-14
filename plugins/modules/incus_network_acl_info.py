@@ -80,7 +80,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('network-acls', 'network_acls', project_scoped=True)
+    module, result = incus_ensure_info('network-acls', project_scoped=True)
+    module.exit_json(network_acls=result)
 
 
 if __name__ == '__main__':

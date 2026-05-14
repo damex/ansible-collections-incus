@@ -90,7 +90,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('cluster/members', 'cluster_members')
+    module, result = incus_ensure_info('cluster/members')
+    module.exit_json(cluster_members=result)
 
 
 if __name__ == '__main__':

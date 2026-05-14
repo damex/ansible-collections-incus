@@ -83,7 +83,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('storage-pools', 'storage_pools')
+    module, result = incus_ensure_info('storage-pools')
+    module.exit_json(storage_pools=result)
 
 
 if __name__ == '__main__':

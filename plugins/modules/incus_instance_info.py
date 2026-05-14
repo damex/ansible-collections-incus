@@ -90,7 +90,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('instances', 'instances', project_scoped=True)
+    module, result = incus_ensure_info('instances', project_scoped=True)
+    module.exit_json(instances=result)
 
 
 if __name__ == '__main__':

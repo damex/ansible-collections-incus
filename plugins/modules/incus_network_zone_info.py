@@ -72,7 +72,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('network-zones', 'network_zones', project_scoped=True)
+    module, result = incus_ensure_info('network-zones', project_scoped=True)
+    module.exit_json(network_zones=result)
 
 
 if __name__ == '__main__':

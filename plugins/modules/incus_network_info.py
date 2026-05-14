@@ -86,7 +86,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('networks', 'networks', project_scoped=True)
+    module, result = incus_ensure_info('networks', project_scoped=True)
+    module.exit_json(networks=result)
 
 
 if __name__ == '__main__':

@@ -489,9 +489,9 @@ def test_run_info_module_single_resource(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module(name='pool1')
-    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+    result = incus_run_info_module(module, 'storage-pools')
 
-    module.exit_json.assert_called_once_with(storage_pools=[{'name': 'pool1', 'driver': 'zfs'}])
+    assert result == [{'name': 'pool1', 'driver': 'zfs'}]
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -502,9 +502,9 @@ def test_run_info_module_not_found(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module(name='missing')
-    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+    result = incus_run_info_module(module, 'storage-pools')
 
-    module.exit_json.assert_called_once_with(storage_pools=[])
+    assert result == []
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -516,9 +516,9 @@ def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module()
-    incus_run_info_module(module, 'networks', 'networks')
+    result = incus_run_info_module(module, 'networks')
 
-    module.exit_json.assert_called_once_with(networks=items)
+    assert result == items
     assert '?recursion=1' in client.get.call_args[0][0]
 
 
@@ -530,7 +530,7 @@ def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module(project='myproject')
-    incus_run_info_module(module, 'networks', 'networks')
+    incus_run_info_module(module, 'networks')
 
     path = client.get.call_args[0][0]
     assert '?project=myproject' in path
@@ -545,7 +545,7 @@ def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module(name='pool/special')
-    incus_run_info_module(module, 'storage-pools', 'storage_pools')
+    incus_run_info_module(module, 'storage-pools')
 
     path = client.get.call_args[0][0]
     assert '/1.0/storage-pools/pool%2Fspecial' in path
@@ -559,7 +559,7 @@ def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
     mock_create_client.return_value = client
 
     module = _info_module(project='my project')
-    incus_run_info_module(module, 'networks', 'networks')
+    incus_run_info_module(module, 'networks')
 
     path = client.get.call_args[0][0]
     assert 'project=my%20project' in path
@@ -575,7 +575,7 @@ def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None
     module = _info_module(name='test')
     module.fail_json.side_effect = SystemExit(1)
     with pytest.raises(SystemExit):
-        incus_run_info_module(module, 'storage-pools', 'storage_pools')
+        incus_run_info_module(module, 'storage-pools')
     module.fail_json.assert_called_once_with(msg='connection refused')
 
 

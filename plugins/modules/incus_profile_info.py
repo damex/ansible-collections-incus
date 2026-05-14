@@ -80,7 +80,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('profiles', 'profiles', project_scoped=True)
+    module, result = incus_ensure_info('profiles', project_scoped=True)
+    module.exit_json(profiles=result)
 
 
 if __name__ == '__main__':

@@ -97,7 +97,7 @@ def main() -> None:
     })
     encoded_pool = quote(module.params['pool'], safe='')
     resource = f'storage-pools/{encoded_pool}/volumes/custom'
-    incus_run_info_module(module, resource, 'storage_volumes')
+    module.exit_json(storage_volumes=incus_run_info_module(module, resource))
 
 
 if __name__ == '__main__':

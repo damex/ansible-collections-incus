@@ -97,7 +97,7 @@ def main() -> None:
     })
     encoded_network = quote(module.params['network'], safe='')
     resource = f'networks/{encoded_network}/forwards'
-    incus_run_info_module(module, resource, 'network_forwards')
+    module.exit_json(network_forwards=incus_run_info_module(module, resource))
 
 
 if __name__ == '__main__':

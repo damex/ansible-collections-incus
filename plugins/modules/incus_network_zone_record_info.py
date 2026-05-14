@@ -97,7 +97,7 @@ def main() -> None:
     })
     encoded_zone = quote(module.params['zone'], safe='')
     resource = f'network-zones/{encoded_zone}/records'
-    incus_run_info_module(module, resource, 'network_zone_records')
+    module.exit_json(network_zone_records=incus_run_info_module(module, resource))
 
 
 if __name__ == '__main__':

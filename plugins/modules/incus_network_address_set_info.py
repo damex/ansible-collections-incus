@@ -76,7 +76,8 @@ def main() -> None:
 
     >>> main()
     """
-    incus_ensure_info('network-address-sets', 'network_address_sets', project_scoped=True)
+    module, result = incus_ensure_info('network-address-sets', project_scoped=True)
+    module.exit_json(network_address_sets=result)
 
 
 if __name__ == '__main__':
