@@ -44,19 +44,19 @@ options:
   target:
     description:
       - Cluster member to place the instance on.
-      - Only used during creation — ignored for existing instances.
+      - Only used during creation. Ignored for existing instances.
     type: str
   type:
     description:
       - Instance type.
-      - Set on creation only — cannot be changed afterwards.
+      - Set on creation only. Cannot be changed afterwards.
     type: str
     choices: [container, virtual-machine]
     default: container
   ephemeral:
     description:
       - Whether the instance is ephemeral (deleted on stop).
-      - Set on creation only — cannot be changed afterwards.
+      - Set on creation only. Cannot be changed afterwards.
     type: bool
     default: false
   profiles:

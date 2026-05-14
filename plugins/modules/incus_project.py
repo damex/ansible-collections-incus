@@ -16,7 +16,7 @@ short_description: Ensure Incus project
 author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, configure, and delete Incus projects via the Incus REST API.
-  - Global resource — not scoped to a project.
+  - Global resource. Not project-scoped.
 extends_documentation_fragment: [damex.incus.common, damex.incus.common.write]
 options:
   name:

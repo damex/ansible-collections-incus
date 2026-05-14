@@ -29,7 +29,7 @@ options:
     description:
       - Storage driver.
       - Required when creating a new storage pool.
-      - Ignored on update — driver cannot be changed after creation.
+      - Ignored on update. Driver cannot be changed after creation.
     type: str
     choices: [dir, btrfs, lvm, zfs, ceph, cephfs, cephobject, linstor, truenas]
   description:

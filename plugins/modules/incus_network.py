@@ -39,7 +39,7 @@ options:
     description:
       - Network type.
       - Required when creating a new network.
-      - Ignored on update — type cannot be changed after creation.
+      - Ignored on update. Type cannot be changed after creation.
     type: str
     choices:
       - bridge

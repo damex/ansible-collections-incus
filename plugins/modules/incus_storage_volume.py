@@ -37,7 +37,7 @@ options:
     description:
       - Content type of the storage volume.
       - Only used when creating a new volume.
-      - Ignored on update — content type cannot be changed after creation.
+      - Ignored on update. Content type cannot be changed after creation.
     type: str
     choices:
       - filesystem

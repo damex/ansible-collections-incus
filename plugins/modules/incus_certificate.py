@@ -17,7 +17,7 @@ author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Add, update, and remove trusted certificates in the Incus trust store via the Incus REST API.
   - Certificates are identified by their friendly name.
-  - Cluster-wide resource — not scoped to a project.
+  - Cluster-wide resource. Not project-scoped.
 extends_documentation_fragment: [damex.incus.common, damex.incus.common.write]
 options:
   name:

@@ -17,7 +17,7 @@ author: Roman Kuzmitskii (@damex) <ansible@damex.org>
 description:
   - Create, update, and delete Incus cluster groups via the Incus REST API.
   - Cluster groups allow launching instances on a cluster member that belongs to a subset of all available members.
-  - The members list is managed as a full replacement — members not listed are removed.
+  - The members list is managed as a full replacement. Members not listed are removed.
 extends_documentation_fragment:
   - damex.incus.common
   - damex.incus.common.write
@@ -43,7 +43,7 @@ options:
   members:
     description:
       - List of members in this group.
-      - Managed as a full replacement — members not listed are removed from the group.
+      - Managed as a full replacement. Members not listed are removed from the group.
     type: list
     elements: str
 """
