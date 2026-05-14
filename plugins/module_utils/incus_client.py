@@ -13,7 +13,7 @@ import os
 import socket
 import ssl
 import tempfile
-from typing import Any, NamedTuple
+from typing import IO, Any, NamedTuple
 from urllib.parse import quote, urlparse
 
 from ansible.module_utils.basic import AnsibleModule
@@ -237,7 +237,7 @@ class IncusClient:
         self,
         method: str,
         path: str,
-        body: str | bytes | None,
+        body: str | bytes | IO[bytes] | None,
         headers: dict[str, str],
     ) -> dict[str, Any]:
         """
@@ -256,7 +256,7 @@ class IncusClient:
         self,
         method: str,
         path: str,
-        body: str | bytes | None,
+        body: str | bytes | IO[bytes] | None,
         headers: dict[str, str],
     ) -> dict[str, Any]:
         """
@@ -374,23 +374,24 @@ class IncusClient:
         public: bool = False,
     ) -> dict[str, Any]:
         """
-        POST file.
+        POST a file streamed from disk.
 
         >>> client.post_file('/1.0/images', '/tmp/image.tar.gz')
         {'type': 'async', 'metadata': {'id': '...', 'status': 'Running'}}
         """
-        with open(file_path, 'rb') as file_handle:
-            body = file_handle.read()
+        file_size = os.path.getsize(file_path)
         headers = {
             'Content-Type': 'application/octet-stream',
             'Accept': 'application/json',
+            'Content-Length': str(file_size),
             'X-Incus-filename': os.path.basename(file_path),
         }
         if public:
             headers['X-Incus-public'] = '1'
         if self.parameters.token:
             headers['Authorization'] = f'Bearer {self.parameters.token}'
-        return self._execute('POST', path, body, headers)
+        with open(file_path, 'rb') as file_handle:
+            return self._execute('POST', path, file_handle, headers)
 
     def wait(self, response: dict[str, Any]) -> dict[str, Any] | None:
         """

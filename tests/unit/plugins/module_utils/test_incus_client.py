@@ -47,9 +47,10 @@ __all__ = [
     'test_client_put_serializes_json',
     'test_client_patch_serializes_json',
     'test_client_delete_sends_no_body',
-    'test_client_post_file_sends_binary',
+    'test_client_post_file_streams_handle',
     'test_client_post_file_public_header',
     'test_client_post_file_token_header',
+    'test_client_post_file_closes_handle_on_error',
     'test_client_context_manager_closes',
     'test_client_close_removes_temp_files',
 ]
@@ -347,23 +348,27 @@ def test_client_delete_sends_no_body() -> None:
         assert captured['body'] is None
 
 
-def test_client_post_file_sends_binary() -> None:
-    """Verify post_file reads file and sends as octet-stream."""
+def test_client_post_file_streams_handle() -> None:
+    """Verify post_file streams the file handle without reading into memory."""
     client = IncusClient()
-    file_content = b'fake image data'
-    captured, side_effect = _capture_execute()
-    with patch('builtins.open', return_value=MagicMock(
-        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=file_content))),
+    file_handle = MagicMock()
+    open_mock = MagicMock(
+        __enter__=MagicMock(return_value=file_handle),
         __exit__=MagicMock(return_value=False),
-    )):
-        with patch.object(client, '_execute', side_effect=side_effect):
-            client.post_file('/1.0/images', '/tmp/image.tar.gz')
-            assert captured['method'] == 'POST'
-            assert captured['path'] == '/1.0/images'
-            assert captured['body'] == file_content
-            assert captured['headers']['Content-Type'] == 'application/octet-stream'
-            assert captured['headers']['X-Incus-filename'] == 'image.tar.gz'
-            assert 'X-Incus-public' not in captured['headers']
+    )
+    captured, side_effect = _capture_execute()
+    with patch('builtins.open', return_value=open_mock), \
+         patch('os.path.getsize', return_value=12345), \
+         patch.object(client, '_execute', side_effect=side_effect):
+        client.post_file('/1.0/images', '/tmp/image.tar.gz')
+        assert captured['method'] == 'POST'
+        assert captured['path'] == '/1.0/images'
+        assert captured['body'] is file_handle
+        assert captured['headers']['Content-Type'] == 'application/octet-stream'
+        assert captured['headers']['Content-Length'] == '12345'
+        assert captured['headers']['X-Incus-filename'] == 'image.tar.gz'
+        assert 'X-Incus-public' not in captured['headers']
+    file_handle.read.assert_not_called()
 
 
 def test_client_post_file_public_header() -> None:
@@ -371,12 +376,13 @@ def test_client_post_file_public_header() -> None:
     client = IncusClient()
     captured, side_effect = _capture_execute()
     with patch('builtins.open', return_value=MagicMock(
-        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
+        __enter__=MagicMock(return_value=MagicMock()),
         __exit__=MagicMock(return_value=False),
-    )):
-        with patch.object(client, '_execute', side_effect=side_effect):
-            client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
-            assert captured['headers']['X-Incus-public'] == '1'
+    )), \
+         patch('os.path.getsize', return_value=1), \
+         patch.object(client, '_execute', side_effect=side_effect):
+        client.post_file('/1.0/images', '/tmp/image.tar.gz', public=True)
+        assert captured['headers']['X-Incus-public'] == '1'
 
 
 def test_client_post_file_token_header() -> None:
@@ -384,12 +390,28 @@ def test_client_post_file_token_header() -> None:
     client = IncusClient(IncusConnectionParameters(token='secret'))
     captured, side_effect = _capture_execute()
     with patch('builtins.open', return_value=MagicMock(
-        __enter__=MagicMock(return_value=MagicMock(read=MagicMock(return_value=b'data'))),
+        __enter__=MagicMock(return_value=MagicMock()),
         __exit__=MagicMock(return_value=False),
-    )):
-        with patch.object(client, '_execute', side_effect=side_effect):
-            client.post_file('/1.0/images', '/tmp/image.tar.gz')
-            assert captured['headers']['Authorization'] == 'Bearer secret'
+    )), \
+         patch('os.path.getsize', return_value=1), \
+         patch.object(client, '_execute', side_effect=side_effect):
+        client.post_file('/1.0/images', '/tmp/image.tar.gz')
+        assert captured['headers']['Authorization'] == 'Bearer secret'
+
+
+def test_client_post_file_closes_handle_on_error() -> None:
+    """Verify file handle is closed when _execute raises."""
+    client = IncusClient()
+    open_mock = MagicMock(
+        __enter__=MagicMock(return_value=MagicMock()),
+        __exit__=MagicMock(return_value=False),
+    )
+    with patch('builtins.open', return_value=open_mock), \
+         patch('os.path.getsize', return_value=1), \
+         patch.object(client, '_execute', side_effect=IncusClientException('boom')), \
+         pytest.raises(IncusClientException, match='boom'):
+        client.post_file('/1.0/images', '/tmp/image.tar.gz')
+    open_mock.__exit__.assert_called_once()
 
 
 def test_client_context_manager_closes() -> None:
