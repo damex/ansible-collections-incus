@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import collections.abc
 import http.client
+import json
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -37,7 +38,10 @@ __all__ = [
     'test_client_retry_on_stale_connection',
     'test_client_retry_fails_with_exception',
     'test_client_retry_fails_with_client_exception',
-    'test_client_no_retry_on_non_socket_error',
+    'test_client_invalid_response_wrapped',
+    'test_client_post_no_retry_on_transient_error',
+    'test_client_delete_no_retry_on_transient_error',
+    'test_client_put_retries_on_transient_error',
     'test_client_post_serializes_json',
     'test_client_post_without_data',
     'test_client_put_serializes_json',
@@ -200,13 +204,13 @@ def test_client_retry_on_stale_connection() -> None:
 
 
 def test_client_retry_fails_with_exception() -> None:
-    """Raise IncusClientException when retry also fails."""
+    """Raise IncusClientException when retry transport error also fails."""
     client = IncusClient()
 
-    errors = [http.client.HTTPException('broken pipe'), ValueError('retry failed')]
+    errors = [http.client.HTTPException('broken pipe'), OSError('still broken')]
     with patch.object(client, '_send', side_effect=errors), \
          patch.object(client, '_close'), \
-         pytest.raises(IncusClientException, match='retry failed'):
+         pytest.raises(IncusClientException, match='still broken'):
         client.get('/1.0/test')
 
 
@@ -220,14 +224,50 @@ def test_client_retry_fails_with_client_exception() -> None:
         client.get('/1.0/test')
 
 
-def test_client_no_retry_on_non_socket_error() -> None:
-    """Raise IncusClientException without retry for non-socket errors."""
+def test_client_invalid_response_wrapped() -> None:
+    """Wrap JSON parse failure as IncusClientException with invalid response message."""
     client = IncusClient()
 
-    with patch.object(client, '_send', side_effect=ValueError('bad data')), \
+    with patch.object(client, '_send', side_effect=json.JSONDecodeError('bad', '<html>', 0)), \
          patch.object(client, '_close') as mock_close, \
-         pytest.raises(IncusClientException, match='bad data'):
+         pytest.raises(IncusClientException, match='invalid response'):
         client.get('/1.0/test')
+    mock_close.assert_called_once()
+
+
+def test_client_post_no_retry_on_transient_error() -> None:
+    """POST raises IncusClientException without retry on first OSError."""
+    client = IncusClient()
+
+    with patch.object(client, '_send', side_effect=OSError('connection reset')) as mock_send, \
+         patch.object(client, '_close') as mock_close, \
+         pytest.raises(IncusClientException, match='non-idempotent'):
+        client.post('/1.0/instances', {'name': 'test'})
+    assert mock_send.call_count == 1
+    mock_close.assert_called_once()
+
+
+def test_client_delete_no_retry_on_transient_error() -> None:
+    """DELETE raises IncusClientException without retry on first OSError."""
+    client = IncusClient()
+
+    with patch.object(client, '_send', side_effect=http.client.HTTPException('broken pipe')) as mock_send, \
+         patch.object(client, '_close') as mock_close, \
+         pytest.raises(IncusClientException, match='non-idempotent'):
+        client.delete('/1.0/instances/test')
+    assert mock_send.call_count == 1
+    mock_close.assert_called_once()
+
+
+def test_client_put_retries_on_transient_error() -> None:
+    """PUT retries once on transient OSError and succeeds."""
+    client = IncusClient()
+
+    with patch.object(client, '_send', side_effect=[OSError('reset'), {'type': 'sync', 'metadata': {}}]) as mock_send, \
+         patch.object(client, '_close') as mock_close:
+        result = client.put('/1.0/test', {'description': 'x'})
+        assert result['type'] == 'sync'
+    assert mock_send.call_count == 2
     mock_close.assert_called_once()
 
 

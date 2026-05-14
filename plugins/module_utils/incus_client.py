@@ -29,6 +29,8 @@ __all__ = [
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
 
+_IDEMPOTENT_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS', 'PUT'})
+
 
 class IncusClientException(Exception):
     """
@@ -258,29 +260,33 @@ class IncusClient:
         headers: dict[str, str],
     ) -> dict[str, Any]:
         """
-        Execute request with retry.
+        Execute request, retrying only idempotent methods on transient transport errors.
 
         >>> client._execute('GET', '/1.0', None, {})
         {'type': 'sync', 'status': 'Success', 'metadata': {...}}
         """
         try:
             content = self._send(method, path, body, headers)
-        except IncusClientException:
+        except (OSError, http.client.HTTPException) as exception:
             self._close()
-            raise
-        except (OSError, http.client.HTTPException):
-            self._close()
+            if method not in _IDEMPOTENT_METHODS:
+                raise IncusClientException(
+                    f'{method} {path} failed before response was read; '
+                    f'not retried (non-idempotent): {exception}',
+                ) from exception
             try:
                 content = self._send(method, path, body, headers)
-            except IncusClientException:
+            except (OSError, http.client.HTTPException) as retry_exception:
                 self._close()
-                raise
-            except Exception as exception:
+                raise IncusClientException(str(retry_exception)) from retry_exception
+            except (UnicodeDecodeError, json.JSONDecodeError) as parse_exception:
                 self._close()
-                raise IncusClientException(str(exception)) from exception
-        except Exception as exception:
+                raise IncusClientException(
+                    f'invalid response: {parse_exception}',
+                ) from parse_exception
+        except (UnicodeDecodeError, json.JSONDecodeError) as exception:
             self._close()
-            raise IncusClientException(str(exception)) from exception
+            raise IncusClientException(f'invalid response: {exception}') from exception
 
         if content.get('type') == 'error':
             if content.get('error_code') == 404:
