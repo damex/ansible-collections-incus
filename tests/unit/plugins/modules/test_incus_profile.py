@@ -28,6 +28,8 @@ __all__ = [
     'test_delete_existing_profile',
     'test_delete_nonexistent_profile',
     'test_profile_check_mode',
+    'test_create_profile_environment_variables',
+    'test_skip_matching_profile_environment_variables',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_profile'
@@ -117,3 +119,32 @@ def test_delete_nonexistent_profile() -> None:
 def test_profile_check_mode() -> None:
     """Skip API calls in check mode."""
     assert_write_check_mode(main, MODULE, _mock_module(check_mode=True))
+
+
+def test_create_profile_environment_variables() -> None:
+    """Create profile with environment variables flattened to environment.NAME config keys."""
+    module = _mock_module()
+    module.params['config'] = {
+        'environment_variables': [
+            {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
+        ],
+    }
+    client = assert_write_create(main, MODULE, module)
+    post_data = client.post.call_args[0][1]
+    assert post_data['config']['environment.HTTP_PROXY'] == 'http://proxy:3128'
+    assert 'environment_variables' not in post_data['config']
+
+
+def test_skip_matching_profile_environment_variables() -> None:
+    """Skip update when environment variables match current config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'environment_variables': [
+            {'name': 'HTTP_PROXY', 'value': 'http://proxy:3128'},
+        ],
+    }
+    assert_write_skip(main, MODULE, module, {
+        'description': '',
+        'config': {'environment.HTTP_PROXY': 'http://proxy:3128'},
+        'devices': {},
+    })

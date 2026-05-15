@@ -116,7 +116,10 @@ def main() -> None:
     for spec_key, spec_value in INCUS_COMMON_ARGUMENT_SPEC.items():
         argument_spec[spec_key] = spec_value
     module = incus_create_write_module(argument_spec, require_yaml=True)
-    desired = incus_build_desired(module)
+    desired = incus_build_desired(
+        module,
+        config_key_values={'environment_variables': 'environment'},
+    )
     incus_run_write_module(module, lambda: incus_ensure_resource(module, 'profiles', desired))
 
 
