@@ -2040,8 +2040,8 @@ argument_specs:
                 description: Size for the VM runtime state file system.
                 type: str
               wwn:
-                description: World Wide Name assignment.
-                type: bool
+                description: World Wide Name to assign to the disk (virtio-scsi only).
+                type: str
               # nic
               acceleration:
                 description: Enable hardware offloading (none/sriov/vdpa).

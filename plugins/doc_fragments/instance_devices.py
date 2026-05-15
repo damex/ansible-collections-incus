@@ -127,8 +127,8 @@ options:
         description: Size for the VM runtime state file system (disk, VMs only).
         type: str
       wwn:
-        description: World Wide Name assignment (disk, VMs only).
-        type: bool
+        description: World Wide Name to assign to the disk (disk, VMs only, virtio-scsi bus only).
+        type: str
       # nic
       acceleration:
         description: Enable hardware offloading (none/sriov/vdpa) (nic, OVN only).

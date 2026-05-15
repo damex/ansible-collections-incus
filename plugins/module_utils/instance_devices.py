@@ -72,7 +72,7 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'shift': {'type': 'bool'},
     'size': {'type': 'str'},
     'size.state': {'type': 'str'},
-    'wwn': {'type': 'bool'},
+    'wwn': {'type': 'str'},
     # nic
     'acceleration': {'type': 'str'},
     'connected': {'type': 'bool'},
