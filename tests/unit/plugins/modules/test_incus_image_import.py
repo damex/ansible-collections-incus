@@ -13,6 +13,8 @@ import tempfile
 import zipfile
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusNotFoundException
 from ansible_collections.damex.incus.plugins.modules.incus_image_import import (
     _incus_image_import_build_metadata,
@@ -47,6 +49,8 @@ __all__ = [
     'test_verify_checksum_mismatch',
     'test_extract_zip_single_file',
     'test_extract_zip_invalid',
+    'test_extract_zip_rejects_traversal_entry',
+    'test_extract_zip_rejects_absolute_path_entry',
     'test_build_metadata_with_properties',
     'test_build_metadata_without_properties',
     'test_build_tarball_contents',
@@ -192,6 +196,37 @@ def test_extract_zip_invalid() -> None:
         module = MagicMock()
         _incus_image_import_extract_zip(module, bad_path, tmp_dir)
         module.fail_json.assert_called_once()
+
+
+def test_extract_zip_rejects_traversal_entry() -> None:
+    """Reject ZIP entries that escape the target via path traversal."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        zip_path = os.path.join(tmp_dir, 'malicious.zip')
+        with zipfile.ZipFile(zip_path, 'w') as zf:
+            zf.writestr('../../escape.qcow2', 'malicious content')
+        module = MagicMock()
+        module.fail_json.side_effect = SystemExit(1)
+        with pytest.raises(SystemExit):
+            _incus_image_import_extract_zip(module, zip_path, tmp_dir)
+        module.fail_json.assert_called_once()
+        fail_message = module.fail_json.call_args.kwargs['msg']
+        assert 'escapes target directory' in fail_message
+
+
+def test_extract_zip_rejects_absolute_path_entry() -> None:
+    """Reject ZIP entries with absolute paths."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        zip_path = os.path.join(tmp_dir, 'absolute.zip')
+        with zipfile.ZipFile(zip_path, 'w') as zf:
+            info = zipfile.ZipInfo(filename='/tmp/evil.qcow2')
+            zf.writestr(info, 'malicious content')
+        module = MagicMock()
+        module.fail_json.side_effect = SystemExit(1)
+        with pytest.raises(SystemExit):
+            _incus_image_import_extract_zip(module, zip_path, tmp_dir)
+        module.fail_json.assert_called_once()
+        fail_message = module.fail_json.call_args.kwargs['msg']
+        assert 'absolute path' in fail_message
 
 
 def test_build_metadata_with_properties() -> None:

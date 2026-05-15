@@ -293,6 +293,12 @@ def _incus_image_import_extract_zip(
             if not names:
                 module.fail_json(msg="ZIP archive is empty")
             first_name = next(iter(names))
+            if os.path.isabs(first_name) or first_name.startswith('/'):
+                module.fail_json(msg=f"ZIP entry has absolute path: {first_name}")
+            target_base = os.path.realpath(temp_directory)
+            target_path = os.path.realpath(os.path.join(target_base, first_name))
+            if target_path != target_base and not target_path.startswith(target_base + os.sep):
+                module.fail_json(msg=f"ZIP entry escapes target directory: {first_name}")
             zf.extract(first_name, temp_directory)
             return os.path.join(temp_directory, first_name)
     except zipfile.BadZipFile as exception:
