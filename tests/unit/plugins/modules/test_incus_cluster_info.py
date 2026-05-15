@@ -38,7 +38,7 @@ def test_return_cluster_metadata(mock_create_module: MagicMock, mock_create_clie
         'metadata': {'enabled': True, 'server_name': 'node1'},
     }
     run_main(mock_create_module, mock_create_client, module, client, main)
-    cluster = module.exit_json.call_args[1]['cluster']
+    cluster = module.exit_json.call_args.kwargs['cluster']
     assert cluster['enabled'] is True
     assert cluster['server_name'] == 'node1'
 

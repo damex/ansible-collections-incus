@@ -58,7 +58,7 @@ def test_create_network_zone_with_config() -> None:
         {'name': 'dns.nameservers', 'value': 'ns1.example.com'},
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['config']['user.dns.nameservers'] == 'ns1.example.com'
 
 

@@ -52,7 +52,7 @@ def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
 def test_create_volume_with_content_type() -> None:
     """Create volume with content_type in payload."""
     client = assert_write_create(main, MODULE, _mock_module())
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['content_type'] == 'filesystem'
     assert post_data['name'] == 'data'
 
@@ -89,7 +89,7 @@ def test_create_volume_block_type() -> None:
     module = _mock_module()
     module.params['content_type'] = 'block'
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['content_type'] == 'block'
 
 
@@ -98,7 +98,7 @@ def test_create_volume_with_target() -> None:
     module = _mock_module()
     module.params['target'] = 'node1'
     client = assert_write_create(main, MODULE, module)
-    post_url = client.post.call_args[0][0]
+    post_url = next(iter(client.post.call_args.args))
     assert 'target=node1' in post_url
 
 

@@ -66,7 +66,7 @@ def test_create_network_zone_record_with_entries() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert len(post_data['entries']) == 1
     assert post_data['entries'][0]['type'] == 'A'
     assert post_data['entries'][0]['value'] == '10.0.0.5'
@@ -75,7 +75,7 @@ def test_create_network_zone_record_with_entries() -> None:
 def test_create_includes_name() -> None:
     """Verify name is included in create payload."""
     client = assert_write_create(main, MODULE, _mock_module())
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['name'] == 'web'
 
 
@@ -172,7 +172,7 @@ def test_entries_sorted_by_type_and_value() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['entries'][0]['type'] == 'A'
     assert post_data['entries'][1]['type'] == 'AAAA'
 
@@ -188,7 +188,7 @@ def test_entries_normalized_with_defaults() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     entry = post_data['entries'][0]
     assert 'ttl' not in entry
     assert entry['type'] == 'A'

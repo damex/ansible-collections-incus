@@ -92,7 +92,7 @@ def test_client_headers_without_token() -> None:
 
     with patch.object(client, '_connection', return_value=mock_conn):
         client.get('/1.0')
-        headers = mock_conn.request.call_args[1]['headers']
+        headers = mock_conn.request.call_args.kwargs['headers']
         assert headers['Content-Type'] == 'application/json'
         assert 'Authorization' not in headers
 
@@ -107,7 +107,7 @@ def test_client_headers_with_token() -> None:
 
     with patch.object(client, '_connection', return_value=mock_conn):
         client.get('/1.0')
-        headers = mock_conn.request.call_args[1]['headers']
+        headers = mock_conn.request.call_args.kwargs['headers']
         assert headers['Authorization'] == 'Bearer secret'
 
 

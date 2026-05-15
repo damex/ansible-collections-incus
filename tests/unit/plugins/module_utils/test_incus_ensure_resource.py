@@ -218,12 +218,13 @@ def test_ensure_resource_project_and_target(mock_create_client: MagicMock) -> No
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    get_path = client.get.call_args_list[0][0][0]
+    first_get_call, second_get_call = client.get.call_args_list
+    get_path = next(iter(first_get_call.args))
     assert '?project=myproject&target=node1' in get_path
-    global_get_path = client.get.call_args_list[1][0][0]
+    global_get_path = next(iter(second_get_call.args))
     assert '?project=myproject' in global_get_path
     assert 'target' not in global_get_path
-    post_path = client.post.call_args[0][0]
+    post_path = next(iter(client.post.call_args.args))
     assert '?project=myproject&target=node1' in post_path
 
 
@@ -243,7 +244,7 @@ def test_ensure_resource_create_only_params(mock_create_client: MagicMock) -> No
         IncusResourceOptions(create_only_params=['driver']),
     )
 
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['driver'] == 'zfs'
 
 
@@ -263,7 +264,7 @@ def test_ensure_resource_create_only_param_missing_fails(mock_create_client: Mag
             IncusResourceOptions(create_only_params=['driver']),
         )
     module.fail_json.assert_called_once()
-    assert 'driver' in module.fail_json.call_args[1]['msg']
+    assert 'driver' in module.fail_json.call_args.kwargs['msg']
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -284,7 +285,7 @@ def test_ensure_resource_target_create(mock_create_client: MagicMock) -> None:
     )
 
     assert result['changed'] is True
-    post_path = client.post.call_args[0][0]
+    post_path = next(iter(client.post.call_args.args))
     assert '?target=node1' in post_path
 
 
@@ -349,7 +350,7 @@ def test_ensure_resource_target_pending_posts(mock_create_client: MagicMock) -> 
 
     assert result['changed'] is True
     client.post.assert_called_once()
-    post_path = client.post.call_args[0][0]
+    post_path = next(iter(client.post.call_args.args))
     assert '?target=node2' in post_path
 
 
@@ -369,7 +370,7 @@ def test_ensure_resource_target_errored_fails_with_message(mock_create_client: M
     incus_ensure_resource(module, 'networks', desired)
 
     module.fail_json.assert_called_once()
-    assert 'errored state, delete it first' in module.fail_json.call_args[1]['msg']
+    assert 'errored state, delete it first' in module.fail_json.call_args.kwargs['msg']
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -425,7 +426,7 @@ def test_ensure_resource_encodes_name(mock_create_client: MagicMock) -> None:
     desired = {'description': '', 'config': {}}
     incus_ensure_resource(module, 'storage-pools', desired)
 
-    get_path = client.get.call_args[0][0]
+    get_path = next(iter(client.get.call_args.args))
     assert '/1.0/storage-pools/my%20pool%2Ftest' in get_path
 
 
@@ -441,7 +442,7 @@ def test_ensure_resource_encodes_name_on_update(mock_create_client: MagicMock) -
     desired = {'description': 'new', 'config': {}}
     incus_ensure_resource(module, 'networks', desired)
 
-    put_path = client.put.call_args[0][0]
+    put_path = next(iter(client.put.call_args.args))
     assert '/1.0/networks/net%26work' in put_path
 
 
@@ -457,7 +458,7 @@ def test_ensure_resource_encodes_name_on_delete(mock_create_client: MagicMock) -
     desired = {'description': '', 'config': {}}
     incus_ensure_resource(module, 'storage-pools', desired)
 
-    delete_path = client.delete.call_args[0][0]
+    delete_path = next(iter(client.delete.call_args.args))
     assert '/1.0/storage-pools/pool%20%231' in delete_path
 
 

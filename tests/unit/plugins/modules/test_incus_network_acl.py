@@ -87,7 +87,7 @@ def test_create_network_acl_with_rules() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert len(post_data['ingress']) == 1
     assert post_data['ingress'][0]['action'] == 'allow'
     assert post_data['ingress'][0]['protocol'] == 'tcp'
@@ -226,7 +226,7 @@ def test_rules_sorted_by_action_priority() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['ingress'][0]['action'] == 'drop'
     assert post_data['ingress'][1]['action'] == 'allow'
 
@@ -249,7 +249,7 @@ def test_rules_normalized_with_defaults() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     rule = post_data['egress'][0]
     assert rule['state'] == 'enabled'
     assert 'description' not in rule

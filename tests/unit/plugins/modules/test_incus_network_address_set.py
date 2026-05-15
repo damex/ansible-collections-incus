@@ -58,7 +58,7 @@ def test_create_network_address_set_with_addresses() -> None:
     module = _mock_module()
     module.params['addresses'] = ['10.0.0.5', '10.0.0.6']
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert len(post_data['addresses']) == 2
     assert '10.0.0.5' in post_data['addresses']
     assert '10.0.0.6' in post_data['addresses']
@@ -132,5 +132,5 @@ def test_addresses_sorted() -> None:
     module = _mock_module()
     module.params['addresses'] = ['10.0.0.6', '10.0.0.5', '2001:db8::1']
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['addresses'] == ['10.0.0.5', '10.0.0.6', '2001:db8::1']

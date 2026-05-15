@@ -123,7 +123,7 @@ def test_present_copy_image() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.post.assert_called_once()
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['aliases'] == [{'name': 'debian/13'}]
     assert post_data['source']['image_type'] == 'container'
 
@@ -136,7 +136,7 @@ def test_present_copy_aliases() -> None:
     client.get.side_effect = IncusNotFoundException('not found')
     client.post.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['source']['copy_aliases'] is True
 
 
@@ -159,7 +159,8 @@ def test_absent_delete_by_fingerprint() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.delete.assert_called_once()
-    assert 'abc123' in client.delete.call_args[0][0]
+    delete_path = next(iter(client.delete.call_args.args))
+    assert 'abc123' in delete_path
 
 
 def test_absent_alias_not_found() -> None:

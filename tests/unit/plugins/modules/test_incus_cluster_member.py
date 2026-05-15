@@ -80,7 +80,7 @@ def test_create_generates_join_token() -> None:
         },
     }
     _run_main(module, client)
-    call_kwargs = module.exit_json.call_args[1]
+    call_kwargs = module.exit_json.call_args.kwargs
     assert call_kwargs['changed'] is True
     token_json = json.loads(base64.standard_b64decode(call_kwargs['join_token']))
     assert token_json['secret'] == 'test-join-token'
@@ -91,7 +91,7 @@ def test_create_generates_join_token() -> None:
     assert call_kwargs['join_addresses'] == ['10.0.0.1:8443']
     assert call_kwargs['restart_required'] is False
     client.post.assert_called_once()
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['server_name'] == 'node2'
 
 
@@ -125,7 +125,7 @@ def test_skip_matching_member() -> None:
     ]
     _run_main(module, client)
     assert_exit_changed(module, False)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
     client.put.assert_not_called()
 
 
@@ -141,9 +141,9 @@ def test_update_member_description() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
     client.put.assert_called_once()
-    put_data = client.put.call_args[0][1]
+    _put_path, put_data = client.put.call_args.args
     assert put_data['description'] == 'Primary node'
 
 
@@ -161,7 +161,7 @@ def test_update_member_config() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    put_data = client.put.call_args[0][1]
+    _put_path, put_data = client.put.call_args.args
     assert put_data['config']['scheduler.instance'] == 'manual'
 
 
@@ -179,7 +179,7 @@ def test_update_member_roles() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    put_data = client.put.call_args[0][1]
+    _put_path, put_data = client.put.call_args.args
     assert 'database' in put_data['roles']
     assert 'event-hub' in put_data['roles']
 
@@ -196,7 +196,7 @@ def test_update_member_groups() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    put_data = client.put.call_args[0][1]
+    _put_path, put_data = client.put.call_args.args
     assert put_data['groups'] == ['gpu-nodes', 'storage']
 
 
@@ -212,7 +212,7 @@ def test_update_member_failure_domain() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    put_data = client.put.call_args[0][1]
+    _put_path, put_data = client.put.call_args.args
     assert put_data['failure_domain'] == 'rack-a'
 
 

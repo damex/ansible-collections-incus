@@ -49,7 +49,7 @@ def test_return_volume_by_name() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'name': 'data', 'content_type': 'filesystem'}}
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['storage_volumes']
+    result = module.exit_json.call_args.kwargs['storage_volumes']
     assert len(result) == 1
     assert result[0]['name'] == 'data'
 
@@ -69,7 +69,7 @@ def test_return_all_volumes() -> None:
     client = mock_incus_client()
     client.get.return_value = {'metadata': [{'name': 'a'}, {'name': 'b'}]}
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['storage_volumes']
+    result = module.exit_json.call_args.kwargs['storage_volumes']
     assert len(result) == 2
 
 

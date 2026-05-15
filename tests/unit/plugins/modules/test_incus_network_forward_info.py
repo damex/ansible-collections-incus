@@ -51,7 +51,7 @@ def test_return_forward_by_name() -> None:
         'metadata': {'listen_address': '192.168.1.100', 'description': ''},
     }
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['network_forwards']
+    result = module.exit_json.call_args.kwargs['network_forwards']
     assert len(result) == 1
     assert result[0]['listen_address'] == '192.168.1.100'
 
@@ -76,7 +76,7 @@ def test_return_all_forwards() -> None:
         ],
     }
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['network_forwards']
+    result = module.exit_json.call_args.kwargs['network_forwards']
     assert len(result) == 2
 
 

@@ -163,7 +163,7 @@ def assert_info_by_name(
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
         main_func()
-    result: list[dict[str, Any]] = module.exit_json.call_args[1][return_key]
+    result: list[dict[str, Any]] = module.exit_json.call_args.kwargs[return_key]
     assert len(result) == 1
     return result[0]
 
@@ -194,7 +194,7 @@ def assert_info_all(
     with patch(f'{INCUS_UTILS}.incus_create_info_module', return_value=module), \
          patch(f'{INCUS_UTILS}.incus_create_client', return_value=client):
         main_func()
-    result = module.exit_json.call_args[1][return_key]
+    result = module.exit_json.call_args.kwargs[return_key]
     assert len(result) == len(items)
 
 
@@ -215,7 +215,7 @@ def assert_info_fail(
 def assert_exit_changed(module: MagicMock, expected: bool) -> None:
     """Assert exit_json was called with expected changed value."""
     module.exit_json.assert_called_once()
-    assert module.exit_json.call_args[1]['changed'] == expected
+    assert module.exit_json.call_args.kwargs['changed'] == expected
 
 
 def assert_write_create(
@@ -259,8 +259,8 @@ def assert_write_update(
         main_func()
     assert_exit_changed(module, True)
     client.put.assert_called_once()
-    put_data: dict[str, Any] = client.put.call_args[0][1]
-    return put_data
+    _put_path, put_data = client.put.call_args.args
+    return dict(put_data)
 
 
 def assert_write_delete(

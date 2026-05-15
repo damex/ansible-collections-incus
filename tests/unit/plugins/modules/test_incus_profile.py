@@ -130,7 +130,7 @@ def test_create_profile_environment_variables() -> None:
         ],
     }
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['config']['environment.HTTP_PROXY'] == 'http://proxy:3128'
     assert 'environment_variables' not in post_data['config']
 

@@ -45,7 +45,7 @@ def test_return_image_by_alias(mock_create_module: MagicMock, mock_create_client
     ]
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.exit_json.assert_called_once()
-    images = module.exit_json.call_args[1]['images']
+    images = module.exit_json.call_args.kwargs['images']
     assert len(images) == 1
     assert images[0]['fingerprint'] == 'abc123'
 
@@ -69,7 +69,7 @@ def test_return_all_images(mock_create_module: MagicMock, mock_create_client: Ma
     client = mock_incus_client()
     client.get.return_value = {'metadata': [{'fingerprint': 'a'}, {'fingerprint': 'b'}]}
     run_main(mock_create_module, mock_create_client, module, client, main)
-    images = module.exit_json.call_args[1]['images']
+    images = module.exit_json.call_args.kwargs['images']
     assert len(images) == 2
 
 

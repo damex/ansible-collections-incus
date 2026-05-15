@@ -53,7 +53,8 @@ def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
 def test_create_storage_with_driver() -> None:
     """Create storage pool with driver."""
     result = assert_write_create(main, MODULE, _mock_module())
-    assert result.post.call_args[0][1]['driver'] == 'zfs'
+    _post_path, post_data = result.post.call_args.args
+    assert post_data['driver'] == 'zfs'
 
 
 def test_skip_matching_storage() -> None:

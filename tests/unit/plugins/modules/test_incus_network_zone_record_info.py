@@ -51,7 +51,7 @@ def test_return_record_by_name() -> None:
         'metadata': {'name': 'web', 'description': '', 'entries': []},
     }
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['network_zone_records']
+    result = module.exit_json.call_args.kwargs['network_zone_records']
     assert len(result) == 1
     assert result[0]['name'] == 'web'
 
@@ -76,7 +76,7 @@ def test_return_all_records() -> None:
         ],
     }
     _run_info(module, client)
-    result = module.exit_json.call_args[1]['network_zone_records']
+    result = module.exit_json.call_args.kwargs['network_zone_records']
     assert len(result) == 2
 
 

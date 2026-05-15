@@ -138,7 +138,8 @@ def test_manage_state_start_stopped() -> None:
     result = _manage_state(module, client, '/1.0/instances/test/state', 'started', 'Stopped')
     assert result is True
     client.put.assert_called_once()
-    assert client.put.call_args[0][1] == {'action': 'start'}
+    _put_path, put_data = client.put.call_args.args
+    assert put_data == {'action': 'start'}
 
 
 def test_manage_state_stop_running() -> None:
@@ -149,7 +150,8 @@ def test_manage_state_stop_running() -> None:
     client.put.return_value = {'type': 'sync'}
     result = _manage_state(module, client, '/1.0/instances/test/state', 'stopped', 'Running')
     assert result is True
-    assert client.put.call_args[0][1] == {'action': 'stop', 'force': True}
+    _put_path, put_data = client.put.call_args.args
+    assert put_data == {'action': 'stop', 'force': True}
 
 
 def test_manage_state_restart_running() -> None:
@@ -160,7 +162,8 @@ def test_manage_state_restart_running() -> None:
     client.put.return_value = {'type': 'sync'}
     result = _manage_state(module, client, '/1.0/instances/test/state', 'restarted', 'Running')
     assert result is True
-    assert client.put.call_args[0][1] == {'action': 'restart', 'force': True}
+    _put_path, put_data = client.put.call_args.args
+    assert put_data == {'action': 'restart', 'force': True}
 
 
 def test_manage_state_restart_stopped_noop() -> None:
@@ -296,7 +299,8 @@ def test_main_start_stopped_existing() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.put.assert_called_once()
-    assert client.put.call_args[0][1] == {'action': 'start'}
+    _put_path, put_data = client.put.call_args.args
+    assert put_data == {'action': 'start'}
 
 
 def test_main_environment_variables_create() -> None:
@@ -313,7 +317,7 @@ def test_main_environment_variables_create() -> None:
     client.put.return_value = {'type': 'sync'}
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['config']['environment.ESPHOME_DASHBOARD_USE_PING'] == 'true'
     assert 'environment_variables' not in post_data['config']
 

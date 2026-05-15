@@ -66,7 +66,7 @@ def test_create_certificate() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     assert client.post.call_count == 1
-    payload = client.post.call_args[0][1]
+    _post_path, payload = client.post.call_args.args
     assert payload['name'] == 'ansible'
     assert payload['certificate'] == 'PEM_DATA'
 
@@ -119,7 +119,8 @@ def test_delete_existing_certificate() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     assert client.delete.call_count == 1
-    assert client.delete.call_args[0][0] == '/1.0/certificates/abc123'
+    delete_path = next(iter(client.delete.call_args.args))
+    assert delete_path == '/1.0/certificates/abc123'
 
 
 def test_delete_missing_certificate() -> None:

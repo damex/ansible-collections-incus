@@ -454,7 +454,7 @@ def test_run_write_module_success_changed() -> None:
     module = MagicMock()
     incus_run_write_module(module, lambda: True)
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
 
 
 def test_run_write_module_success_unchanged() -> None:
@@ -462,7 +462,7 @@ def test_run_write_module_success_unchanged() -> None:
     module = MagicMock()
     incus_run_write_module(module, lambda: False)
     assert_exit_changed(module, False)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
 
 
 def test_run_write_module_client_exception() -> None:
@@ -481,7 +481,7 @@ def test_run_write_module_dict_result_default_no_restart() -> None:
     module = MagicMock()
     incus_run_write_module(module, lambda: {'changed': True, 'changed_keys': ['description']})
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
 
 
 def test_run_write_module_dict_result_restart_required() -> None:
@@ -493,7 +493,7 @@ def test_run_write_module_dict_result_restart_required() -> None:
         'restart_required': True,
     })
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is True
+    assert module.exit_json.call_args.kwargs['restart_required'] is True
 
 
 def _info_module(name: str | None = None, project: str | None = None) -> MagicMock:
@@ -543,7 +543,8 @@ def test_run_info_module_list_all(mock_create_client: MagicMock) -> None:
     result = incus_run_info_module(module, 'networks')
 
     assert result == items
-    assert '?recursion=1' in client.get.call_args[0][0]
+    path = next(iter(client.get.call_args.args))
+    assert '?recursion=1' in path
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
@@ -556,7 +557,7 @@ def test_run_info_module_project_query(mock_create_client: MagicMock) -> None:
     module = _info_module(project='myproject')
     incus_run_info_module(module, 'networks')
 
-    path = client.get.call_args[0][0]
+    path = next(iter(client.get.call_args.args))
     assert '?project=myproject' in path
     assert 'recursion=1' in path
 
@@ -571,7 +572,7 @@ def test_run_info_module_encodes_name(mock_create_client: MagicMock) -> None:
     module = _info_module(name='pool/special')
     incus_run_info_module(module, 'storage-pools')
 
-    path = client.get.call_args[0][0]
+    path = next(iter(client.get.call_args.args))
     assert '/1.0/storage-pools/pool%2Fspecial' in path
 
 
@@ -585,7 +586,7 @@ def test_run_info_module_encodes_project(mock_create_client: MagicMock) -> None:
     module = _info_module(project='my project')
     incus_run_info_module(module, 'networks')
 
-    path = client.get.call_args[0][0]
+    path = next(iter(client.get.call_args.args))
     assert 'project=my%20project' in path
 
 
@@ -656,7 +657,7 @@ def test_resolve_image_alias_encodes_name() -> None:
     client = MagicMock()
     client.get.return_value = {'metadata': {'target': 'def456'}}
     incus_resolve_image_alias(client, 'ubuntu/24.04', '?project=default')
-    path = client.get.call_args[0][0]
+    path = next(iter(client.get.call_args.args))
     assert '/1.0/images/aliases/ubuntu%2F24.04?project=default' == path
 
 

@@ -36,7 +36,7 @@ def test_return_server_metadata(mock_create_module: MagicMock, mock_create_clien
     client = mock_incus_client()
     client.get.return_value = {'metadata': {'api_version': '1.0', 'auth': 'trusted'}}
     run_main(mock_create_module, mock_create_client, module, client, main)
-    server = module.exit_json.call_args[1]['server']
+    server = module.exit_json.call_args.kwargs['server']
     assert server['api_version'] == '1.0'
 
 

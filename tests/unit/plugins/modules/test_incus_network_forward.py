@@ -69,7 +69,7 @@ def test_create_network_forward_with_ports() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert len(post_data['ports']) == 1
     assert post_data['ports'][0]['protocol'] == 'tcp'
     assert post_data['ports'][0]['listen_port'] == '80'
@@ -79,7 +79,7 @@ def test_create_network_forward_with_ports() -> None:
 def test_create_includes_listen_address() -> None:
     """Verify listen_address is included in create payload."""
     client = assert_write_create(main, MODULE, _mock_module())
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['listen_address'] == '192.168.1.100'
 
 
@@ -188,7 +188,7 @@ def test_ports_normalized_with_defaults() -> None:
         },
     ]
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     port = post_data['ports'][0]
     assert not port['target_port']
     assert not port['description']

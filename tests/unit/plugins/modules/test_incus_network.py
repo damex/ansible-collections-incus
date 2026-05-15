@@ -64,7 +64,8 @@ def test_update_network_config() -> None:
 def test_create_network_with_type() -> None:
     """Create network with type."""
     result = assert_write_create(main, MODULE, _mock_module())
-    assert result.post.call_args[0][1]['type'] == 'bridge'
+    _post_path, post_data = result.post.call_args.args
+    assert post_data['type'] == 'bridge'
 
 
 def test_skip_matching_network() -> None:
@@ -96,7 +97,7 @@ def test_create_network_with_bgp_peers() -> None:
         ],
     }
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['config']['bgp.peers.router.address'] == '10.0.0.1'
     assert post_data['config']['bgp.peers.router.asn'] == '64601'
 
@@ -140,7 +141,7 @@ def test_create_network_with_tunnels() -> None:
         ],
     }
     client = assert_write_create(main, MODULE, module)
-    post_data = client.post.call_args[0][1]
+    _post_path, post_data = client.post.call_args.args
     assert post_data['config']['tunnel.site2.protocol'] == 'vxlan'
     assert post_data['config']['tunnel.site2.local'] == '192.168.1.1'
     assert post_data['config']['tunnel.site2.remote'] == '192.168.1.2'

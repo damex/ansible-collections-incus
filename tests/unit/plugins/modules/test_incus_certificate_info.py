@@ -36,7 +36,7 @@ def test_return_certificate_by_name(mock_create_module: MagicMock, mock_create_c
     client = mock_incus_client()
     client.get.return_value = {'metadata': CERTS}
     run_main(mock_create_module, mock_create_client, module, client, main)
-    certs = module.exit_json.call_args[1]['certificates']
+    certs = module.exit_json.call_args.kwargs['certificates']
     assert len(certs) == 1
     assert certs[0]['fingerprint'] == 'abc123'
 
@@ -62,7 +62,7 @@ def test_return_all_certificates(mock_create_module: MagicMock, mock_create_clie
     client = mock_incus_client()
     client.get.return_value = {'metadata': CERTS}
     run_main(mock_create_module, mock_create_client, module, client, main)
-    certs = module.exit_json.call_args[1]['certificates']
+    certs = module.exit_json.call_args.kwargs['certificates']
     assert len(certs) == 2
 
 

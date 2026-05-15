@@ -240,7 +240,7 @@ def test_create_aliases_single() -> None:
     client.post.return_value = {'type': 'sync'}
     _incus_image_import_create_aliases(client, 'abc123', 'myimage', None, '?project=default')
     client.post.assert_called_once()
-    alias_data = client.post.call_args[0][1]
+    _post_path, alias_data = client.post.call_args.args
     assert alias_data['name'] == 'myimage'
     assert alias_data['target'] == 'abc123'
 
@@ -257,10 +257,10 @@ def test_create_aliases_multiple() -> None:
         '?project=default',
     )
     assert client.post.call_count == 3
-    alias_names = [
-        call_args[0][1]['name']
-        for call_args in client.post.call_args_list
-    ]
+    alias_names = []
+    for call in client.post.call_args_list:
+        _post_path, alias_payload = call.args
+        alias_names.append(alias_payload['name'])
     assert alias_names == ['primary', 'secondary', 'tertiary']
 
 
@@ -317,7 +317,7 @@ def test_present_import_image(mock_shutil: MagicMock, mock_tempfile: MagicMock,
     assert_exit_changed(module, True)
     client.post_file.assert_called_once()
     client.post.assert_called_once()
-    alias_data = client.post.call_args[0][1]
+    _post_path, alias_data = client.post.call_args.args
     assert alias_data['name'] == 'chr/7.22'
     assert alias_data['target'] == 'abc123'
     mock_shutil.rmtree.assert_called_once_with('/tmp/test-dir', ignore_errors=True)
@@ -342,8 +342,9 @@ def test_present_import_with_aliases(mock_shutil: MagicMock, mock_tempfile: Magi
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     assert client.post.call_count == 2
-    first_alias = client.post.call_args_list[0][0][1]
-    second_alias = client.post.call_args_list[1][0][1]
+    first_call, second_call = client.post.call_args_list
+    _first_path, first_alias = first_call.args
+    _second_path, second_alias = second_call.args
     assert first_alias['name'] == 'chr'
     assert second_alias['name'] == 'chr/7.22'
     mock_shutil.rmtree.assert_called_once()
@@ -377,9 +378,10 @@ def test_present_force_reimport(mock_shutil: MagicMock, mock_tempfile: MagicMock
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.delete.assert_called_once()
-    assert 'abc123' in client.delete.call_args[0][0]
+    delete_path = next(iter(client.delete.call_args.args))
+    assert 'abc123' in delete_path
     client.post_file.assert_called_once()
-    alias_data = client.post.call_args[0][1]
+    _post_path, alias_data = client.post.call_args.args
     assert alias_data['name'] == 'chr/7.22'
     assert alias_data['target'] == 'def456'
     mock_shutil.rmtree.assert_called_once_with('/tmp/test-dir', ignore_errors=True)
@@ -406,7 +408,8 @@ def test_absent_delete_by_fingerprint() -> None:
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, True)
     client.delete.assert_called_once()
-    assert 'abc123' in client.delete.call_args[0][0]
+    delete_path = next(iter(client.delete.call_args.args))
+    assert 'abc123' in delete_path
 
 
 def test_absent_alias_not_found() -> None:

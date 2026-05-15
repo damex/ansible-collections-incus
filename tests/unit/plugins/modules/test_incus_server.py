@@ -68,7 +68,7 @@ def test_update_server_config() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is True
+    assert module.exit_json.call_args.kwargs['restart_required'] is True
     client.put.assert_called_once()
     _path, put_data = client.put.call_args.args
     assert put_data['config']['core.https_address'] == ':8443'
@@ -105,7 +105,7 @@ def test_update_server_logging() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is False
+    assert module.exit_json.call_args.kwargs['restart_required'] is False
     _path, put_data = client.put.call_args.args
     assert put_data['config']['logging.loki01.target.type'] == 'loki'
     assert put_data['config']['logging.loki01.target.address'] == 'https://loki:3100'
@@ -154,7 +154,7 @@ def test_update_server_config_extra_keys_removed() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
-    assert module.exit_json.call_args[1]['restart_required'] is True
+    assert module.exit_json.call_args.kwargs['restart_required'] is True
     client.put.assert_called_once()
     _path, put_data = client.put.call_args.args
     assert 'core.metrics_address' not in put_data['config']
