@@ -325,12 +325,14 @@ def main() -> None:
         result = _ensure_cluster_member(module)
         changed = result['changed']
         changed_keys = result.get('changed_keys', [])
+        restart_required = result.get('restart_required', False)
         diff = result.get('diff')
         join_token = result.get('join_token')
         if join_token:
             module.exit_json(
                 changed=changed,
                 changed_keys=changed_keys,
+                restart_required=restart_required,
                 join_token=join_token,
                 join_fingerprint=result.get('join_fingerprint', ''),
                 join_addresses=result.get('join_addresses', []),
@@ -340,11 +342,13 @@ def main() -> None:
                 changed=changed,
                 diff=diff,
                 changed_keys=changed_keys,
+                restart_required=restart_required,
             )
         else:
             module.exit_json(
                 changed=changed,
                 changed_keys=changed_keys,
+                restart_required=restart_required,
             )
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))

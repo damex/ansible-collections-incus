@@ -89,6 +89,7 @@ def test_create_generates_join_token() -> None:
     assert token_json['server_name'] == 'node2'
     assert call_kwargs['join_fingerprint'] == 'abc123'
     assert call_kwargs['join_addresses'] == ['10.0.0.1:8443']
+    assert call_kwargs['restart_required'] is False
     client.post.assert_called_once()
     post_data = client.post.call_args[0][1]
     assert post_data['server_name'] == 'node2'
@@ -124,6 +125,7 @@ def test_skip_matching_member() -> None:
     ]
     _run_main(module, client)
     assert_exit_changed(module, False)
+    assert module.exit_json.call_args[1]['restart_required'] is False
     client.put.assert_not_called()
 
 
@@ -139,6 +141,7 @@ def test_update_member_description() -> None:
     client.put.return_value = {'type': 'sync'}
     _run_main(module, client)
     assert_exit_changed(module, True)
+    assert module.exit_json.call_args[1]['restart_required'] is False
     client.put.assert_called_once()
     put_data = client.put.call_args[0][1]
     assert put_data['description'] == 'Primary node'

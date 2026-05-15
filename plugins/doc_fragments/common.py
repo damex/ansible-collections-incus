@@ -114,6 +114,10 @@ changed_keys:
   type: list
   elements: str
   returned: always
+restart_required:
+  description: Indicator that the Incus daemon must be restarted for changes to take effect.
+  type: bool
+  returned: always
 diff:
   description: Before and after state for diff mode.
   type: dict

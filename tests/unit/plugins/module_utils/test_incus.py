@@ -73,6 +73,8 @@ __all__ = [
     'test_run_write_module_success_changed',
     'test_run_write_module_success_unchanged',
     'test_run_write_module_client_exception',
+    'test_run_write_module_dict_result_default_no_restart',
+    'test_run_write_module_dict_result_restart_required',
     'test_run_info_module_single_resource',
     'test_run_info_module_not_found',
     'test_run_info_module_list_all',
@@ -448,17 +450,19 @@ def test_wait_default() -> None:
 
 
 def test_run_write_module_success_changed() -> None:
-    """Exit changed on success."""
+    """Exit changed on success with restart_required default False."""
     module = MagicMock()
     incus_run_write_module(module, lambda: True)
     assert_exit_changed(module, True)
+    assert module.exit_json.call_args[1]['restart_required'] is False
 
 
 def test_run_write_module_success_unchanged() -> None:
-    """Exit unchanged on no-op."""
+    """Exit unchanged on no-op with restart_required default False."""
     module = MagicMock()
     incus_run_write_module(module, lambda: False)
     assert_exit_changed(module, False)
+    assert module.exit_json.call_args[1]['restart_required'] is False
 
 
 def test_run_write_module_client_exception() -> None:
@@ -470,6 +474,26 @@ def test_run_write_module_client_exception() -> None:
 
     incus_run_write_module(module, _raise)
     module.fail_json.assert_called_once_with(msg='api error')
+
+
+def test_run_write_module_dict_result_default_no_restart() -> None:
+    """Dict result without restart_required key emits restart_required False."""
+    module = MagicMock()
+    incus_run_write_module(module, lambda: {'changed': True, 'changed_keys': ['description']})
+    assert_exit_changed(module, True)
+    assert module.exit_json.call_args[1]['restart_required'] is False
+
+
+def test_run_write_module_dict_result_restart_required() -> None:
+    """Dict result with restart_required True propagates to exit_json."""
+    module = MagicMock()
+    incus_run_write_module(module, lambda: {
+        'changed': True,
+        'changed_keys': ['core.https_address'],
+        'restart_required': True,
+    })
+    assert_exit_changed(module, True)
+    assert module.exit_json.call_args[1]['restart_required'] is True
 
 
 def _info_module(name: str | None = None, project: str | None = None) -> MagicMock:
