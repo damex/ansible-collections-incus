@@ -155,17 +155,20 @@ def _update_image(
     if current_auto_update == desired_auto_update and current_public == desired_public:
         return incus_build_result(False)
     if not module.check_mode:
+        payload: dict[str, Any] = {
+            'auto_update': desired_auto_update,
+            'public': desired_public,
+            'properties': image.get('properties') or {},
+        }
+        expires_at = image.get('expires_at')
+        if expires_at:
+            payload['expires_at'] = expires_at
         incus_wait(
             module,
             client,
             client.put(
                 f'/1.0/images/{encoded_fingerprint}{query}',
-                {
-                    'auto_update': desired_auto_update,
-                    'public': desired_public,
-                    'properties': image.get('properties') or {},
-                    'expires_at': image.get('expires_at', ''),
-                },
+                payload,
             ),
         )
     return incus_build_result(

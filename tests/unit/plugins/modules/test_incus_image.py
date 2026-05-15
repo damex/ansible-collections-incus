@@ -89,7 +89,7 @@ def test_present_alias_exists_update_auto_update() -> None:
 
 
 def test_present_alias_exists_update_public() -> None:
-    """Update public on existing image."""
+    """Update public on existing image; omit empty expires_at from PUT payload."""
     module = _mock_module()
     module.params['public'] = True
     put_data = assert_write_update(main, MODULE, module, [
@@ -97,7 +97,7 @@ def test_present_alias_exists_update_public() -> None:
         {'metadata': {'auto_update': False, 'public': False, 'properties': {}, 'expires_at': ''}},
     ])
     assert put_data['public'] is True
-    assert not put_data['expires_at']
+    assert 'expires_at' not in put_data
 
 
 def test_present_alias_exists_update_check_mode() -> None:
