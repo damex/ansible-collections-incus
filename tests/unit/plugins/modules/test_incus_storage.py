@@ -24,6 +24,7 @@ __all__ = [
     'test_update_storage_config',
     'test_update_preserves_immutable_source',
     'test_update_preserves_immutable_zfs_pool_name',
+    'test_update_without_driver_param_preserves_immutable_zfs_pool_name',
     'test_update_drops_absent_immutable_key',
     'test_delete_existing_storage',
     'test_delete_existing_storage_per_target',
@@ -87,6 +88,21 @@ def test_update_preserves_immutable_zfs_pool_name() -> None:
     module = _mock_module()
     module.params['config'] = {'size': '200GB'}
     current = {
+        'description': '',
+        'config': {'zfs.pool_name': 'tank'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['zfs.pool_name'] == 'tank'
+    assert put_data['config']['size'] == '200GB'
+
+
+def test_update_without_driver_param_preserves_immutable_zfs_pool_name() -> None:
+    """Fetch driver from current pool when driver param omitted, then preserve immutable keys."""
+    module = _mock_module()
+    module.params['driver'] = None
+    module.params['config'] = {'size': '200GB'}
+    current = {
+        'driver': 'zfs',
         'description': '',
         'config': {'zfs.pool_name': 'tank'},
     }

@@ -305,10 +305,19 @@ extends_documentation_fragment:
 
 from typing import Any
 
+from urllib.parse import quote
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
+    IncusClientException,
+    IncusNotFoundException,
+    incus_create_client,
+)
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
     IncusResourceOptions,
     incus_build_desired,
+    incus_build_query,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
@@ -405,6 +414,27 @@ INCUS_STORAGE_CONFIG_OPTIONS = {
 }
 
 
+def _incus_storage_fetch_existing_driver(module: AnsibleModule) -> str:
+    """
+    Return driver of the existing pool, empty string when pool absent.
+
+    >>> _incus_storage_fetch_existing_driver(module)
+    'zfs'
+    """
+    encoded_name = quote(module.params['name'], safe='')
+    query = incus_build_query(target=module.params.get('target'))
+    try:
+        with incus_create_client(module) as client:
+            current = client.get(f'/1.0/storage-pools/{encoded_name}{query}').get('metadata') or {}
+            driver: str = current.get('driver') or ''
+            return driver
+    except IncusNotFoundException:
+        return ''
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
+        return ''
+
+
 def main() -> None:
     """
     Run module.
@@ -426,7 +456,7 @@ def main() -> None:
         argument_spec[spec_key] = spec_value
     module = incus_create_write_module(argument_spec)
     desired = incus_build_desired(module)
-    driver = module.params.get('driver') or ''
+    driver = module.params.get('driver') or _incus_storage_fetch_existing_driver(module)
     options = IncusResourceOptions(
         create_only_params=['driver'],
         immutable_config_keys=INCUS_STORAGE_IMMUTABLE_UNIVERSAL.union(
