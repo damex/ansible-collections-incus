@@ -68,8 +68,9 @@ def test_create_network_zone_record_with_entries() -> None:
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
     assert len(post_data['entries']) == 1
-    assert post_data['entries'][0]['type'] == 'A'
-    assert post_data['entries'][0]['value'] == '10.0.0.5'
+    entry = next(iter(post_data['entries']))
+    assert entry['type'] == 'A'
+    assert entry['value'] == '10.0.0.5'
 
 
 def test_create_includes_name() -> None:
@@ -134,7 +135,8 @@ def test_update_network_zone_record_entries() -> None:
         ],
     })
     assert len(put_data['entries']) == 1
-    assert put_data['entries'][0]['value'] == '10.0.0.10'
+    entry = next(iter(put_data['entries']))
+    assert entry['value'] == '10.0.0.10'
 
 
 def test_delete_existing_network_zone_record() -> None:
@@ -173,8 +175,9 @@ def test_entries_sorted_by_type_and_value() -> None:
     ]
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
-    assert post_data['entries'][0]['type'] == 'A'
-    assert post_data['entries'][1]['type'] == 'AAAA'
+    first_entry, second_entry = post_data['entries']
+    assert first_entry['type'] == 'A'
+    assert second_entry['type'] == 'AAAA'
 
 
 def test_entries_normalized_with_defaults() -> None:
@@ -189,7 +192,7 @@ def test_entries_normalized_with_defaults() -> None:
     ]
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
-    entry = post_data['entries'][0]
+    entry = next(iter(post_data['entries']))
     assert 'ttl' not in entry
     assert entry['type'] == 'A'
     assert entry['value'] == '10.0.0.5'

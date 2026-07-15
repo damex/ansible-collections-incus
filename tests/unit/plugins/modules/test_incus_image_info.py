@@ -47,7 +47,7 @@ def test_return_image_by_alias(mock_create_module: MagicMock, mock_create_client
     module.exit_json.assert_called_once()
     images = module.exit_json.call_args.kwargs['images']
     assert len(images) == 1
-    assert images[0]['fingerprint'] == 'abc123'
+    assert next(iter(images))['fingerprint'] == 'abc123'
 
 
 @patch('ansible_collections.damex.incus.plugins.modules.incus_image_info.incus_create_client')

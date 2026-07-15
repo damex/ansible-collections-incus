@@ -71,9 +71,10 @@ def test_create_network_forward_with_ports() -> None:
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
     assert len(post_data['ports']) == 1
-    assert post_data['ports'][0]['protocol'] == 'tcp'
-    assert post_data['ports'][0]['listen_port'] == '80'
-    assert post_data['ports'][0]['target_address'] == '10.0.0.5'
+    port_rule = next(iter(post_data['ports']))
+    assert port_rule['protocol'] == 'tcp'
+    assert port_rule['listen_port'] == '80'
+    assert port_rule['target_address'] == '10.0.0.5'
 
 
 def test_create_includes_listen_address() -> None:
@@ -152,7 +153,8 @@ def test_update_network_forward_ports() -> None:
         'ports': [],
     })
     assert len(put_data['ports']) == 1
-    assert put_data['ports'][0]['listen_port'] == '80'
+    port_rule = next(iter(put_data['ports']))
+    assert port_rule['listen_port'] == '80'
 
 
 def test_delete_existing_network_forward() -> None:
@@ -189,7 +191,7 @@ def test_ports_normalized_with_defaults() -> None:
     ]
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
-    port = post_data['ports'][0]
+    port = next(iter(post_data['ports']))
     assert not port['target_port']
     assert not port['description']
     assert port['snat'] is False

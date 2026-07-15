@@ -165,7 +165,7 @@ def assert_info_by_name(
         main_func()
     result: list[dict[str, Any]] = module.exit_json.call_args.kwargs[return_key]
     assert len(result) == 1
-    return result[0]
+    return next(iter(result))
 
 
 def assert_info_not_found(

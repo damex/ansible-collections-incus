@@ -89,11 +89,13 @@ def test_create_network_acl_with_rules() -> None:
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
     assert len(post_data['ingress']) == 1
-    assert post_data['ingress'][0]['action'] == 'allow'
-    assert post_data['ingress'][0]['protocol'] == 'tcp'
-    assert post_data['ingress'][0]['destination_port'] == '80'
+    ingress_rule = next(iter(post_data['ingress']))
+    assert ingress_rule['action'] == 'allow'
+    assert ingress_rule['protocol'] == 'tcp'
+    assert ingress_rule['destination_port'] == '80'
     assert len(post_data['egress']) == 1
-    assert post_data['egress'][0]['destination'] == '8.8.8.8/32'
+    egress_rule = next(iter(post_data['egress']))
+    assert egress_rule['destination'] == '8.8.8.8/32'
 
 
 def test_skip_matching_network_acl() -> None:
@@ -173,7 +175,8 @@ def test_update_network_acl_rules() -> None:
         'egress': [],
     })
     assert len(put_data['ingress']) == 1
-    assert put_data['ingress'][0]['destination_port'] == '443'
+    ingress_rule = next(iter(put_data['ingress']))
+    assert ingress_rule['destination_port'] == '443'
 
 
 def test_delete_existing_network_acl() -> None:
@@ -227,8 +230,9 @@ def test_rules_sorted_by_action_priority() -> None:
     ]
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
-    assert post_data['ingress'][0]['action'] == 'drop'
-    assert post_data['ingress'][1]['action'] == 'allow'
+    first_rule, second_rule = post_data['ingress']
+    assert first_rule['action'] == 'drop'
+    assert second_rule['action'] == 'allow'
 
 
 def test_rules_normalized_with_defaults() -> None:
@@ -250,7 +254,7 @@ def test_rules_normalized_with_defaults() -> None:
     ]
     client = assert_write_create(main, MODULE, module)
     _post_path, post_data = client.post.call_args.args
-    rule = post_data['egress'][0]
+    rule = next(iter(post_data['egress']))
     assert rule['state'] == 'enabled'
     assert 'description' not in rule
     assert 'source' not in rule

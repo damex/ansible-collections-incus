@@ -95,7 +95,8 @@ def test_cloud_init_data_lists_to_dicts_headers() -> None:
         }],
     }
     result = cloud_init_data_lists_to_dicts(data)
-    assert result['write_files'][0]['source']['headers'] == {'Auth': 'Bearer tok'}
+    write_file = next(iter(result['write_files']))
+    assert write_file['source']['headers'] == {'Auth': 'Bearer tok'}
 
 
 def test_cloud_init_data_lists_to_dicts_passthrough() -> None:

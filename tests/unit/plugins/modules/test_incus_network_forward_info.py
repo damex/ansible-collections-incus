@@ -53,7 +53,7 @@ def test_return_forward_by_name() -> None:
     _run_info(module, client)
     result = module.exit_json.call_args.kwargs['network_forwards']
     assert len(result) == 1
-    assert result[0]['listen_address'] == '192.168.1.100'
+    assert next(iter(result))['listen_address'] == '192.168.1.100'
 
 
 def test_return_empty_for_missing_forward() -> None:

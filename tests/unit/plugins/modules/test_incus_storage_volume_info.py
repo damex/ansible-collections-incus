@@ -51,7 +51,7 @@ def test_return_volume_by_name() -> None:
     _run_info(module, client)
     result = module.exit_json.call_args.kwargs['storage_volumes']
     assert len(result) == 1
-    assert result[0]['name'] == 'data'
+    assert next(iter(result))['name'] == 'data'
 
 
 def test_return_empty_for_missing_volume() -> None:

@@ -197,8 +197,8 @@ def test_ensure_resource_project_query(mock_create_client: MagicMock) -> None:
 
     client.get.assert_called_with('/1.0/networks/test?project=myproject')
     client.post.assert_called_once()
-    args = client.post.call_args
-    assert '?project=myproject' in args[0][0]
+    post_path = next(iter(client.post.call_args.args))
+    assert '?project=myproject' in post_path
 
 
 @patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')

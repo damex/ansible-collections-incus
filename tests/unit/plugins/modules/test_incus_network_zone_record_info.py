@@ -53,7 +53,7 @@ def test_return_record_by_name() -> None:
     _run_info(module, client)
     result = module.exit_json.call_args.kwargs['network_zone_records']
     assert len(result) == 1
-    assert result[0]['name'] == 'web'
+    assert next(iter(result))['name'] == 'web'
 
 
 def test_return_empty_for_missing_record() -> None:

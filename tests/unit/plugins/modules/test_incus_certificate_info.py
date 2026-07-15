@@ -38,7 +38,7 @@ def test_return_certificate_by_name(mock_create_module: MagicMock, mock_create_c
     run_main(mock_create_module, mock_create_client, module, client, main)
     certs = module.exit_json.call_args.kwargs['certificates']
     assert len(certs) == 1
-    assert certs[0]['fingerprint'] == 'abc123'
+    assert next(iter(certs))['fingerprint'] == 'abc123'
 
 
 @patch('ansible_collections.damex.incus.plugins.modules.incus_certificate_info.incus_create_client')
