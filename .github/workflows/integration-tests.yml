@@ -21,9 +21,12 @@ jobs:
           - name: debian-bookworm
             build-script: build-integration-debian
             test-script: integration-debian
-          - name: fedora-43
-            build-script: build-integration-fedora
-            test-script: integration-fedora
+          - name: almalinux-9
+            build-script: build-integration-almalinux-9
+            test-script: integration-almalinux-9
+          - name: almalinux-10
+            build-script: build-integration-almalinux-10
+            test-script: integration-almalinux-10
     defaults:
       run:
         working-directory: ansible_collections/damex/incus
