@@ -17,4 +17,4 @@
       - name: "{{ incus_package_name }}"
         version: "{{ incus_package_version | default(omit) }}"
         state: "{{ incus_package_state }}"
-  when: ansible_facts['pkg_mgr'] in ("yum", "dnf", "dnf5")
+  when: ansible_facts['pkg_mgr'] in ["dnf", "dnf5"]
