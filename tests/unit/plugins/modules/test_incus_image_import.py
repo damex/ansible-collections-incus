@@ -110,10 +110,8 @@ def test_extract_xz_invalid() -> None:
             fh.write(b'not xz data')
         module = MagicMock()
         module.fail_json.side_effect = SystemExit(1)
-        try:
+        with pytest.raises(SystemExit):
             _incus_image_import_extract_xz(module, bad_path, tmp_dir)
-        except SystemExit:
-            pass
         module.fail_json.assert_called_once()
 
 
