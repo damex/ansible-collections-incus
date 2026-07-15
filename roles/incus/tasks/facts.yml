@@ -6,7 +6,3 @@
 
 - name: Ensure incus service facts
   ansible.builtin.service_facts: # yamllint disable-line rule:empty-values
-
-- name: Ensure incus package facts
-  ansible.builtin.package_facts:
-    manager: auto

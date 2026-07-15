@@ -9,8 +9,6 @@
       ansible.builtin.import_tasks: apt_preference.yml
     - name: Ensure incus package
       ansible.builtin.import_tasks: package.yml
-    - name: Ensure incus qemu
-      ansible.builtin.import_tasks: qemu.yml
     - name: Ensure incus systemd
       ansible.builtin.import_tasks: systemd.yml
     - name: Ensure incus socket symlinks
