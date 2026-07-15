@@ -70,7 +70,7 @@ Ansible collection for [Incus](https://linuxcontainers.org/incus/).
 ## Requirements
 
 - Ansible core >= 2.19.0
-- Debian or Fedora or Red Hat Enterprise Linux derivatives
+- Debian or Red Hat Enterprise Linux derivatives
 
 ## Installation
 

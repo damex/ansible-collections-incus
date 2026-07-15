@@ -1,0 +1,6 @@
+FROM docker.io/library/almalinux:10
+RUN dnf install --assumeyes epel-release python3 python3-pip python3-cryptography systemd openssh-server iproute && \
+    dnf clean all && \
+    ssh-keygen -A && \
+    echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/PermitRootLogin.conf
+CMD ["/usr/lib/systemd/systemd"]
