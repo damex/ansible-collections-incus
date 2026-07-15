@@ -153,7 +153,7 @@ def _info_module(name: str | None, project: str | None) -> MagicMock:
 
 def assert_info_by_name(
     main_func: collections.abc.Callable[[], None], return_key: str,
-    metadata: dict[str, Any], *, name: str = 'test',
+    metadata: dict[str, Any], name: str = 'test',
     project: str | None = 'default',
 ) -> dict[str, Any]:
     """Call info main and assert single resource returned."""
@@ -169,7 +169,7 @@ def assert_info_by_name(
 
 
 def assert_info_not_found(
-    main_func: collections.abc.Callable[[], None], return_key: str, *,
+    main_func: collections.abc.Callable[[], None], return_key: str,
     name: str = 'missing', project: str | None = 'default',
 ) -> None:
     """Call info main and assert empty list for missing name."""
@@ -185,7 +185,7 @@ def assert_info_not_found(
 
 def assert_info_all(
     main_func: collections.abc.Callable[[], None], return_key: str,
-    items: list[dict[str, Any]], *, project: str | None = 'default',
+    items: list[dict[str, Any]], project: str | None = 'default',
 ) -> None:
     """Call info main and assert all resources returned."""
     module = _info_module(None, project)
@@ -199,7 +199,7 @@ def assert_info_all(
 
 
 def assert_info_fail(
-    main_func: collections.abc.Callable[[], None], *,
+    main_func: collections.abc.Callable[[], None],
     project: str | None = 'default',
 ) -> None:
     """Call info main and assert failure on client exception."""
