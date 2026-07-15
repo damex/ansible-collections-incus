@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
+import pytest
+
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusClientException
 from ansible_collections.damex.incus.plugins.module_utils.instance_devices import devices_to_api
 
 __all__ = [
@@ -18,6 +21,7 @@ __all__ = [
     'test_devices_to_api_multiple_devices',
     'test_devices_to_api_dot_notation_keys',
     'test_devices_to_api_int_value_stringified',
+    'test_devices_to_api_duplicate_names_rejected',
 ]
 
 
@@ -91,3 +95,14 @@ def test_devices_to_api_int_value_stringified() -> None:
     """Stringify int values."""
     devices = [{'name': 'eth0', 'type': 'nic', 'mtu': 9000}]
     assert devices_to_api(devices)['eth0']['mtu'] == '9000'
+
+
+def test_devices_to_api_duplicate_names_rejected() -> None:
+    """Reject duplicate device names."""
+    devices = [
+        {'name': 'eth0', 'type': 'nic', 'network': 'incusbr0'},
+        {'name': 'root', 'type': 'disk', 'pool': 'local'},
+        {'name': 'eth0', 'type': 'nic', 'network': 'incusbr1'},
+    ]
+    with pytest.raises(IncusClientException, match='Duplicate device names: eth0'):
+        devices_to_api(devices)

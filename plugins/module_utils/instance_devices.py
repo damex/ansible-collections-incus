@@ -7,11 +7,15 @@ Incus device argument spec and helpers shared by profile and instance modules.
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import Any
 
 from ansible_collections.damex.incus.plugins.module_utils.common import (
     incus_common_named_list_to_dict,
     incus_common_stringify_value,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
+    IncusClientException,
 )
 
 __all__ = [
@@ -161,6 +165,14 @@ def devices_to_api(devices: list[dict[str, Any]] | None) -> dict[str, dict[str, 
     >>> devices_to_api([{'name': 'eth0', 'type': 'nic', 'network': 'lxdbr0'}])
     {'eth0': {'type': 'nic', 'network': 'lxdbr0'}}
     """
+    name_counts = Counter(device['name'] for device in (devices or []))
+    duplicate_names = sorted(
+        device_name
+        for device_name, occurrence_count in name_counts.items()
+        if occurrence_count > 1
+    )
+    if duplicate_names:
+        raise IncusClientException(f"Duplicate device names: {', '.join(duplicate_names)}")
     return {
         device_name: {
             property_key: incus_common_stringify_value(property_value)
