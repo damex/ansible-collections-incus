@@ -62,6 +62,8 @@ __all__ = [
     'test_present_missing_source',
     'test_present_check_mode',
     'test_present_force_reimport',
+    'test_present_force_missing_source',
+    'test_present_force_deletes_after_upload',
     'test_present_force_check_mode',
     'test_absent_delete_by_fingerprint',
     'test_absent_alias_not_found',
@@ -421,6 +423,42 @@ def test_present_force_reimport(mock_shutil: MagicMock, mock_tempfile: MagicMock
     assert alias_data['target'] == 'def456'
     mock_shutil.rmtree.assert_called_once_with('/tmp/test-dir', ignore_errors=True)
     mock_prepare.assert_called_once()
+
+
+def test_present_force_missing_source() -> None:
+    """Fail before delete when source missing on force re-import."""
+    module = _mock_module(source=None, force=True)
+    module.fail_json.side_effect = SystemExit(1)
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
+    with pytest.raises(SystemExit):
+        run_module_main(MODULE, module, client, main)
+    module.fail_json.assert_called_once()
+    client.delete.assert_not_called()
+
+
+@patch(f'{MODULE}._incus_image_import_prepare', return_value='/tmp/image.tar.gz')
+@patch(f'{MODULE}.tempfile')
+@patch(f'{MODULE}.shutil')
+def test_present_force_deletes_after_upload(_mock_shutil: MagicMock, mock_tempfile: MagicMock,
+                                            _mock_prepare: MagicMock) -> None:
+    """Delete old image only after successful upload."""
+    mock_tempfile.mkdtemp.return_value = '/tmp/test-dir'
+    module = _mock_module(force=True)
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': {'name': 'chr/7.22', 'target': 'abc123'}}
+    client.delete.return_value = {'type': 'sync'}
+    client.post_file.return_value = {'type': 'async', 'metadata': {'id': 'op-123'}}
+    client.wait.return_value = {'metadata': {'fingerprint': 'def456'}}
+    client.post.return_value = {'type': 'sync'}
+    run_module_main(MODULE, module, client, main)
+    assert_exit_changed(module, True)
+    mutation_order = [
+        method_name
+        for method_name, call_args, call_kwargs in client.mock_calls
+        if method_name in ('post_file', 'delete')
+    ]
+    assert mutation_order == ['post_file', 'delete']
 
 
 def test_present_force_check_mode() -> None:

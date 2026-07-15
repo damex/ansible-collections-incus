@@ -561,18 +561,11 @@ def _ensure_image_present(
     {'changed': True, 'diff': {...}, 'changed_keys': [...]}
     """
     fingerprint = incus_resolve_image_alias(client, alias, query)
-    if fingerprint and not module.params['force']:
+    if fingerprint is not None and not module.params['force']:
         return incus_build_result(False)
-    is_force_reimport = bool(fingerprint and module.params['force'])
-    if is_force_reimport and fingerprint and not module.check_mode:
-        encoded_fingerprint = quote(fingerprint, safe='')
-        incus_wait(
-            module,
-            client,
-            client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
-        )
-    if not module.params['source']:
+    if module.params['source'] is None:
         module.fail_json(msg="'source' is required when creating an image")
+    is_force_reimport = fingerprint is not None
     before = {'alias': alias} if is_force_reimport else {}
     if module.check_mode:
         return incus_build_result(True, before=before, after={'alias': alias})
@@ -592,14 +585,21 @@ def _ensure_image_present(
         )
         metadata = client.wait(response)
         if metadata:
-            fingerprint = (metadata.get('metadata') or {}).get('fingerprint', '')
+            uploaded_fingerprint = (metadata.get('metadata') or {}).get('fingerprint', '')
         else:
-            fingerprint = (response.get('metadata') or {}).get('fingerprint', '')
-        if not fingerprint:
+            uploaded_fingerprint = (response.get('metadata') or {}).get('fingerprint', '')
+        if not uploaded_fingerprint:
             module.fail_json(msg="Failed to retrieve image fingerprint after upload")
+        if fingerprint is not None:
+            encoded_fingerprint = quote(fingerprint, safe='')
+            incus_wait(
+                module,
+                client,
+                client.delete(f'/1.0/images/{encoded_fingerprint}{query}'),
+            )
         _incus_image_import_create_aliases(
             client,
-            fingerprint,
+            uploaded_fingerprint,
             alias,
             module.params.get('aliases'),
             query,
