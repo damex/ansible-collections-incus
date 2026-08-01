@@ -317,7 +317,9 @@ argument_specs:
                     type: str
                   address:
                     description: IP address of the BGP peer.
-                    required: true
+                    type: str
+                  interface:
+                    description: Interface name for BGP unnumbered peering.
                     type: str
                   asn:
                     description: Autonomous System Number of the BGP peer.

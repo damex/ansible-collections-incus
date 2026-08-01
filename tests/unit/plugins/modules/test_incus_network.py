@@ -26,6 +26,7 @@ __all__ = [
     'test_delete_nonexistent_network',
     'test_network_check_mode',
     'test_create_network_with_bgp_peers',
+    'test_create_network_with_unnumbered_bgp_peer',
     'test_update_network_with_bgp_peers',
     'test_skip_matching_network_with_bgp_peers',
     'test_create_network_with_tunnels',
@@ -100,6 +101,28 @@ def test_create_network_with_bgp_peers() -> None:
     _post_path, post_data = client.post.call_args.args
     assert post_data['config']['bgp.peers.router.address'] == '10.0.0.1'
     assert post_data['config']['bgp.peers.router.asn'] == '64601'
+
+
+def test_create_network_with_unnumbered_bgp_peer() -> None:
+    """Create network with interface-based BGP peer merged into config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'bgp_peers': [
+            {
+                'name': 'router',
+                'address': None,
+                'interface': 'uplink0',
+                'asn': 64601,
+                'holdtime': None,
+                'password': None,
+            },
+        ],
+    }
+    client = assert_write_create(main, MODULE, module)
+    _post_path, post_data = client.post.call_args.args
+    assert post_data['config']['bgp.peers.router.interface'] == 'uplink0'
+    assert post_data['config']['bgp.peers.router.asn'] == '64601'
+    assert 'bgp.peers.router.address' not in post_data['config']
 
 
 def test_update_network_with_bgp_peers() -> None:

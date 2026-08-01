@@ -293,8 +293,13 @@ options:
           address:
             description:
               - Peer address (IPv4 or IPv6).
+              - Mutually exclusive with O(config.bgp_peers.interface).
             type: str
-            required: true
+          interface:
+            description:
+              - Interface name for BGP unnumbered peering.
+              - Mutually exclusive with O(config.bgp_peers.address).
+            type: str
           asn:
             description:
               - Peer AS number.
@@ -535,10 +540,8 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
                 'type': 'str',
                 'required': True,
             },
-            'address': {
-                'type': 'str',
-                'required': True,
-            },
+            'address': {'type': 'str'},
+            'interface': {'type': 'str'},
             'asn': {
                 'type': 'int',
                 'required': True,
@@ -549,6 +552,12 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
                 'no_log': True,
             },
         },
+        'required_one_of': [
+            ['address', 'interface'],
+        ],
+        'mutually_exclusive': [
+            ['address', 'interface'],
+        ],
     },
     'tunnels': {
         'type': 'list',
