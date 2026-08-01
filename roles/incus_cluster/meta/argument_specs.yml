@@ -216,13 +216,13 @@ argument_specs:
           oidc.scopes:
             type: str
             description: Comma-separated list of OIDC scopes to request.
-          openfga.api.token:
+          authorization.openfga.api.token:
             type: str
             description: API token for the OpenFGA server.
-          openfga.api.url:
+          authorization.openfga.api.url:
             type: str
             description: URL of the OpenFGA server.
-          openfga.store.id:
+          authorization.openfga.store.id:
             type: str
             description: OpenFGA store ID.
           authorization.scriptlet:

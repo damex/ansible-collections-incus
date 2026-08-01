@@ -14,6 +14,6 @@
     server_cert_path: "{{ incus_server_server_cert_path | default(omit) }}"
     token: "{{ incus_server_token | default(omit) }}"
     validate_certs: "{{ incus_server_validate_certs }}"
-  no_log: "{{ incus_server_client_key is defined or incus_server_token is defined or 'openfga.api.token' in incus_server_config }}"
+  no_log: "{{ incus_server_client_key is defined or incus_server_token is defined or 'authorization.openfga.api.token' in incus_server_config }}"
   become: true
   register: incus_server_configuration_state

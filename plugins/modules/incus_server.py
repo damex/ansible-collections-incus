@@ -299,15 +299,15 @@ options:
         description:
           - Comma-separated list of OIDC scopes to request.
         type: str
-      openfga.api.token:
+      authorization.openfga.api.token:
         description:
           - API token for the OpenFGA server.
         type: str
-      openfga.api.url:
+      authorization.openfga.api.url:
         description:
           - URL of the OpenFGA server.
         type: str
-      openfga.store.id:
+      authorization.openfga.store.id:
         description:
           - OpenFGA store ID.
         type: str
@@ -605,9 +605,9 @@ INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {
     'oidc.client.id': {'type': 'str'},
     'oidc.issuer': {'type': 'str'},
     'oidc.scopes': {'type': 'str'},
-    'openfga.api.token': {'type': 'str', 'no_log': True},
-    'openfga.api.url': {'type': 'str'},
-    'openfga.store.id': {'type': 'str'},
+    'authorization.openfga.api.token': {'type': 'str', 'no_log': True},
+    'authorization.openfga.api.url': {'type': 'str'},
+    'authorization.openfga.store.id': {'type': 'str'},
     'authorization.scriptlet': {'type': 'str'},
     'backups.compression_algorithm': {'type': 'str'},
     'instances.lxcfs.per_instance': {'type': 'bool'},
