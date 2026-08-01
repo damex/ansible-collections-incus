@@ -35,6 +35,41 @@ argument_specs:
             description: Cluster member names in the group.
             type: list
             elements: str
+          config:
+            description: Cluster group configuration keys.
+            type: dict
+            options:
+              vm_cpu:
+                description: Per-architecture virtual machine CPU definitions.
+                type: list
+                elements: dict
+                options:
+                  architecture:
+                    description: Incus architecture name.
+                    required: true
+                    type: str
+                    choices:
+                      - i686
+                      - x86_64
+                      - armv6l
+                      - armv7l
+                      - armv8l
+                      - aarch64
+                      - ppc
+                      - ppc64
+                      - ppc64le
+                      - s390x
+                      - mips
+                      - mips64
+                      - riscv32
+                      - riscv64
+                      - loongarch64
+                  baseline:
+                    description: CPU base architecture name as listed by qemu -cpu ?.
+                    type: str
+                  flags:
+                    description: Comma-separated CPU flags to add to or remove from the baseline.
+                    type: str
           state:
             description: Desired state of the cluster group.
             type: str

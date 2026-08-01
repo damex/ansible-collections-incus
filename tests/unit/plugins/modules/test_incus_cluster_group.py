@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from ansible_collections.damex.incus.plugins.modules.incus_cluster_group import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
@@ -23,6 +25,8 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
 __all__ = [
     'test_create_cluster_group',
     'test_create_cluster_group_with_members',
+    'test_create_cluster_group_with_vm_cpu_config',
+    'test_create_cluster_group_duplicate_vm_cpu_architecture',
     'test_skip_matching_cluster_group',
     'test_skip_matching_cluster_group_with_members',
     'test_update_cluster_group_description',
@@ -45,6 +49,7 @@ def _mock_module(state: str = 'present', check_mode: bool = False) -> MagicMock:
     module.params['state'] = state
     module.params['description'] = ''
     module.params['members'] = []
+    module.params['config'] = None
     module.check_mode = check_mode
     return module
 
@@ -64,11 +69,46 @@ def test_create_cluster_group_with_members() -> None:
     assert 'arm64-node2' in post_data['members']
 
 
+def test_create_cluster_group_with_vm_cpu_config() -> None:
+    """Create cluster group with vm_cpu definitions merged into config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'vm_cpu': [
+            {'architecture': 'x86_64', 'baseline': 'EPYC-v2', 'flags': '-svm'},
+            {'architecture': 'aarch64', 'baseline': 'max', 'flags': None},
+        ],
+    }
+    client = assert_write_create(main, MODULE, module)
+    _post_path, post_data = client.post.call_args.args
+    assert post_data['config']['instances.vm.cpu.x86_64.baseline'] == 'EPYC-v2'
+    assert post_data['config']['instances.vm.cpu.x86_64.flags'] == '-svm'
+    assert post_data['config']['instances.vm.cpu.aarch64.baseline'] == 'max'
+    assert 'instances.vm.cpu.aarch64.flags' not in post_data['config']
+
+
+def test_create_cluster_group_duplicate_vm_cpu_architecture() -> None:
+    """Fail on duplicate vm_cpu architectures."""
+    module = _mock_module()
+    module.fail_json.side_effect = SystemExit(1)
+    module.params['config'] = {
+        'vm_cpu': [
+            {'architecture': 'x86_64', 'baseline': 'EPYC-v2', 'flags': None},
+            {'architecture': 'x86_64', 'baseline': 'kvm64', 'flags': None},
+        ],
+    }
+    client = mock_incus_client()
+    with pytest.raises(SystemExit):
+        run_module_main(MODULE, module, client, main)
+    module.fail_json.assert_called_once()
+    client.post.assert_not_called()
+
+
 def test_skip_matching_cluster_group() -> None:
     """Skip matching cluster group."""
     assert_write_skip(main, MODULE, _mock_module(), {
         'description': '',
         'members': [],
+        'config': {},
     })
 
 
@@ -79,6 +119,7 @@ def test_skip_matching_cluster_group_with_members() -> None:
     assert_write_skip(main, MODULE, module, {
         'description': '',
         'members': ['arm64-node1', 'arm64-node2'],
+        'config': {},
     })
 
 

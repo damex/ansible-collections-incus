@@ -5,6 +5,7 @@
     state: "{{ incus_cluster_groups_cluster_group_state }}"
     description: "{{ incus_cluster_groups_cluster_group.description | default(omit) }}"
     members: "{{ incus_cluster_groups_cluster_group.members | default(omit) }}"
+    config: "{{ incus_cluster_groups_cluster_group.config | default(omit) }}"
     socket_path: "{{ incus_cluster_groups_cluster_group_socket_path }}"
     url: "{{ incus_cluster_groups_cluster_group_url }}"
     client_cert: "{{ incus_cluster_groups_cluster_group_client_cert }}"
