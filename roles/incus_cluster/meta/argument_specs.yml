@@ -332,6 +332,30 @@ argument_specs:
           storage.logs_volume:
             type: str
             description: Volume to use for storing log files.
+          loki.api.ca_cert:
+            type: str
+            description: CA certificate for the Loki server.
+          loki.api.url:
+            type: str
+            description: URL to the Loki server.
+          loki.auth.password:
+            type: str
+            description: Password used for Loki authentication.
+          loki.auth.username:
+            type: str
+            description: User name used for Loki authentication.
+          loki.instance:
+            type: str
+            description: Name to use as the instance field in Loki events.
+          loki.labels:
+            type: str
+            description: Comma-separated list of labels for a Loki log entry.
+          loki.loglevel:
+            type: str
+            description: Minimum log level to send to the Loki server.
+          loki.types:
+            type: str
+            description: Comma-separated list of events to send to the Loki server.
           logging:
             type: list
             elements: dict

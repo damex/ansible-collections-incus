@@ -444,6 +444,38 @@ options:
         description:
           - Volume to use for storing log files.
         type: str
+      loki.api.ca_cert:
+        description:
+          - CA certificate for the Loki server.
+        type: str
+      loki.api.url:
+        description:
+          - URL to the Loki server.
+        type: str
+      loki.auth.password:
+        description:
+          - Password used for Loki authentication.
+        type: str
+      loki.auth.username:
+        description:
+          - User name used for Loki authentication.
+        type: str
+      loki.instance:
+        description:
+          - Name to use as the instance field in Loki events.
+        type: str
+      loki.labels:
+        description:
+          - Comma-separated list of labels for a Loki log entry.
+        type: str
+      loki.loglevel:
+        description:
+          - Minimum log level to send to the Loki server.
+        type: str
+      loki.types:
+        description:
+          - Comma-separated list of events to send to the Loki server.
+        type: str
       logging:
         description:
           - List of logging targets.
@@ -734,6 +766,14 @@ INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {
     'storage.linstor.controller_connection': {'type': 'str'},
     'storage.linstor.satellite.name': {'type': 'str'},
     'storage.logs_volume': {'type': 'str'},
+    'loki.api.ca_cert': {'type': 'str'},
+    'loki.api.url': {'type': 'str'},
+    'loki.auth.password': {'type': 'str', 'no_log': True},
+    'loki.auth.username': {'type': 'str'},
+    'loki.instance': {'type': 'str'},
+    'loki.labels': {'type': 'str'},
+    'loki.loglevel': {'type': 'str'},
+    'loki.types': {'type': 'str'},
 }
 
 INCUS_SERVER_LOGGING_OPTIONS = {
