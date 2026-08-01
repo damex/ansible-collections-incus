@@ -225,6 +225,53 @@ argument_specs:
           authorization.openfga.store.id:
             type: str
             description: OpenFGA store ID.
+          authorization.openfga.tls.identifier:
+            type: str
+            description: Certificate attribute used as the OpenFGA user for TLS clients.
+            choices:
+              - fingerprint
+              - name
+          authorization.client.default:
+            type: str
+            description: Authorization driver for clients without a more specific class route.
+            choices:
+              - allow
+              - deny
+              - openfga
+              - scriptlet
+          authorization.client.oidc:
+            type: str
+            description: Authorization driver for OIDC-authenticated clients.
+            choices:
+              - allow
+              - deny
+              - openfga
+              - scriptlet
+          authorization.client.tls:
+            type: str
+            description: Authorization driver for unrestricted TLS clients.
+            choices:
+              - allow
+              - deny
+              - openfga
+              - scriptlet
+          authorization.client.tls-restricted:
+            type: str
+            description: Authorization driver for restricted TLS clients.
+            choices:
+              - allow
+              - deny
+              - tls
+              - openfga
+              - scriptlet
+          authorization.client.unix:
+            type: str
+            description: Authorization driver for local unix socket clients.
+            choices:
+              - allow
+              - deny
+              - openfga
+              - scriptlet
           authorization.scriptlet:
             type: str
             description: Starlark scriptlet for custom authorization logic.

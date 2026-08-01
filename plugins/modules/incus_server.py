@@ -311,6 +311,59 @@ options:
         description:
           - OpenFGA store ID.
         type: str
+      authorization.openfga.tls.identifier:
+        description:
+          - Certificate attribute used as the OpenFGA user for TLS clients.
+        type: str
+        choices:
+          - fingerprint
+          - name
+      authorization.client.default:
+        description:
+          - Authorization driver for clients without a more specific class route.
+        type: str
+        choices:
+          - allow
+          - deny
+          - openfga
+          - scriptlet
+      authorization.client.oidc:
+        description:
+          - Authorization driver for OIDC-authenticated clients.
+        type: str
+        choices:
+          - allow
+          - deny
+          - openfga
+          - scriptlet
+      authorization.client.tls:
+        description:
+          - Authorization driver for unrestricted TLS clients.
+        type: str
+        choices:
+          - allow
+          - deny
+          - openfga
+          - scriptlet
+      authorization.client.tls-restricted:
+        description:
+          - Authorization driver for restricted TLS clients.
+        type: str
+        choices:
+          - allow
+          - deny
+          - tls
+          - openfga
+          - scriptlet
+      authorization.client.unix:
+        description:
+          - Authorization driver for local unix socket clients.
+        type: str
+        choices:
+          - allow
+          - deny
+          - openfga
+          - scriptlet
       authorization.scriptlet:
         description:
           - Starlark scriptlet for custom authorization logic.
@@ -608,6 +661,59 @@ INCUS_SERVER_CONFIG_OPTIONS: dict[str, Any] = {
     'authorization.openfga.api.token': {'type': 'str', 'no_log': True},
     'authorization.openfga.api.url': {'type': 'str'},
     'authorization.openfga.store.id': {'type': 'str'},
+    'authorization.openfga.tls.identifier': {
+        'type': 'str',
+        'choices': [
+            'fingerprint',
+            'name',
+        ],
+    },
+    'authorization.client.default': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'deny',
+            'openfga',
+            'scriptlet',
+        ],
+    },
+    'authorization.client.oidc': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'deny',
+            'openfga',
+            'scriptlet',
+        ],
+    },
+    'authorization.client.tls': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'deny',
+            'openfga',
+            'scriptlet',
+        ],
+    },
+    'authorization.client.tls-restricted': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'deny',
+            'tls',
+            'openfga',
+            'scriptlet',
+        ],
+    },
+    'authorization.client.unix': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'deny',
+            'openfga',
+            'scriptlet',
+        ],
+    },
     'authorization.scriptlet': {'type': 'str'},
     'backups.compression_algorithm': {'type': 'str'},
     'instances.lxcfs.per_instance': {'type': 'bool'},
