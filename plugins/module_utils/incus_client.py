@@ -31,6 +31,8 @@ INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
 
 _IDEMPOTENT_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS', 'PUT'})
 
+_TRANSPORT_ERRORS = (BrokenPipeError, ConnectionResetError)
+
 
 class IncusClientException(Exception):
     """
@@ -260,13 +262,29 @@ class IncusClient:
         headers: dict[str, str],
     ) -> dict[str, Any]:
         """
-        Execute request, retrying only idempotent methods on transient transport errors.
+        Execute request, retrying transport errors and idempotent methods on transient failures.
 
         >>> client._execute('GET', '/1.0', None, {})
         {'type': 'sync', 'status': 'Success', 'metadata': {...}}
         """
         try:
             content = self._send(method, path, body, headers)
+        except _TRANSPORT_ERRORS as exception:
+            self._close()
+            if hasattr(body, 'seek'):
+                body.seek(0)
+            try:
+                content = self._send(method, path, body, headers)
+            except (OSError, http.client.HTTPException) as retry_exception:
+                self._close()
+                raise IncusClientException(
+                    f'{method} {path} failed after transport-error retry: {retry_exception}',
+                ) from retry_exception
+            except (UnicodeDecodeError, json.JSONDecodeError) as parse_exception:
+                self._close()
+                raise IncusClientException(
+                    f'invalid response: {parse_exception}',
+                ) from parse_exception
         except (OSError, http.client.HTTPException) as exception:
             self._close()
             if method not in _IDEMPOTENT_METHODS:
