@@ -341,6 +341,7 @@ INCUS_STORAGE_IMMUTABLE_CONFIG: dict[str, frozenset[str]] = {
         'lvm.use_thinpool',
         'lvm.thinpool_metadata_size',
         'lvm.metadata_size',
+        'lvm.vg.force_reuse',
         'volume.lvm.stripes',
         'volume.lvm.stripes.size',
         'volume.block.type',
