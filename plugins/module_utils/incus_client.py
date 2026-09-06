@@ -269,9 +269,9 @@ class IncusClient:
         """
         try:
             content = self._send(method, path, body, headers)
-        except _TRANSPORT_ERRORS as exception:
+        except _TRANSPORT_ERRORS:
             self._close()
-            if hasattr(body, 'seek'):
+            if body is not None and hasattr(body, 'seek'):
                 body.seek(0)
             try:
                 content = self._send(method, path, body, headers)
