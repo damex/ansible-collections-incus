@@ -158,13 +158,21 @@ extends_documentation_fragment:
 from typing import Any
 from urllib.parse import quote
 
+from ansible.module_utils.basic import AnsibleModule
+
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusClientException,
+    IncusNotFoundException,
     IncusResourceOptions,
     incus_build_desired,
+    incus_create_client,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
+)
+from ansible_collections.damex.incus.plugins.module_utils.incus_target import (
+    incus_is_storage_node_specific,
 )
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
@@ -181,6 +189,26 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
     'zfs.delegate': {'type': 'bool'},
     'zfs.remove_snapshots': {'type': 'bool'},
 }
+
+
+def _incus_storage_volume_fetch_pool_driver(module: AnsibleModule) -> str:
+    """
+    Return driver of the volume's storage pool, empty string when pool absent.
+
+    >>> _incus_storage_volume_fetch_pool_driver(module)
+    'lvm'
+    """
+    encoded_pool = quote(module.params['pool'], safe='')
+    try:
+        with incus_create_client(module) as client:
+            current = client.get(f'/1.0/storage-pools/{encoded_pool}').get('metadata') or {}
+            driver: str = current.get('driver') or ''
+            return driver
+    except IncusNotFoundException:
+        return ''
+    except IncusClientException as exception:
+        module.fail_json(msg=str(exception))
+        return ''
 
 
 def main() -> None:
@@ -210,7 +238,14 @@ def main() -> None:
     encoded_pool = quote(module.params['pool'], safe='')
     resource = f'storage-pools/{encoded_pool}/volumes/custom'
     desired = incus_build_desired(module)
-    options = IncusResourceOptions(create_only_params=['content_type'])
+    driver = _incus_storage_volume_fetch_pool_driver(module)
+    options = IncusResourceOptions(
+        create_only_params=['content_type'],
+        is_node_specific=lambda config_key: incus_is_storage_node_specific(
+            config_key,
+            driver,
+        ),
+    )
     incus_run_write_module(
         module,
         lambda: incus_ensure_resource(module, resource, desired, options),
