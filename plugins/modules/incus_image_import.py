@@ -197,6 +197,7 @@ except ImportError:
 
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClient,
+    IncusClientException,
     incus_create_client,
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
@@ -527,7 +528,7 @@ def _incus_image_import_create_aliases(
     query: str,
 ) -> None:
     """
-    Create image aliases.
+    Create image aliases, replacing any that already exist.
 
     >>> _incus_image_import_create_aliases(
     ...     client,
@@ -539,13 +540,15 @@ def _incus_image_import_create_aliases(
     """
     all_aliases = [alias] + (aliases or [])
     for name in all_aliases:
-        client.post(
-            f'/1.0/images/aliases{query}',
-            {
-                'name': name,
-                'target': fingerprint,
-            },
-        )
+        body = {'name': name, 'target': fingerprint}
+        try:
+            client.post(f'/1.0/images/aliases{query}', body)
+        except IncusClientException as exception:
+            if 'already exists' not in str(exception):
+                raise
+            encoded_name = quote(name, safe='')
+            client.delete(f'/1.0/images/aliases/{encoded_name}{query}')
+            client.post(f'/1.0/images/aliases{query}', body)
 
 
 def _ensure_image_present(
