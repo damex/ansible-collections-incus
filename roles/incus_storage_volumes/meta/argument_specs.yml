@@ -104,6 +104,12 @@ argument_specs:
               zfs.remove_snapshots:
                 description: Snapshot removal on volume removal.
                 type: bool
+              zfs.reserve_space:
+                description: ZFS space reservation equal to volume size.
+                type: bool
+              zfs.use_refquota:
+                description: ZFS refquota instead of quota for volume size.
+                type: bool
           targets:
             description: Cluster member targets for storage volume creation.
             type: list

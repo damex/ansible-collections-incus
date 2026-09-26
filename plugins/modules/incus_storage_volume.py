@@ -124,6 +124,15 @@ options:
         description:
           - Whether to remove snapshots on volume removal.
         type: bool
+      zfs.reserve_space:
+        description:
+          - ZFS space reservation equal to O(config.size) (filesystem volumes only).
+          - Uses C(refreservation) when C(zfs.use_refquota) is set, C(reservation) otherwise.
+        type: bool
+      zfs.use_refquota:
+        description:
+          - ZFS C(refquota) instead of C(quota) for O(config.size), so snapshot usage does not count against it (filesystem volumes only).
+        type: bool
 """
 
 EXAMPLES = r"""
@@ -221,6 +230,8 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
     'zfs.block_mode': {'type': 'bool'},
     'zfs.delegate': {'type': 'bool'},
     'zfs.remove_snapshots': {'type': 'bool'},
+    'zfs.reserve_space': {'type': 'bool'},
+    'zfs.use_refquota': {'type': 'bool'},
 }
 
 
