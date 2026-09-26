@@ -102,7 +102,7 @@ argument_specs:
                 description: ZFS dataset delegation to instance.
                 type: bool
               zfs.remove_snapshots:
-                description: Snapshot removal on volume removal.
+                description: ZFS removal of newer snapshots on older snapshot restore.
                 type: bool
               zfs.reserve_space:
                 description: ZFS space reservation equal to volume size.

@@ -122,7 +122,7 @@ options:
         type: bool
       zfs.remove_snapshots:
         description:
-          - Whether to remove snapshots on volume removal.
+          - Removal of newer snapshots when restoring older snapshot.
         type: bool
       zfs.reserve_space:
         description:
