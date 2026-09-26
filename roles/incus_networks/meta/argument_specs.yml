@@ -144,6 +144,9 @@ argument_specs:
               dns.domain:
                 description: Domain to advertise to DHCP clients and use for DNS resolution.
                 type: str
+              dns.include_hosts:
+                description: Host /etc/hosts records in network DNS.
+                type: bool
               dns.mode:
                 description: DNS registration mode.
                 type: str

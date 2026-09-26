@@ -80,6 +80,10 @@ options:
         description:
           - Domain to advertise to DHCP clients and use for DNS resolution.
         type: str
+      dns.include_hosts:
+        description:
+          - Host C(/etc/hosts) records in network DNS.
+        type: bool
       dns.mode:
         description:
           - DNS registration mode.
@@ -451,6 +455,7 @@ INCUS_NETWORK_CONFIG_OPTIONS = {
     'bridge.hwaddr': {'type': 'str'},
     'bridge.mtu': {'type': 'str'},
     'dns.domain': {'type': 'str'},
+    'dns.include_hosts': {'type': 'bool'},
     'dns.mode': {
         'type': 'str',
         'choices': [
