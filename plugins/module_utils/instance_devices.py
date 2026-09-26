@@ -134,11 +134,13 @@ INCUS_DEVICE_OPTIONS: dict[str, dict[str, Any]] = {
     'major': {'type': 'int'},
     'minor': {'type': 'int'},
     # gpu
+    'blob.size': {'type': 'str'},
     'gputype': {
         'type': 'str',
         'choices': [
             'mdev',
             'mig',
+            'native-context',
             'physical',
             'sriov',
         ],

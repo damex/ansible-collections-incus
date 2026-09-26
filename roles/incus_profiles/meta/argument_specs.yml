@@ -2203,12 +2203,16 @@ argument_specs:
                 description: Device minor number.
                 type: int
               # gpu
+              blob.size:
+                description: Host-visible blob memory window size for virtio-gpu device.
+                type: str
               gputype:
                 description: GPU type.
                 type: str
                 choices:
                   - mdev
                   - mig
+                  - native-context
                   - physical
                   - sriov
               id:

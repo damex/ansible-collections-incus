@@ -290,10 +290,13 @@ options:
         description: Device minor number (unix-char, unix-block).
         type: int
       # gpu
+      blob.size:
+        description: Host-visible blob memory window size for virtio-gpu device (gpu native-context only, VMs only).
+        type: str
       gputype:
         description: GPU type (gpu only).
         type: str
-        choices: [mdev, mig, physical, sriov]
+        choices: [mdev, mig, native-context, physical, sriov]
       id:
         description: DRM card ID of the GPU device (gpu only).
         type: str
