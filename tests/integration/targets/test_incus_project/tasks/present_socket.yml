@@ -5,7 +5,7 @@
     description: Test project
     config:
       features.images: true
-      features.networks: true
+      features.networks: false
       features.networks.zones: true
       features.profiles: true
       features.storage.buckets: true
@@ -24,7 +24,7 @@
     description: Test project
     config:
       features.images: true
-      features.networks: true
+      features.networks: false
       features.networks.zones: true
       features.profiles: true
       features.storage.buckets: true
