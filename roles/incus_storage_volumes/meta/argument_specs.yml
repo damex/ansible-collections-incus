@@ -80,6 +80,12 @@ argument_specs:
               block.mount_options:
                 description: Mount options for block volumes.
                 type: str
+              block.type:
+                description: Lvmcluster block volume format.
+                type: str
+                choices:
+                  - raw
+                  - qcow2
               zfs.blocksize:
                 description: ZFS volume block size.
                 type: str

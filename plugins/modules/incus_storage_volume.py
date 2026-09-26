@@ -91,6 +91,15 @@ options:
         description:
           - Mount options for block volumes.
         type: str
+      block.type:
+        description:
+          - Block volume format (lvmcluster only).
+          - Only used when creating a new volume.
+          - Ignored on update.
+        type: str
+        choices:
+          - raw
+          - qcow2
       zfs.blocksize:
         description:
           - Block size for the ZFS volume.
@@ -178,6 +187,12 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_target import (
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
+INCUS_STORAGE_VOLUME_IMMUTABLE_CONFIG: dict[str, frozenset[str]] = {
+    'lvmcluster': frozenset({
+        'block.type',
+    }),
+}
+
 INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
     'size': {'type': 'str'},
     'snapshots.expiry': {'type': 'str'},
@@ -185,6 +200,13 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
     'snapshots.schedule': {'type': 'str'},
     'block.filesystem': {'type': 'str'},
     'block.mount_options': {'type': 'str'},
+    'block.type': {
+        'type': 'str',
+        'choices': [
+            'raw',
+            'qcow2',
+        ],
+    },
     'zfs.blocksize': {'type': 'str'},
     'zfs.block_mode': {'type': 'bool'},
     'zfs.delegate': {'type': 'bool'},
@@ -242,6 +264,7 @@ def main() -> None:
     driver = _incus_storage_volume_fetch_pool_driver(module)
     options = IncusResourceOptions(
         create_only_params=['content_type'],
+        immutable_config_keys=INCUS_STORAGE_VOLUME_IMMUTABLE_CONFIG.get(driver, frozenset()),
         is_node_specific=lambda config_key: incus_is_storage_node_specific(
             config_key,
             driver,

@@ -22,6 +22,8 @@ __all__ = [
     'test_create_volume_with_content_type',
     'test_skip_matching_volume',
     'test_update_volume_config',
+    'test_update_preserves_immutable_lvmcluster_block_type',
+    'test_update_keeps_current_lvmcluster_block_type',
     'test_delete_existing_volume',
     'test_delete_nonexistent_volume',
     'test_volume_check_mode',
@@ -67,6 +69,34 @@ def test_update_volume_config() -> None:
     module = _mock_module()
     module.params['config'] = {'size': '50GiB'}
     assert_write_update(main, MODULE, module, {'description': '', 'config': {}})
+
+
+def test_update_preserves_immutable_lvmcluster_block_type() -> None:
+    """Preserve server-set block.type on lvmcluster when not in desired."""
+    module = _mock_module()
+    module.params['config'] = {'size': '50GiB'}
+    current = {
+        'driver': 'lvmcluster',
+        'description': '',
+        'config': {'block.type': 'qcow2'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['block.type'] == 'qcow2'
+    assert put_data['config']['size'] == '50GiB'
+
+
+def test_update_keeps_current_lvmcluster_block_type() -> None:
+    """Keep current block.type on lvmcluster when desired differs."""
+    module = _mock_module()
+    module.params['config'] = {'size': '50GiB', 'block.type': 'raw'}
+    current = {
+        'driver': 'lvmcluster',
+        'description': '',
+        'config': {'block.type': 'qcow2'},
+    }
+    put_data = assert_write_update(main, MODULE, module, current)
+    assert put_data['config']['block.type'] == 'qcow2'
+    assert put_data['config']['size'] == '50GiB'
 
 
 def test_delete_existing_volume() -> None:
