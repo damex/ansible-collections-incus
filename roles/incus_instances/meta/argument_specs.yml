@@ -2009,6 +2009,9 @@ argument_specs:
               limits.max:
                 description: I/O limit in byte/s or IOPS (disk), or combined traffic limit in bit/s (nic).
                 type: str
+              limits.max.burst:
+                description: Burst I/O limit in byte/s or IOPS (disk), or burst traffic rate in bit/s (nic).
+                type: str
               mode:
                 description: NIC mode or device permission mode.
                 type: str
@@ -2058,11 +2061,26 @@ argument_specs:
               io.cache:
                 description: Caching mode for the disk device.
                 type: str
+              limits.max.burst.length:
+                description: Maximum burst duration for both read and write.
+                type: str
               limits.read:
                 description: I/O limit in byte/s or IOPS for read operations.
                 type: str
+              limits.read.burst:
+                description: Burst I/O limit in byte/s or IOPS for read operations.
+                type: str
+              limits.read.burst.length:
+                description: Maximum burst duration for read operations.
+                type: str
               limits.write:
                 description: I/O limit in byte/s or IOPS for write operations.
+                type: str
+              limits.write.burst:
+                description: Burst I/O limit in byte/s or IOPS for write operations.
+                type: str
+              limits.write.burst.length:
+                description: Maximum burst duration for write operations.
                 type: str
               pool:
                 description: Storage pool for the disk device.

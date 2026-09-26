@@ -47,6 +47,11 @@ options:
       limits.max:
         description: I/O limit in byte/s or IOPS for both read and write (disk), or combined traffic limit in bit/s (nic).
         type: str
+      limits.max.burst:
+        description:
+          - Burst I/O limit in byte/s or IOPS for both read and write (disk, VMs only).
+          - Burst traffic rate in bit/s for spending C(limits.max.bucket) (nic, bridged/p2p/routed only).
+        type: str
       mode:
         description: NIC mode, e.g. C(bridge) for macvlan (nic), or device permission mode, e.g. C(0660) (unix-char, unix-block, unix-hotplug).
         type: str
@@ -96,11 +101,26 @@ options:
       io.cache:
         description: Caching mode for the disk device (disk only).
         type: str
+      limits.max.burst.length:
+        description: Maximum burst duration for both read and write (disk, VMs only).
+        type: str
       limits.read:
         description: I/O limit in byte/s or IOPS for read operations (disk only).
         type: str
+      limits.read.burst:
+        description: Burst I/O limit in byte/s or IOPS for read operations (disk, VMs only).
+        type: str
+      limits.read.burst.length:
+        description: Maximum burst duration for read operations (disk, VMs only).
+        type: str
       limits.write:
         description: I/O limit in byte/s or IOPS for write operations (disk only).
+        type: str
+      limits.write.burst:
+        description: Burst I/O limit in byte/s or IOPS for write operations (disk, VMs only).
+        type: str
+      limits.write.burst.length:
+        description: Maximum burst duration for write operations (disk, VMs only).
         type: str
       pool:
         description: Incus storage pool backing the disk device (disk only).
