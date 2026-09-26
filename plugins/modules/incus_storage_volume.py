@@ -104,6 +104,10 @@ options:
         description:
           - Compression algorithm for the Btrfs volume, e.g. C(zstd), C(zstd:3) or C(none).
         type: str
+      lvmcluster.remove_snapshots:
+        description:
+          - Removal of newer snapshots when restoring older snapshot (lvmcluster only).
+        type: bool
       zfs.blocksize:
         description:
           - Block size for the ZFS volume.
@@ -212,6 +216,7 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
         ],
     },
     'btrfs.compression': {'type': 'str'},
+    'lvmcluster.remove_snapshots': {'type': 'bool'},
     'zfs.blocksize': {'type': 'str'},
     'zfs.block_mode': {'type': 'bool'},
     'zfs.delegate': {'type': 'bool'},

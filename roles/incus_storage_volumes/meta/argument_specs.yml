@@ -89,6 +89,9 @@ argument_specs:
               btrfs.compression:
                 description: Btrfs volume compression algorithm.
                 type: str
+              lvmcluster.remove_snapshots:
+                description: Lvmcluster removal of newer snapshots on older snapshot restore.
+                type: bool
               zfs.blocksize:
                 description: ZFS volume block size.
                 type: str
