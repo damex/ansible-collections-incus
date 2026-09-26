@@ -100,6 +100,10 @@ options:
         choices:
           - raw
           - qcow2
+      btrfs.compression:
+        description:
+          - Compression algorithm for the Btrfs volume, e.g. C(zstd), C(zstd:3) or C(none).
+        type: str
       zfs.blocksize:
         description:
           - Block size for the ZFS volume.
@@ -207,6 +211,7 @@ INCUS_STORAGE_VOLUME_CONFIG_OPTIONS = {
             'qcow2',
         ],
     },
+    'btrfs.compression': {'type': 'str'},
     'zfs.blocksize': {'type': 'str'},
     'zfs.block_mode': {'type': 'bool'},
     'zfs.delegate': {'type': 'bool'},

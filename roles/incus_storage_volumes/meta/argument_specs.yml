@@ -86,6 +86,9 @@ argument_specs:
                 choices:
                   - raw
                   - qcow2
+              btrfs.compression:
+                description: Btrfs volume compression algorithm.
+                type: str
               zfs.blocksize:
                 description: ZFS volume block size.
                 type: str
