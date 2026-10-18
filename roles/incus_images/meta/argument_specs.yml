@@ -81,6 +81,7 @@ argument_specs:
       incus_images_client_key:
         type: str
         description: Client key content for API authentication.
+        no_log: true
       incus_images_server_cert:
         type: str
         description: Server certificate content for API verification.
@@ -96,6 +97,7 @@ argument_specs:
       incus_images_token:
         type: str
         description: Incus API authentication token.
+        no_log: true
       incus_images_validate_certs:
         type: bool
         description: TLS certificate validation.

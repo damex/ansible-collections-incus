@@ -32,6 +32,7 @@ argument_specs:
       incus_cluster_client_key:
         type: str
         description: Client key content for API authentication.
+        no_log: true
       incus_cluster_server_cert:
         type: str
         description: Server certificate content for API verification.
@@ -47,6 +48,7 @@ argument_specs:
       incus_cluster_token:
         type: str
         description: Authentication token for the Incus API.
+        no_log: true
       incus_cluster_validate_certs:
         type: bool
         description: TLS certificate validation.
@@ -219,6 +221,7 @@ argument_specs:
           authorization.openfga.api.token:
             type: str
             description: API token for the OpenFGA server.
+            no_log: true
           authorization.openfga.api.url:
             type: str
             description: URL of the OpenFGA server.
@@ -299,6 +302,7 @@ argument_specs:
           network.ovn.client_key:
             type: str
             description: Client key for OVN northbound connection.
+            no_log: true
           network.ovn.integration_bridge:
             type: str
             description: OVS integration bridge to use for OVN networks.
@@ -323,6 +327,7 @@ argument_specs:
           storage.linstor.client_key:
             type: str
             description: Client key for LINSTOR controller connection.
+            no_log: true
           storage.linstor.controller_connection:
             type: str
             description: LINSTOR controller connection string.
@@ -341,6 +346,7 @@ argument_specs:
           loki.auth.password:
             type: str
             description: Password used for Loki authentication.
+            no_log: true
           loki.auth.username:
             type: str
             description: User name used for Loki authentication.
@@ -383,6 +389,7 @@ argument_specs:
               target.password:
                 type: str
                 description: Password for authentication.
+                no_log: true
               target.ca_cert:
                 type: str
                 description: CA certificate for the server.
@@ -435,6 +442,7 @@ argument_specs:
           cluster_token:
             type: str
             description: Join token for the target cluster.
+            no_log: true
           member_config:
             type: list
             elements: dict

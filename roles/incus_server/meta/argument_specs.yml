@@ -27,6 +27,7 @@ argument_specs:
       incus_server_client_key:
         description: Client key content for API authentication.
         type: str
+        no_log: true
       incus_server_server_cert:
         description: Server certificate content for API verification.
         type: str
@@ -42,6 +43,7 @@ argument_specs:
       incus_server_token:
         description: Authentication token for the Incus API.
         type: str
+        no_log: true
       incus_server_validate_certs:
         description: TLS certificate validation.
         type: bool
@@ -67,6 +69,7 @@ argument_specs:
           cluster_token:
             type: str
             description: Join token for the target cluster.
+            no_log: true
           member_config:
             type: list
             elements: dict
@@ -254,6 +257,7 @@ argument_specs:
           authorization.openfga.api.token:
             type: str
             description: API token for the OpenFGA server.
+            no_log: true
           authorization.openfga.api.url:
             type: str
             description: URL of the OpenFGA server.
@@ -334,6 +338,7 @@ argument_specs:
           network.ovn.client_key:
             type: str
             description: Client key for the OVN northbound connection.
+            no_log: true
           network.ovn.integration_bridge:
             type: str
             description: Name of the OVS integration bridge to use.
@@ -358,6 +363,7 @@ argument_specs:
           storage.linstor.client_key:
             type: str
             description: Client key for the LINSTOR controller connection.
+            no_log: true
           storage.linstor.controller_connection:
             type: str
             description: LINSTOR controller connection string.
@@ -376,6 +382,7 @@ argument_specs:
           loki.auth.password:
             type: str
             description: Password used for Loki authentication.
+            no_log: true
           loki.auth.username:
             type: str
             description: User name used for Loki authentication.
@@ -418,6 +425,7 @@ argument_specs:
               target.password:
                 type: str
                 description: Password for authentication.
+                no_log: true
               target.ca_cert:
                 type: str
                 description: CA certificate for the server.

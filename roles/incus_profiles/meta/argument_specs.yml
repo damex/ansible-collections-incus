@@ -699,12 +699,15 @@ argument_specs:
                       passwd:
                         description: Hashed password for the user.
                         type: str
+                        no_log: true
                       plain_text_passwd:
                         description: Plain text password for the user.
                         type: str
+                        no_log: true
                       hashed_passwd:
                         description: Pre-hashed password for the user.
                         type: str
+                        no_log: true
                       gecos:
                         description: GECOS field for the user.
                         type: str
@@ -758,6 +761,7 @@ argument_specs:
                   password:
                     description: Password for the default user.
                     type: str
+                    no_log: true
                   ssh_pwauth:
                     description: SSH password authentication.
                     type: bool
@@ -779,6 +783,7 @@ argument_specs:
                       ed25519_private:
                         description: Ed25519 private host key.
                         type: str
+                        no_log: true
                       ed25519_public:
                         description: Ed25519 public host key.
                         type: str
@@ -788,6 +793,7 @@ argument_specs:
                       rsa_private:
                         description: RSA private host key.
                         type: str
+                        no_log: true
                       rsa_public:
                         description: RSA public host key.
                         type: str
@@ -797,6 +803,7 @@ argument_specs:
                       ecdsa_private:
                         description: ECDSA private host key.
                         type: str
+                        no_log: true
                       ecdsa_public:
                         description: ECDSA public host key.
                         type: str
@@ -845,6 +852,7 @@ argument_specs:
                           password:
                             description: Password for the user.
                             type: str
+                            no_log: true
                           type:
                             description: Password encoding type.
                             type: str
@@ -1330,12 +1338,15 @@ argument_specs:
                       passwd:
                         description: Hashed password for the user.
                         type: str
+                        no_log: true
                       plain_text_passwd:
                         description: Plain text password for the user.
                         type: str
+                        no_log: true
                       hashed_passwd:
                         description: Pre-hashed password for the user.
                         type: str
+                        no_log: true
                       gecos:
                         description: GECOS field for the user.
                         type: str
@@ -1389,6 +1400,7 @@ argument_specs:
                   password:
                     description: Password for the default user.
                     type: str
+                    no_log: true
                   ssh_pwauth:
                     description: SSH password authentication.
                     type: bool
@@ -1410,6 +1422,7 @@ argument_specs:
                       ed25519_private:
                         description: Ed25519 private host key.
                         type: str
+                        no_log: true
                       ed25519_public:
                         description: Ed25519 public host key.
                         type: str
@@ -1419,6 +1432,7 @@ argument_specs:
                       rsa_private:
                         description: RSA private host key.
                         type: str
+                        no_log: true
                       rsa_public:
                         description: RSA public host key.
                         type: str
@@ -1428,6 +1442,7 @@ argument_specs:
                       ecdsa_private:
                         description: ECDSA private host key.
                         type: str
+                        no_log: true
                       ecdsa_public:
                         description: ECDSA public host key.
                         type: str
@@ -1476,6 +1491,7 @@ argument_specs:
                           password:
                             description: Password for the user.
                             type: str
+                            no_log: true
                           type:
                             description: Password encoding type.
                             type: str
@@ -2286,6 +2302,7 @@ argument_specs:
       incus_profiles_client_key:
         description: Client key content for API authentication.
         type: str
+        no_log: true
       incus_profiles_server_cert:
         description: Server certificate content for API verification.
         type: str
@@ -2301,6 +2318,7 @@ argument_specs:
       incus_profiles_token:
         description: Authentication token for the Incus API.
         type: str
+        no_log: true
       incus_profiles_validate_certs:
         description: TLS certificate validation.
         type: bool

@@ -101,6 +101,7 @@ argument_specs:
       incus_network_forwards_client_key:
         description: Client key content for API authentication.
         type: str
+        no_log: true
       incus_network_forwards_server_cert:
         description: Server certificate content for API verification.
         type: str
@@ -116,6 +117,7 @@ argument_specs:
       incus_network_forwards_token:
         description: Authentication token for the Incus API.
         type: str
+        no_log: true
       incus_network_forwards_validate_certs:
         description: TLS certificate validation.
         type: bool

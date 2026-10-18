@@ -334,6 +334,7 @@ argument_specs:
                   password:
                     description: Password for the BGP session.
                     type: str
+                    no_log: true
               tunnels:
                 description: Tunnels for bridge networks.
                 type: list
@@ -389,6 +390,7 @@ argument_specs:
       incus_networks_client_key:
         description: Client key content for API authentication.
         type: str
+        no_log: true
       incus_networks_server_cert:
         description: Server certificate content for API verification.
         type: str
@@ -404,6 +406,7 @@ argument_specs:
       incus_networks_token:
         description: Authentication token for the Incus API.
         type: str
+        no_log: true
       incus_networks_validate_certs:
         description: TLS certificate validation.
         type: bool

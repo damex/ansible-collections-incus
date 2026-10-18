@@ -63,6 +63,7 @@ argument_specs:
       incus_certificates_client_key:
         description: Client key content for API authentication.
         type: str
+        no_log: true
       incus_certificates_server_cert:
         description: Server certificate content for API verification.
         type: str
@@ -78,6 +79,7 @@ argument_specs:
       incus_certificates_token:
         description: Incus API authentication token.
         type: str
+        no_log: true
       incus_certificates_validate_certs:
         description: TLS certificate validation.
         type: bool
