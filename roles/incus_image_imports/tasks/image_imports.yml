@@ -24,7 +24,6 @@
     incus_image_imports_image_import_server_cert_path: "{{ incus_image_imports_server_cert_path | default(omit) }}"
     incus_image_imports_image_import_token: "{{ incus_image_imports_token | default(omit) }}"
     incus_image_imports_image_import_validate_certs: "{{ incus_image_imports_validate_certs }}"
-  no_log: "{{ incus_image_imports_client_key is defined or incus_image_imports_token is defined }}"
   loop: "{{ incus_image_imports }}"
   loop_control:
     label: "{{ incus_image_imports_image_import_alias }}"

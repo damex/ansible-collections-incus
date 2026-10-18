@@ -16,7 +16,6 @@
     incus_network_forwards_network_forward_server_cert_path: "{{ incus_network_forwards_server_cert_path | default(omit) }}"
     incus_network_forwards_network_forward_token: "{{ incus_network_forwards_token | default(omit) }}"
     incus_network_forwards_network_forward_validate_certs: "{{ incus_network_forwards_validate_certs }}"
-  no_log: "{{ incus_network_forwards_client_key is defined or incus_network_forwards_token is defined }}"
   loop: "{{ incus_network_forwards }}"
   loop_control:
     label: "{{ incus_network_forwards_network_forward_name }}"

@@ -21,7 +21,6 @@
         server_cert_path: "{{ incus_networks_network_server_cert_path }}"
         token: "{{ incus_networks_network_token }}"
         validate_certs: "{{ incus_networks_network_validate_certs }}"
-      no_log: "{{ incus_networks_client_key is defined or incus_networks_token is defined }}"
       become: true
       loop: "{{ incus_networks_network.targets }}"
       loop_control:
@@ -45,5 +44,4 @@
         server_cert_path: "{{ incus_networks_network_server_cert_path }}"
         token: "{{ incus_networks_network_token }}"
         validate_certs: "{{ incus_networks_network_validate_certs }}"
-      no_log: "{{ incus_networks_client_key is defined or incus_networks_token is defined }}"
       become: true

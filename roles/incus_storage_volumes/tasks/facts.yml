@@ -12,6 +12,5 @@
     server_cert_path: "{{ incus_storage_volumes_server_cert_path | default(omit) }}"
     token: "{{ incus_storage_volumes_token | default(omit) }}"
     validate_certs: "{{ incus_storage_volumes_validate_certs }}"
-  no_log: "{{ incus_storage_volumes_client_key is defined or incus_storage_volumes_token is defined }}"
   register: incus_storage_volumes_cluster_info_state
   become: true

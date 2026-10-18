@@ -20,7 +20,6 @@
         server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
         token: "{{ incus_storages_storage_token }}"
         validate_certs: "{{ incus_storages_storage_validate_certs }}"
-      no_log: "{{ incus_storages_client_key is defined or incus_storages_token is defined or (incus_storages_storage.config is defined and 'truenas.api_key' in incus_storages_storage.config) }}"
       become: true
       loop: "{{ incus_storages_storage.targets }}"
       loop_control:
@@ -43,5 +42,4 @@
         server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
         token: "{{ incus_storages_storage_token }}"
         validate_certs: "{{ incus_storages_storage_validate_certs }}"
-      no_log: "{{ incus_storages_client_key is defined or incus_storages_token is defined or (incus_storages_storage.config is defined and 'truenas.api_key' in incus_storages_storage.config) }}"
       become: true
