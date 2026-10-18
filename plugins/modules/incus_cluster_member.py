@@ -121,6 +121,8 @@ import json
 from typing import Any
 from urllib.parse import quote
 
+from ansible.module_utils.secrets import register_secret
+
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
     IncusNotFoundException,
@@ -176,9 +178,9 @@ def _create_join_token(client: Any, name: str) -> dict[str, Any]:
         token_dict['expires_at'] = expires_at
     return {
         'changed': True,
-        'join_token': base64.standard_b64encode(
+        'join_token': register_secret(base64.standard_b64encode(
             json.dumps(token_dict, separators=(',', ':')).encode(),
-        ).decode(),
+        ).decode()),
         'join_fingerprint': metadata.get('fingerprint', ''),
         'join_addresses': metadata.get('addresses', []),
     }
