@@ -23,3 +23,4 @@
   loop_control:
     label: "{{ incus_profiles_profile_name }}"
     loop_var: incus_profiles_profile
+  when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_profiles_cluster_info_state.cluster_members | map(attribute='roles') | first

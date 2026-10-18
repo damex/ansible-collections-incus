@@ -30,3 +30,4 @@
   loop_control:
     label: "{{ incus_image_imports_image_import_alias }}"
     loop_var: incus_image_imports_image_import
+  when: incus_image_imports_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_image_imports_cluster_info_state.cluster_members | map(attribute='roles') | first

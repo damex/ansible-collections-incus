@@ -18,4 +18,3 @@
     connection_timeout: "{{ incus_projects_project_connection_timeout }}"
     connection_retry_interval: "{{ incus_projects_project_connection_retry_interval }}"
   become: true
-  when: incus_projects_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_projects_cluster_info_state.cluster_members | map(attribute='roles') | first

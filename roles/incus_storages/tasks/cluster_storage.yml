@@ -1,49 +1,47 @@
 ---
-- name: Ensure incus cluster storage {{ incus_storages_storage_name }}
-  when: incus_storages_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_storages_cluster_info_state.cluster_members | map(attribute='roles') | first
-  block:
-    - name: Ensure incus cluster storage member {{ incus_storages_storage_name }}
-      damex.incus.incus_storage:
-        name: "{{ incus_storages_storage_name }}"
-        state: "{{ incus_storages_target.state | default(incus_storages_storage_state) }}"
-        driver: "{{ incus_storages_storage_driver }}"
-        description: "{{ incus_storages_storage_description }}"
-        config: "{{ incus_storages_storage.config | combine(incus_storages_target.config) if (incus_storages_storage.config is defined and incus_storages_target.config is defined) else incus_storages_target.config if incus_storages_target.config is defined else incus_storages_storage.config | default(omit) }}"
-        target: "{{ incus_storages_target.name }}"
-        socket_path: "{{ incus_storages_storage_socket_path }}"
-        url: "{{ incus_storages_storage_url }}"
-        client_cert: "{{ incus_storages_storage_client_cert }}"
-        client_key: "{{ incus_storages_storage_client_key }}"
-        server_cert: "{{ incus_storages_storage_server_cert }}"
-        client_cert_path: "{{ incus_storages_storage_client_cert_path }}"
-        client_key_path: "{{ incus_storages_storage_client_key_path }}"
-        server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
-        token: "{{ incus_storages_storage_token }}"
-        validate_certs: "{{ incus_storages_storage_validate_certs }}"
-        connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
-        connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
-      become: true
-      loop: "{{ incus_storages_storage.targets }}"
-      loop_control:
-        label: "{{ incus_storages_target.name }}"
-        loop_var: incus_storages_target
-    - name: Ensure incus cluster storage finalized {{ incus_storages_storage_name }}
-      damex.incus.incus_storage:
-        name: "{{ incus_storages_storage_name }}"
-        state: "{{ incus_storages_storage_state }}"
-        driver: "{{ incus_storages_storage_driver }}"
-        description: "{{ incus_storages_storage_description }}"
-        config: "{{ incus_storages_storage.config | default(omit) }}"
-        socket_path: "{{ incus_storages_storage_socket_path }}"
-        url: "{{ incus_storages_storage_url }}"
-        client_cert: "{{ incus_storages_storage_client_cert }}"
-        client_key: "{{ incus_storages_storage_client_key }}"
-        server_cert: "{{ incus_storages_storage_server_cert }}"
-        client_cert_path: "{{ incus_storages_storage_client_cert_path }}"
-        client_key_path: "{{ incus_storages_storage_client_key_path }}"
-        server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
-        token: "{{ incus_storages_storage_token }}"
-        validate_certs: "{{ incus_storages_storage_validate_certs }}"
-        connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
-        connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
-      become: true
+- name: Ensure incus cluster storage member {{ incus_storages_storage_name }}
+  damex.incus.incus_storage:
+    name: "{{ incus_storages_storage_name }}"
+    state: "{{ incus_storages_target.state | default(incus_storages_storage_state) }}"
+    driver: "{{ incus_storages_storage_driver }}"
+    description: "{{ incus_storages_storage_description }}"
+    config: "{{ incus_storages_storage.config | combine(incus_storages_target.config) if (incus_storages_storage.config is defined and incus_storages_target.config is defined) else incus_storages_target.config if incus_storages_target.config is defined else incus_storages_storage.config | default(omit) }}"
+    target: "{{ incus_storages_target.name }}"
+    socket_path: "{{ incus_storages_storage_socket_path }}"
+    url: "{{ incus_storages_storage_url }}"
+    client_cert: "{{ incus_storages_storage_client_cert }}"
+    client_key: "{{ incus_storages_storage_client_key }}"
+    server_cert: "{{ incus_storages_storage_server_cert }}"
+    client_cert_path: "{{ incus_storages_storage_client_cert_path }}"
+    client_key_path: "{{ incus_storages_storage_client_key_path }}"
+    server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
+    token: "{{ incus_storages_storage_token }}"
+    validate_certs: "{{ incus_storages_storage_validate_certs }}"
+    connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
+    connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
+  become: true
+  loop: "{{ incus_storages_storage.targets }}"
+  loop_control:
+    label: "{{ incus_storages_target.name }}"
+    loop_var: incus_storages_target
+
+- name: Ensure incus cluster storage finalized {{ incus_storages_storage_name }}
+  damex.incus.incus_storage:
+    name: "{{ incus_storages_storage_name }}"
+    state: "{{ incus_storages_storage_state }}"
+    driver: "{{ incus_storages_storage_driver }}"
+    description: "{{ incus_storages_storage_description }}"
+    config: "{{ incus_storages_storage.config | default(omit) }}"
+    socket_path: "{{ incus_storages_storage_socket_path }}"
+    url: "{{ incus_storages_storage_url }}"
+    client_cert: "{{ incus_storages_storage_client_cert }}"
+    client_key: "{{ incus_storages_storage_client_key }}"
+    server_cert: "{{ incus_storages_storage_server_cert }}"
+    client_cert_path: "{{ incus_storages_storage_client_cert_path }}"
+    client_key_path: "{{ incus_storages_storage_client_key_path }}"
+    server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
+    token: "{{ incus_storages_storage_token }}"
+    validate_certs: "{{ incus_storages_storage_validate_certs }}"
+    connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
+    connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
+  become: true

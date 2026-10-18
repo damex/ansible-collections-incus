@@ -24,4 +24,3 @@
     connection_timeout: "{{ incus_images_image_connection_timeout }}"
     connection_retry_interval: "{{ incus_images_image_connection_retry_interval }}"
   become: true
-  when: incus_images_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_images_cluster_info_state.cluster_members | map(attribute='roles') | first
