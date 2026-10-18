@@ -14,6 +14,8 @@
     incus_projects_project_server_cert_path: "{{ incus_projects_server_cert_path | default(omit) }}"
     incus_projects_project_token: "{{ incus_projects_token | default(omit) }}"
     incus_projects_project_validate_certs: "{{ incus_projects_validate_certs }}"
+    incus_projects_project_connection_timeout: "{{ incus_projects_connection_timeout | default(omit) }}"
+    incus_projects_project_connection_retry_interval: "{{ incus_projects_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_projects }}"
   loop_control:
     label: "{{ incus_projects_project_name }}"

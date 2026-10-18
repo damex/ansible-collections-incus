@@ -12,5 +12,7 @@
     server_cert_path: "{{ incus_certificates_server_cert_path | default(omit) }}"
     token: "{{ incus_certificates_token | default(omit) }}"
     validate_certs: "{{ incus_certificates_validate_certs }}"
+    connection_timeout: "{{ incus_certificates_connection_timeout | default(omit) }}"
+    connection_retry_interval: "{{ incus_certificates_connection_retry_interval | default(omit) }}"
   register: incus_certificates_cluster_info_state
   become: true

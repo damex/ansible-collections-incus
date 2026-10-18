@@ -104,6 +104,12 @@ argument_specs:
       incus_network_zone_records_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_network_zone_records_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_network_zone_records_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_network_zone_records_project:
         description: Default Incus project for network zone records.
         type: str

@@ -12,5 +12,7 @@
     server_cert_path: "{{ incus_storage_volumes_server_cert_path | default(omit) }}"
     token: "{{ incus_storage_volumes_token | default(omit) }}"
     validate_certs: "{{ incus_storage_volumes_validate_certs }}"
+    connection_timeout: "{{ incus_storage_volumes_connection_timeout | default(omit) }}"
+    connection_retry_interval: "{{ incus_storage_volumes_connection_retry_interval | default(omit) }}"
   register: incus_storage_volumes_cluster_info_state
   become: true

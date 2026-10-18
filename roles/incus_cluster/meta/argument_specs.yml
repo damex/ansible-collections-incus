@@ -52,6 +52,12 @@ argument_specs:
       incus_cluster_validate_certs:
         type: bool
         description: TLS certificate validation.
+      incus_cluster_connection_timeout:
+        type: int
+        description: Incus API reachability wait in seconds.
+      incus_cluster_connection_retry_interval:
+        type: int
+        description: Incus API connection retry interval in seconds.
       incus_cluster_primary:
         required: true
         type: str

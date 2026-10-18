@@ -17,6 +17,8 @@
     incus_profiles_profile_server_cert_path: "{{ incus_profiles_server_cert_path | default(omit) }}"
     incus_profiles_profile_token: "{{ incus_profiles_token | default(omit) }}"
     incus_profiles_profile_validate_certs: "{{ incus_profiles_validate_certs }}"
+    incus_profiles_profile_connection_timeout: "{{ incus_profiles_connection_timeout | default(omit) }}"
+    incus_profiles_profile_connection_retry_interval: "{{ incus_profiles_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_profiles }}"
   loop_control:
     label: "{{ incus_profiles_profile_name }}"

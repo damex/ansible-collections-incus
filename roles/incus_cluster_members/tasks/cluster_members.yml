@@ -14,6 +14,8 @@
     incus_cluster_members_cluster_member_server_cert_path: "{{ incus_cluster_members_server_cert_path | default(omit) }}"
     incus_cluster_members_cluster_member_token: "{{ incus_cluster_members_token | default(omit) }}"
     incus_cluster_members_cluster_member_validate_certs: "{{ incus_cluster_members_validate_certs }}"
+    incus_cluster_members_cluster_member_connection_timeout: "{{ incus_cluster_members_connection_timeout | default(omit) }}"
+    incus_cluster_members_cluster_member_connection_retry_interval: "{{ incus_cluster_members_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_cluster_members }}"
   loop_control:
     label: "{{ incus_cluster_members_cluster_member_name }}"

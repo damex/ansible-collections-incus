@@ -410,6 +410,12 @@ argument_specs:
       incus_networks_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_networks_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_networks_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_networks_project:
         description: Incus project to scope networks to.
         type: str

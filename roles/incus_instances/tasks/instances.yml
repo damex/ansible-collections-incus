@@ -22,6 +22,8 @@
     incus_instances_instance_server_cert_path: "{{ incus_instances_server_cert_path | default(omit) }}"
     incus_instances_instance_token: "{{ incus_instances_token | default(omit) }}"
     incus_instances_instance_validate_certs: "{{ incus_instances_validate_certs }}"
+    incus_instances_instance_connection_timeout: "{{ incus_instances_connection_timeout | default(omit) }}"
+    incus_instances_instance_connection_retry_interval: "{{ incus_instances_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_instances }}"
   loop_control:
     label: "{{ incus_instances_instance_name }}"

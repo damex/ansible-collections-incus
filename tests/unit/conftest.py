@@ -53,6 +53,8 @@ CONNECTION_PARAMS: dict[str, Any] = {
     'server_cert_path': None,
     'token': None,
     'validate_certs': True,
+    'connection_timeout': 30,
+    'connection_retry_interval': 5,
     'wait': True,
 }
 

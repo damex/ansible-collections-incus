@@ -12,5 +12,7 @@
     server_cert_path: "{{ incus_image_imports_server_cert_path | default(omit) }}"
     token: "{{ incus_image_imports_token | default(omit) }}"
     validate_certs: "{{ incus_image_imports_validate_certs }}"
+    connection_timeout: "{{ incus_image_imports_connection_timeout | default(omit) }}"
+    connection_retry_interval: "{{ incus_image_imports_connection_retry_interval | default(omit) }}"
   register: incus_image_imports_cluster_info_state
   become: true

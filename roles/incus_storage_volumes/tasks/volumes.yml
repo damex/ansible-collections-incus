@@ -19,6 +19,8 @@
     incus_storage_volumes_volume_server_cert_path: "{{ incus_storage_volumes_server_cert_path | default(omit) }}"
     incus_storage_volumes_volume_token: "{{ incus_storage_volumes_token | default(omit) }}"
     incus_storage_volumes_volume_validate_certs: "{{ incus_storage_volumes_validate_certs }}"
+    incus_storage_volumes_volume_connection_timeout: "{{ incus_storage_volumes_connection_timeout | default(omit) }}"
+    incus_storage_volumes_volume_connection_retry_interval: "{{ incus_storage_volumes_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_storage_volumes }}"
   loop_control:
     label: "{{ incus_storage_volumes_volume_name }}"

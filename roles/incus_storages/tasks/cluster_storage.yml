@@ -20,6 +20,8 @@
         server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
         token: "{{ incus_storages_storage_token }}"
         validate_certs: "{{ incus_storages_storage_validate_certs }}"
+        connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
+        connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
       become: true
       loop: "{{ incus_storages_storage.targets }}"
       loop_control:
@@ -42,4 +44,6 @@
         server_cert_path: "{{ incus_storages_storage_server_cert_path }}"
         token: "{{ incus_storages_storage_token }}"
         validate_certs: "{{ incus_storages_storage_validate_certs }}"
+        connection_timeout: "{{ incus_storages_storage_connection_timeout }}"
+        connection_retry_interval: "{{ incus_storages_storage_connection_retry_interval }}"
       become: true

@@ -83,6 +83,12 @@ argument_specs:
       incus_certificates_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_certificates_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_certificates_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_certificates_state:
         description: Certificates desired state.
         type: str

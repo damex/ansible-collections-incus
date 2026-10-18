@@ -18,6 +18,8 @@
     incus_certificates_certificate_server_cert_path: "{{ incus_certificates_server_cert_path | default(omit) }}"
     incus_certificates_certificate_token: "{{ incus_certificates_token | default(omit) }}"
     incus_certificates_certificate_validate_certs: "{{ incus_certificates_validate_certs }}"
+    incus_certificates_certificate_connection_timeout: "{{ incus_certificates_connection_timeout | default(omit) }}"
+    incus_certificates_certificate_connection_retry_interval: "{{ incus_certificates_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_certificates }}"
   loop_control:
     label: "{{ incus_certificates_certificate_name }}"

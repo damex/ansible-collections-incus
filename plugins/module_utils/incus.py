@@ -20,6 +20,8 @@ from typing import Any, NamedTuple
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
+    INCUS_CONNECTION_RETRY_INTERVAL,
+    INCUS_CONNECTION_TIMEOUT,
     INCUS_SOCKET_PATH,
     IncusClient,
     IncusClientException,
@@ -98,6 +100,8 @@ INCUS_COMMON_ARGS = {
     'server_cert_path': {'type': 'str'},
     'token': {'type': 'str', 'no_log': True},
     'validate_certs': {'type': 'bool', 'default': True},
+    'connection_timeout': {'type': 'int', 'default': INCUS_CONNECTION_TIMEOUT},
+    'connection_retry_interval': {'type': 'int', 'default': INCUS_CONNECTION_RETRY_INTERVAL},
 }
 
 INCUS_COMMON_MUTUALLY_EXCLUSIVE = [

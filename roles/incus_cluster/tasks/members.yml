@@ -13,4 +13,6 @@
     incus_cluster_members_server_cert_path: "{{ incus_cluster_server_cert_path | default(omit) }}"
     incus_cluster_members_token: "{{ incus_cluster_token | default(omit) }}"
     incus_cluster_members_validate_certs: "{{ incus_cluster_validate_certs }}"
+    incus_cluster_members_connection_timeout: "{{ incus_cluster_connection_timeout | default(omit) }}"
+    incus_cluster_members_connection_retry_interval: "{{ incus_cluster_connection_retry_interval | default(omit) }}"
   when: incus_cluster_members is defined and incus_cluster_members | length > 0

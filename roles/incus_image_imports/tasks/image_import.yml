@@ -23,5 +23,7 @@
     server_cert_path: "{{ incus_image_imports_image_import_server_cert_path }}"
     token: "{{ incus_image_imports_image_import_token }}"
     validate_certs: "{{ incus_image_imports_image_import_validate_certs }}"
+    connection_timeout: "{{ incus_image_imports_image_import_connection_timeout }}"
+    connection_retry_interval: "{{ incus_image_imports_image_import_connection_retry_interval }}"
   become: true
   when: incus_image_imports_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_image_imports_cluster_info_state.cluster_members | map(attribute='roles') | first

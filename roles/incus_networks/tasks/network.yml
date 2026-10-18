@@ -17,4 +17,6 @@
     server_cert_path: "{{ incus_networks_network_server_cert_path }}"
     token: "{{ incus_networks_network_token }}"
     validate_certs: "{{ incus_networks_network_validate_certs }}"
+    connection_timeout: "{{ incus_networks_network_connection_timeout }}"
+    connection_retry_interval: "{{ incus_networks_network_connection_retry_interval }}"
   become: true

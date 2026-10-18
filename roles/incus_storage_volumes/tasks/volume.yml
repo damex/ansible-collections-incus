@@ -18,4 +18,6 @@
     server_cert_path: "{{ incus_storage_volumes_volume_server_cert_path }}"
     token: "{{ incus_storage_volumes_volume_token }}"
     validate_certs: "{{ incus_storage_volumes_volume_validate_certs }}"
+    connection_timeout: "{{ incus_storage_volumes_volume_connection_timeout }}"
+    connection_retry_interval: "{{ incus_storage_volumes_volume_connection_retry_interval }}"
   become: true

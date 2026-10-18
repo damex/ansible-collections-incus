@@ -17,5 +17,7 @@
     server_cert_path: "{{ incus_profiles_profile_server_cert_path }}"
     token: "{{ incus_profiles_profile_token }}"
     validate_certs: "{{ incus_profiles_profile_validate_certs }}"
+    connection_timeout: "{{ incus_profiles_profile_connection_timeout }}"
+    connection_retry_interval: "{{ incus_profiles_profile_connection_retry_interval }}"
   become: true
   when: incus_profiles_cluster_info_state.cluster_members | length == 0 or 'database-leader' in incus_profiles_cluster_info_state.cluster_members | map(attribute='roles') | first

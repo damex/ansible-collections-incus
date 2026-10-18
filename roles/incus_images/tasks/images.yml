@@ -23,6 +23,8 @@
     incus_images_image_server_cert_path: "{{ incus_images_server_cert_path | default(omit) }}"
     incus_images_image_token: "{{ incus_images_token | default(omit) }}"
     incus_images_image_validate_certs: "{{ incus_images_validate_certs }}"
+    incus_images_image_connection_timeout: "{{ incus_images_connection_timeout | default(omit) }}"
+    incus_images_image_connection_retry_interval: "{{ incus_images_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_images }}"
   loop_control:
     label: "{{ incus_images_image_name }}"

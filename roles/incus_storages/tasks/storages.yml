@@ -18,6 +18,8 @@
     incus_storages_storage_server_cert_path: "{{ incus_storages_server_cert_path | default(omit) }}"
     incus_storages_storage_token: "{{ incus_storages_token | default(omit) }}"
     incus_storages_storage_validate_certs: "{{ incus_storages_validate_certs }}"
+    incus_storages_storage_connection_timeout: "{{ incus_storages_connection_timeout | default(omit) }}"
+    incus_storages_storage_connection_retry_interval: "{{ incus_storages_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_storages }}"
   loop_control:
     label: "{{ incus_storages_storage_name }}"

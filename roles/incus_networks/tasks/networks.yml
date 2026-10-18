@@ -18,6 +18,8 @@
     incus_networks_network_server_cert_path: "{{ incus_networks_server_cert_path | default(omit) }}"
     incus_networks_network_token: "{{ incus_networks_token | default(omit) }}"
     incus_networks_network_validate_certs: "{{ incus_networks_validate_certs }}"
+    incus_networks_network_connection_timeout: "{{ incus_networks_connection_timeout | default(omit) }}"
+    incus_networks_network_connection_retry_interval: "{{ incus_networks_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_networks }}"
   loop_control:
     label: "{{ incus_networks_network_name }}"

@@ -63,6 +63,17 @@ options:
       - Server TLS certificate validation.
     type: bool
     default: true
+  connection_timeout:
+    description:
+      - Seconds to wait for the Incus API to become reachable.
+      - Covers daemon restarts and dropped connections.
+    type: int
+    default: 30
+  connection_retry_interval:
+    description:
+      - Seconds between connection attempts while waiting for the Incus API.
+    type: int
+    default: 5
 """
 
     PROJECT = r"""

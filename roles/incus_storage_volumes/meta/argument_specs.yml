@@ -164,6 +164,12 @@ argument_specs:
       incus_storage_volumes_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_storage_volumes_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_storage_volumes_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_storage_volumes_project:
         description: Incus project scope.
         type: str

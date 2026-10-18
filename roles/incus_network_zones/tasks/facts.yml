@@ -12,5 +12,7 @@
     server_cert_path: "{{ incus_network_zones_server_cert_path | default(omit) }}"
     token: "{{ incus_network_zones_token | default(omit) }}"
     validate_certs: "{{ incus_network_zones_validate_certs }}"
+    connection_timeout: "{{ incus_network_zones_connection_timeout | default(omit) }}"
+    connection_retry_interval: "{{ incus_network_zones_connection_retry_interval | default(omit) }}"
   register: incus_network_zones_cluster_info_state
   become: true

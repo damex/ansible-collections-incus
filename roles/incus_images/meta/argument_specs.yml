@@ -101,6 +101,12 @@ argument_specs:
       incus_images_validate_certs:
         type: bool
         description: TLS certificate validation.
+      incus_images_connection_timeout:
+        type: int
+        description: Incus API reachability wait in seconds.
+      incus_images_connection_retry_interval:
+        type: int
+        description: Incus API connection retry interval in seconds.
       incus_images_type:
         type: str
         description: Image instance type.

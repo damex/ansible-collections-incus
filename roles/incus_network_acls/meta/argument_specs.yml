@@ -189,6 +189,12 @@ argument_specs:
       incus_network_acls_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_network_acls_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_network_acls_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_network_acls_project:
         description: Default Incus project for network ACLs.
         type: str

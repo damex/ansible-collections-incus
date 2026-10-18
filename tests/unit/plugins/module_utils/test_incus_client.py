@@ -8,6 +8,7 @@ from __future__ import annotations
 import collections.abc
 import http.client
 import json
+import ssl
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -18,6 +19,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
     IncusClientException,
     IncusConnectionParameters,
     IncusNotFoundException,
+    incus_create_client,
 )
 
 __all__ = [
@@ -53,7 +55,15 @@ __all__ = [
     'test_client_post_file_closes_handle_on_error',
     'test_client_context_manager_closes',
     'test_client_close_removes_temp_files',
+    'test_client_connection_waits_until_available',
+    'test_client_connection_timeout_raises',
+    'test_client_connection_ssl_error_not_retried',
+    'test_client_post_retries_connect_failure',
+    'test_client_retry_waits_for_restarted_daemon',
+    'test_create_client_passes_connection_wait_parameters',
 ]
+
+CLIENT_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.incus_client'
 
 
 def test_client_default_socket_path() -> None:
@@ -435,3 +445,85 @@ def test_client_close_removes_temp_files() -> None:
         client.close()
         assert mock_unlink.call_count == 2
     assert not getattr(client, '_temp_files')
+
+
+def _response(payload: bytes) -> MagicMock:
+    """Build mock HTTP response."""
+    response = MagicMock()
+    response.read.return_value = payload
+    return response
+
+
+def test_client_connection_waits_until_available() -> None:
+    """Retry connect until Incus becomes reachable."""
+    client = IncusClient()
+    conn = MagicMock()
+    conn.connect.side_effect = [FileNotFoundError('no socket'), ConnectionRefusedError('refused'), None]
+    conn.getresponse.return_value = _response(b'{"type":"sync","metadata":{}}')
+    with patch.object(client, '_connect', return_value=conn), \
+         patch(f'{CLIENT_UTILS}.time.sleep') as mock_sleep:
+        assert client.get('/1.0')['type'] == 'sync'
+    assert conn.connect.call_count == 3
+    assert mock_sleep.call_count == 2
+    mock_sleep.assert_called_with(5)
+
+
+def test_client_connection_timeout_raises() -> None:
+    """Raise after connection timeout runs out."""
+    client = IncusClient(IncusConnectionParameters(connection_timeout=10, connection_retry_interval=5))
+    conn = MagicMock()
+    conn.connect.side_effect = ConnectionRefusedError('refused')
+    with patch.object(client, '_connect', return_value=conn), \
+         patch(f'{CLIENT_UTILS}.time.monotonic', side_effect=[0, 0, 5, 10]), \
+         patch(f'{CLIENT_UTILS}.time.sleep') as mock_sleep, \
+         pytest.raises(IncusClientException, match='not reachable at /var/lib/incus/unix.socket after 10s'):
+        client.get('/1.0')
+    assert conn.connect.call_count == 3
+    assert mock_sleep.call_count == 2
+
+
+def test_client_connection_ssl_error_not_retried() -> None:
+    """Fail at once on TLS error."""
+    client = IncusClient()
+    conn = MagicMock()
+    conn.connect.side_effect = ssl.SSLError('certificate verify failed')
+    with patch.object(client, '_connect', return_value=conn), \
+         patch(f'{CLIENT_UTILS}.time.sleep') as mock_sleep, \
+         pytest.raises(IncusClientException, match='certificate verify failed'):
+        client.get('/1.0')
+    mock_sleep.assert_not_called()
+
+
+def test_client_post_retries_connect_failure() -> None:
+    """Retry POST when connection was never established."""
+    client = IncusClient()
+    conn = MagicMock()
+    conn.connect.side_effect = [ConnectionRefusedError('refused'), None]
+    conn.getresponse.return_value = _response(b'{"type":"sync","metadata":{}}')
+    with patch.object(client, '_connect', return_value=conn), \
+         patch(f'{CLIENT_UTILS}.time.sleep'):
+        assert client.post('/1.0/instances', {'name': 'web'})['type'] == 'sync'
+    conn.request.assert_called_once()
+
+
+def test_client_retry_waits_for_restarted_daemon() -> None:
+    """Wait for reconnect after daemon drops connection mid-request."""
+    client = IncusClient()
+    stale_conn = MagicMock()
+    stale_conn.request.side_effect = BrokenPipeError('broken pipe')
+    restarted_conn = MagicMock()
+    restarted_conn.connect.side_effect = [ConnectionRefusedError('refused'), None]
+    restarted_conn.getresponse.return_value = _response(b'{"type":"sync","metadata":{}}')
+    with patch.object(client, '_connect', side_effect=[stale_conn, restarted_conn]), \
+         patch(f'{CLIENT_UTILS}.time.sleep') as mock_sleep:
+        assert client.get('/1.0')['type'] == 'sync'
+    mock_sleep.assert_called_once_with(5)
+
+
+def test_create_client_passes_connection_wait_parameters() -> None:
+    """Pass connection wait parameters from module."""
+    module = MagicMock()
+    module.params = {'connection_timeout': 60, 'connection_retry_interval': 2}
+    client = incus_create_client(module)
+    assert client.parameters.connection_timeout == 60
+    assert client.parameters.connection_retry_interval == 2

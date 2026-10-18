@@ -16,6 +16,8 @@
     incus_network_zone_records_network_zone_record_server_cert_path: "{{ incus_network_zone_records_server_cert_path | default(omit) }}"
     incus_network_zone_records_network_zone_record_token: "{{ incus_network_zone_records_token | default(omit) }}"
     incus_network_zone_records_network_zone_record_validate_certs: "{{ incus_network_zone_records_validate_certs }}"
+    incus_network_zone_records_network_zone_record_connection_timeout: "{{ incus_network_zone_records_connection_timeout | default(omit) }}"
+    incus_network_zone_records_network_zone_record_connection_retry_interval: "{{ incus_network_zone_records_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_network_zone_records }}"
   loop_control:
     label: "{{ incus_network_zone_records_network_zone_record_name }}"

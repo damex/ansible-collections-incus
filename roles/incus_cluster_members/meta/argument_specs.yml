@@ -93,6 +93,12 @@ argument_specs:
       incus_cluster_members_validate_certs:
         description: TLS certificate validation.
         type: bool
+      incus_cluster_members_connection_timeout:
+        description: Incus API reachability wait in seconds.
+        type: int
+      incus_cluster_members_connection_retry_interval:
+        description: Incus API connection retry interval in seconds.
+        type: int
       incus_cluster_members_state:
         description: Default desired state of the cluster members.
         type: str

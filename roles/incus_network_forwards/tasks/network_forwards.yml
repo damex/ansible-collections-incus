@@ -16,6 +16,8 @@
     incus_network_forwards_network_forward_server_cert_path: "{{ incus_network_forwards_server_cert_path | default(omit) }}"
     incus_network_forwards_network_forward_token: "{{ incus_network_forwards_token | default(omit) }}"
     incus_network_forwards_network_forward_validate_certs: "{{ incus_network_forwards_validate_certs }}"
+    incus_network_forwards_network_forward_connection_timeout: "{{ incus_network_forwards_connection_timeout | default(omit) }}"
+    incus_network_forwards_network_forward_connection_retry_interval: "{{ incus_network_forwards_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_network_forwards }}"
   loop_control:
     label: "{{ incus_network_forwards_network_forward_name }}"

@@ -13,12 +13,15 @@ import os
 import socket
 import ssl
 import tempfile
+import time
 from typing import IO, Any, NamedTuple
 from urllib.parse import quote, urlparse
 
 from ansible.module_utils.basic import AnsibleModule
 
 __all__ = [
+    'INCUS_CONNECTION_RETRY_INTERVAL',
+    'INCUS_CONNECTION_TIMEOUT',
     'INCUS_SOCKET_PATH',
     'IncusClient',
     'IncusClientException',
@@ -28,6 +31,10 @@ __all__ = [
 ]
 
 INCUS_SOCKET_PATH = '/var/lib/incus/unix.socket'
+
+INCUS_CONNECTION_TIMEOUT = 30
+
+INCUS_CONNECTION_RETRY_INTERVAL = 5
 
 _IDEMPOTENT_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS', 'PUT'})
 
@@ -89,6 +96,8 @@ class IncusConnectionParameters(NamedTuple):
     server_cert_path: str | None = None
     token: str | None = None
     validate_certs: bool = True
+    connection_timeout: int = INCUS_CONNECTION_TIMEOUT
+    connection_retry_interval: int = INCUS_CONNECTION_RETRY_INTERVAL
 
 
 class IncusClient:
@@ -166,6 +175,32 @@ class IncusClient:
             return http.client.HTTPSConnection(self.host, self.port, context=context)
         return _UnixSocketHTTPConnection(self.parameters.socket_path)
 
+    def _open_connection(self) -> http.client.HTTPConnection:
+        """
+        Open connection, retrying until timeout.
+
+        >>> client._open_connection()
+        <_UnixSocketHTTPConnection object>
+        """
+        conn = self._connect()
+        deadline = time.monotonic() + self.parameters.connection_timeout
+        while True:
+            try:
+                conn.connect()
+            except ssl.SSLError as exception:
+                conn.close()
+                raise IncusClientException(str(exception)) from exception
+            except OSError as exception:
+                conn.close()
+                if time.monotonic() + self.parameters.connection_retry_interval > deadline:
+                    raise IncusClientException(
+                        f'Incus not reachable at {self.parameters.url or self.parameters.socket_path} '
+                        f'after {self.parameters.connection_timeout}s: {exception}',
+                    ) from exception
+                time.sleep(self.parameters.connection_retry_interval)
+                continue
+            return conn
+
     def _connection(self) -> http.client.HTTPConnection:
         """
         Get connection.
@@ -174,7 +209,7 @@ class IncusClient:
         <_UnixSocketHTTPConnection object>
         """
         if self._conn is None:
-            self._conn = self._connect()
+            self._conn = self._open_connection()
         return self._conn
 
     def _close(self) -> None:
@@ -447,4 +482,9 @@ def incus_create_client(module: AnsibleModule) -> IncusClient:
         server_cert_path=module.params.get('server_cert_path'),
         token=module.params.get('token'),
         validate_certs=module.params.get('validate_certs', True),
+        connection_timeout=module.params.get('connection_timeout', INCUS_CONNECTION_TIMEOUT),
+        connection_retry_interval=module.params.get(
+            'connection_retry_interval',
+            INCUS_CONNECTION_RETRY_INTERVAL,
+        ),
     ))

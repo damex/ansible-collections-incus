@@ -15,6 +15,8 @@
     incus_network_address_sets_network_address_set_server_cert_path: "{{ incus_network_address_sets_server_cert_path | default(omit) }}"
     incus_network_address_sets_network_address_set_token: "{{ incus_network_address_sets_token | default(omit) }}"
     incus_network_address_sets_network_address_set_validate_certs: "{{ incus_network_address_sets_validate_certs }}"
+    incus_network_address_sets_network_address_set_connection_timeout: "{{ incus_network_address_sets_connection_timeout | default(omit) }}"
+    incus_network_address_sets_network_address_set_connection_retry_interval: "{{ incus_network_address_sets_connection_retry_interval | default(omit) }}"
   loop: "{{ incus_network_address_sets }}"
   loop_control:
     label: "{{ incus_network_address_sets_network_address_set_name }}"

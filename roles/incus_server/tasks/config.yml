@@ -14,5 +14,7 @@
     server_cert_path: "{{ incus_server_server_cert_path | default(omit) }}"
     token: "{{ incus_server_token | default(omit) }}"
     validate_certs: "{{ incus_server_validate_certs }}"
+    connection_timeout: "{{ incus_server_connection_timeout | default(omit) }}"
+    connection_retry_interval: "{{ incus_server_connection_retry_interval | default(omit) }}"
   become: true
   register: incus_server_configuration_state
