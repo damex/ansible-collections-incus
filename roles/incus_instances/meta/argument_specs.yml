@@ -748,7 +748,6 @@ argument_specs:
                       passwd:
                         description: Hashed password for the user.
                         type: str
-                        no_log: true
                       plain_text_passwd:
                         description: Plain text password for the user.
                         type: str
@@ -756,7 +755,6 @@ argument_specs:
                       hashed_passwd:
                         description: Pre-hashed password for the user.
                         type: str
-                        no_log: true
                       gecos:
                         description: GECOS field for the user.
                         type: str
@@ -1387,7 +1385,6 @@ argument_specs:
                       passwd:
                         description: Hashed password for the user.
                         type: str
-                        no_log: true
                       plain_text_passwd:
                         description: Plain text password for the user.
                         type: str
@@ -1395,7 +1392,6 @@ argument_specs:
                       hashed_passwd:
                         description: Pre-hashed password for the user.
                         type: str
-                        no_log: true
                       gecos:
                         description: GECOS field for the user.
                         type: str

@@ -145,9 +145,7 @@ def test_collect_config_cloud_init_secrets() -> None:
     result = incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS)
     assert result == {
         'defaultpass',
-        'hashpass',
         'plainpass',
-        'hashedpass',
         'rootpass',
     }
 
@@ -170,7 +168,7 @@ def test_collect_config_cloud_init_folded_value() -> None:
 def test_collect_config_cloud_init_quoted_value() -> None:
     """Mask secret quoted by YAML and keep rest of document."""
     config = incus_stringify_instance_config({
-        'cloud-init.user-data': {'users': [{'name': 'admin', 'passwd': "it's: secret"}]},
+        'cloud-init.user-data': {'users': [{'name': 'admin', 'plain_text_passwd': "it's: secret"}]},
     })
     rendered = config['cloud-init.user-data']
     masked = _mask(rendered, incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS))
