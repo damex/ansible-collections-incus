@@ -16,6 +16,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_write_delete,
     assert_write_delete_missing,
     assert_write_check_mode,
+    capture_registered_secrets,
 )
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     'test_create_storage_with_target_filters_config',
     'test_update_storage_with_target',
     'test_skip_matching_storage_with_target',
+    'test_register_current_secrets',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_storage'
@@ -192,3 +194,15 @@ def test_skip_matching_storage_with_target() -> None:
         'config': {'source': '/dev/sda'},
     }
     assert_write_skip(main, MODULE, module, current)
+
+
+def test_register_current_secrets() -> None:
+    """Register previous TrueNAS API key from current config."""
+    module = _mock_module()
+    module.params['config'] = {'truenas.api_key': 'newkey'}
+    with capture_registered_secrets() as registered:
+        assert_write_update(main, MODULE, module, {
+            'description': '',
+            'config': {'truenas.api_key': 'oldkey'},
+        })
+    assert registered == {'oldkey'}

@@ -12,7 +12,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import incus_str
 from ansible_collections.damex.incus.plugins.module_utils.instance_config import INCUS_INSTANCE_CONFIG_OPTIONS
 from ansible_collections.damex.incus.plugins.module_utils.secret import (
     incus_secret_collect_config,
-    incus_secret_register_config,
+    incus_secret_register_configs,
 )
 
 __all__ = [
@@ -21,14 +21,18 @@ __all__ = [
     'test_collect_config_skips_unknown_key',
     'test_collect_config_list_prefix',
     'test_collect_config_list_dotted_field',
+    'test_collect_config_list_dotted_name',
     'test_collect_config_list_skips_other_prefix',
     'test_collect_config_cloud_init_secrets',
     'test_collect_config_cloud_init_folded_value',
+    'test_collect_config_cloud_init_quoted_value',
+    'test_collect_config_cloud_init_complex_key',
     'test_collect_config_cloud_init_without_secrets',
     'test_collect_config_cloud_init_invalid_yaml',
     'test_collect_config_cloud_init_not_mapping',
     'test_collect_config_cloud_init_without_yaml',
-    'test_register_config_registers_collected',
+    'test_register_configs_registers_collected',
+    'test_register_configs_registers_all_configs_once',
 ]
 
 SECRET_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.secret'
@@ -59,6 +63,14 @@ NETWORK_OPTIONS: dict[str, Any] = {
         },
     },
 }
+
+
+def _mask(document: str, secrets: set[str]) -> str:
+    """Replace secrets in document, longest first."""
+    masked = document
+    for secret in sorted(secrets, key=len, reverse=True):
+        masked = masked.replace(secret, '$REDACTED$')
+    return masked
 
 
 def test_collect_config_flat_no_log() -> None:
@@ -100,6 +112,13 @@ def test_collect_config_list_dotted_field() -> None:
     assert result == {'targetpass'}
 
 
+def test_collect_config_list_dotted_name() -> None:
+    """Collect no_log field when item name contains dots."""
+    config = {'bgp.peers.edge.router.password': 'edgepass', 'bgp.peers.edge.router.asn': '64601'}
+    result = incus_secret_collect_config(config, NETWORK_OPTIONS, {'bgp_peers': 'bgp.peers'})
+    assert result == {'edgepass'}
+
+
 def test_collect_config_list_skips_other_prefix() -> None:
     """Skip keys outside list prefix."""
     config = {'tunnel.site.password': 'notsecret'}
@@ -125,7 +144,6 @@ def test_collect_config_cloud_init_secrets() -> None:
     })
     result = incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS)
     assert result == {
-        config['cloud-init.user-data'],
         'defaultpass',
         'hashpass',
         'plainpass',
@@ -135,14 +153,35 @@ def test_collect_config_cloud_init_secrets() -> None:
 
 
 def test_collect_config_cloud_init_folded_value() -> None:
-    """Collect rendered document when YAML folds multi-line secret."""
+    """Mask multi-line secret folded by YAML and keep rest of document."""
     private_key = '-----BEGIN OPENSSH PRIVATE KEY-----\nKEYLINEONE\nKEYLINETWO\n-----END OPENSSH PRIVATE KEY-----\n'
     config = incus_stringify_instance_config({
-        'cloud-init.vendor-data': {'ssh_keys': {'ed25519_private': private_key}},
+        'cloud-init.vendor-data': {'ssh_keys': {'ed25519_private': private_key}, 'hostname': 'web'},
     })
     rendered = config['cloud-init.vendor-data']
+    result = incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS)
     assert private_key not in rendered
-    assert incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS) == {rendered, private_key}
+    assert rendered not in result
+    masked = _mask(rendered, result)
+    assert 'KEYLINEONE' not in masked
+    assert 'hostname: web' in masked
+
+
+def test_collect_config_cloud_init_quoted_value() -> None:
+    """Mask secret quoted by YAML and keep rest of document."""
+    config = incus_stringify_instance_config({
+        'cloud-init.user-data': {'users': [{'name': 'admin', 'passwd': "it's: secret"}]},
+    })
+    rendered = config['cloud-init.user-data']
+    masked = _mask(rendered, incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS))
+    assert 'secret' not in masked
+    assert 'name: admin' in masked
+
+
+def test_collect_config_cloud_init_complex_key() -> None:
+    """Skip non-scalar mapping key."""
+    config = {'cloud-init.user-data': '#cloud-config\n? [a, b]\n: value\npassword: pass\n'}
+    assert incus_secret_collect_config(config, INCUS_INSTANCE_CONFIG_OPTIONS) == {'pass'}
 
 
 def test_collect_config_cloud_init_without_secrets() -> None:
@@ -175,8 +214,18 @@ def test_collect_config_cloud_init_without_yaml() -> None:
     assert result == {'#cloud-config\nhostname: web\n'}
 
 
-def test_register_config_registers_collected() -> None:
+def test_register_configs_registers_collected() -> None:
     """Register collected values."""
     with patch(f'{SECRET_UTILS}.register_secrets') as mock_register_secrets:
-        incus_secret_register_config({'loki.auth.password': 'lokipass'}, SERVER_OPTIONS)
+        incus_secret_register_configs([{'loki.auth.password': 'lokipass'}], SERVER_OPTIONS)
     mock_register_secrets.assert_called_once_with({'lokipass'})
+
+
+def test_register_configs_registers_all_configs_once() -> None:
+    """Register values from every config in one call."""
+    with patch(f'{SECRET_UTILS}.register_secrets') as mock_register_secrets:
+        incus_secret_register_configs(
+            [{'loki.auth.password': 'oldpass'}, {'loki.auth.password': 'newpass'}],
+            SERVER_OPTIONS,
+        )
+    mock_register_secrets.assert_called_once_with({'oldpass', 'newpass'})

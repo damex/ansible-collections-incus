@@ -1,0 +1,159 @@
+# Copyright: Roman Kuzmitskii <ansible@damex.org>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+"""
+Incus network config argument spec options.
+"""
+
+from __future__ import annotations
+
+__all__ = [
+    'INCUS_NETWORK_CONFIG_OPTIONS',
+]
+
+INCUS_NETWORK_CONFIG_OPTIONS = {
+    'bridge.driver': {
+        'type': 'str',
+        'choices': [
+            'native',
+            'openvswitch',
+        ],
+    },
+    'bridge.external_interfaces': {'type': 'str'},
+    'bridge.hwaddr': {'type': 'str'},
+    'bridge.mtu': {'type': 'str'},
+    'dns.domain': {'type': 'str'},
+    'dns.include_hosts': {'type': 'bool'},
+    'dns.mode': {
+        'type': 'str',
+        'choices': [
+            'managed',
+            'dynamic',
+            'none',
+        ],
+    },
+    'dns.nameservers': {'type': 'str'},
+    'dns.search': {'type': 'str'},
+    'dns.zone.forward': {'type': 'str'},
+    'dns.zone.reverse.ipv4': {'type': 'str'},
+    'dns.zone.reverse.ipv6': {'type': 'str'},
+    'ipv4.address': {'type': 'str'},
+    'ipv4.dhcp': {'type': 'bool'},
+    'ipv4.dhcp.expiry': {'type': 'str'},
+    'ipv4.dhcp.gateway': {'type': 'str'},
+    'ipv4.dhcp.ranges': {'type': 'str'},
+    'ipv4.dhcp.routes': {'type': 'str'},
+    'ipv4.firewall': {'type': 'bool'},
+    'ipv4.gateway': {'type': 'str'},
+    'ipv4.gateway.hwaddr': {'type': 'str'},
+    'ipv4.nat': {'type': 'bool'},
+    'ipv4.nat.address': {'type': 'str'},
+    'ipv4.nat.order': {
+        'type': 'str',
+        'choices': [
+            'before',
+            'after',
+        ],
+    },
+    'ipv4.routes': {'type': 'str'},
+    'ipv4.routes.anycast': {'type': 'bool'},
+    'ipv4.routing': {'type': 'bool'},
+    'ipv6.address': {'type': 'str'},
+    'ipv6.dhcp': {'type': 'bool'},
+    'ipv6.dhcp.expiry': {'type': 'str'},
+    'ipv6.dhcp.ranges': {'type': 'str'},
+    'ipv6.dhcp.stateful': {'type': 'bool'},
+    'ipv6.firewall': {'type': 'bool'},
+    'ipv6.gateway': {'type': 'str'},
+    'ipv6.gateway.hwaddr': {'type': 'str'},
+    'ipv6.nat': {'type': 'bool'},
+    'ipv6.nat.address': {'type': 'str'},
+    'ipv6.nat.order': {
+        'type': 'str',
+        'choices': [
+            'before',
+            'after',
+        ],
+    },
+    'ipv6.routes': {'type': 'str'},
+    'ipv6.routes.anycast': {'type': 'bool'},
+    'ipv6.routing': {'type': 'bool'},
+    'raw.dnsmasq': {'type': 'str'},
+    'security.acls': {'type': 'str'},
+    'security.acls.default.egress.action': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'reject',
+            'drop',
+        ],
+    },
+    'security.acls.default.egress.logged': {'type': 'bool'},
+    'security.acls.default.ingress.action': {
+        'type': 'str',
+        'choices': [
+            'allow',
+            'reject',
+            'drop',
+        ],
+    },
+    'security.acls.default.ingress.logged': {'type': 'bool'},
+    'bgp.ipv4.nexthop': {'type': 'str'},
+    'bgp.ipv6.nexthop': {'type': 'str'},
+    'gvrp': {'type': 'bool'},
+    'mtu': {'type': 'str'},
+    'parent': {'type': 'str'},
+    'vlan': {'type': 'int'},
+    'vlan.tagged': {'type': 'str'},
+    'bgp_peers': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {
+                'type': 'str',
+                'required': True,
+            },
+            'address': {'type': 'str'},
+            'interface': {'type': 'str'},
+            'asn': {
+                'type': 'int',
+                'required': True,
+            },
+            'holdtime': {'type': 'int'},
+            'password': {
+                'type': 'str',
+                'no_log': True,
+            },
+        },
+        'required_one_of': [
+            ['address', 'interface'],
+        ],
+        'mutually_exclusive': [
+            ['address', 'interface'],
+        ],
+    },
+    'tunnels': {
+        'type': 'list',
+        'elements': 'dict',
+        'options': {
+            'name': {
+                'type': 'str',
+                'required': True,
+            },
+            'protocol': {
+                'type': 'str',
+                'choices': [
+                    'vxlan',
+                    'gre',
+                ],
+            },
+            'local': {'type': 'str'},
+            'remote': {'type': 'str'},
+            'group': {'type': 'str'},
+            'id': {'type': 'int'},
+            'port': {'type': 'int'},
+            'interface': {'type': 'str'},
+            'ttl': {'type': 'int'},
+        },
+    },
+}

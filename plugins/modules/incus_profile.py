@@ -83,11 +83,13 @@ from ansible_collections.damex.incus.plugins.module_utils.instance_config import
 )
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     INCUS_COMMON_ARGUMENT_SPEC,
+    IncusResourceOptions,
     incus_build_desired,
     incus_create_write_module,
     incus_ensure_resource,
     incus_run_write_module,
 )
+from ansible_collections.damex.incus.plugins.module_utils.secret import incus_secret_register_configs
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -120,7 +122,19 @@ def main() -> None:
         module,
         config_key_values={'environment_variables': 'environment'},
     )
-    incus_run_write_module(module, lambda: incus_ensure_resource(module, 'profiles', desired))
+    incus_secret_register_configs(
+        [desired['config']],
+        INCUS_INSTANCE_CONFIG_OPTIONS,
+    )
+    incus_run_write_module(
+        module,
+        lambda: incus_ensure_resource(
+            module,
+            'profiles',
+            desired,
+            IncusResourceOptions(config_options=INCUS_INSTANCE_CONFIG_OPTIONS),
+        ),
+    )
 
 
 if __name__ == '__main__':

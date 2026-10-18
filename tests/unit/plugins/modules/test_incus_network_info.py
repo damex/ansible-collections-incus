@@ -11,6 +11,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_info_not_found,
     assert_info_all,
     assert_info_fail,
+    capture_registered_secrets,
 )
 
 __all__ = [
@@ -18,6 +19,7 @@ __all__ = [
     'test_return_empty_for_missing_network',
     'test_return_all_networks',
     'test_fail_on_network_exception',
+    'test_register_network_secrets',
 ]
 
 
@@ -40,3 +42,17 @@ def test_return_all_networks() -> None:
 def test_fail_on_network_exception() -> None:
     """Fail on client exception."""
     assert_info_fail(main)
+
+
+def test_register_network_secrets() -> None:
+    """Register flattened BGP peer password."""
+    with capture_registered_secrets() as registered:
+        assert_info_by_name(
+            main,
+            'networks',
+            {
+                'name': 'bgpbr0',
+                'config': {'bgp.peers.router.asn': '64601', 'bgp.peers.router.password': 'bgppass'},
+            },
+        )
+    assert registered == {'bgppass'}

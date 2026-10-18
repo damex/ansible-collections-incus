@@ -76,6 +76,9 @@ networks:
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_ensure_info,
 )
+from ansible_collections.damex.incus.plugins.module_utils.network_config import (
+    INCUS_NETWORK_CONFIG_OPTIONS,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -86,7 +89,12 @@ def main() -> None:
 
     >>> main()
     """
-    module, result = incus_ensure_info('networks', project_scoped=True)
+    module, result = incus_ensure_info(
+        'networks',
+        project_scoped=True,
+        config_options=INCUS_NETWORK_CONFIG_OPTIONS,
+        config_lists={'bgp_peers': 'bgp.peers', 'tunnels': 'tunnel'},
+    )
     module.exit_json(networks=result)
 
 

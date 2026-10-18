@@ -45,6 +45,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_source import (
     incus_build_query,
     incus_build_source,
 )
+from ansible_collections.damex.incus.plugins.module_utils.secret import incus_secret_register_configs
 
 __all__ = [
     'INCUS_COMMON_ARGUMENT_SPEC',
@@ -261,6 +262,8 @@ class IncusResourceOptions(NamedTuple):
     name_key: str = 'name'
     immutable_config_keys: frozenset[str] = frozenset()
     is_node_specific: collections.abc.Callable[[str], bool] | None = None
+    config_options: dict[str, Any] | None = None
+    config_lists: dict[str, str] | None = None
 
 
 class IncusResourceState(NamedTuple):
@@ -528,6 +531,29 @@ def _incus_ensure_present(
     return incus_build_result(False)
 
 
+def _incus_register_resource_secrets(
+    current: dict[str, Any],
+    options: IncusResourceOptions,
+) -> None:
+    """
+    Register current config secrets.
+
+    >>> _incus_register_resource_secrets(
+    ...     {'config': {'truenas.api_key': 'old'}},
+    ...     IncusResourceOptions(
+    ...         config_options={'truenas.api_key': {'type': 'str', 'no_log': True}},
+    ...     ),
+    ... )
+    """
+    if options.config_options is None:
+        return
+    incus_secret_register_configs(
+        [current.get('config', {})],
+        options.config_options,
+        options.config_lists,
+    )
+
+
 def incus_ensure_resource(
     module: AnsibleModule,
     resource: str,
@@ -557,6 +583,8 @@ def incus_ensure_resource(
         except IncusNotFoundException:
             current = {}
             exists = False
+
+        _incus_register_resource_secrets(current, opts)
 
         if module.params['state'] == 'present':
             return _incus_ensure_present(
@@ -713,6 +741,8 @@ def incus_run_info_module(
 def incus_ensure_info(
     resource: str,
     project_scoped: bool = False,
+    config_options: dict[str, Any] | None = None,
+    config_lists: dict[str, str] | None = None,
 ) -> tuple[AnsibleModule, list[Any]]:
     """
     Build info module and fetch resource list.
@@ -724,7 +754,15 @@ def incus_ensure_info(
     if project_scoped:
         args['project'] = {'type': 'str', 'default': 'default'}
     module = incus_create_info_module(args)
-    return module, incus_run_info_module(module, resource)
+    result = incus_run_info_module(module, resource)
+    if config_options is not None:
+        for item in result:
+            incus_secret_register_configs(
+                [item.get('config', {}), item.get('expanded_config', {})],
+                config_options,
+                config_lists,
+            )
+    return module, result
 
 
 def incus_create_info_module(argument_spec: dict[str, Any]) -> AnsibleModule:

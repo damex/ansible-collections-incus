@@ -16,6 +16,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_write_delete,
     assert_write_delete_missing,
     assert_write_check_mode,
+    capture_registered_secrets,
 )
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     'test_profile_check_mode',
     'test_create_profile_environment_variables',
     'test_skip_matching_profile_environment_variables',
+    'test_register_current_and_desired_secrets',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_profile'
@@ -148,3 +150,16 @@ def test_skip_matching_profile_environment_variables() -> None:
         'config': {'environment.HTTP_PROXY': 'http://proxy:3128'},
         'devices': {},
     })
+
+
+def test_register_current_and_desired_secrets() -> None:
+    """Register rotated cloud-init password from current and desired config."""
+    module = _mock_module()
+    module.params['config'] = {'cloud-init.user-data': {'password': 'newpass'}}
+    with capture_registered_secrets() as registered:
+        assert_write_update(main, MODULE, module, {
+            'description': '',
+            'config': {'cloud-init.user-data': '#cloud-config\npassword: oldpass\n'},
+            'devices': {},
+        })
+    assert registered == {'oldpass', 'newpass'}

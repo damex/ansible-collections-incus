@@ -70,6 +70,9 @@ profiles:
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_ensure_info,
 )
+from ansible_collections.damex.incus.plugins.module_utils.instance_config import (
+    INCUS_INSTANCE_CONFIG_OPTIONS,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -80,7 +83,11 @@ def main() -> None:
 
     >>> main()
     """
-    module, result = incus_ensure_info('profiles', project_scoped=True)
+    module, result = incus_ensure_info(
+        'profiles',
+        project_scoped=True,
+        config_options=INCUS_INSTANCE_CONFIG_OPTIONS,
+    )
     module.exit_json(profiles=result)
 
 

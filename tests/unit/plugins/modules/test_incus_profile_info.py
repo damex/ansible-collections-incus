@@ -11,6 +11,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_info_not_found,
     assert_info_all,
     assert_info_fail,
+    capture_registered_secrets,
 )
 
 __all__ = [
@@ -18,6 +19,7 @@ __all__ = [
     'test_return_empty_for_missing_profile',
     'test_return_all_profiles',
     'test_fail_on_profile_exception',
+    'test_register_profile_secrets',
 ]
 
 
@@ -40,3 +42,15 @@ def test_return_all_profiles() -> None:
 def test_fail_on_profile_exception() -> None:
     """Fail on client exception."""
     assert_info_fail(main)
+
+
+def test_register_profile_secrets() -> None:
+    """Register profile cloud-init secrets."""
+    user_data = '#cloud-config\npassword: profilepass\n'
+    with capture_registered_secrets() as registered:
+        assert_info_by_name(
+            main,
+            'profiles',
+            {'name': 'default', 'config': {'cloud-init.user-data': user_data}},
+        )
+    assert registered == {'profilepass'}

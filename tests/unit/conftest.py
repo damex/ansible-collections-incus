@@ -37,6 +37,7 @@ __all__ = [
     'assert_write_check_mode',
     'assert_write_fail_create',
     'assert_exit_changed',
+    'capture_registered_secrets',
     'mock_incus_client',
     'run_module_main',
 ]
@@ -57,6 +58,8 @@ CONNECTION_PARAMS: dict[str, Any] = {
 
 INCUS_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.incus'
 
+SECRET_UTILS: str = 'ansible_collections.damex.incus.plugins.module_utils.secret'
+
 
 def mock_incus_client() -> MagicMock:
     """
@@ -68,6 +71,14 @@ def mock_incus_client() -> MagicMock:
     client.__enter__ = MagicMock(return_value=client)
     client.__exit__ = MagicMock(return_value=False)
     return client
+
+
+@contextmanager
+def capture_registered_secrets() -> collections.abc.Generator[set[str], None, None]:
+    """Collect values passed to register_secrets."""
+    registered: set[str] = set()
+    with patch(f'{SECRET_UTILS}.register_secrets', side_effect=registered.update):
+        yield registered
 
 
 @contextmanager

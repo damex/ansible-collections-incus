@@ -15,6 +15,7 @@ from ansible_collections.damex.incus.plugins.modules.incus_server import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
     CONNECTION_PARAMS,
     assert_exit_changed,
+    capture_registered_secrets,
     mock_incus_client,
 )
 
@@ -30,6 +31,7 @@ __all__ = [
     'test_init_check_mode',
     'test_server_check_mode',
     'test_server_fail_on_exception',
+    'test_register_current_secrets',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_server'
@@ -240,3 +242,31 @@ def test_server_fail_on_exception() -> None:
     client.get.side_effect = IncusClientException('connection refused')
     _run_main(module, client)
     module.fail_json.assert_called_once_with(msg='connection refused')
+
+
+def test_register_current_secrets() -> None:
+    """Register previous flat and logging target passwords from current config."""
+    module = _mock_module(config={
+        'loki.auth.password': 'newloki',
+        'logging': [
+            {
+                'name': 'remote',
+                'target.type': 'loki',
+                'target.address': 'https://loki:3100',
+                'target.password': 'newtarget',
+            },
+        ],
+    })
+    client = mock_incus_client()
+    client.get.return_value = {
+        'metadata': {
+            'config': {
+                'loki.auth.password': 'oldloki',
+                'logging.remote.target.password': 'oldtarget',
+            },
+        },
+    }
+    client.put.return_value = {'type': 'sync'}
+    with capture_registered_secrets() as registered:
+        _run_main(module, client)
+    assert registered == {'oldloki', 'oldtarget'}

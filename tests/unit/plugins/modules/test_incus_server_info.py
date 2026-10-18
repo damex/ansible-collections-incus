@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 from ansible_collections.damex.incus.plugins.module_utils.incus_client import IncusClientException
 from ansible_collections.damex.incus.plugins.modules.incus_server_info import main
 from ansible_collections.damex.incus.tests.unit.conftest import (
+    capture_registered_secrets,
     mock_incus_client,
     run_main,
 )
@@ -18,6 +19,7 @@ __all__ = [
     'test_return_server_metadata',
     'test_return_empty_metadata',
     'test_fail_on_client_exception',
+    'test_register_server_config_secrets',
 ]
 
 
@@ -60,3 +62,23 @@ def test_fail_on_client_exception(mock_create_module: MagicMock, mock_create_cli
     client.get.side_effect = IncusClientException('connection refused')
     run_main(mock_create_module, mock_create_client, module, client, main)
     module.fail_json.assert_called_once_with(msg='connection refused')
+
+
+@patch('ansible_collections.damex.incus.plugins.modules.incus_server_info.incus_create_client')
+@patch('ansible_collections.damex.incus.plugins.modules.incus_server_info.incus_create_info_module')
+def test_register_server_config_secrets(mock_create_module: MagicMock, mock_create_client: MagicMock) -> None:
+    """Register flat and logging target secrets from server config."""
+    module = _mock_info_module()
+    client = mock_incus_client()
+    client.get.return_value = {
+        'metadata': {
+            'config': {
+                'core.https_address': ':8443',
+                'authorization.openfga.api.token': 'fgatoken',
+                'logging.remote.target.password': 'targetpass',
+            },
+        },
+    }
+    with capture_registered_secrets() as registered:
+        run_main(mock_create_module, mock_create_client, module, client, main)
+    assert registered == {'fgatoken', 'targetpass'}

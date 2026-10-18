@@ -46,6 +46,8 @@ __all__ = [
     'test_ensure_resource_encodes_name_on_delete',
     'test_ensure_resource_update_extra_config_keys',
     'test_ensure_resource_update_extra_device_keys',
+    'test_ensure_resource_registers_current_config_secrets',
+    'test_ensure_resource_skips_secrets_without_config_options',
 ]
 
 
@@ -506,3 +508,43 @@ def test_ensure_resource_update_extra_device_keys(mock_create_client: MagicMock)
     result = incus_ensure_resource(module, 'profiles', desired)
     assert result['changed'] is True
     client.put.assert_called_once()
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_secret_register_configs')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_registers_current_config_secrets(
+    mock_create_client: MagicMock,
+    mock_register_config: MagicMock,
+) -> None:
+    """Register current config secrets."""
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': {'description': '', 'config': {'truenas.api_key': 'old'}}}
+    client.put.return_value = {'type': 'sync'}
+    mock_create_client.return_value = client
+    config_options = {'truenas.api_key': {'type': 'str', 'no_log': True}}
+    module = _ensure_module()
+    desired = {'description': '', 'config': {'truenas.api_key': 'new'}}
+    incus_ensure_resource(
+        module, 'storage-pools', desired,
+        IncusResourceOptions(config_options=config_options),
+    )
+    mock_register_config.assert_called_once_with(
+        [{'truenas.api_key': 'old'}],
+        config_options,
+        None,
+    )
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_secret_register_configs')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_resource_skips_secrets_without_config_options(
+    mock_create_client: MagicMock,
+    mock_register_config: MagicMock,
+) -> None:
+    """Skip secret registration without config options."""
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': {'description': '', 'config': {}}}
+    mock_create_client.return_value = client
+    module = _ensure_module()
+    incus_ensure_resource(module, 'projects', {'description': '', 'config': {}})
+    mock_register_config.assert_not_called()

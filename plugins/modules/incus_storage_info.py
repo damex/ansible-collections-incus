@@ -73,6 +73,9 @@ storage_pools:
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_ensure_info,
 )
+from ansible_collections.damex.incus.plugins.module_utils.storage_config import (
+    INCUS_STORAGE_CONFIG_OPTIONS,
+)
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -83,7 +86,10 @@ def main() -> None:
 
     >>> main()
     """
-    module, result = incus_ensure_info('storage-pools')
+    module, result = incus_ensure_info(
+        'storage-pools',
+        config_options=INCUS_STORAGE_CONFIG_OPTIONS,
+    )
     module.exit_json(storage_pools=result)
 
 

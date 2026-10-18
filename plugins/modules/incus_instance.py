@@ -132,6 +132,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_run_write_module,
     incus_wait,
 )
+from ansible_collections.damex.incus.plugins.module_utils.secret import incus_secret_register_configs
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -388,6 +389,10 @@ def main() -> None:
             built = incus_build_desired(
                 module,
                 config_key_values={'environment_variables': 'environment'},
+            )
+            incus_secret_register_configs(
+                [current.get('config', {}), built['config']],
+                INCUS_INSTANCE_CONFIG_OPTIONS,
             )
             desired = IncusInstanceDesired(
                 description=built['description'],

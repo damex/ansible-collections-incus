@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
@@ -18,6 +18,7 @@ from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_build_desired,
     incus_build_query,
     incus_build_source,
+    incus_ensure_info,
     incus_find_certificate,
     incus_resolve_image_alias,
     incus_run_info_module,
@@ -82,6 +83,8 @@ __all__ = [
     'test_run_info_module_client_exception',
     'test_run_info_module_encodes_name',
     'test_run_info_module_encodes_project',
+    'test_ensure_info_registers_config_secrets',
+    'test_ensure_info_skips_secrets_without_config_options',
     'test_find_certificate_found',
     'test_find_certificate_not_found',
     'test_find_certificate_empty_list',
@@ -602,6 +605,57 @@ def test_run_info_module_client_exception(mock_create_client: MagicMock) -> None
     with pytest.raises(SystemExit):
         incus_run_info_module(module, 'storage-pools')
     module.fail_json.assert_called_once_with(msg='connection refused')
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_secret_register_configs')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_info_module')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_info_registers_config_secrets(
+    mock_create_client: MagicMock,
+    mock_create_info_module: MagicMock,
+    mock_register_config: MagicMock,
+) -> None:
+    """Register config and expanded config secrets of every returned item."""
+    client = mock_incus_client()
+    client.get.return_value = {
+        'metadata': [
+            {
+                'name': 'web',
+                'config': {'cloud-init.user-data': 'own'},
+                'expanded_config': {'cloud-init.user-data': 'merged'},
+            },
+            {'name': 'db'},
+        ],
+    }
+    mock_create_client.return_value = client
+    mock_create_info_module.return_value = _info_module()
+    config_options = {'cloud-init.user-data': {'type': 'dict', 'options': {}}}
+    incus_ensure_info('instances', config_options=config_options)
+    assert mock_register_config.call_args_list == [
+        call(
+            [{'cloud-init.user-data': 'own'}, {'cloud-init.user-data': 'merged'}],
+            config_options,
+            None,
+        ),
+        call([{}, {}], config_options, None),
+    ]
+
+
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_secret_register_configs')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_info_module')
+@patch('ansible_collections.damex.incus.plugins.module_utils.incus.incus_create_client')
+def test_ensure_info_skips_secrets_without_config_options(
+    mock_create_client: MagicMock,
+    mock_create_info_module: MagicMock,
+    mock_register_config: MagicMock,
+) -> None:
+    """Skip secret registration without config options."""
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': [{'name': 'pool1', 'config': {}}]}
+    mock_create_client.return_value = client
+    mock_create_info_module.return_value = _info_module()
+    incus_ensure_info('storage-pools')
+    mock_register_config.assert_not_called()
 
 
 def test_find_certificate_found() -> None:

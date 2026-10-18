@@ -61,6 +61,10 @@ from ansible_collections.damex.incus.plugins.module_utils.incus_client import (
 from ansible_collections.damex.incus.plugins.module_utils.incus import (
     incus_create_info_module,
 )
+from ansible_collections.damex.incus.plugins.module_utils.server_config import (
+    incus_build_server_config_options,
+)
+from ansible_collections.damex.incus.plugins.module_utils.secret import incus_secret_register_configs
 
 __all__ = ['DOCUMENTATION', 'EXAMPLES', 'RETURN', 'main']
 
@@ -79,6 +83,11 @@ def main() -> None:
     except IncusClientException as exception:
         module.fail_json(msg=str(exception))
         return
+    incus_secret_register_configs(
+        [server.get('config', {})],
+        incus_build_server_config_options(),
+        {'logging': 'logging'},
+    )
     module.exit_json(server=server)
 
 

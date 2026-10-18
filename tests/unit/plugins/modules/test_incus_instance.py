@@ -29,6 +29,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_write_delete,
     assert_write_delete_missing,
     assert_write_fail_create,
+    capture_registered_secrets,
     run_module_main,
 )
 
@@ -60,6 +61,7 @@ __all__ = [
     'test_main_start_stopped_existing',
     'test_main_environment_variables_create',
     'test_main_environment_variables_skip_matching',
+    'test_main_register_current_and_desired_secrets',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_instance'
@@ -339,3 +341,20 @@ def test_main_environment_variables_skip_matching() -> None:
     }}
     run_module_main(MODULE, module, client, main)
     assert_exit_changed(module, False)
+
+
+def test_main_register_current_and_desired_secrets() -> None:
+    """Register rotated cloud-init password from current and desired config."""
+    module = _mock_module()
+    module.params['config'] = {'cloud-init.user-data': {'password': 'newpass'}}
+    client = mock_incus_client()
+    client.get.return_value = {'metadata': {
+        'name': 'test', 'status': 'Running', 'architecture': 'x86_64',
+        'description': '', 'config': {
+            'cloud-init.user-data': '#cloud-config\npassword: oldpass\n',
+        }, 'devices': {}, 'profiles': ['default'],
+    }}
+    client.put.return_value = {'type': 'sync'}
+    with capture_registered_secrets() as registered:
+        run_module_main(MODULE, module, client, main)
+    assert registered == {'oldpass', 'newpass'}

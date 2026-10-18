@@ -16,6 +16,7 @@ from ansible_collections.damex.incus.tests.unit.conftest import (
     assert_write_delete,
     assert_write_delete_missing,
     assert_write_check_mode,
+    capture_registered_secrets,
 )
 
 __all__ = [
@@ -36,6 +37,7 @@ __all__ = [
     'test_update_network_with_target',
     'test_skip_matching_network_with_target',
     'test_create_network_with_target_filters_tunnel_keys',
+    'test_register_current_secrets',
 ]
 
 MODULE = 'ansible_collections.damex.incus.plugins.modules.incus_network'
@@ -274,3 +276,23 @@ def test_create_network_with_target_filters_tunnel_keys() -> None:
     assert post_data['config']['tunnel.site2.interface'] == 'tun0'
     assert 'tunnel.site2.protocol' not in post_data['config']
     assert 'tunnel.site2.remote' not in post_data['config']
+
+
+def test_register_current_secrets() -> None:
+    """Register previous BGP peer password from current config."""
+    module = _mock_module()
+    module.params['config'] = {
+        'bgp_peers': [
+            {'name': 'router', 'address': '10.0.0.1', 'asn': 64601, 'holdtime': None, 'password': 'newbgp'},
+        ],
+    }
+    with capture_registered_secrets() as registered:
+        assert_write_update(main, MODULE, module, {
+            'description': '',
+            'config': {
+                'bgp.peers.router.address': '10.0.0.1',
+                'bgp.peers.router.asn': '64601',
+                'bgp.peers.router.password': 'oldbgp',
+            },
+        })
+    assert registered == {'oldbgp'}
