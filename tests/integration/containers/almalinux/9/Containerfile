@@ -1,5 +1,5 @@
 FROM docker.io/library/almalinux:9
-RUN dnf install --assumeyes epel-release python3.12 python3.12-pip python3.12-cryptography systemd openssh-server iproute && \
+RUN dnf install --assumeyes epel-release python3.14 python3.14-pip python3.14-cryptography systemd openssh-server iproute && \
     dnf clean all && \
     ssh-keygen -A && \
     echo 'PermitRootLogin yes' > /etc/ssh/sshd_config.d/PermitRootLogin.conf
